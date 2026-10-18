@@ -74,7 +74,7 @@ seeni/
   .github/workflows/pages.yml
 ```
 
-- **Gitiin eivät mene** kuvat eivätkä checkpointit. Ne ovat polussa `~/seeni-data`, ja `.gitignore` estää niiden lisäämisen. Poikkeuksia ovat sovelluksen mukana julkaistavat tiedostot (`web/public/`, `web/src/`: malli, ikonit ja tarkistusten kuvat) sekä yhdenmukaisuustestin kultaiset testikuvat (`web/tests/fixtures/`, vaihe 8). Nekin ovat CC0- tai CC-BY-kuvia, joten niiden attribuutiot kirjataan `ATTRIBUTIONS.md`:hen.
+- **Gitiin eivät mene** kuvat eivätkä checkpointit. Ne ovat polussa `~/seeni-data`, ja `.gitignore` estää niiden lisäämisen. Poikkeuksia ovat julkaistava malli (`web/public/models/`), kuvat kansioissa `web/`, `species/` ja `docs/` (ikonit, tarkistusten kuvat, kuvakaappaukset), testien kultaiset testikuvat (`tests/fixtures/`, vaihe 8) ja attribuutiodata (`data-meta/`). Muiden kuin omien kuvien pitää olla CC0- tai CC-BY-kuvia, ja niiden attribuutiot kirjataan `ATTRIBUTIONS.md`:hen.
 - **Valmis ONNX-malli** (10–30 Mt) mahtuu gitiin hyvin, koska GitHubin raja on 100 Mt tiedostoa kohden. Versioi malli kansiolla (`v1`, `v2`), jotta selaimen välimuisti päivittyy.
 - **CLAUDE.md** on tärkeä tiedosto, koska teet projektin agenteilla. Siihen on kirjattu sitovat säännöt, jotka eivät saa ajautua: esikäsittely on määritelty yhdessä tiedostossa, lajien järjestys tulee aina `labels.json`-tiedostosta, ja vain CC0/CC-BY-kuvia saa käyttää.
 

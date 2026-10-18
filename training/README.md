@@ -11,4 +11,4 @@ uv run pytest
 
 PyTorch comes from PyPI, whose Linux wheels are CUDA builds.
 
-Data (images, manifest, embeddings, checkpoints) lives in `~/seeni-data` on the WSL filesystem, never in git. Set `SEENI_DATA` to use another directory.
+Data (images, manifest, embeddings, checkpoints) lives in `~/seeni-data` on the WSL filesystem, never in git. Set `SEENI_DATA` to another absolute path to move it; `seeni.paths.data_dir()` refuses paths inside the repo or under `/mnt`.

@@ -37,7 +37,8 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 ## Technical notes
 
 **Training**
-- PyTorch comes from PyPI (`uv sync` in `training/`). Its Linux wheels are CUDA builds, currently CUDA 13, which needs a Windows NVIDIA driver from the R580 series or newer. Do not add download.pytorch.org as a package index: cloud agent sessions cannot reach it.
+- PyTorch comes from PyPI (`uv sync` in `training/`). Its Linux wheels are CUDA builds, currently CUDA 13, which needs a Windows NVIDIA driver from the R580 series or newer. Keep it on PyPI if you can: cloud agent sessions cannot reach download.pytorch.org, so a lock that needs it cannot be synced there. After upgrading torch, `tests/test_torch_build.py` checks that the build still supports sm_75 (RTX 2070) and sm_86 (RTX 3070).
+- Get the data directory from `seeni.paths.data_dir()`, never from a hardcoded path.
 - Use bf16 autocast on an RTX 3070, or fp16 with GradScaler on a 2070.
 - Run long jobs in tmux.
 - Start with a frozen DINOv2 embedding + linear-probe baseline before full fine-tuning.

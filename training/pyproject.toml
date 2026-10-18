@@ -3,7 +3,7 @@ name = "seeni"
 version = "0.1.0"
 description = "Data download, training, evaluation and ONNX export for seeni"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "timm>=1.0.30",
     "torch>=2.14.1",
@@ -21,9 +21,12 @@ requires = ["uv_build>=0.11.32,<0.12"]
 build-backend = "uv_build"
 
 [tool.uv]
-# The desktop runs Linux (WSL2) and development happens on a Mac.
-environments = ["sys_platform == 'linux'", "sys_platform == 'darwin'"]
+# The desktop runs Linux (WSL2) and development happens on an Apple Silicon Mac.
+# PyTorch has no wheels for Intel Macs.
+environments = [
+    "sys_platform == 'linux'",
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"

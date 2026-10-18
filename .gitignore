@@ -14,8 +14,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -218,3 +216,45 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- seeni ---
+# Hard rule 2 (CLAUDE.md): no images, datasets or checkpoints in git.
+# Data lives in ~/seeni-data on the WSL filesystem.
+
+# Node / web
+node_modules/
+playwright-report/
+test-results/
+
+# Checkpoints and models
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+
+# Datasets, embeddings, GBIF archives
+*.parquet
+*.npy
+*.npz
+*.zip
+
+# Images
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.heic
+*.JPG
+*.JPEG
+*.PNG
+*.HEIC
+
+# Training run output
+runs/
+wandb/
+
+# Exceptions: what the app ships (model, icons, pictures) and golden parity fixtures
+!web/public/**
+!web/src/**
+!web/tests/fixtures/**

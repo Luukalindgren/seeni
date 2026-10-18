@@ -2,7 +2,7 @@
 
 Offline-capable mushroom identifier for Finnish species. Image classification runs entirely in the browser as a PWA. There is no backend.
 
-The full step-by-step plan is in `docs/PLAN.md` (in Finnish). Read the relevant phase before starting work on it.
+The full step-by-step plan is in `docs/PLAN.md` (in Finnish). Each phase is also a GitHub issue in English with the same number (phase 6 = #6), with tasks, dependencies and done criteria. Fixes to the plan are sub-issues of the phase they belong to. Read the issue and the matching `PLAN.md` section before starting work on a phase.
 
 ## Architecture
 
@@ -19,7 +19,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 ## Hard rules
 
 1. **Image licenses:** use only images licensed CC0 or CC-BY. Take the license per image from GBIF `multimedia.txt`; the occurrence license is not the image license. Store license, rights holder and source URL for every image in the manifest.
-2. **No data in git:** never commit images, datasets or checkpoints. Data lives in `~/seeni-data` on the WSL filesystem (never under `/mnt/c`).
+2. **No data in git:** never commit images, datasets or checkpoints. Data lives in `~/seeni-data` on the WSL filesystem (never under `/mnt/c`). `.gitignore` enforces this. The only exceptions are what the app ships (`web/public/`, `web/src/`: the exported model, icons, check pictures) and the golden parity fixtures in `web/tests/fixtures/`. Images there are CC0/CC-BY too and are credited in `ATTRIBUTIONS.md`.
 3. **Split by observation:** train/val/test split is by observation (`gbifID`), never by image.
 4. **One preprocessing definition:** preprocessing is defined in one place in `training/` and exported to `preprocess.json`. The web app reads it from there and never hardcodes values. Eval transform: resize shorter side to 256 → center crop 224 → RGB / 255 → normalize with mean/std → NCHW float32.
 5. **Class order:** comes only from `labels.json` written at training time. The web app never regenerates or re-sorts it.
@@ -61,14 +61,14 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 ## Status
 
 - [x] Repo created
-- [ ] 1. Desktop setup: WSL2, CUDA, uv, Tailscale + SSH
-- [ ] 2. Repo structure
-- [ ] 3. Species list
-- [ ] 4. GBIF data download + license filtering
-- [ ] 5. Split + DINOv2 baseline
-- [ ] 6. Fine-tuning
-- [ ] 7. Evaluation, calibration, unknown class
-- [ ] 8. ONNX export + golden fixtures
-- [ ] 9. Species database + verification flow
-- [ ] 10. Web app, PWA, GitHub Pages
-- [ ] 11. Release checklist
+- [ ] 1. Desktop setup: WSL2, CUDA, uv, Tailscale + SSH (#1)
+- [ ] 2. Repo structure (#2)
+- [ ] 3. Species list (#3)
+- [ ] 4. GBIF data download + license filtering (#4)
+- [ ] 5. Split + DINOv2 baseline (#5)
+- [ ] 6. Fine-tuning (#6)
+- [ ] 7. Evaluation, calibration, unknown class (#7)
+- [ ] 8. ONNX export + golden fixtures (#8)
+- [ ] 9. Species database + verification flow (#9)
+- [ ] 10. Web app, PWA, GitHub Pages (#10)
+- [ ] 11. Release checklist (#11)

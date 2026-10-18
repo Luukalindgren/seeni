@@ -82,11 +82,17 @@ seeni/
 
 Aloita 100–200 luokalla. Ne muodostuvat Ruokaviraston kauppasienistä, niiden myrkyllisistä kaksoisolennoista ja yleisimmistä sienistä, joita metsässä tulee vastaan.
 
-1. Tee `data-meta/lajilista.csv` sarakkeilla: tieteellinen nimi, suomenkielinen nimi, GBIF `taxonKey`, ryhmä (syötävä / esikäsiteltävä / myrkyllinen / tappava / ei ruokasieni), kaksoisolennot.
+1. Tee `data-meta/lajilista.csv`, jossa on yksi rivi taksonia kohden. Sarakkeet: `class_id`, tieteellinen nimi, suomenkielinen nimi, GBIF `taxonKey`, ryhmä (syötävä / esikäsiteltävä / myrkyllinen / tappava / ei ruokasieni) ja kaksoisolennot luokkatunnisteina.
 2. Hae `taxonKey` GBIF:n species match -rajapinnasta (`api.gbif.org/v1/species/match?name=…`) ja tarkista osumat käsin.
 3. Hae suomenkieliset nimet laji.fi:n taksonomiasta.
 4. **Yhdistä luokiksi lajit, joita ei erota kuvasta** (esim. useimmat seitikit), ja anna varmistusohjauksen hoitaa loput. Malli, joka sanoo rehellisesti "seitikki", on turvallisempi kuin malli, joka arvaa lajin.
 5. Tavoite on vähintään noin 100 kuvaa luokkaa kohden. Jos kuvia jää vähemmän, yhdistä luokka toiseen tai jätä se pois ensimmäisestä versiosta.
+
+**Luokan tunniste.** Jokaisella luokalla on pysyvä tekstitunniste `class_id`: pienet ASCII-kirjaimet ja väliviivat, yleensä tieteellinen nimi (`cantharellus-cibarius`, suvun tasolla `cortinarius`). Yhdistetyssä luokassa on useita rivejä samalla `class_id`:llä, koska sen lajeilla ei ole yhteistä taxonKeyta. Tunniste ei muutu sen jälkeen, kun sillä on kerran koulutettu malli, joten `species.json` toimii kaikkien malliversioiden kanssa.
+
+- **Yhdistetyn luokan ryhmä** on sen vaarallisimman taksonin ryhmä. Jos luokassa on yksikin myrkyllinen tai tappava laji, koko luokka on myrkyllinen tai tappava.
+- **Tuntematon-luokka `muu`** (vaihe 7) ei ole lajilistalla, eikä sillä ole taxonKeyta. Koulutus lisää sen luokaksi.
+- **Kaksoisolento, jolla on liian vähän kuvia** (kohta 5), voi jäädä pois mallista, mutta se pysyy lajilistalla. Sille tehdään `species.json`:iin varoitustietue (vaihe 9), jotta se näytetään aina kaksoisolentona.
 
 ## Vaihe 4: Datan keruu GBIF:stä
 
@@ -149,7 +155,7 @@ Vienti tuottaa neljä tiedostoa, jotka ovat sopimus koulutuksen ja selaimen väl
 3. **fp16:** muunna `onnxconverter-common`-kirjastolla (`keep_io_types=True`), jolloin koko puolittuu. Tarkista uudelleen, että top-1 täsmää yli 99 %:ssa. int8-kvantisointia tuskin tarvitaan, ja se vaatisi kalibroinnin ja uuden arvioinnin.
 4. **Tiedostot** kansioon `web/public/models/v1/`:
    - `model.onnx`
-   - `labels.json`: indeksi → taxonKey, järjestys suoraan koulutuksesta
+   - `labels.json`: taulukko, jonka alkion paikka on mallin ulostulon indeksi ja alkio on `{ "id": "<class_id>", "taxonKeys": [...] }`. Järjestys tulee suoraan koulutuksesta. `muu`-luokan `taxonKeys` on tyhjä.
    - `preprocess.json`: `resize_short` 256, `crop` 224, `mean`, `std`, RGB, NCHW
    - `calibration.json`: lämpötila T ja tuntematon-kynnys
 5. **Kultainen testiaineisto:** 20 testikuvaa ja niiden odotetut top-5-todennäköisyydet Pythonista hakemistoon `web/tests/fixtures/`. Näillä vaiheen 10 yhdenmukaisuustesti varmistaa, että selain laskee saman tuloksen.
@@ -158,27 +164,30 @@ Vienti tuottaa neljä tiedostoa, jotka ovat sopimus koulutuksen ja selaimen väl
 
 Malli antaa ehdokkaat, ja käsin kuratoitu lajitieto ohjaa käyttäjän tarkistamaan juuri ne tuntomerkit, jotka erottavat ehdokkaat toisistaan.
 
-**`species/species.json`, yksi tietue luokkaa kohden:**
+**`species/species.json`, yksi tietue luokkaa kohden, avaimena luokan tunniste (vaihe 3):**
 
 ```json
 {
-  "taxonKey": 0,
+  "id": "cantharellus-cibarius",
+  "taxonKeys": [0],
   "tieteellinen": "Cantharellus cibarius",
   "nimi": "kantarelli",
   "ryhma": "syötävä",
   "tuntomerkit": ["…"],
-  "kaksoisolennot": [0],
+  "kaksoisolennot": ["…"],
   "tarkistukset": [
-    { "id": "heltat", "kysymys": "Ovatko lakin alla aidot heltat vai haarovat poimut?", "vastaukset": { "poimut": [0], "heltat": [0] } }
+    { "id": "heltat", "kysymys": "Ovatko lakin alla aidot heltat vai haarovat poimut?", "vastaukset": { "poimut": ["cantharellus-cibarius"], "heltat": ["…"] } }
   ],
   "lahteet": ["…"],
   "tarkistanut": ""
 }
 ```
 
+`kaksoisolennot` ja `vastaukset` viittaavat luokkien tunnisteisiin. **Varoitustietue** on tietue, jonka `id` ei ole `labels.json`:ssa. Malli ei ennusta sitä, mutta se näytetään kaksoisolentona, ja tarkistukset voivat sulkea sen pois.
+
 **Ohjauksen logiikka:**
 
-1. Ehdokkaat ovat kärkiluokat, joiden yhteistodennäköisyys on vähintään 95 % (enintään 5 kpl). Niihin lisätään aina kaikkien ehdokkaiden myrkylliset kaksoisolennot.
+1. Ehdokkaat ovat kärkiluokat, joiden yhteistodennäköisyys on vähintään 95 % (enintään 5 kpl). Niihin lisätään aina kaikkien ehdokkaiden myrkylliset kaksoisolennot, myös varoitustietueet. Malli ei anna varoitustietueelle todennäköisyyttä, joten se pysyy avoimena varoituksena, kunnes tarkistus sulkee sen pois.
 2. Kysy seuraavaksi se tarkistus, joka jakaa ehdokkaat parhaiten. Myrkyllisen lajin erottamista painotetaan. Jokainen vastaus päivittää ehdokkaiden todennäköisyydet.
 3. Kysymyksiä jatketaan, kunnes yksi ehdokas erottuu tai kysymykset loppuvat. Lopputulos on "vastauksesi sopivat lajiin X" sekä lista tarkistetuista asioista ja avoimista varoituksista. Sovellus ei koskaan sano, että sientä voi syödä.
 

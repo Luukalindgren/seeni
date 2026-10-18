@@ -80,7 +80,7 @@ seeni/
 
 ## Vaihe 3: Lajilista
 
-Aloita 100–200 luokalla. Ne muodostuvat Ruokaviraston kauppasienistä, niiden myrkyllisistä kaksoisolennoista ja yleisimmistä sienistä, joita metsässä tulee vastaan.
+Aloita 100–200 luokalla. Ne muodostuvat Ruokaviraston kauppasienistä, niiden vaarallisista kaksoisolennoista ja yleisimmistä sienistä, joita metsässä tulee vastaan.
 
 1. Tee `data-meta/lajilista.csv`, jossa on yksi rivi taksonia kohden. Sarakkeet: `class_id`, tieteellinen nimi, suomenkielinen nimi, GBIF `taxonKey`, ryhmä (syötävä / esikäsiteltävä / myrkyllinen / tappava / ei ruokasieni), kaksoisolennot (luokkatunnisteina, puolipisteellä eroteltuina) ja `in_model` (true / false).
 2. Hae `taxonKey` GBIF:n species match -rajapinnasta (`api.gbif.org/v1/species/match?name=…`) ja tarkista osumat käsin.
@@ -90,10 +90,11 @@ Aloita 100–200 luokalla. Ne muodostuvat Ruokaviraston kauppasienistä, niiden 
 
 **Luokan tunniste.** Jokaisella luokalla on pysyvä tekstitunniste `class_id`: pienet ASCII-kirjaimet ja väliviivat, yleensä tieteellinen nimi (`cantharellus-cibarius`, suvun tasolla `cortinarius`). Yhdistetyssä luokassa on useita rivejä samalla `class_id`:llä, koska sen lajeilla ei ole yhteistä taxonKeyta. Tunniste ei muutu sen jälkeen, kun sillä on kerran koulutettu malli, joten `species.json` toimii kaikkien malliversioiden kanssa. Jos luokan taksonit muuttuvat, luokka saa uuden tunnisteen.
 
+- **Termit.** *Ruokasieni* tarkoittaa ryhmiä syötävä ja esikäsiteltävä. *Vaarallinen kaksoisolento* on myrkyllinen, tappava tai esikäsiteltävä. Esikäsiteltävä on mukana, koska syötäväksi luultuna se syödään ilman esikäsittelyä.
 - **Luokat eivät mene päällekkäin.** Sama taksoni ei saa kuulua kahteen luokkaan, ei myöskään suvun kautta. Jos suku on oma luokkansa, sen lajeja ei voi listata erikseen. Jos suvusta pitää erottaa myrkyllinen laji, luokat kootaan lajeista eikä suvusta.
-- **Yhdistetyn luokan ryhmä** on sen vaarallisimman taksonin ryhmä järjestyksessä tappava > myrkyllinen > esikäsiteltävä > ei ruokasieni > syötävä. Luokka on siis syötävä vain, jos kaikki sen taksonit ovat syötäviä. Luokan kaksoisolennot ovat sen rivien kaksoisolentojen yhdiste.
+- **Yhdistetyn luokan ryhmä** on sen taksonien varovaisin ryhmä järjestyksessä tappava > myrkyllinen > ei ruokasieni > esikäsiteltävä > syötävä. Järjestys kertoo, kuinka vahvasti ryhmä kieltää syömisen: ryhmä *esikäsiteltävä* on oikein käsiteltynä ruokasieni, mutta ryhmä *ei ruokasieni* ei ole ruokasieni lainkaan. Luokka on siis syötävä vain, jos kaikki sen taksonit ovat syötäviä. Taksonikohtaiset ryhmät säilyvät lajilistalla. Luokan kaksoisolennot ovat sen rivien kaksoisolentojen yhdiste.
 - **Tuntematon-luokka `muu`** (vaihe 7) ei ole lajilistalla, eikä sillä ole taxonKeyta. Koulutus lisää sen luokaksi.
-- **Mallin ulkopuoliset luokat.** Koulutus ottaa malliin vain luokat, joiden `in_model` on true. Luokka, joka jätetään pois mallista (esim. liian vähän kuvia, kohta 5), pysyy lajilistalla. Jokainen myrkyllinen tai tappava kaksoisolento on lajilistalla, vaikka siitä ei olisi kuvia. Jos se ei ole mallissa, sille tehdään `species.json`:iin varoitustietue (vaihe 9), jotta se näytetään aina.
+- **Mallin ulkopuoliset luokat.** Koulutus ottaa malliin vain luokat, joiden `in_model` on true. Luokka, joka jätetään pois mallista (esim. liian vähän kuvia, kohta 5), pysyy lajilistalla. Jokainen vaarallinen kaksoisolento on lajilistalla, vaikka siitä ei olisi kuvia. Jos se ei ole mallissa, sille tehdään `species.json`:iin varoitustietue (vaihe 9), jotta se näytetään aina.
 
 ## Vaihe 4: Datan keruu GBIF:stä
 
@@ -137,12 +138,12 @@ Aikaa kuluu muutama tunti noin 100 000 kuvalla.
 
 ## Vaihe 7: Arviointi, kalibrointi ja tuntematon-luokka
 
-Tärkein mittari on se, kuinka usein myrkyllinen sieni näyttäisi syötävältä, ei kokonaistarkkuus.
+Tärkein mittari on se, kuinka usein myrkyllinen tai tappava sieni näyttäisi ruokasieneltä, ei kokonaistarkkuus.
 
 1. **Turvamittarit testijoukosta:**
    - Kuinka usein oikea laji on kolmen kärkiehdokkaan joukossa, kun oikea laji on myrkyllinen tai tappava.
-   - **Vaarallinen sekaannus:** kuinka usein kärkiehdokas on syötävä, kun oikea laji on myrkyllinen. Tämän pitää olla lähellä nollaa kynnysten ja varoitusten jälkeen.
-   - **Mallin ulkopuoliset myrkylliset lajit:** aja niiden luokkien kuvat, joiden `in_model` on false, mallin läpi ja raportoi, kuinka usein kärkiehdokas on syötävä. Malli ei tunne näitä lajeja, joten tämä on riskialttein tapaus.
+   - **Vaarallinen sekaannus** lasketaan taksoneittain. Oikea ryhmä on kuvan oman taksonin ryhmä lajilistalla, ja vain väärät kärkiluokat lasketaan. Vaarallisia ovat (a) myrkyllinen tai tappava taksoni, jonka kärkiluokassa on ruokasieni, ja (b) esikäsiteltävä taksoni, jonka kärkiluokassa on syötävä taksoni, koska silloin esikäsittely jää tekemättä. Ratkaisevaa on luokan sisältö eikä sen yhdistetty ryhmä, koska käyttäjä voi tunnistaa luokasta tutun ruokasienen. Näiden pitää olla lähellä nollaa kynnysten ja varoitusten jälkeen.
+   - **Mallin ulkopuoliset vaaralliset lajit:** aja niiden luokkien kuvat, joiden `in_model` on false, mallin läpi ja laske niille sama vaarallinen sekaannus. Syötävät taksonit eivät siis vaikuta lukuun. Malli ei tunne näitä lajeja, joten tämä on riskialttein tapaus.
 2. **Tavalliset mittarit:** top-1, top-3, macro-F1 ja lajikohtainen herkkyys (recall). Käytä testijoukkoa vasta lopuksi, iterointi tehdään validointijoukolla.
 3. **Kalibrointi:** etsi validointijoukolla lämpötila T (temperature scaling), joka minimoi log-loss-virheen, ja tallenna se. Vasta tämän jälkeen "80 %" tarkoittaa suunnilleen 80 %:a, ja varoituskynnykset toimivat.
 4. **Tuntematon:** lisää koulutukseen luokka *muu*. Siihen kuuluu (a) satunnaisotos sieniä, jotka eivät ole lajilistalla, ja (b) ei-sieniä kuten sammalta, käpyjä, lehtiä ja kasveja (samoista GBIF-lähteistä, CC0/CC-BY). Lisäksi käytetään kynnystä: jos kärkiehdokkaan todennäköisyys jää alle valitun rajan, tulos on "en tunnista varmasti".
@@ -192,12 +193,12 @@ Malli antaa ehdokkaat, ja käsin kuratoitu lajitieto ohjaa käyttäjän tarkista
 - Jokainen `id` on lajilistan `class_id`, ja jokaisella mallin luokalla on tietue.
 - `ryhma`, `taxonKeys` ja `kaksoisolennot` vastaavat lajilistaa (vaihe 3). Ne kannattaa generoida lajilistasta.
 - Jokainen viittaus (`kaksoisolennot`, `vastaukset`) osuu olemassa olevaan tietueeseen.
-- Varoitustietue on myrkyllinen tai tappava, ja ainakin yksi mallin luokka mainitsee sen kaksoisolentonaan.
+- Varoitustietue on vaarallinen kaksoisolento (myrkyllinen, tappava tai esikäsiteltävä), ja ainakin yksi mallin luokka mainitsee sen kaksoisolentonaan.
 
 **Ohjauksen logiikka:**
 
-1. Ehdokkaat ovat kärkiluokat, joiden yhteistodennäköisyys on vähintään 95 % (enintään 5 kpl). Niihin lisätään aina kaikkien ehdokkaiden myrkylliset kaksoisolennot, myös varoitustietueet. Malli ei anna varoitustietueelle todennäköisyyttä, joten se pysyy avoimena varoituksena, kunnes tarkistus sulkee sen pois. `muu` ei ole koskaan ehdokas. Jos `muu` on kärjessä, tulos on "en tunnista varmasti".
-2. Kysy seuraavaksi se tarkistus, joka jakaa ehdokkaat parhaiten. Myrkyllisen lajin erottamista painotetaan, ja avoimen varoituksen poissulkeminen lasketaan yhtä tärkeäksi. Jokainen vastaus päivittää ehdokkaiden todennäköisyydet. Vastaus sulkee luokan pois vain, jos tarkistus mainitsee luokan mutta ei valitun vastauksen kohdalla. Luokka, jota tarkistus ei mainitse lainkaan, pysyy mukana.
+1. Ehdokkaat ovat kärkiluokat, joiden yhteistodennäköisyys on vähintään 95 % (enintään 5 kpl). Niihin lisätään aina kaikkien ehdokkaiden vaaralliset kaksoisolennot (myrkyllinen, tappava tai esikäsiteltävä, vaihe 3), myös varoitustietueet. Malli ei anna varoitustietueelle todennäköisyyttä, joten se pysyy avoimena varoituksena, kunnes tarkistus sulkee sen pois. `muu` ei ole koskaan ehdokas. Jos `muu` on kärjessä, tulos on "en tunnista varmasti".
+2. Kysy seuraavaksi se tarkistus, joka jakaa ehdokkaat parhaiten. Vaarallisen lajin erottamista painotetaan, ja avoimen varoituksen poissulkeminen lasketaan yhtä tärkeäksi. Jokainen vastaus päivittää ehdokkaiden todennäköisyydet. Vastaus sulkee luokan pois vain, jos tarkistus mainitsee luokan mutta ei valitun vastauksen kohdalla. Luokka, jota tarkistus ei mainitse lainkaan, pysyy mukana.
 3. Kysymyksiä jatketaan, kunnes yksi ehdokas erottuu tai kysymykset loppuvat. Lopputulos on "vastauksesi sopivat lajiin X" sekä lista tarkistetuista asioista ja avoimista varoituksista. Jos vastaukset sulkevat pois kaikki mallin ehdokkaat, tulos on "en tunnista varmasti". Sovellus ei koskaan sano, että sientä voi syödä.
 
 **Sisältö:** pohjana Ruokaviraston kauppasienet ja Suomen sieniseuran aineistot. Kielimallilla voi tehdä luonnoksia, mutta jokainen tietue on tarkistettava asiantuntijalla (sieneuvoja tai sieniseura) ja merkittävä kenttään `tarkistanut`. Tarkistuksiin kannattaa liittää kuva siitä, mitä katsotaan, esim. jalan tyvi esiin kaivettuna.
@@ -234,7 +235,7 @@ Playwright-testi ajaa vaiheen 8 kultaiset kuvat sovelluksen oikealla esikäsitte
 ## Vaihe 11: Julkaisun tarkistuslista
 
 - [ ] Vastuuvapauslauseke näkyy etusivulla ja jokaisessa tuloksessa: sovellus ei kerro, voiko sientä syödä.
-- [ ] Turvamittarit (vaihe 7) ovat hyväksytyllä tasolla, ja myrkylliset kaksoisolennot näkyvät aina.
+- [ ] Turvamittarit (vaihe 7) ovat hyväksytyllä tasolla, ja vaaralliset kaksoisolennot näkyvät aina.
 - [ ] Jokainen julkaistu lajitietue on asiantuntijan tarkistama.
 - [ ] Attribuutiot-sivu: GBIF-latauksen DOI ja kuvaajien nimet lisensseineen (generoidaan manifestista), sekä käytettyjen esikoulutettujen painojen ja kirjastojen lisenssit. Tarkista painojen lisenssi mallikortista.
 - [ ] Tietosuoja: kuvat eivät lähde laitteelta. Ei analytiikkaa, tai korkeintaan evästeetön.

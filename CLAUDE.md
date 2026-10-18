@@ -2,7 +2,7 @@
 
 Offline-capable mushroom identifier for Finnish species. Image classification runs entirely in the browser as a PWA. There is no backend.
 
-The full step-by-step plan is in `docs/PLAN.md` (in Finnish). Each phase is also a GitHub issue in English with the same number (phase 6 = #6), with tasks, dependencies and done criteria. Fixes to the plan are sub-issues of the phase they belong to. Read the issue and the matching `PLAN.md` section before starting work on a phase.
+The full step-by-step plan is in `docs/PLAN.md` (in Finnish). Each phase is also a GitHub issue in English with the same number (phase 6 = #6), with tasks, dependencies and done criteria. Known problems in the plan are sub-issues of the phase they belong to. Read the issue and the matching `PLAN.md` section before starting work on a phase.
 
 ## Architecture
 
@@ -27,8 +27,9 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 7. **Parity test:** any change to the model, export or preprocessing must keep the parity test green. Python golden outputs live in `web/tests/fixtures/`, and Playwright compares the browser's top-5 against them.
 8. **Safety:**
    - The app never states that a mushroom is edible.
-   - Poisonous lookalikes of every candidate are always shown. Every poisonous lookalike is on `lajilista.csv`, even without images. One that is not a model class gets a warning-only record in `species.json` (its id is not in `labels.json`) and stays an open warning until a check rules it out. An answer rules out only the classes that the check lists, but not under that answer.
-   - A merged class takes the group of its most dangerous taxon: tappava > myrkyllinen > esikäsiteltävä > ei ruokasieni > syötävä. A class is edible only if all its taxa are.
+   - Terms: a *food mushroom* is syötävä or esikäsiteltävä. A *dangerous lookalike* is myrkyllinen, tappava or esikäsiteltävä, because an esikäsiteltävä species mistaken for a syötävä one is eaten without pre-treatment.
+   - Dangerous lookalikes of every candidate are always shown. Every dangerous lookalike is on `lajilista.csv`, even without images. One that is not a model class gets a warning-only record in `species.json` (its id is not in `labels.json`) and stays an open warning until a check rules it out. An answer rules out only the classes that the check lists, but not under that answer.
+   - A merged class takes the most cautious group among its taxa: tappava > myrkyllinen > ei ruokasieni > esikäsiteltävä > syötävä, ordered by how strongly the group says not to eat. A class is syötävä only if all its taxa are syötävä. The per-taxon groups stay in `lajilista.csv`.
    - A `species.json` entry needs expert review (field `tarkistanut`) before release. LLM-drafted content is a draft only.
 9. **Privacy:** user images never leave the device. No tracking analytics.
 10. **Licensing:** code is MIT (root `LICENSE`). Model files and species data are licensed separately (CC BY 4.0) and documented in README and `ATTRIBUTIONS.md`.
@@ -42,7 +43,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - First full model: EfficientNet-B0 at 224 px.
 
 **Evaluation**
-- The key safety metric is how often a poisonous species gets an edible top-1 prediction.
+- The key safety metric is dangerous confusion, counted per taxon on wrong top-1 classes: a myrkyllinen or tappava taxon whose top-1 class contains a food mushroom, or an esikäsiteltävä taxon whose top-1 class contains a syötävä taxon. Full definition in `PLAN.md` phase 7.
 - Calibrate probabilities with temperature scaling and store `T` in `calibration.json`.
 
 **Export**

@@ -9,17 +9,17 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
-develop-eggs/
+/develop-eggs/
 dist/
-downloads/
-eggs/
+/downloads/
+/eggs/
 .eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+/wheels/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -218,3 +218,95 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- seeni ---
+# Hard rule 2 (CLAUDE.md): no images, datasets or checkpoints in git.
+# Data lives in ~/seeni-data on the WSL filesystem.
+
+# Node / Vite
+node_modules/
+dev-dist/
+coverage/
+playwright-report/
+test-results/
+*.local
+.DS_Store
+
+# Checkpoints, weights, saved models
+*.pt
+*.pth
+*.tar
+*.ckpt
+*.safetensors
+*.joblib
+*.pkl
+*.pickle
+*.onnx
+*.onnx.data
+
+# Datasets, embeddings, GBIF archives (zipped or extracted)
+*.parquet
+*.feather
+*.arrow
+*.npy
+*.npz
+*.h5
+*.hdf5
+*.zip
+*.gz
+*.tgz
+*.7z
+occurrence.txt
+multimedia.txt
+verbatim.txt
+
+# Training run output
+runs/
+wandb/
+training/output/
+events.out.tfevents.*
+
+# Images, any case
+*.[jJ][pP][gG]
+*.[jJ][pP][eE][gG]
+*.[jJ][pP][eE]
+*.[pP][nN][gG]
+*.[wW][eE][bB][pP]
+*.[aA][vV][iI][fF]
+*.[gG][iI][fF]
+*.[hH][eE][iI][cC]
+*.[hH][eE][iI][fF]
+*.[tT][iI][fF]
+*.[tT][iI][fF][fF]
+*.[bB][mM][pP]
+
+# Exceptions. Each re-includes one file type in one place, so every rule
+# above still applies there. Committed files use lowercase extensions.
+
+# Published model
+!web/public/models/**/*.onnx
+!web/public/models/**/*.onnx.data
+
+# App, species and docs images (icons, check pictures, screenshots)
+!web/**/*.png
+!web/**/*.jpg
+!web/**/*.jpeg
+!web/**/*.webp
+!web/**/*.avif
+!web/**/*.gif
+!species/**/*.png
+!species/**/*.jpg
+!species/**/*.jpeg
+!species/**/*.webp
+!docs/**/*.png
+!docs/**/*.jpg
+!docs/**/*.webp
+
+# Test fixtures (golden images, expected tensors)
+!**/tests/fixtures/**/*.jpg
+!**/tests/fixtures/**/*.jpeg
+!**/tests/fixtures/**/*.png
+!**/tests/fixtures/**/*.npy
+
+# Small metadata (attribution data)
+!data-meta/**/*.parquet

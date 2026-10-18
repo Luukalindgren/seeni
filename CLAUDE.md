@@ -2,7 +2,7 @@
 
 Offline-capable mushroom identifier for Finnish species. Image classification runs entirely in the browser as a PWA. There is no backend.
 
-The full step-by-step plan is in `docs/PLAN.md` (in Finnish). Read the relevant phase before starting work on it.
+The full step-by-step plan is in `docs/PLAN.md` (in Finnish). Each phase is also a GitHub issue in English with the same number (phase 6 = #6), with tasks, dependencies and done criteria. Fixes to the plan are sub-issues of the phase they belong to. Read the issue and the matching `PLAN.md` section before starting work on a phase.
 
 ## Architecture
 
@@ -19,7 +19,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 ## Hard rules
 
 1. **Image licenses:** use only images licensed CC0 or CC-BY. Take the license per image from GBIF `multimedia.txt`; the occurrence license is not the image license. Store license, rights holder and source URL for every image in the manifest.
-2. **No data in git:** never commit images, datasets or checkpoints. Data lives in `~/seeni-data` on the WSL filesystem (never under `/mnt/c`).
+2. **No data in git:** never commit images, datasets or checkpoints. Data lives in `~/seeni-data` on the WSL filesystem (never under `/mnt/c`). `.gitignore` blocks the common image, data and checkpoint formats and re-includes only: the exported model in `web/public/models/vN/`, images under `web/`, `species/` and `docs/` (icons, check pictures, screenshots), test fixtures in `tests/fixtures/`, and attribution data in `data-meta/`. Committed images that are not our own work (fixtures, check pictures) must be CC0/CC-BY and credited in `ATTRIBUTIONS.md`. The ignore list is not exhaustive, so check `git status` before committing.
 3. **Split by observation:** train/val/test split is by observation (`gbifID`), never by image.
 4. **One preprocessing definition:** preprocessing is defined in one place in `training/` and exported to `preprocess.json`. The web app reads it from there and never hardcodes values. Eval transform: resize shorter side to 256 → center crop 224 → RGB / 255 → normalize with mean/std → NCHW float32.
 5. **Class order:** comes only from `labels.json` written at training time. The web app never regenerates or re-sorts it.
@@ -58,17 +58,23 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - Raise `maximumFileSizeToCacheInBytes` to about 50 MB so the model gets precached (the default is 2 MiB).
 - Version models by folder (`v1`, `v2`).
 
+## Workflow
+
+- Every change goes through a pull request. Never push to `main` directly.
+- Before merging, run `/code-review` on the PR and fix the most critical findings (correctness, safety, hard-rule violations) in the same PR. Lesser findings may stay, with a one-line reason in the PR.
+- Link the PR to its issue (`Closes #N` or `Refs #N`).
+
 ## Status
 
 - [x] Repo created
-- [ ] 1. Desktop setup: WSL2, CUDA, uv, Tailscale + SSH
-- [ ] 2. Repo structure
-- [ ] 3. Species list
-- [ ] 4. GBIF data download + license filtering
-- [ ] 5. Split + DINOv2 baseline
-- [ ] 6. Fine-tuning
-- [ ] 7. Evaluation, calibration, unknown class
-- [ ] 8. ONNX export + golden fixtures
-- [ ] 9. Species database + verification flow
-- [ ] 10. Web app, PWA, GitHub Pages
-- [ ] 11. Release checklist
+- [ ] 1. Desktop setup: WSL2, CUDA, uv, Tailscale + SSH (#1)
+- [ ] 2. Repo structure (#2)
+- [ ] 3. Species list (#3)
+- [ ] 4. GBIF data download + license filtering (#4)
+- [ ] 5. Split + DINOv2 baseline (#5)
+- [ ] 6. Fine-tuning (#6)
+- [ ] 7. Evaluation, calibration, unknown class (#7)
+- [ ] 8. ONNX export + golden fixtures (#8)
+- [ ] 9. Species database + verification flow (#9)
+- [ ] 10. Web app, PWA, GitHub Pages (#10)
+- [ ] 11. Release checklist (#11)

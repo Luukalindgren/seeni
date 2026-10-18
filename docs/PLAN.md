@@ -49,7 +49,7 @@ Tavoite: pöytäkoneen WSL2-Ubuntussa näkyy näytönohjain PyTorchille, ja pä�
    [boot]
    systemd=true
    ```
-4. **Python ja PyTorch.** Asenna `uv` ja Python 3.12. Hae PyTorchin CUDA-asennuskomento pytorch.org-sivun valitsimesta. Tarkista: `python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name())"`.
+4. **Python ja PyTorch.** Asenna `uv` ja Python 3.12. Kloonaa repo WSL:n omalle levylle (esim. `~/seeni`), ja aja `training/`-kansiossa `uv sync`. PyTorch asentuu PyPI:stä, jonka Linux-paketit ovat CUDA-versioita. Nykyinen versio käyttää CUDA 13:a, joka vaatii Windowsiin NVIDIA-ajurin R580-sarjasta tai uudemman. Tarkista: `uv run python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name())"`.
 5. **Data WSL:n omalle levylle.** Pidä kuvat polussa `~/seeni-data`, ei `/mnt/c`:ssä. Windows-levyn kautta luku on moninkertaisesti hitaampaa ja hidastaa koulutusta.
 6. **Etäkäyttö.** Asenna Tailscale Windowsiin ja Maciin samalla tilillä. Mirrored-tilassa WSL käyttää Windowsin verkkoa, joten Ubuntun sshd näkyy Windowsin Tailscale-osoitteessa.
    - Ubuntuun `openssh-server`, portiksi `2222`, vain avaimella kirjautuminen (`PasswordAuthentication no`).

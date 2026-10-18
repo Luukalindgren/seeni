@@ -91,7 +91,7 @@ Aloita 100–200 luokalla. Ne muodostuvat Ruokaviraston kauppasienistä, niiden 
 **Luokan tunniste.** Jokaisella luokalla on pysyvä tekstitunniste `class_id`: pienet ASCII-kirjaimet ja väliviivat, yleensä tieteellinen nimi (`cantharellus-cibarius`, suvun tasolla `cortinarius`). Yhdistetyssä luokassa on useita rivejä samalla `class_id`:llä, koska sen lajeilla ei ole yhteistä taxonKeyta. Tunniste ei muutu sen jälkeen, kun sillä on kerran koulutettu malli, joten `species.json` toimii kaikkien malliversioiden kanssa. Jos luokan taksonit muuttuvat, luokka saa uuden tunnisteen.
 
 - **Luokat eivät mene päällekkäin.** Sama taksoni ei saa kuulua kahteen luokkaan, ei myöskään suvun kautta. Jos suku on oma luokkansa, sen lajeja ei voi listata erikseen. Jos suvusta pitää erottaa myrkyllinen laji, luokat kootaan lajeista eikä suvusta.
-- **Yhdistetyn luokan ryhmä** on sen vaarallisimman taksonin ryhmä järjestyksessä tappava > myrkyllinen > esikäsiteltävä > ei ruokasieni > syötävä. Luokka on siis syötävä vain, jos kaikki sen taksonit ovat syötäviä. Luokan kaksoisolennot ovat sen rivien kaksoisolentojen yhdiste.
+- **Yhdistetyn luokan ryhmä** on sen taksonien varovaisin ryhmä järjestyksessä tappava > myrkyllinen > ei ruokasieni > esikäsiteltävä > syötävä. Järjestys kertoo, kuinka vahvasti ryhmä kieltää syömisen: esikäsiteltävä on oikein käsiteltynä ruokasieni, ei ruokasieni ei ole. Luokka on siis syötävä vain, jos kaikki sen taksonit ovat syötäviä. Luokan kaksoisolennot ovat sen rivien kaksoisolentojen yhdiste.
 - **Tuntematon-luokka `muu`** (vaihe 7) ei ole lajilistalla, eikä sillä ole taxonKeyta. Koulutus lisää sen luokaksi.
 - **Mallin ulkopuoliset luokat.** Koulutus ottaa malliin vain luokat, joiden `in_model` on true. Luokka, joka jätetään pois mallista (esim. liian vähän kuvia, kohta 5), pysyy lajilistalla. Jokainen myrkyllinen tai tappava kaksoisolento on lajilistalla, vaikka siitä ei olisi kuvia. Jos se ei ole mallissa, sille tehdään `species.json`:iin varoitustietue (vaihe 9), jotta se näytetään aina.
 
@@ -137,12 +137,12 @@ Aikaa kuluu muutama tunti noin 100 000 kuvalla.
 
 ## Vaihe 7: Arviointi, kalibrointi ja tuntematon-luokka
 
-Tärkein mittari on se, kuinka usein myrkyllinen sieni näyttäisi syötävältä, ei kokonaistarkkuus.
+Tärkein mittari on se, kuinka usein myrkyllinen sieni näyttäisi ruokasieneltä, ei kokonaistarkkuus.
 
 1. **Turvamittarit testijoukosta:**
    - Kuinka usein oikea laji on kolmen kärkiehdokkaan joukossa, kun oikea laji on myrkyllinen tai tappava.
-   - **Vaarallinen sekaannus:** kuinka usein kärkiehdokas on syötävä, kun oikea laji on myrkyllinen. Tämän pitää olla lähellä nollaa kynnysten ja varoitusten jälkeen.
-   - **Mallin ulkopuoliset myrkylliset lajit:** aja niiden luokkien kuvat, joiden `in_model` on false, mallin läpi ja raportoi, kuinka usein kärkiehdokas on syötävä. Malli ei tunne näitä lajeja, joten tämä on riskialttein tapaus.
+   - **Vaarallinen sekaannus:** kuinka usein kärkiehdokas on ruokasieni (syötävä tai esikäsiteltävä), kun oikea laji on myrkyllinen tai tappava. Esikäsiteltävä lasketaan mukaan, koska käyttäjä voi keittää ja syödä sen. Tämän pitää olla lähellä nollaa kynnysten ja varoitusten jälkeen.
+   - **Mallin ulkopuoliset myrkylliset lajit:** aja niiden luokkien kuvat, joiden `in_model` on false, mallin läpi ja raportoi, kuinka usein kärkiehdokas on ruokasieni. Malli ei tunne näitä lajeja, joten tämä on riskialttein tapaus.
 2. **Tavalliset mittarit:** top-1, top-3, macro-F1 ja lajikohtainen herkkyys (recall). Käytä testijoukkoa vasta lopuksi, iterointi tehdään validointijoukolla.
 3. **Kalibrointi:** etsi validointijoukolla lämpötila T (temperature scaling), joka minimoi log-loss-virheen, ja tallenna se. Vasta tämän jälkeen "80 %" tarkoittaa suunnilleen 80 %:a, ja varoituskynnykset toimivat.
 4. **Tuntematon:** lisää koulutukseen luokka *muu*. Siihen kuuluu (a) satunnaisotos sieniä, jotka eivät ole lajilistalla, ja (b) ei-sieniä kuten sammalta, käpyjä, lehtiä ja kasveja (samoista GBIF-lähteistä, CC0/CC-BY). Lisäksi käytetään kynnystä: jos kärkiehdokkaan todennäköisyys jää alle valitun rajan, tulos on "en tunnista varmasti".

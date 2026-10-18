@@ -28,7 +28,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 8. **Safety:**
    - The app never states that a mushroom is edible.
    - Poisonous lookalikes of every candidate are always shown. Every poisonous lookalike is on `lajilista.csv`, even without images. One that is not a model class gets a warning-only record in `species.json` (its id is not in `labels.json`) and stays an open warning until a check rules it out. An answer rules out only the classes that the check lists, but not under that answer.
-   - A merged class takes the group of its most dangerous taxon: tappava > myrkyllinen > esikäsiteltävä > ei ruokasieni > syötävä. A class is edible only if all its taxa are.
+   - A merged class takes the most cautious group among its taxa: tappava > myrkyllinen > ei ruokasieni > esikäsiteltävä > syötävä, ordered by how strongly the group says not to eat. Esikäsiteltävä is a food mushroom when prepared correctly; ei ruokasieni is not. A class is edible only if all its taxa are.
    - A `species.json` entry needs expert review (field `tarkistanut`) before release. LLM-drafted content is a draft only.
 9. **Privacy:** user images never leave the device. No tracking analytics.
 10. **Licensing:** code is MIT (root `LICENSE`). Model files and species data are licensed separately (CC BY 4.0) and documented in README and `ATTRIBUTIONS.md`.
@@ -42,7 +42,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - First full model: EfficientNet-B0 at 224 px.
 
 **Evaluation**
-- The key safety metric is how often a poisonous species gets an edible top-1 prediction.
+- The key safety metric is how often a poisonous or deadly species gets a food-mushroom top-1 prediction (syötävä or esikäsiteltävä).
 - Calibrate probabilities with temperature scaling and store `T` in `calibration.json`.
 
 **Export**

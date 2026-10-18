@@ -58,6 +58,12 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - Raise `maximumFileSizeToCacheInBytes` to about 50 MB so the model gets precached (the default is 2 MiB).
 - Version models by folder (`v1`, `v2`).
 
+## Workflow
+
+- Every change goes through a pull request. Never push to `main` directly.
+- Before merging, run `/code-review` on the PR and fix the most critical findings (correctness, safety, hard-rule violations) in the same PR. Lesser findings may stay, with a one-line reason in the PR.
+- Link the PR to its issue (`Closes #N` or `Refs #N`).
+
 ## Status
 
 - [x] Repo created

@@ -37,6 +37,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 ## Technical notes
 
 **Training**
+- PyTorch comes from PyPI (`uv sync` in `training/`). Its Linux wheels are CUDA builds, currently CUDA 13, which needs a Windows NVIDIA driver from the R580 series or newer. Do not add download.pytorch.org as a package index: cloud agent sessions cannot reach it.
 - Use bf16 autocast on an RTX 3070, or fp16 with GradScaler on a 2070.
 - Run long jobs in tmux.
 - Start with a frozen DINOv2 embedding + linear-probe baseline before full fine-tuning.
@@ -70,7 +71,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 
 - [x] Repo created
 - [ ] 1. Desktop setup: WSL2, CUDA, uv, Tailscale + SSH (#1)
-- [ ] 2. Repo structure (#2)
+- [x] 2. Repo structure (#2)
 - [ ] 3. Species list (#3)
 - [ ] 4. GBIF data download + license filtering (#4)
 - [ ] 5. Split + DINOv2 baseline (#5)

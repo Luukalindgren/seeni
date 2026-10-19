@@ -36,3 +36,13 @@ Data (images, manifest, embeddings, checkpoints) lives in `~/seeni-data` on the 
 ## Long jobs
 
 Run training in `tmux` so it survives a dropped SSH connection, and turn off Windows sleep on mains power.
+
+## Species list (phase 3)
+
+```sh
+uv run python -m seeni.lajilista            # validate data-meta/lajilista.csv
+uv run python -m seeni.gbif_match           # GBIF match report to ~/seeni-data/lajilista_gbif.csv
+uv run python -m seeni.gbif_match --fill    # also fill empty taxonKeys whose match has no flags
+```
+
+`gbif_match` needs `api.gbif.org`, so run it on the desktop. Check every row of the report by hand before relying on a key.

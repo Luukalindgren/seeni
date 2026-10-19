@@ -4,8 +4,8 @@ boletus-edulis-agg,Boletus pinophilus,männynherkkutatti,5954949,syötävä,,tru
 boletus-edulis-agg,Boletus reticulatus,tammenherkkutatti,5954691,syötävä,,true,
 tylopilus-felleus,Tylopilus felleus,sappitatti,2524910,ei ruokasieni,boletus-edulis-agg,true,"Ruokavirasto: kitkerä, ei myrkyllinen."
 leccinum-versipelle-agg,Leccinum versipelle,koivunpunikkitatti,2524490,syötävä,,true,"Ruokavirasto: punikkitatit yhtenä ryhmänä, ei ryöppäysohjetta."
-leccinum-versipelle-agg,Leccinum aurantiacum,haavanpunikkitatti,,syötävä,,true,"Nimi ja rajaus tarkistettava: laji.fi käyttää nimeä haavanpunikkitatti lajille L. albostipitatum."
-leccinum-versipelle-agg,Leccinum populinum,lehtopunikkitatti,,syötävä,,true,
+leccinum-versipelle-agg,Leccinum aurantiacum,lehtopunikkitatti,2524513,syötävä,,true,"GBIF pitää L. populinumia tämän synonyyminä (sama avain), joten se ei ole omana rivinä. GBIF:n suomenkieliset nimet: lehtopunikkitatti, tammenpunikkitatti."
+leccinum-versipelle-agg,Leccinum albostipitatum,haavanpunikkitatti,,syötävä,,true,laji.fi: haavanpunikkitatti. Avain hakematta.
 leccinum-versipelle-agg,Leccinum vulpinum,männynpunikkitatti,2524528,syötävä,,true,
 suillus-variegatus,Suillus variegatus,kangastatti,9043861,syötävä,,true,
 suillus-luteus,Suillus luteus,voitatti,7777157,syötävä,,true,
@@ -26,7 +26,7 @@ russula-claroflava,Russula claroflava,keltahapero,2551299,syötävä,,true,
 russula-vinosa,Russula vinosa,viinihapero,2551182,syötävä,,true,
 hygrophorus-camarophyllus,Hygrophorus camarophyllus,mustavahakas,2538720,syötävä,,true,
 cortinarius-caperatus,Cortinarius caperatus,kehnäsieni,2529415,syötävä,cortinarius-rubellus,true,Ruokaviraston nimeämät näköislajit ovat myrkyttömiä seitikkejä. Suippumyrkkyseitikki lisätty varmuuden vuoksi. Muut seitikit kuuluvat muu-luokkaan.
-cantharellus-cibarius,Cantharellus cibarius,kantarelli,,syötävä,hygrophoropsis-aurantiaca,true,
+cantharellus-cibarius,Cantharellus cibarius,kantarelli,5249504,syötävä,hygrophoropsis-aurantiaca,true,Ruokavirasto: keltavahvero eli kantarelli. GBIF käyttää nimeä keltavahvero.
 hygrophoropsis-aurantiaca,Hygrophoropsis aurantiaca,valevahvero,2525710,ei ruokasieni,cantharellus-cibarius,true,
 craterellus-tubaeformis-agg,Craterellus tubaeformis,suppilovahvero,2554536,syötävä,cortinarius-rubellus,true,Ruokavirasto: kosteikkovahvero saa kuulua joukkoon.
 craterellus-tubaeformis-agg,Craterellus lutescens,kosteikkovahvero,8871787,syötävä,,true,

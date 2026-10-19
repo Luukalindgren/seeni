@@ -11,7 +11,7 @@ Status: early development. There is no trained model or published app yet. The p
 1. A model is trained on CC0 and CC-BY licensed mushroom photos from [GBIF](https://www.gbif.org/) on a desktop GPU (`training/`).
 2. It is exported to ONNX together with its class list and preprocessing settings (`web/public/models/vN/`).
 3. The web app downloads the model once, caches it, and runs it in a Web Worker with onnxruntime-web (WebGPU, falling back to WASM). Photos stay on your device, and identification works offline.
-4. Results are shown as candidates with their dangerous lookalikes and verification checks from hand-curated, expert-reviewed species data (`species/`).
+4. Results are shown as candidates with their dangerous lookalikes and verification checks from hand-curated species data (`species/`). Every species entry must be reviewed by an expert before release.
 
 ## Repository layout
 
@@ -24,11 +24,11 @@ Status: early development. There is no trained model or published app yet. The p
 | `docs/PLAN.md` | The full step-by-step plan (in Finnish) |
 | `CLAUDE.md` | Binding project rules: image licenses, preprocessing, class ids, safety |
 
-Images, datasets and checkpoints are never committed. They live in `~/seeni-data` on the training machine.
+Training images, datasets and checkpoints are never committed. They live in `~/seeni-data` on the training machine. The only exceptions are the exported model, app and documentation images, and test fixtures, listed in `CLAUDE.md` hard rule 2.
 
 ## Getting started
 
-Training (Linux or WSL2 with an NVIDIA GPU, Python 3.12, [uv](https://docs.astral.sh/uv/)):
+Training (Python 3.12 and [uv](https://docs.astral.sh/uv/); training itself needs Linux or WSL2 with an NVIDIA GPU, and development also works on an Apple Silicon Mac):
 
 ```sh
 cd training
@@ -53,7 +53,9 @@ The work is split into eleven phases described in [`docs/PLAN.md`](docs/PLAN.md)
 ## License
 
 - **Code** is licensed under the [MIT License](LICENSE).
-- **Model files** (`web/public/models/`) and **species data** (`species/`, `data-meta/lajilista.csv`) are licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
+- **Species data** (`species/`, `data-meta/lajilista.csv`, `data-meta/split.csv`) is licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/), with credit to the sources listed in `ATTRIBUTIONS.md`.
+- **Model files** (`web/public/models/`) will be released under CC BY 4.0, provided the licenses of the pretrained weights they start from allow it. Those licenses are checked before the first model is published (#6, #11).
+- **Attribution data** in `data-meta/` reproduces each photographer's credit and license, and is not relicensed.
 - **Training images** belong to their photographers and are used under their own CC0 or CC-BY licenses. They are not distributed in this repository.
 
 Photographers, data sources, pretrained weights and third-party software are credited in [`ATTRIBUTIONS.md`](ATTRIBUTIONS.md).

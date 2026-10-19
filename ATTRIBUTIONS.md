@@ -8,18 +8,28 @@ Sections marked *pending* are filled in by the phase in brackets. Nothing in the
 
 *Pending (#4, #11).*
 
-The model is trained on mushroom photos shared through [GBIF](https://www.gbif.org/) under CC0 or CC-BY licenses. Each photo's license is taken from GBIF `multimedia.txt`, not from the occurrence record. The photos are not distributed in this repository or with the app, but the model is derived from them.
+The model is trained on photos shared through [GBIF](https://www.gbif.org/) under CC0 or CC-BY licenses: mushrooms, and for the unknown class `muu` also other fungi and non-fungi such as moss, cones, leaves and plants (#7). Every photographer is credited, whatever the class. Each photo's license is taken from GBIF `multimedia.txt`, not from the occurrence record. The photos are not distributed in this repository or with the app, but the model is derived from them.
 
 - GBIF occurrence download: DOI to be added
 - Photographers and licenses: a full list is generated from the image manifest and published on the app's attributions page
 
 ## Images committed to this repository
 
-Images in this repository that are not Seeni's own work, such as test fixtures (`web/tests/fixtures/`) and verification check pictures (`species/`), must be CC0 or CC-BY and are listed here.
+Any image in this repository that is not Seeni's own work must be CC0 or CC-BY and is listed here. This covers test fixtures (any `tests/fixtures/` folder) and images under `web/`, `species/` and `docs/`, such as verification check pictures.
 
 | File | Author | License | Source |
 | --- | --- | --- | --- |
 | *none yet* | | | |
+
+## Species data sources
+
+*Pending (#3).* `data-meta/lajilista.csv` and `species/species.json` are compiled from the sources below. Each source's license and required credit is recorded here before release.
+
+| Source | Used for | License |
+| --- | --- | --- |
+| [GBIF Backbone Taxonomy](https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) | taxonKeys | To be checked |
+| [Laji.fi (FinBIF) taxonomy](https://laji.fi/) | Finnish names | To be checked |
+| [Ruokavirasto](https://www.ruokavirasto.fi/) list of commercial mushrooms | Species selection | To be checked |
 
 ## Pretrained weights
 

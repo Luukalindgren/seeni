@@ -1,55 +1,55 @@
 class_id,tieteellinen,nimi,taxonKey,ryhma,kaksoisolennot,in_model,huomio
-boletus-edulis-agg,Boletus edulis,herkkutatti,,syötävä,tylopilus-felleus,true,Ruokavirasto: herkkutatit yhtenä ryhmänä. Ei myrkyllistä näköislajia.
-boletus-edulis-agg,Boletus pinophilus,männynherkkutatti,,syötävä,,true,
-boletus-edulis-agg,Boletus reticulatus,tammenherkkutatti,,syötävä,,true,
-tylopilus-felleus,Tylopilus felleus,sappitatti,,ei ruokasieni,boletus-edulis-agg,true,"Ruokavirasto: kitkerä, ei myrkyllinen."
-leccinum-versipelle-agg,Leccinum versipelle,koivunpunikkitatti,,syötävä,,true,"Ruokavirasto: punikkitatit yhtenä ryhmänä, ei ryöppäysohjetta."
-leccinum-versipelle-agg,Leccinum aurantiacum,haavanpunikkitatti,,syötävä,,true,"Nimi ja rajaus tarkistettava: laji.fi käyttää nimeä haavanpunikkitatti lajille L. albostipitatum."
-leccinum-versipelle-agg,Leccinum populinum,lehtopunikkitatti,,syötävä,,true,
-leccinum-versipelle-agg,Leccinum vulpinum,männynpunikkitatti,,syötävä,,true,
-suillus-variegatus,Suillus variegatus,kangastatti,,syötävä,,true,
-suillus-luteus,Suillus luteus,voitatti,,syötävä,,true,
-suillus-bovinus,Suillus bovinus,nummitatti,,syötävä,,true,Ei Ruokaviraston suosituslistalla. Yleinen männikössä.
-lactarius-trivialis-agg,Lactarius trivialis,haaparousku,,esikäsiteltävä,,true,Ruokavirasto: haaparouskut keitetään 5 minuuttia.
-lactarius-trivialis-agg,Lactarius utilis,kalvashaaparousku,,esikäsiteltävä,,true,
-lactarius-rufus,Lactarius rufus,kangasrousku,,esikäsiteltävä,lactarius-helvus,true,Ruokavirasto: keitetään 10 minuuttia.
-lactarius-torminosus,Lactarius torminosus,karvarousku,,esikäsiteltävä,,true,Ruokavirasto: keitetään 10 minuuttia.
-lactarius-deliciosus-agg,Lactarius deliciosus,männynleppärousku,,syötävä,,true,Ruokavirasto: leppärouskut yhtenä ryhmänä.
-lactarius-deliciosus-agg,Lactarius deterrimus,kuusenleppärousku,,syötävä,,true,
-lactarius-deliciosus-agg,Lactarius fennoscandicus,vyöleppärousku,,syötävä,,true,
-lactarius-helvus,Lactarius helvus,lakritsirousku,,myrkyllinen,lactarius-rufus,true,"Ruokavirasto: lievästi myrkyllinen. Kaksoisolentosuhde kangasrouskuun on oma päätelmä, tarkista."
-russula-paludosa,Russula paludosa,isohapero,,syötävä,russula-emetica;amanita-muscaria,true,Ruokavirasto varoittaa punaisista haperoista. Punakärpässieni lisätty varmuuden vuoksi.
-russula-emetica,Russula emetica,,,myrkyllinen,russula-paludosa,true,"Ruokavirasto: kirpeä punainen hapero. Suomenkielinen nimi ja ryhmä tarkistettava."
-russula-decolorans-agg,Russula decolorans,kangashapero,,syötävä,,true,Ruokavirasto: kangashapero = R. decolorans ja R. pubescens.
-russula-decolorans-agg,Russula pubescens,,,syötävä,,true,Suomenkielinen nimi tarkistettava.
-russula-claroflava,Russula claroflava,keltahapero,,syötävä,,true,
-russula-vinosa,Russula vinosa,viinihapero,,syötävä,,true,
-hygrophorus-camarophyllus,Hygrophorus camarophyllus,mustavahakas,,syötävä,,true,
-cortinarius-caperatus,Cortinarius caperatus,kehnäsieni,,syötävä,cortinarius-rubellus,true,"Ruokaviraston nimeämät näköislajit ovat myrkyttömiä seitikkejä. Suippumyrkkyseitikki lisätty varmuuden vuoksi. Muut seitikit kuuluvat muu-luokkaan."
-cantharellus-cibarius,Cantharellus cibarius,kantarelli,,syötävä,hygrophoropsis-aurantiaca,true,
-hygrophoropsis-aurantiaca,Hygrophoropsis aurantiaca,valevahvero,,ei ruokasieni,cantharellus-cibarius,true,
-craterellus-tubaeformis-agg,Craterellus tubaeformis,suppilovahvero,,syötävä,cortinarius-rubellus,true,Ruokavirasto: kosteikkovahvero saa kuulua joukkoon.
-craterellus-tubaeformis-agg,Craterellus lutescens,kosteikkovahvero,,syötävä,,true,
-craterellus-cornucopioides,Craterellus cornucopioides,mustatorvisieni,,syötävä,,true,
-albatrellus-ovinus,Albatrellus ovinus,lampaankääpä,,syötävä,,true,
-hydnum-repandum-agg,Hydnum repandum,vaaleaorakas,,syötävä,,true,Ruokavirasto: rusko-orakas saa kuulua joukkoon.
-hydnum-repandum-agg,Hydnum rufescens,rusko-orakas,,syötävä,,true,
-morchella,Morchella,huhtasienet,,syötävä,gyromitra-esculenta,true,Suku luokkana. Ruokaviraston suosituslistalla.
-tricholoma-matsutake,Tricholoma matsutake,tuoksuvalmuska,,syötävä,,true,"Harvinainen, kuvia voi olla vähän."
-armillaria,Armillaria,mesisienet,,esikäsiteltävä,galerina-marginata;hypholoma-fasciculare,true,"Suku luokkana. Ei Ruokaviraston suosituslistalla. LuontoPortti: hyvä ruokasieni ryöpättynä."
-kuehneromyces-mutabilis,Kuehneromyces mutabilis,koivunkantosieni,,syötävä,galerina-marginata;hypholoma-fasciculare,true,Ei Ruokaviraston suosituslistalla. GBIF voi käyttää nimeä Pholiota mutabilis.
-agaricus-campestris,Agaricus campestris,nurmiherkkusieni,,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
-agaricus-arvensis,Agaricus arvensis,peltoherkkusieni,,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
-amanita-virosa,Amanita virosa,valkokärpässieni,,tappava,agaricus-campestris;agaricus-arvensis,true,Ruokavirasto: tappavan myrkyllinen.
-amanita-phalloides,Amanita phalloides,kavalakärpässieni,,tappava,agaricus-campestris;agaricus-arvensis,true,"Ruokavirasto: tappavan myrkyllinen, harvinainen Suomessa."
-cortinarius-rubellus,Cortinarius rubellus,suippumyrkkyseitikki,,tappava,craterellus-tubaeformis-agg;cortinarius-caperatus,true,Ruokavirasto: tappavan myrkyllinen.
-cortinarius-orellanus,Cortinarius orellanus,lehtomyrkkyseitikki,,tappava,cortinarius-rubellus,false,"Harvinainen Suomessa. Nimi vain Wikimedia Commonsista, tarkista."
-gyromitra-esculenta,Gyromitra esculenta,korvasieni,,tappava,morchella,true,"Ruokavirasto: tappavan myrkyllinen, poistettu suositeltavista ruokasienistä 2025, koska myrkkyä jää keittämisen jälkeenkin."
-galerina-marginata,Galerina marginata,myrkkynääpikkä,,tappava,kuehneromyces-mutabilis;armillaria,true,Ruokavirasto: samoja solumyrkkyjä kuin valkokärpässienessä.
-paxillus-involutus,Paxillus involutus,pulkkosieni,,tappava,,true,Ruokavirasto: on vaatinut Suomessa uhreja.
-amanita-muscaria,Amanita muscaria,punakärpässieni,,myrkyllinen,russula-paludosa,true,
-amanita-regalis,Amanita regalis,ruskokärpässieni,,myrkyllinen,amanita-muscaria,true,
-amanita-pantherina,Amanita pantherina,pantterikärpässieni,,myrkyllinen,,true,
-hypholoma-fasciculare,Hypholoma fasciculare,kitkerälahokka,,myrkyllinen,kuehneromyces-mutabilis;armillaria,true,
-inocybe,Inocybe,risakkaat,,myrkyllinen,,true,"Suku luokkana. Ruokavirasto: myrkkyrisakas (I. erubescens) on aiheuttanut kuolemia ulkomailla. GBIF voi käyttää suvun uutta rajausta, tarkista."
-tricholoma-equestre,Tricholoma equestre,kangaskeltavalmuska,,myrkyllinen,,true,
+boletus-edulis-agg,Boletus edulis,herkkutatti,5954958,syötävä,tylopilus-felleus,true,Ruokavirasto: herkkutatit yhtenä ryhmänä. Ei myrkyllistä näköislajia.
+boletus-edulis-agg,Boletus pinophilus,männynherkkutatti,5954949,syötävä,,true,
+boletus-edulis-agg,Boletus reticulatus,tammenherkkutatti,5954691,syötävä,,true,
+tylopilus-felleus,Tylopilus felleus,sappitatti,2524910,ei ruokasieni,boletus-edulis-agg,true,"Ruokavirasto: kitkerä, ei myrkyllinen."
+leccinum-versipelle-agg,Leccinum versipelle,koivunpunikkitatti,2524490,syötävä,,true,"Ruokavirasto: punikkitatit yhtenä ryhmänä, ei ryöppäysohjetta."
+leccinum-versipelle-agg,Leccinum aurantiacum,lehtopunikkitatti,2524513,syötävä,,true,"GBIF pitää L. populinumia tämän synonyyminä (sama avain), joten se ei ole omana rivinä. GBIF:n suomenkieliset nimet: lehtopunikkitatti, tammenpunikkitatti."
+leccinum-versipelle-agg,Leccinum albostipitatum,haavanpunikkitatti,,syötävä,,true,laji.fi: haavanpunikkitatti. Avain hakematta.
+leccinum-versipelle-agg,Leccinum vulpinum,männynpunikkitatti,2524528,syötävä,,true,
+suillus-variegatus,Suillus variegatus,kangastatti,9043861,syötävä,,true,
+suillus-luteus,Suillus luteus,voitatti,7777157,syötävä,,true,
+suillus-bovinus,Suillus bovinus,nummitatti,7623986,syötävä,,true,Ei Ruokaviraston suosituslistalla. Yleinen männikössä.
+lactarius-trivialis-agg,Lactarius trivialis,haaparousku,5248801,esikäsiteltävä,,true,Ruokavirasto: haaparouskut keitetään 5 minuuttia.
+lactarius-trivialis-agg,Lactarius utilis,kalvashaaparousku,5462809,esikäsiteltävä,,true,
+lactarius-rufus,Lactarius rufus,kangasrousku,5248684,esikäsiteltävä,lactarius-helvus,true,Ruokavirasto: keitetään 10 minuuttia.
+lactarius-torminosus,Lactarius torminosus,karvarousku,8122710,esikäsiteltävä,,true,Ruokavirasto: keitetään 10 minuuttia.
+lactarius-deliciosus-agg,Lactarius deliciosus,männynleppärousku,5248629,syötävä,,true,Ruokavirasto: leppärouskut yhtenä ryhmänä.
+lactarius-deliciosus-agg,Lactarius deterrimus,kuusenleppärousku,7925734,syötävä,,true,
+lactarius-deliciosus-agg,Lactarius fennoscandicus,vyöleppärousku,5463476,syötävä,,true,
+lactarius-helvus,Lactarius helvus,lakritsirousku,5248660,myrkyllinen,lactarius-rufus,true,"Ruokavirasto: lievästi myrkyllinen. Kaksoisolentosuhde kangasrouskuun on oma päätelmä, tarkista."
+russula-paludosa,Russula paludosa,isohapero,2551201,syötävä,russula-emetica;amanita-muscaria,true,Ruokavirasto varoittaa punaisista haperoista. Punakärpässieni lisätty varmuuden vuoksi.
+russula-emetica,Russula emetica,,2551213,myrkyllinen,russula-paludosa,true,Ruokavirasto: kirpeä punainen hapero. Suomenkielinen nimi ja ryhmä tarkistettava.
+russula-decolorans-agg,Russula decolorans,kangashapero,2551479,syötävä,,true,Ruokavirasto: kangashapero = R. decolorans ja R. pubescens.
+russula-decolorans-agg,Russula pubescens,,3360328,syötävä,,true,Suomenkielinen nimi tarkistettava.
+russula-claroflava,Russula claroflava,keltahapero,2551299,syötävä,,true,
+russula-vinosa,Russula vinosa,viinihapero,2551182,syötävä,,true,
+hygrophorus-camarophyllus,Hygrophorus camarophyllus,mustavahakas,2538720,syötävä,,true,
+cortinarius-caperatus,Cortinarius caperatus,kehnäsieni,2529415,syötävä,cortinarius-rubellus,true,Ruokaviraston nimeämät näköislajit ovat myrkyttömiä seitikkejä. Suippumyrkkyseitikki lisätty varmuuden vuoksi. Muut seitikit kuuluvat muu-luokkaan.
+cantharellus-cibarius,Cantharellus cibarius,kantarelli,5249504,syötävä,hygrophoropsis-aurantiaca,true,Ruokavirasto: keltavahvero eli kantarelli. GBIF käyttää nimeä keltavahvero.
+hygrophoropsis-aurantiaca,Hygrophoropsis aurantiaca,valevahvero,2525710,ei ruokasieni,cantharellus-cibarius,true,
+craterellus-tubaeformis-agg,Craterellus tubaeformis,suppilovahvero,2554536,syötävä,cortinarius-rubellus,true,Ruokavirasto: kosteikkovahvero saa kuulua joukkoon.
+craterellus-tubaeformis-agg,Craterellus lutescens,kosteikkovahvero,8871787,syötävä,,true,
+craterellus-cornucopioides,Craterellus cornucopioides,mustatorvisieni,2554662,syötävä,,true,
+albatrellus-ovinus,Albatrellus ovinus,lampaankääpä,2551823,syötävä,,true,
+hydnum-repandum-agg,Hydnum repandum,vaaleaorakas,2554716,syötävä,,true,Ruokavirasto: rusko-orakas saa kuulua joukkoon.
+hydnum-repandum-agg,Hydnum rufescens,rusko-orakas,2544165,syötävä,,true,
+morchella,Morchella,huhtasienet,2594601,syötävä,gyromitra-esculenta,true,Suku luokkana. Ruokaviraston suosituslistalla.
+tricholoma-matsutake,Tricholoma matsutake,tuoksuvalmuska,5241820,syötävä,,true,"Harvinainen, kuvia voi olla vähän."
+armillaria,Armillaria,mesisienet,2526021,esikäsiteltävä,galerina-marginata;hypholoma-fasciculare,true,Suku luokkana. Ei Ruokaviraston suosituslistalla. LuontoPortti: hyvä ruokasieni ryöpättynä.
+kuehneromyces-mutabilis,Kuehneromyces mutabilis,koivunkantosieni,2533962,syötävä,galerina-marginata;hypholoma-fasciculare,true,Ei Ruokaviraston suosituslistalla. GBIF voi käyttää nimeä Pholiota mutabilis.
+agaricus-campestris,Agaricus campestris,nurmiherkkusieni,5243458,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
+agaricus-arvensis,Agaricus arvensis,peltoherkkusieni,5243403,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
+amanita-virosa,Amanita virosa,valkokärpässieni,5240323,tappava,agaricus-campestris;agaricus-arvensis,true,Ruokavirasto: tappavan myrkyllinen.
+amanita-phalloides,Amanita phalloides,kavalakärpässieni,5240325,tappava,agaricus-campestris;agaricus-arvensis,true,"Ruokavirasto: tappavan myrkyllinen, harvinainen Suomessa."
+cortinarius-rubellus,Cortinarius rubellus,suippumyrkkyseitikki,2528663,tappava,craterellus-tubaeformis-agg;cortinarius-caperatus,true,Ruokavirasto: tappavan myrkyllinen.
+cortinarius-orellanus,Cortinarius orellanus,lehtomyrkkyseitikki,2528684,tappava,cortinarius-rubellus,false,"Harvinainen Suomessa. Nimi vain Wikimedia Commonsista, tarkista."
+gyromitra-esculenta,Gyromitra esculenta,korvasieni,5258510,tappava,morchella,true,"Ruokavirasto: tappavan myrkyllinen, poistettu suositeltavista ruokasienistä 2025, koska myrkkyä jää keittämisen jälkeenkin."
+galerina-marginata,Galerina marginata,myrkkynääpikkä,8118872,tappava,kuehneromyces-mutabilis;armillaria,true,Ruokavirasto: samoja solumyrkkyjä kuin valkokärpässienessä.
+paxillus-involutus,Paxillus involutus,pulkkosieni,5240002,tappava,,true,Ruokavirasto: on vaatinut Suomessa uhreja.
+amanita-muscaria,Amanita muscaria,punakärpässieni,8168319,myrkyllinen,russula-paludosa,true,
+amanita-regalis,Amanita regalis,ruskokärpässieni,5240248,myrkyllinen,amanita-muscaria,true,
+amanita-pantherina,Amanita pantherina,pantterikärpässieni,8961574,myrkyllinen,,true,
+hypholoma-fasciculare,Hypholoma fasciculare,kitkerälahokka,3293632,myrkyllinen,kuehneromyces-mutabilis;armillaria,true,
+inocybe,Inocybe,risakkaat,2527866,myrkyllinen,,true,"Suku luokkana. Ruokavirasto: myrkkyrisakas (I. erubescens) on aiheuttanut kuolemia ulkomailla. GBIF voi käyttää suvun uutta rajausta, tarkista."
+tricholoma-equestre,Tricholoma equestre,kangaskeltavalmuska,3324883,myrkyllinen,,true,

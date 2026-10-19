@@ -1,0 +1,41 @@
+class_id,tieteellinen,nimi,taxonKey,ryhma,kaksoisolennot,in_model,huomio
+boletus-edulis,Boletus edulis,herkkutatti,,syötävä,tylopilus-felleus,true,"Harkitse herkkutattien (edulis, pinophilus, reticulatus) yhdistämistä yhdeksi luokaksi."
+boletus-pinophilus,Boletus pinophilus,männynherkkutatti,,syötävä,tylopilus-felleus,true,
+boletus-reticulatus,Boletus reticulatus,tammenherkkutatti,,syötävä,tylopilus-felleus,true,
+tylopilus-felleus,Tylopilus felleus,sappitatti,,ei ruokasieni,boletus-edulis;boletus-pinophilus,true,
+leccinum-versipelle,Leccinum versipelle,koivunpunikkitatti,,syötävä,,true,"Punikkitatit kypsennetään huolellisesti. Tarkista, riittääkö ryhmä syötävä."
+leccinum-aurantiacum,Leccinum aurantiacum,haavanpunikkitatti,,syötävä,,true,"Sama huomio kuin koivunpunikkitatilla. Harkitse punikkitattien yhdistämistä."
+leccinum-vulpinum,Leccinum vulpinum,männynpunikkitatti,,syötävä,,true,
+suillus-luteus,Suillus luteus,voitatti,,syötävä,,true,
+suillus-variegatus,Suillus variegatus,kangastatti,,syötävä,,true,
+suillus-bovinus,Suillus bovinus,nummitatti,,syötävä,,true,Tarkista suomenkielinen nimi.
+cantharellus-cibarius,Cantharellus cibarius,kantarelli,,syötävä,hygrophoropsis-aurantiaca,true,"Tarkista, pitääkö myrkkyseitikit lisätä kaksoisolennoiksi."
+hygrophoropsis-aurantiaca,Hygrophoropsis aurantiaca,valevahvero,,ei ruokasieni,cantharellus-cibarius,true,
+craterellus-tubaeformis,Craterellus tubaeformis,suppilovahvero,,syötävä,cortinarius-rubellus,true,
+craterellus-cornucopioides,Craterellus cornucopioides,mustatorvisieni,,syötävä,,true,
+hydnum-repandum,Hydnum repandum,vaaleaorakas,,syötävä,hydnum-rufescens,true,
+hydnum-rufescens,Hydnum rufescens,rusko-orakas,,syötävä,hydnum-repandum,true,"Orakkaat ovat lähisukuisia ja vaikeita erottaa kuvasta. Harkitse yhdistämistä."
+albatrellus-ovinus,Albatrellus ovinus,lampaankääpä,,syötävä,,true,
+cortinarius-caperatus,Cortinarius caperatus,kehnäsieni,,syötävä,inocybe;cortinarius-rubellus,true,"Vanha nimi Rozites caperatus. Seitikit-suku ei voi olla oma luokkansa, koska kehnäsieni kuuluu siihen. Päätä, mihin muut seitikit menevät."
+cortinarius-rubellus,Cortinarius rubellus,suippumyrkkyseitikki,,tappava,craterellus-tubaeformis;cortinarius-caperatus,true,Sekoitetaan suppilovahveroon.
+cortinarius-orellanus,Cortinarius orellanus,,,tappava,cortinarius-rubellus,false,"Harvinainen Suomessa, todennäköisesti liian vähän kuvia. Tarkista suomenkielinen nimi."
+gyromitra-esculenta,Gyromitra esculenta,korvasieni,,esikäsiteltävä,,true,Raakana tappavan myrkyllinen. Esikäsiteltävä Ruokaviraston ohjeen mukaan.
+lactarius-rufus,Lactarius rufus,kangasrousku,,esikäsiteltävä,,true,
+lactarius-torminosus,Lactarius torminosus,karvarousku,,esikäsiteltävä,,true,
+lactarius-deterrimus,Lactarius deterrimus,kuusenleppärousku,,syötävä,lactarius-deliciosus,true,
+lactarius-deliciosus,Lactarius deliciosus,männynleppärousku,,syötävä,lactarius-deterrimus,true,"Leppärouskut ovat vaikeita erottaa kuvasta. Harkitse yhdistämistä."
+russula-paludosa,Russula paludosa,isohapero,,syötävä,amanita-muscaria,true,Tarkista suomenkielinen nimi ja kaksoisolento.
+armillaria,Armillaria,mesisienet,,esikäsiteltävä,galerina-marginata;hypholoma-fasciculare,true,"Suku luokkana. Tarkista ryhmä (ryöppäys) Ruokaviraston ohjeesta."
+kuehneromyces-mutabilis,Kuehneromyces mutabilis,,,syötävä,galerina-marginata;hypholoma-fasciculare,true,"Tarkista suomenkielinen nimi ja GBIF:n hyväksymä nimi (myös Pholiota mutabilis)."
+galerina-marginata,Galerina marginata,myrkkynahikas,,tappava,kuehneromyces-mutabilis;armillaria,true,Sisältää amatoksiineja.
+hypholoma-fasciculare,Hypholoma fasciculare,kitkerälahokka,,myrkyllinen,kuehneromyces-mutabilis;armillaria,true,
+agaricus-campestris,Agaricus campestris,nurmiherkkusieni,,syötävä,amanita-virosa;amanita-phalloides,true,Tarkista suomenkielinen nimi.
+agaricus-arvensis,Agaricus arvensis,peltoherkkusieni,,syötävä,amanita-virosa;amanita-phalloides,true,Tarkista suomenkielinen nimi.
+amanita-virosa,Amanita virosa,valkokärpässieni,,tappava,agaricus-campestris;agaricus-arvensis,true,
+amanita-phalloides,Amanita phalloides,kavalakärpässieni,,tappava,agaricus-campestris;agaricus-arvensis,true,"Harvinainen Suomessa. Kuvia voi joutua hakemaan naapurimaista."
+amanita-muscaria,Amanita muscaria,punakärpässieni,,myrkyllinen,russula-paludosa,true,
+amanita-regalis,Amanita regalis,ruskokärpässieni,,myrkyllinen,amanita-muscaria,true,
+amanita-pantherina,Amanita pantherina,pantterikärpässieni,,myrkyllinen,,true,
+paxillus-involutus,Paxillus involutus,pulkkosieni,,myrkyllinen,,true,
+inocybe,Inocybe,risasienet,,myrkyllinen,cortinarius-caperatus,true,"Suku luokkana. GBIF voi käyttää suvun uutta rajausta (Inosperma, Pseudosperma erotettu), tarkista."
+tricholoma-equestre,Tricholoma equestre,,,myrkyllinen,,true,Tarkista suomenkielinen nimi.

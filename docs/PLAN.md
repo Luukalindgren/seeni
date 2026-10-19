@@ -1,6 +1,6 @@
 # seeni.fi – projektiohje alusta loppuun
 
-Päivitetty 18.10.2026
+Päivitetty 19.10.2026
 
 ## Yleiskuva
 
@@ -33,7 +33,7 @@ Vaiheet 1–8 tehdään pöytäkoneella, vaiheet 9–11 enimmäkseen Macilla. Su
 
 Tavoite: pöytäkoneen WSL2-Ubuntussa näkyy näytönohjain PyTorchille, ja pääset koneelle Macilta SSH:lla mistä tahansa.
 
-1. **NVIDIA-ajuri Windowsiin.** Päivitä ajuri Windows-puolelle. WSL:ään ei asenneta erillistä Linux-ajuria. Aja PowerShellissä `nvidia-smi`, niin näet onko kortti 2070 vai 3070.
+1. **NVIDIA-ajuri Windowsiin.** Päivitä ajuri Windows-puolelle. WSL:ään ei asenneta erillistä Linux-ajuria. Aja PowerShellissä `nvidia-smi`: pöytäkoneessa on RTX 3070, ja ajurin pitää tukea CUDA 13:a.
 2. **WSL2 ja Ubuntu.** `wsl --install -d Ubuntu-24.04`, sitten uudelleenkäynnistys.
 3. **WSL-asetukset.** Tiedostoon `%UserProfile%\.wslconfig`:
 
@@ -128,7 +128,7 @@ Aloita EfficientNet-B0:lla 224 pikselin kuvakoossa. Se on pieni selaimelle ja no
 
 1. **Malli:** timm, ImageNet-esikoulutetut painot. Korvaa luokittelukerros kerroksella, jonka koko on luokkien määrä (`labels.json`:n pituus, `muu` mukaan lukien).
 2. **Kaksi vaihetta:** ensin 2–3 epookkia pelkkää luokittelukerrosta (oppimisnopeus noin 1e-3), sitten koko malli noin 1e-4:llä. Optimointiin AdamW, cosine-lasku ja lyhyt lämmittely. Yhteensä 20–30 epookkia.
-3. **Muisti ja nopeus:** pöytäkoneen RTX 3070:llä bf16 autocast (ei GradScaleria). `channels_last`, batch noin 64. Jos muisti loppuu, pienennä batchia.
+3. **Muisti ja nopeus:** pöytäkoneen RTX 3070:llä bf16 autocast (ei GradScaleria). Vain koulutus käyttää bf16:ta: arviointi, kalibrointi ja kultaiset testitulokset ajetaan fp32:na. `channels_last`, batch noin 64. Jos muisti loppuu, pienennä batchia.
 4. **Augmentointi:** RandomResizedCrop (scale 0.35–1), vaakapeilaus, pieni kierto, kirkkaus ja kontrasti. **Älä muuta sävyä (hue)**, koska väri on sienissä tuntomerkki.
 5. **Epätasapaino:** painotettu otanta, jossa paino on 1/√(kuvien määrä), ja label smoothing 0.1.
 6. **Arviointimuunnos** (lyhyempi sivu 256 → keskirajaus 224 → normalisointi) on se, joka toistetaan selaimessa täsmälleen. Määrittele se yhdessä paikassa ja vie se myöhemmin `preprocess.json`-tiedostoon.

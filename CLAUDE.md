@@ -37,9 +37,9 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 ## Technical notes
 
 **Training**
-- PyTorch comes from PyPI (`uv sync` in `training/`). Its Linux wheels are CUDA builds, currently CUDA 13, which needs a Windows NVIDIA driver from the R580 series or newer. Keep it on PyPI if you can: cloud agent sessions cannot reach download.pytorch.org, so a lock that needs it cannot be synced there. After upgrading torch, `tests/test_torch_build.py` checks that the build still supports sm_86 (RTX 3070).
+- PyTorch comes from PyPI (`uv sync` in `training/`). Its Linux wheels are CUDA builds, currently CUDA 13, which needs a Windows NVIDIA driver from the R580 series or newer. Keep it on PyPI if you can: cloud agent sessions cannot reach download.pytorch.org, so a lock that needs it cannot be synced there. After upgrading torch, `tests/test_torch_build.py` checks that the build still runs on the RTX 3070 (sm_86, or sm_80 code).
 - Get the data directory from `seeni.paths.data_dir()`, never from a hardcoded path.
-- The desktop GPU is an RTX 3070, which supports bf16: use bf16 autocast, no GradScaler.
+- The desktop GPU is an RTX 3070, which supports bf16: train with bf16 autocast, no GradScaler. Evaluation, temperature calibration and the golden outputs for the parity test run in fp32.
 - Run long jobs in tmux.
 - Start with a frozen DINOv2 embedding + linear-probe baseline before full fine-tuning.
 - First full model: EfficientNet-B0 at 224 px.

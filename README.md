@@ -22,6 +22,7 @@ Status: early development. There is no trained model or published app yet. The p
 | `species/` | `species.json`: species information and verification checks |
 | `web/` | Vite + TypeScript PWA, deployed to GitHub Pages |
 | `docs/PLAN.md` | The full step-by-step plan (in Finnish) |
+| `docs/ssh.md` | SSH from the Mac to the training desktop over Tailscale |
 | `CLAUDE.md` | Binding project rules: image licenses, preprocessing, class ids, safety |
 
 Training images, datasets and checkpoints are never committed. They live in `~/seeni-data` on the training machine. The only exceptions are the exported model, app and documentation images, and test fixtures, listed in `CLAUDE.md` hard rule 2.

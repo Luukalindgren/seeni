@@ -128,7 +128,7 @@ Aloita EfficientNet-B0:lla 224 pikselin kuvakoossa. Se on pieni selaimelle ja no
 
 1. **Malli:** timm, ImageNet-esikoulutetut painot. Korvaa luokittelukerros kerroksella, jonka koko on luokkien määrä (`labels.json`:n pituus, `muu` mukaan lukien).
 2. **Kaksi vaihetta:** ensin 2–3 epookkia pelkkää luokittelukerrosta (oppimisnopeus noin 1e-3), sitten koko malli noin 1e-4:llä. Optimointiin AdamW, cosine-lasku ja lyhyt lämmittely. Yhteensä 20–30 epookkia.
-3. **Muisti ja nopeus:** 3070:llä bf16 autocast, 2070:llä fp16 + GradScaler. `channels_last`, batch noin 64. Jos muisti loppuu, pienennä batchia.
+3. **Muisti ja nopeus:** pöytäkoneen RTX 3070:llä bf16 autocast (ei GradScaleria). `channels_last`, batch noin 64. Jos muisti loppuu, pienennä batchia.
 4. **Augmentointi:** RandomResizedCrop (scale 0.35–1), vaakapeilaus, pieni kierto, kirkkaus ja kontrasti. **Älä muuta sävyä (hue)**, koska väri on sienissä tuntomerkki.
 5. **Epätasapaino:** painotettu otanta, jossa paino on 1/√(kuvien määrä), ja label smoothing 0.1.
 6. **Arviointimuunnos** (lyhyempi sivu 256 → keskirajaus 224 → normalisointi) on se, joka toistetaan selaimessa täsmälleen. Määrittele se yhdessä paikassa ja vie se myöhemmin `preprocess.json`-tiedostoon.

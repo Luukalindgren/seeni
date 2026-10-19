@@ -8,7 +8,7 @@ The full step-by-step plan is in `docs/PLAN.md` (in Finnish). Each phase is also
 
 | Path | What | Where it runs |
 | --- | --- | --- |
-| `training/` | Python (uv, PyTorch, timm): data download, training, evaluation, ONNX export | Windows desktop, WSL2 Ubuntu, NVIDIA RTX (2070 or 3070, 8 GB VRAM) |
+| `training/` | Python (uv, PyTorch, timm): data download, training, evaluation, ONNX export | Windows 11 desktop, WSL2 Ubuntu 24.04, NVIDIA RTX 3070 (8 GB VRAM, sm_86), 32 GB RAM |
 | `data-meta/` | `lajilista.csv`, `split.csv`, attribution data. Small files only | – |
 | `species/` | `species.json`, hand-curated species info and verification checks | – |
 | `web/` | Vite + TypeScript PWA, onnxruntime-web | User's browser, deployed to GitHub Pages via Actions |
@@ -37,9 +37,9 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 ## Technical notes
 
 **Training**
-- PyTorch comes from PyPI (`uv sync` in `training/`). Its Linux wheels are CUDA builds, currently CUDA 13, which needs a Windows NVIDIA driver from the R580 series or newer. Keep it on PyPI if you can: cloud agent sessions cannot reach download.pytorch.org, so a lock that needs it cannot be synced there. After upgrading torch, `tests/test_torch_build.py` checks that the build still supports sm_75 (RTX 2070) and sm_86 (RTX 3070).
+- PyTorch comes from PyPI (`uv sync` in `training/`). Its Linux wheels are CUDA builds, currently CUDA 13, which needs a Windows NVIDIA driver from the R580 series or newer. Keep it on PyPI if you can: cloud agent sessions cannot reach download.pytorch.org, so a lock that needs it cannot be synced there. After upgrading torch, `tests/test_torch_build.py` checks that the build still supports sm_86 (RTX 3070).
 - Get the data directory from `seeni.paths.data_dir()`, never from a hardcoded path.
-- Use bf16 autocast on an RTX 3070, or fp16 with GradScaler on a 2070.
+- The desktop GPU is an RTX 3070, which supports bf16: use bf16 autocast, no GradScaler.
 - Run long jobs in tmux.
 - Start with a frozen DINOv2 embedding + linear-probe baseline before full fine-tuning.
 - First full model: EfficientNet-B0 at 224 px.

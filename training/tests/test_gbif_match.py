@@ -116,3 +116,45 @@ def test_fill_only_unflagged_empty_keys(tmp_path):
         "Rozites caperatus": "",
         "Cantharellus cibarius": "20",
     }
+
+
+def test_fill_keeps_other_lines_untouched(tmp_path):
+    path, _ = report_for(tmp_path, ROWS)
+    original = path.read_text(encoding="utf-8").replace("seitikit", '"seitikit"')
+    path.write_text(original, encoding="utf-8")
+    report = run(read(path), fake_fetch, pause=0)
+    fill_keys(path, report)
+    lines = path.read_text(encoding="utf-8").splitlines()
+    assert lines[1].startswith("cortinarius,Cortinarius,seitikit,10,")  # rewritten
+    assert lines[2] == original.splitlines()[2]
+
+
+def test_higher_rank_match_does_not_own_the_genus(tmp_path):
+    MATCHES["Pholiota mutabilis"] = {
+        "usageKey": 30,
+        "rank": "GENUS",
+        "status": "ACCEPTED",
+        "matchType": "HIGHERRANK",
+        "kingdom": "Fungi",
+        "genusKey": 30,
+    }
+    VERNACULAR[30] = []
+    try:
+        rows = "pholiota-mutabilis,Pholiota mutabilis,,,syötävä,,true\n"
+        rows += "pholiota-squarrosa,Pholiota squarrosa,,,ei ruokasieni,,true\n"
+        MATCHES["Pholiota squarrosa"] = {
+            "usageKey": 31,
+            "rank": "SPECIES",
+            "status": "ACCEPTED",
+            "matchType": "EXACT",
+            "kingdom": "Fungi",
+            "genusKey": 30,
+            "speciesKey": 31,
+        }
+        VERNACULAR[31] = []
+        _, report = report_for(tmp_path, rows)
+        assert "inside-" not in report["Pholiota squarrosa"]["flags"]
+        assert "match-higherrank" in report["Pholiota mutabilis"]["flags"]
+    finally:
+        for name in ("Pholiota mutabilis", "Pholiota squarrosa"):
+            MATCHES.pop(name)

@@ -71,13 +71,14 @@ def read(path: Path = LAJILISTA) -> list[Row]:
                 ]
             )
         rows, errors = [], []
-        for line, raw in enumerate(reader, start=2):
+        for raw in reader:
+            line = reader.line_num
             if None in raw or any(v is None for v in raw.values()):
                 errors.append(f"line {line}: wrong number of fields")
                 continue
             raw = {k: v.strip() for k, v in raw.items()}
             key = raw["taxonKey"]
-            if key and not key.isdigit():
+            if key and not (key.isascii() and key.isdigit() and int(key) > 0):
                 errors.append(f"line {line}: taxonKey {key!r} is not a positive integer")
                 continue
             if raw["in_model"] not in ("true", "false"):
@@ -120,6 +121,17 @@ def class_group(rows: list[Row]) -> str:
 def class_lookalikes(rows: list[Row]) -> list[str]:
     """Union of the class's rows' lookalikes, in first-seen order."""
     return list(dict.fromkeys(c for r in rows for c in r.kaksoisolennot))
+
+
+def is_dangerous_to(food_group: str, lookalike_group: str) -> bool:
+    """Whether mistaking the lookalike for the food mushroom is dangerous (hard rule 8).
+
+    An esikäsiteltävä lookalike is dangerous only to a syötävä class: mistaken for one,
+    it is eaten without pre-treatment.
+    """
+    if food_group == "syötävä":
+        return lookalike_group in DANGEROUS
+    return food_group == "esikäsiteltävä" and lookalike_group in {"tappava", "myrkyllinen"}
 
 
 def validate(rows: list[Row], require_keys: bool = False) -> tuple[list[str], list[str]]:
@@ -175,29 +187,30 @@ def validate(rows: list[Row], require_keys: bool = False) -> tuple[list[str], li
                 f"{owner.tieteellinen} ({owner.class_id}) on line {owner.line}"
             )
 
+    valid = {
+        class_id: class_group(members)
+        for class_id, members in by_class.items()
+        if all(r.ryhma in GROUPS for r in members)
+    }
+    listed_by_food = {
+        c
+        for class_id, group in valid.items()
+        if group in FOOD
+        for c in class_lookalikes(by_class[class_id])
+        if c in valid and is_dangerous_to(group, valid[c])
+    }
     for class_id, members in by_class.items():
         if len({r.in_model for r in members}) > 1:
             errors.append(f"class {class_id}: in_model differs between its rows")
-        if any(r.ryhma not in GROUPS for r in members):
-            continue
-        group = class_group(members)
-        lookalikes = class_lookalikes(members)
-        if group in FOOD:
-            dangerous = [
-                c
-                for c in lookalikes
-                if c in by_class
-                and all(r.ryhma in GROUPS for r in by_class[c])
-                and class_group(by_class[c]) in DANGEROUS
-            ]
-            if not dangerous:
-                warnings.append(
-                    f"class {class_id}: food mushroom with no dangerous lookalike listed"
-                )
-        if group in DANGEROUS and not any(
-            class_id in class_lookalikes(m) for m in by_class.values()
+        group = valid.get(class_id)
+        if group in FOOD and not any(
+            c in valid and is_dangerous_to(group, valid[c]) for c in class_lookalikes(members)
         ):
-            warnings.append(f"class {class_id}: dangerous, but no class lists it as a lookalike")
+            warnings.append(f"class {class_id}: food mushroom with no dangerous lookalike listed")
+        if group in DANGEROUS and class_id not in listed_by_food:
+            warnings.append(
+                f"class {class_id}: dangerous, but no food mushroom class lists it as a lookalike"
+            )
 
     return errors, warnings
 

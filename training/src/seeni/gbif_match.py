@@ -13,15 +13,17 @@ fills rows whose match is exact, accepted and of the expected rank.
 
 import argparse
 import csv
+import io
 import json
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
 from pathlib import Path
 
-from seeni.lajilista import LAJILISTA, Row, read
+from seeni.lajilista import LAJILISTA, LajilistaError, Row, read, validate
 from seeni.paths import data_dir
 
 API = "https://api.gbif.org/v1"
@@ -56,6 +58,9 @@ def fetch_json(path: str, params: dict) -> dict | list:
         try:
             with urllib.request.urlopen(request, timeout=30) as response:
                 return json.load(response)
+        except urllib.error.HTTPError as e:
+            if e.code != 429 and e.code < 500 or attempt == 3:
+                raise
         except OSError:
             if attempt == 3:
                 raise
@@ -88,9 +93,13 @@ def proposed_key(m: dict) -> int | None:
 
 def finnish_names(key: int, fetch: Fetch) -> list[str]:
     data = fetch(f"species/{key}/vernacularNames", {"limit": 300})
-    names = [v["vernacularName"].strip().lower() for v in data.get("results", [])]
-    langs = [v.get("language") for v in data.get("results", [])]
-    return sorted({n for n, lang in zip(names, langs, strict=True) if lang in ("fin", "fi")})
+    return sorted(
+        {
+            v["vernacularName"].strip().lower()
+            for v in data.get("results", [])
+            if v.get("vernacularName") and v.get("language") in ("fin", "fi")
+        }
+    )
 
 
 def assess(row: Row, m: dict, fi_names: list[str]) -> list[str]:
@@ -118,7 +127,10 @@ def overlaps(rows: list[Row], matches: dict[int, dict]) -> dict[int, list[str]]:
     """Rows whose GBIF lineage contains another class's taxon (hard rule 5)."""
     key_owner = {}
     for row in rows:
-        key = row.taxon_key or proposed_key(matches.get(row.line, {}))
+        m = matches.get(row.line, {})
+        # A match that fell back to a higher rank or a fuzzy name does not own its key.
+        clean = m.get("matchType") == "EXACT" and m.get("rank") == expected_rank(row)
+        key = row.taxon_key or (proposed_key(m) if clean else None)
         if key:
             key_owner[key] = row
     found: dict[int, list[str]] = {}
@@ -159,8 +171,9 @@ def run(rows: list[Row], fetch: Fetch, pause: float = 0.2) -> list[dict]:
             }
         )
         time.sleep(pause)
+    by_line = {r["line"]: r for r in report}
     for line, extra in overlaps(rows, matches).items():
-        next(r for r in report if r["line"] == line)["flags"].extend(extra)
+        by_line[line]["flags"].extend(extra)
     by_key: dict[int, list[dict]] = {}
     for r in report:
         if r["proposed_key"]:
@@ -175,20 +188,35 @@ def run(rows: list[Row], fetch: Fetch, pause: float = 0.2) -> list[dict]:
 
 
 def fill_keys(path: Path, report: list[dict]) -> int:
-    """Write proposed keys into empty taxonKey cells of rows that have no flags."""
-    fill = {r["line"]: r["proposed_key"] for r in report if not r["flags"] and not r["taxonKey"]}
-    with path.open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        fieldnames = reader.fieldnames
-        rows = list(reader)
-    for line, raw in enumerate(rows, start=2):
-        if line in fill and not raw["taxonKey"].strip():
-            raw["taxonKey"] = str(fill[line])
-    with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
-    return len(fill)
+    """Write proposed keys into empty taxonKey cells of rows that have no flags.
+
+    Only the filled lines are rewritten, so the rest of the file keeps its formatting.
+    """
+    fill = {r["line"]: r for r in report if not r["flags"] and not r["taxonKey"]}
+    if not fill:
+        return 0
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+    header = next(csv.reader([lines[0]]))
+    key_col, name_col = header.index("taxonKey"), header.index("tieteellinen")
+    filled = 0
+    for line, r in fill.items():
+        text = lines[line - 1]
+        fields = next(csv.reader([text]))
+        # Skip anything that is not a whole one-line record of the same taxon.
+        if (
+            len(fields) != len(header)
+            or " ".join(fields[name_col].split()) != r["tieteellinen"]
+            or fields[key_col].strip()
+        ):
+            continue
+        fields[key_col] = str(r["proposed_key"])
+        out = io.StringIO()
+        ending = text[len(text.rstrip("\r\n")) :]
+        csv.writer(out, lineterminator=ending).writerow(fields)
+        lines[line - 1] = out.getvalue()
+        filled += 1
+    path.write_text("".join(lines), encoding="utf-8")
+    return filled
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -198,7 +226,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--fill", action="store_true", help="fill empty, unflagged taxonKeys")
     args = parser.parse_args(argv)
 
-    rows = read(args.lajilista)
+    try:
+        rows = read(args.lajilista)
+        errors, _ = validate(rows)
+    except LajilistaError as e:
+        errors = e.errors
+    if errors:
+        for e in errors:
+            print(f"error: {e}", file=sys.stderr)
+        print("fix the list first: uv run python -m seeni.lajilista", file=sys.stderr)
+        return 1
     report = run(rows, fetch_json)
     out = args.report or data_dir() / "lajilista_gbif.csv"
     out.parent.mkdir(parents=True, exist_ok=True)

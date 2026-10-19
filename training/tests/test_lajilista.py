@@ -99,3 +99,24 @@ def test_main_exit_code(tmp_path):
     assert main([str(path), "-q"]) == 0
     path.write_text(HEADER + FOOD, encoding="utf-8")
     assert main([str(path), "-q"]) == 1
+
+
+@pytest.mark.parametrize("key", ["0", "١٢"])
+def test_taxon_key_must_be_positive_ascii(tmp_path, key):
+    with pytest.raises(LajilistaError):
+        load(tmp_path, f"a,A b,,{key},syötävä,,true\n")
+
+
+def test_esikasiteltava_lookalike_is_dangerous_only_to_syotava(tmp_path):
+    body = (
+        "a,A b,,1,esikäsiteltävä,b,true\nb,A c,,2,esikäsiteltävä,,true\nc,A d,,3,syötävä,b,true\n"
+    )
+    _, warnings = validate(load(tmp_path, body))
+    assert any(w.startswith("class a: food mushroom with no dangerous") for w in warnings)
+    assert not any(w.startswith("class c:") for w in warnings)
+
+
+def test_dangerous_class_listed_only_by_another_dangerous_class_warns(tmp_path):
+    body = DEADLY + "amanita-virosa,Amanita virosa,,3,tappava,cortinarius-rubellus,true\n"
+    _, warnings = validate(load(tmp_path, body))
+    assert any(w.startswith("class cortinarius-rubellus: dangerous") for w in warnings)

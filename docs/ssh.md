@@ -34,6 +34,8 @@ networkingMode=mirrored
 systemd=true
 ```
 
+Set `memory` to about 3/4 of the machine's RAM (24 GB on the 32 GB desktop).
+
 Restart WSL from PowerShell with `wsl --shutdown`, then open Ubuntu again and check:
 
 - `free -h` shows about 24 GB.
@@ -41,13 +43,13 @@ Restart WSL from PowerShell with `wsl --shutdown`, then open Ubuntu again and ch
 
 ## 3. sshd in Ubuntu
 
-Ubuntu 24.04 starts sshd through `ssh.socket`, which can ignore the `Port` setting. Switch to the plain service:
+Ubuntu 24.04 starts sshd through socket activation (`ssh.socket`), which takes the port from a generated unit and only picks up a changed `Port` after `systemctl daemon-reload` and a socket restart. The plain service is simpler, so switch to it:
 
 ```bash
 sudo apt install -y openssh-server
 printf 'Port 2222\nPasswordAuthentication no\nKbdInteractiveAuthentication no\n' | sudo tee /etc/ssh/sshd_config.d/10-seeni.conf
 sudo systemctl disable --now ssh.socket
-sudo systemctl enable --now ssh.service
+sudo systemctl enable ssh.service
 sudo systemctl restart ssh.service
 ss -tln | grep 2222
 ```
@@ -62,22 +64,21 @@ On the Mac, create a key if you do not have one:
 ssh-keygen -t ed25519
 ```
 
-Add the contents of the Mac's `~/.ssh/id_ed25519.pub` to `~/.ssh/authorized_keys` in WSL, and fix the permissions there:
+Password login is off, so `ssh-copy-id` does not work. Print the public key on the Mac with `cat ~/.ssh/id_ed25519.pub`, then in an Ubuntu terminal on the desktop paste it into this command in place of the placeholder:
 
 ```bash
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
+echo '<contents of id_ed25519.pub>' >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-Password login is off, so `ssh-copy-id` does not work. Copy the public key over by other means, for example by pasting it in an Ubuntu terminal on the desktop.
-
 ## 5. Windows firewall
 
-In mirrored mode, inbound traffic to WSL goes through the Hyper-V firewall, not the normal Windows Firewall rules. Allow port 2222 in an admin PowerShell:
+In mirrored mode, inbound traffic to WSL goes through the Hyper-V firewall, not the normal Windows Firewall rules. Allow port 2222 in an admin PowerShell, only from Tailscale addresses (`100.64.0.0/10` and `fd7a:115c:a1e0::/48`), so sshd is not reachable from the LAN or other networks:
 
 ```powershell
-New-NetFirewallHyperVRule -Name WSL-SSH -DisplayName "WSL SSH 2222" -Direction Inbound -VMCreatorId '{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}' -Protocol TCP -LocalPorts 2222
+New-NetFirewallHyperVRule -Name WSL-SSH -DisplayName "WSL SSH 2222" -Direction Inbound -VMCreatorId '{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}' -Protocol TCP -LocalPorts 2222 -RemoteAddresses '100.64.0.0/10','fd7a:115c:a1e0::/48'
 ```
 
 ## 6. SSH config on the Mac
@@ -97,7 +98,16 @@ Host seeni-pc
 
 - Turn off Windows sleep on AC power.
 - Run training in `tmux`, so it keeps going when the SSH connection drops.
-- WSL must keep running when no Ubuntu window is open, otherwise SSH has nothing to connect to.
+- WSL must keep running when no Ubuntu window is open, otherwise SSH has nothing to connect to. WSL stops a distro soon after its last Windows-side process exits, even with sshd running. One way to keep it up is a Task Scheduler task on Windows that runs at logon and keeps a `wsl.exe` process open:
+
+  ```powershell
+  $action  = New-ScheduledTaskAction -Execute 'wsl.exe' -Argument '-d Ubuntu-24.04 --exec sleep infinity'
+  $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+  Register-ScheduledTask -TaskName 'WSL keep-alive' -Action $action -Trigger $trigger -Settings (New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0)
+  ```
+
+  This also starts WSL again after a reboot, but only once someone logs in to Windows. This setup has not been tested on the desktop yet; the [check](#check) below tells whether it works.
+- In the Tailscale settings on Windows, turn on **Run unattended**, so the machine stays on the tailnet at the login screen and after you log out.
 - Install Claude Code inside WSL, so agents run commands in the same environment.
 
 ## Check
@@ -116,4 +126,4 @@ Then close every Ubuntu window on the desktop and run `ssh seeni-pc` again. It s
 - **Connection times out:** check that Tailscale is up on both machines (`tailscale status`), that `ip -4 addr` in WSL shows the `100.x.y.z` address, and that the Hyper-V firewall rule exists (`Get-NetFirewallHyperVRule -Name WSL-SSH`).
 - **Connection refused:** sshd is not listening on 2222. Check `ss -tln | grep 2222` and `systemctl status ssh.service`, and that `ssh.socket` is disabled.
 - **Permission denied (publickey):** check the key in `~/.ssh/authorized_keys` and the `700`/`600` permissions in WSL.
-- **Works only while an Ubuntu window is open:** WSL is shutting down when idle. See [Long runs](#7-long-runs).
+- **Works only while an Ubuntu window is open:** WSL is shutting down when idle. Check that the keep-alive task from [Long runs](#7-long-runs) is running (`Get-ScheduledTask -TaskName 'WSL keep-alive'`).

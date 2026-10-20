@@ -9,7 +9,8 @@ Every image of an observation (gbifID) lands in the same set, so photos of one s
 never end up on both sides. The split is stratified by class: within each class the
 observations are taken in a fixed pseudo-random order (from the seed) and each one goes to
 the set that is furthest below its share of 80 / 10 / 10. A class with at least three
-observations always gets one in val and one in test.
+observations always gets one in val and one in test. The `muu` images (seeni.muu) are
+split the same way, as one class.
 
 An observation keeps its set once it is in split.csv. A later download only adds new
 observations, so a test image never moves into training. Observations that are no longer
@@ -23,7 +24,7 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from seeni.gbif_images import read_table
+from seeni.muu import read_manifests
 from seeni.paths import REPO_ROOT, data_dir
 
 SPLIT = REPO_ROOT / "data-meta" / "split.csv"
@@ -114,7 +115,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=SEED)
     parser.add_argument("--check", action="store_true", help="only check split.csv")
     args = parser.parse_args(argv)
-    manifest = read_table(data_dir() / "manifest.parquet")
+    manifest = read_manifests(data_dir())
     obs = observations(manifest)
     existing = read_split()
     missing = [g for g in obs if g not in existing]

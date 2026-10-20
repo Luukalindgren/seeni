@@ -71,3 +71,16 @@ uv run python -m seeni.gbif_images report                # images per class, for
 ```
 
 Every step can be re-run; `download` skips images already on disk. After browsing the contact sheets, add microscope shots, spore prints, drawings and other bad images to `<data dir>/exclude.csv` (`image,reason`, where `image` is the label on the sheet) and run `download` again: the manifest drops them and their files move to `<data dir>/unused/`. Commit `data-meta/gbif_download.json`, since the attributions cite its DOI.
+
+## Split and baseline (phase 5)
+
+From `training/`, after the phase 4 manifest is final:
+
+```sh
+uv run python -m seeni.split                # train/val/test by gbifID into data-meta/split.csv
+uv run python -m seeni.baseline embed       # frozen DINOv2 ViT-B/14 embeddings of every image
+uv run python -m seeni.baseline probe       # linear probe; per-class top-1/top-3 and confusions on val
+uv run python -m seeni.baseline outliers    # images far from their own class, with contact sheets
+```
+
+`split` keeps every observation that is already in `split.csv` in its set and only assigns new ones, so a later download never moves a test image into training. Commit `split.csv` after it changes. `embed` only embeds images it has not seen. Results go to `<data dir>/baseline/`; add bad outliers to `exclude.csv` and re-run `gbif_images download`, `split` and `embed`.

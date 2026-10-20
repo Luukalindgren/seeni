@@ -74,7 +74,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - [x] 1. Desktop setup: WSL2, CUDA, uv, Tailscale + SSH (#1)
 - [x] 2. Repo structure (#2)
 - [ ] 3. Species list (#3)
-- [ ] 4. GBIF data download + license filtering (#4)
+- [x] 4. GBIF data download + license filtering (#4)
 - [ ] 5. Split + DINOv2 baseline (#5)
 - [ ] 6. Fine-tuning (#6)
 - [ ] 7. Evaluation, calibration, unknown class (#7)

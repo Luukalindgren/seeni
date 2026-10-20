@@ -42,6 +42,26 @@ app.innerHTML = `
   <section id="result" class="result" aria-live="polite"></section>
   <footer>
     <p>Kuvat käsitellään vain tällä laitteella. Mitään ei lähetetä minnekään.</p>
+    <details id="about">
+      <summary>Tietoa ja lähteet</summary>
+      <p>
+        Seeni ei kerro, voiko sientä syödä. Se ehdottaa lajeja, näyttää niiden vaaralliset
+        kaksoisolennot ja ohjaa tarkistamaan tuntomerkit. Lajitiedot ovat tarkistamattomia
+        luonnoksia.
+      </p>
+      <p>
+        Malli on opetettu valokuvilla, jotka on jaettu <a href="https://www.gbif.org/">GBIF</a>in
+        kautta CC0- tai CC BY -lisenssillä. Malli perustuu EfficientNet-B0-painoihin
+        (<a href="https://huggingface.co/timm/efficientnet_b0.ra_in1k">timm</a>, Apache-2.0) ja
+        toimii selaimessa <a href="https://github.com/microsoft/onnxruntime">onnxruntime-webillä</a> (MIT).
+      </p>
+      <p>
+        Lisenssit: koodi MIT, malli ja lajitiedot CC BY 4.0.
+        <a href="https://github.com/Luukalindgren/seeni">Lähdekoodi</a>.
+      </p>
+      <h3>Kuvaajat</h3>
+      <div id="photographers"><p>Ladataan…</p></div>
+    </details>
   </footer>
 `
 
@@ -170,6 +190,40 @@ function render(state: State | null) {
   answers.append(skipButton)
   result.append(answers)
 }
+
+interface Attributions {
+  images: number
+  downloads: { doi: string; citation: string }[]
+  photographers: { name: string; images: number; licenses: string[] }[]
+}
+
+// The photographer list (seeni.attributions) loads only when the section is opened.
+const about = document.querySelector<HTMLDetailsElement>('#about')!
+about.addEventListener(
+  'toggle',
+  async () => {
+    const target = document.querySelector<HTMLElement>('#photographers')!
+    try {
+      const response = await fetch(`${base}attributions.json`)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const a: Attributions = await response.json()
+      const intro = el('p', `Malli on opetettu ${a.images} kuvalla. Kiitos kaikille kuvaajille. Aineistot: `)
+      a.downloads.forEach((d, i) => {
+        const link = el('a', d.citation)
+        link.href = `https://doi.org/${d.doi}`
+        intro.append(link, i < a.downloads.length - 1 ? '; ' : '.')
+      })
+      const list = el('ul', undefined, 'photographers')
+      for (const p of a.photographers) {
+        list.append(el('li', `${p.name} (${p.images} kuva${p.images === 1 ? '' : 'a'}, ${p.licenses.join(', ')})`))
+      }
+      target.replaceChildren(intro, list)
+    } catch (e) {
+      target.replaceChildren(el('p', `Luettelon lataus epäonnistui: ${String(e)}`))
+    }
+  },
+  { once: true },
+)
 
 // Only the latest set of photos may show a result: an earlier one that finishes later is
 // dropped, so the result on screen always belongs to the photos on screen.

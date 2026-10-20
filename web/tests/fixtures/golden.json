@@ -6,6 +6,10 @@
     "tensors/3345075329_9ae2b10657.npy",
     "tensors/6509447648_53910f941e.npy"
   ],
+  "decoded": [
+    "decoded/1825514568_6b6b5c2f2f.npy",
+    "decoded/3345075329_9ae2b10657.npy"
+  ],
   "images": [
     {
       "file": "images/1825514568_6b6b5c2f2f.jpg",

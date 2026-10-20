@@ -15,6 +15,7 @@ web/public/models/<version>/:
 and the golden fixtures for the parity test (hard rule 7, #10, #14) to web/tests/fixtures/:
 
     images/<image>.jpg          20 test images (CC0/CC-BY, credited in ATTRIBUTIONS.md)
+    decoded/<image>.npy         the decoded upright RGB pixels (H×W×3 uint8) of two of them
     golden.json                 per image: the expected top-5 of the shipped model, as raw
                                 logits and as calibrated probabilities
     tensors/<image>.npy         the expected 1×3×224×224 float32 input for a few of them
@@ -44,9 +45,10 @@ from seeni.preprocess import CROP, eval_transform, load, spec
 
 OPSET = 17
 CHECK_IMAGES = 200
-FIXTURE_PARTS = ["images", "tensors", "golden.json"]
+FIXTURE_PARTS = ["images", "tensors", "decoded", "golden.json"]
 FIXTURE_IMAGES = 20
 TENSOR_FIXTURES = 3
+DECODED_FIXTURES = 2
 MAX_LOGIT_DIFF = 1e-3
 MIN_FP16_TOP1 = 0.99
 FIXTURES = REPO_ROOT / "web" / "tests" / "fixtures"
@@ -201,7 +203,7 @@ def cmd_export(args) -> int:
         raise SystemExit("the test set has no muu image")
     first = spread(muu, 1, "fixture")
     fixtures = first + spread([m for m in test if m not in first], FIXTURE_IMAGES - 1, "fixture")
-    for d in FIXTURE_PARTS[:2]:
+    for d in FIXTURE_PARTS[:3]:
         (stage / "fixtures" / d).mkdir(parents=True)
     for m in fixtures:
         shutil.copyfile(root / m["path"], stage / "fixtures" / "images" / f"{m['image']}.jpg")
@@ -209,10 +211,16 @@ def cmd_export(args) -> int:
     logits = run_onnx(stage / "model" / "model.onnx", fx)
     for m, t in zip(fixtures[:TENSOR_FIXTURES], fx[:TENSOR_FIXTURES]):
         np.save(stage / "fixtures" / "tensors" / f"{m['image']}.npy", t[None])
+    # Decoded, upright RGB pixels before the resize, so the browser's resize can be tested
+    # on exactly the pixels PIL resized, apart from JPEG decoding (#14).
+    for m in fixtures[:DECODED_FIXTURES]:
+        pixels = np.asarray(load(stage / "fixtures" / "images" / f"{m['image']}.jpg"), np.uint8)
+        np.save(stage / "fixtures" / "decoded" / f"{m['image']}.npy", pixels)
     record = {
         "model": f"models/{args.version}/model.onnx",
         "temperature": calibration["temperature"],
         "tensors": [f"tensors/{m['image']}.npy" for m in fixtures[:TENSOR_FIXTURES]],
+        "decoded": [f"decoded/{m['image']}.npy" for m in fixtures[:DECODED_FIXTURES]],
         "images": golden(fixtures, logits, run_onnx(fp32_path, fx), class_ids, calibration),
     }
     (stage / "fixtures" / "golden.json").write_text(json.dumps(record, indent=2) + "\n")

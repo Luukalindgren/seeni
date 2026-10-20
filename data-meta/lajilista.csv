@@ -8,7 +8,7 @@ leccinum-versipelle-agg,Leccinum aurantiacum,lehtopunikkitatti,2524513,syötäv�
 leccinum-versipelle-agg,Leccinum albostipitatum,haavanpunikkitatti,7869532,syötävä,,true,"laji.fi: haavanpunikkitatti. GBIF: hyväksytty laji. Ei nimeltä Ruokaviraston listalla, koska lista käyttää vanhaa nimeä L. aurantiacum."
 leccinum-versipelle-agg,Leccinum vulpinum,männynpunikkitatti,2524528,syötävä,,true,
 leccinum-versipelle-agg,Leccinum piceinum,kuusenpunikkitatti,7942472,syötävä,,true,"laji.fi: kuusenpunikkitatti. Ei nimeltä Ruokaviraston listalla, mutta punikkitatti. Lisätty auditoinnissa."
-leccinum-scabrum,Leccinum scabrum,lehmäntatti,9141390,syötävä,leccinum-versipelle-agg,false,"Ei Ruokaviraston suosituslistalla. Ruokavirasto mainitsee punikkitattien yleisenä sekaannuslajina. Lisätty auditoinnissa."
+leccinum-scabrum,Leccinum scabrum,lehmäntatti,9141390,syötävä,leccinum-versipelle-agg,true,"Ei Ruokaviraston suosituslistalla. Ruokavirasto mainitsee punikkitattien yleisenä sekaannuslajina. Lisätty auditoinnissa."
 suillus-variegatus,Suillus variegatus,kangastatti,9043861,syötävä,,true,
 suillus-luteus,Suillus luteus,voitatti,7777157,syötävä,,true,
 suillus-bovinus,Suillus bovinus,nummitatti,7623986,syötävä,,true,Ei Ruokaviraston suosituslistalla. Yleinen männikössä.
@@ -16,7 +16,7 @@ lactarius-trivialis-agg,Lactarius trivialis,haaparousku,5248801,esikäsiteltäv�
 lactarius-trivialis-agg,Lactarius utilis,kalvashaaparousku,5462809,esikäsiteltävä,,true,
 lactarius-rufus,Lactarius rufus,kangasrousku,5248684,esikäsiteltävä,lactarius-helvus,true,Ruokavirasto: keitetään 10 minuuttia.
 lactarius-torminosus,Lactarius torminosus,karvarousku,8122710,esikäsiteltävä,lactarius-pubescens;paxillus-involutus,true,Ruokavirasto: keitetään 10 minuuttia.
-lactarius-pubescens,Lactarius pubescens,villakarvarousku,5248664,ei ruokasieni,lactarius-torminosus,false,"laji.fi: villakarvarousku. Ei Ruokaviraston listalla, syötävyyttä ei vahvistettu luotettavasta lähteestä, joten luokiteltu varovasti. Lisätty auditoinnissa."
+lactarius-pubescens,Lactarius pubescens,villakarvarousku,5248664,ei ruokasieni,lactarius-torminosus,true,"laji.fi: villakarvarousku. Ei Ruokaviraston listalla, syötävyyttä ei vahvistettu luotettavasta lähteestä, joten luokiteltu varovasti. Lisätty auditoinnissa."
 lactarius-deliciosus-agg,Lactarius deliciosus,männynleppärousku,5248629,syötävä,,true,Ruokavirasto: leppärouskut yhtenä ryhmänä.
 lactarius-deliciosus-agg,Lactarius deterrimus,kuusenleppärousku,7925734,syötävä,,true,
 lactarius-deliciosus-agg,Lactarius fennoscandicus,vyöleppärousku,5463476,syötävä,,true,

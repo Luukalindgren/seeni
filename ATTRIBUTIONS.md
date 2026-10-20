@@ -10,16 +10,37 @@ Sections marked *pending* are filled in by the phase in brackets. Nothing in the
 
 The model is trained on photos shared through [GBIF](https://www.gbif.org/) under CC0 or CC-BY licenses: mushrooms, and for the unknown class `muu` also other fungi and non-fungi such as moss, cones, leaves and plants (#7). Every photographer is credited, whatever the class. Each photo's license is taken from GBIF `multimedia.txt`, not from the occurrence record. The photos are not distributed in this repository or with the app, but the model is derived from them.
 
-- GBIF occurrence download: DOI to be added
+- GBIF occurrence downloads: species images GBIF.org (20 October 2026) https://doi.org/10.15468/dl.fadmpu; unknown class `muu` GBIF.org (20 October 2026) https://doi.org/10.15468/dl.3x49qy (both recorded in `data-meta/gbif_download.json`)
 - Photographers and licenses: a full list is generated from the image manifest and published on the app's attributions page
 
 ## Images committed to this repository
 
 Any image in this repository that is not Seeni's own work must be CC0 or CC-BY and is listed here. This covers test fixtures (any `tests/fixtures/` folder) and images under `web/`, `species/` and `docs/`, such as verification check pictures.
 
+Golden test fixtures for the parity test (#8), photos from the test set, resized to 512 px:
+
 | File | Author | License | Source |
 | --- | --- | --- | --- |
-| *none yet* | | | |
+| `web/tests/fixtures/images/1825514568_6b6b5c2f2f.jpg` | Edvin W. Johannesen | CC-BY-4.0 | [GBIF 1825514568](https://www.gbif.org/occurrence/1825514568) |
+| `web/tests/fixtures/images/3345075329_9ae2b10657.jpg` | Grete Strømsøe | CC-BY-4.0 | [GBIF 3345075329](https://www.gbif.org/occurrence/3345075329) |
+| `web/tests/fixtures/images/6509447648_53910f941e.jpg` | Turid Helland | CC-BY-4.0 | [GBIF 6509447648](https://www.gbif.org/occurrence/6509447648) |
+| `web/tests/fixtures/images/3902687238_108eefcd58.jpg` | Andreas Schneider | CC-BY-4.0 | [GBIF 3902687238](https://www.gbif.org/occurrence/3902687238) |
+| `web/tests/fixtures/images/4906525380_8bb8a2a5c1.jpg` | Nina Fiskerstrand | CC-BY-4.0 | [GBIF 4906525380](https://www.gbif.org/occurrence/4906525380) |
+| `web/tests/fixtures/images/1825461784_fabbfc8795.jpg` | Herdis Torsvik | CC-BY-4.0 | [GBIF 1825461784](https://www.gbif.org/occurrence/1825461784) |
+| `web/tests/fixtures/images/1933241549_d85735d691.jpg` | Nils Edvard Stokke | CC-BY-4.0 | [GBIF 1933241549](https://www.gbif.org/occurrence/1933241549) |
+| `web/tests/fixtures/images/2332763687_13ebb07747.jpg` | Bjørn Eidhammer | CC-BY-4.0 | [GBIF 2332763687](https://www.gbif.org/occurrence/2332763687) |
+| `web/tests/fixtures/images/2404829784_7b1d4788b9.jpg` | Siv Moen | CC-BY-4.0 | [GBIF 2404829784](https://www.gbif.org/occurrence/2404829784) |
+| `web/tests/fixtures/images/2311308865_49672be74e.jpg` | Niklas Wahlberg | CC0-1.0 | [GBIF 2311308865](https://www.gbif.org/occurrence/2311308865) |
+| `web/tests/fixtures/images/2399024719_6f267ae283.jpg` | Gunvor Bollingmo | CC-BY-4.0 | [GBIF 2399024719](https://www.gbif.org/occurrence/2399024719) |
+| `web/tests/fixtures/images/6543661534_ad51590436.jpg` | Rune Zakariassen | CC-BY-4.0 | [GBIF 6543661534](https://www.gbif.org/occurrence/6543661534) |
+| `web/tests/fixtures/images/2399204317_8b2e5f0f13.jpg` | Christian Kortner | CC-BY-4.0 | [GBIF 2399204317](https://www.gbif.org/occurrence/2399204317) |
+| `web/tests/fixtures/images/2399768854_3c38548cbb.jpg` | Tove Jacobsen | CC-BY-4.0 | [GBIF 2399768854](https://www.gbif.org/occurrence/2399768854) |
+| `web/tests/fixtures/images/3924311384_75e4b57cb2.jpg` | Perry Gunnar Larsen | CC-BY-4.0 | [GBIF 3924311384](https://www.gbif.org/occurrence/3924311384) |
+| `web/tests/fixtures/images/3898901380_935e1cee5e.jpg` | Jan Alsvik | CC-BY-4.0 | [GBIF 3898901380](https://www.gbif.org/occurrence/3898901380) |
+| `web/tests/fixtures/images/4930092317_56c4bbe814.jpg` | Erik Kagge | CC-BY-4.0 | [GBIF 4930092317](https://www.gbif.org/occurrence/4930092317) |
+| `web/tests/fixtures/images/4131993520_beb025dd09.jpg` | Ole Christian Hagestad | CC-BY-4.0 | [GBIF 4131993520](https://www.gbif.org/occurrence/4131993520) |
+| `web/tests/fixtures/images/3907717437_73dbe2a915.jpg` | Rune Zakariassen | CC-BY-4.0 | [GBIF 3907717437](https://www.gbif.org/occurrence/3907717437) |
+| `web/tests/fixtures/images/2273593665_7c11ee40f6.jpg` | Kirsti Anne Mandal | CC-BY-4.0 | [GBIF 2273593665](https://www.gbif.org/occurrence/2273593665) |
 
 ## Species data sources
 

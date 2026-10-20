@@ -5,6 +5,10 @@ description = "Data download, training, evaluation and ONNX export for seeni"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "onnx>=1.23.2",
+    "onnxconverter-common>=1.16.0",
+    "onnxruntime>=1.31.0",
+    "onnxscript>=0.7.2",
     "pillow>=13.0.0",
     "pyarrow>=26.0.0",
     "tensorboard>=2.21.0",

@@ -8,13 +8,13 @@ leccinum-versipelle-agg,Leccinum aurantiacum,lehtopunikkitatti,2524513,syötäv�
 leccinum-versipelle-agg,Leccinum albostipitatum,haavanpunikkitatti,7869532,syötävä,,true,"laji.fi: haavanpunikkitatti. GBIF: hyväksytty laji. Ei nimeltä Ruokaviraston listalla, koska lista käyttää vanhaa nimeä L. aurantiacum."
 leccinum-versipelle-agg,Leccinum vulpinum,männynpunikkitatti,2524528,syötävä,,true,
 leccinum-versipelle-agg,Leccinum piceinum,kuusenpunikkitatti,7942472,syötävä,,true,"laji.fi: kuusenpunikkitatti. Ei nimeltä Ruokaviraston listalla, mutta punikkitatti. Lisätty auditoinnissa."
-leccinum-scabrum,Leccinum scabrum,lehmäntatti,9141390,syötävä,leccinum-versipelle-agg,true,"Ei Ruokaviraston suosituslistalla. Ruokavirasto mainitsee punikkitattien yleisenä sekaannuslajina. Lisätty auditoinnissa."
+leccinum-scabrum,Leccinum scabrum,lehmäntatti,9141390,syötävä,leccinum-versipelle-agg,true,Ei Ruokaviraston suosituslistalla. Ruokavirasto mainitsee punikkitattien yleisenä sekaannuslajina. Lisätty auditoinnissa.
 suillus-variegatus,Suillus variegatus,kangastatti,9043861,syötävä,,true,
 suillus-luteus,Suillus luteus,voitatti,7777157,syötävä,,true,
 suillus-bovinus,Suillus bovinus,nummitatti,7623986,syötävä,,true,Ei Ruokaviraston suosituslistalla. Yleinen männikössä.
-lactarius-trivialis-agg,Lactarius trivialis,haaparousku,5248801,esikäsiteltävä,,true,Ruokavirasto: haaparouskut keitetään 5 minuuttia.
+lactarius-trivialis-agg,Lactarius trivialis,haaparousku,5248801,esikäsiteltävä,lactarius-helvus,true,Ruokavirasto: haaparouskut keitetään 5 minuuttia. Lakritsirousku lisätty varoitukseksi (vaihe 7): malli sekoitti sen haaparouskuun; tarkista.
 lactarius-trivialis-agg,Lactarius utilis,kalvashaaparousku,5462809,esikäsiteltävä,,true,
-lactarius-rufus,Lactarius rufus,kangasrousku,5248684,esikäsiteltävä,lactarius-helvus,true,Ruokavirasto: keitetään 10 minuuttia.
+lactarius-rufus,Lactarius rufus,kangasrousku,5248684,esikäsiteltävä,lactarius-helvus;cortinarius-orellanus,true,Ruokavirasto: keitetään 10 minuuttia. Lehtomyrkkyseitikki lisätty varoitukseksi (vaihe 7): malli sekoitti sen kangasrouskuun; tarkista.
 lactarius-torminosus,Lactarius torminosus,karvarousku,8122710,esikäsiteltävä,lactarius-pubescens;paxillus-involutus,true,Ruokavirasto: keitetään 10 minuuttia.
 lactarius-pubescens,Lactarius pubescens,villakarvarousku,5248664,ei ruokasieni,lactarius-torminosus,true,"laji.fi: villakarvarousku. Ei Ruokaviraston listalla, syötävyyttä ei vahvistettu luotettavasta lähteestä, joten luokiteltu varovasti. Lisätty auditoinnissa."
 lactarius-deliciosus-agg,Lactarius deliciosus,männynleppärousku,5248629,syötävä,,true,Ruokavirasto: leppärouskut yhtenä ryhmänä.
@@ -25,10 +25,10 @@ russula-paludosa,Russula paludosa,isohapero,2551201,syötävä,russula-emetica;a
 russula-emetica,Russula emetica,tulipunahapero,2551213,myrkyllinen,russula-paludosa,true,Ruokavirasto: kirpeä punainen hapero. Nimi laji.fi:stä.
 russula-decolorans-agg,Russula decolorans,kangashapero,2551479,syötävä,,true,Ruokavirasto: kangashapero = R. decolorans ja R. pubescens.
 russula-decolorans-agg,Russula pubescens,lehtoviinihapero,3360328,syötävä,,true,laji.fi: lehtoviinihapero. Ruokavirasto laskee kangashaperoksi.
-russula-claroflava,Russula claroflava,keltahapero,2551299,syötävä,,true,
+russula-claroflava,Russula claroflava,keltahapero,2551299,syötävä,tricholoma-equestre,true,"Kangaskeltavalmuska lisätty varoitukseksi (vaihe 9): keltalakkinen, malli sekoitti ne vaiheessa 7; tarkista."
 russula-vinosa,Russula vinosa,viinihapero,2551182,syötävä,,true,
 hygrophorus-camarophyllus,Hygrophorus camarophyllus,mustavahakas,2538720,syötävä,,true,
-cortinarius-caperatus,Cortinarius caperatus,kehnäsieni,2529415,syötävä,cortinarius-rubellus,true,Ruokaviraston nimeämät näköislajit ovat myrkyttömiä seitikkejä. Suippumyrkkyseitikki lisätty varmuuden vuoksi. Muut seitikit kuuluvat muu-luokkaan.
+cortinarius-caperatus,Cortinarius caperatus,kehnäsieni,2529415,syötävä,cortinarius-rubellus;cortinarius-orellanus,true,"Ruokaviraston nimeämät näköislajit ovat myrkyttömiä seitikkejä. Suippumyrkkyseitikki lisätty varmuuden vuoksi. Muut seitikit kuuluvat muu-luokkaan. Lehtomyrkkyseitikki lisätty varoitukseksi (vaihe 7), koska se on ruosteitiöinen seitikki; tarkista."
 cantharellus-cibarius,Cantharellus cibarius,kantarelli,5249504,syötävä,hygrophoropsis-aurantiaca,true,Ruokavirasto: keltavahvero eli kantarelli. GBIF ja laji.fi käyttävät nimeä keltavahvero.
 hygrophoropsis-aurantiaca,Hygrophoropsis aurantiaca,valevahvero,2525710,ei ruokasieni,cantharellus-cibarius,true,
 craterellus-tubaeformis-agg,Craterellus tubaeformis,suppilovahvero,2554536,syötävä,cortinarius-rubellus,true,Ruokavirasto: kosteikkovahvero saa kuulua joukkoon. Ruokavirasto käyttää vanhaa nimeä Cantharellus tubaeformis.
@@ -41,8 +41,8 @@ morchella,Morchella,huhtasienet,2594601,syötävä,gyromitra-esculenta;verpa-boh
 verpa-bohemica,Verpa bohemica,poimukellomörsky,5259057,myrkyllinen,morchella,false,"laji.fi käyttää nimeä Ptychoverpa bohemica (GBIF: synonyymi). Ruokavirasto: huhtasienten näköislaji. Myrkytyksiä raportoitu herkillä henkilöillä, ei suositella syötäväksi. Lisätty auditoinnissa."
 tricholoma-matsutake,Tricholoma matsutake,tuoksuvalmuska,5241820,syötävä,,true,"Harvinainen, kuvia voi olla vähän."
 armillaria,Armillaria,mesisienet,2526021,esikäsiteltävä,galerina-marginata;hypholoma-fasciculare,true,Suku luokkana. Ei Ruokaviraston suosituslistalla. Ruokavirasto: mesisieni keitetään 10 minuuttia.
-kuehneromyces-mutabilis,Kuehneromyces mutabilis,koivunkantosieni,2533962,syötävä,galerina-marginata;hypholoma-fasciculare,true,Ei Ruokaviraston suosituslistalla. Kuolemanvaarallinen sekaannusriski myrkkynääpikkään; ei aloittelijoille.
-agaricus-campestris-agg,Agaricus campestris,nurmiherkkusieni,5243458,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
+kuehneromyces-mutabilis,Kuehneromyces mutabilis,koivunkantosieni,2533962,syötävä,galerina-marginata;hypholoma-fasciculare;armillaria,true,"Ei Ruokaviraston suosituslistalla. Kuolemanvaarallinen sekaannusriski myrkkynääpikkään; ei aloittelijoille. Mesisienet lisätty varoitukseksi (vaihe 9): esikäsiteltävä, kasvaa samoin kannoilla ryhminä, ja malli sekoitti ne vaiheessa 7; tarkista."
+agaricus-campestris-agg,Agaricus campestris,nurmiherkkusieni,5243458,syötävä,amanita-virosa;amanita-phalloides;amanita-pantherina,true,Ei Ruokaviraston suosituslistalla. Pantterikärpässieni lisätty varoitukseksi (vaihe 9): malli sekoitti sen herkkusieneen vaiheessa 7; tarkista.
 agaricus-campestris-agg,Agaricus arvensis,peltoherkkusieni,5243403,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
 amanita-virosa,Amanita virosa,valkokärpässieni,5240323,tappava,agaricus-campestris-agg,true,Ruokavirasto: tappavan myrkyllinen.
 amanita-phalloides,Amanita phalloides,kavalakärpässieni,5240325,tappava,agaricus-campestris-agg,true,"Ruokavirasto: tappavan myrkyllinen, harvinainen Suomessa."

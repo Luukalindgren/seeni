@@ -39,7 +39,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 **Training**
 - PyTorch comes from PyPI (`uv sync` in `training/`). Its Linux wheels are CUDA builds, currently CUDA 13, which needs a Windows NVIDIA driver from the R580 series or newer. Keep it on PyPI if you can: cloud agent sessions cannot reach download.pytorch.org, so a lock that needs it cannot be synced there. After upgrading torch, `tests/test_torch_build.py` checks that the build still runs on the RTX 3070 (sm_86, or sm_80 code).
 - Get the data directory from `seeni.paths.data_dir()`, never from a hardcoded path.
-- The desktop GPU is an RTX 3070, which supports bf16: train with bf16 autocast, no GradScaler. Evaluation, temperature calibration and the golden outputs for the parity test run in fp32.
+- The desktop GPU is an RTX 3070, which supports bf16: train with bf16 autocast, no GradScaler. Evaluation and temperature calibration run in fp32. The golden outputs for the parity test come from the shipped fp16 ONNX model (fp32 inputs and outputs), since that is what the browser runs; never from bf16.
 - Run long jobs in tmux.
 - Start with a frozen DINOv2 embedding + linear-probe baseline before full fine-tuning.
 - First full model: EfficientNet-B0 at 224 px.
@@ -78,7 +78,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - [x] 5. Split + DINOv2 baseline (#5)
 - [x] 6. Fine-tuning (#6)
 - [x] 7. Evaluation, calibration, unknown class (#7)
-- [ ] 8. ONNX export + golden fixtures (#8)
+- [x] 8. ONNX export + golden fixtures (#8)
 - [ ] 9. Species database + verification flow (#9)
 - [ ] 10. Web app, PWA, GitHub Pages (#10)
 - [ ] 11. Release checklist (#11)

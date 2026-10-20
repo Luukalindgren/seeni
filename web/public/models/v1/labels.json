@@ -1,0 +1,278 @@
+[
+  {
+    "id": "boletus-edulis-agg",
+    "taxonKeys": [
+      5954691,
+      5954949,
+      5954958
+    ]
+  },
+  {
+    "id": "tylopilus-felleus",
+    "taxonKeys": [
+      2524910
+    ]
+  },
+  {
+    "id": "leccinum-versipelle-agg",
+    "taxonKeys": [
+      2524490,
+      2524513,
+      2524528,
+      7869532,
+      7942472
+    ]
+  },
+  {
+    "id": "leccinum-scabrum",
+    "taxonKeys": [
+      9141390
+    ]
+  },
+  {
+    "id": "suillus-variegatus",
+    "taxonKeys": [
+      9043861
+    ]
+  },
+  {
+    "id": "suillus-luteus",
+    "taxonKeys": [
+      7777157
+    ]
+  },
+  {
+    "id": "suillus-bovinus",
+    "taxonKeys": [
+      7623986
+    ]
+  },
+  {
+    "id": "lactarius-trivialis-agg",
+    "taxonKeys": [
+      5248801,
+      5462809
+    ]
+  },
+  {
+    "id": "lactarius-rufus",
+    "taxonKeys": [
+      5248684
+    ]
+  },
+  {
+    "id": "lactarius-torminosus",
+    "taxonKeys": [
+      8122710
+    ]
+  },
+  {
+    "id": "lactarius-pubescens",
+    "taxonKeys": [
+      5248664
+    ]
+  },
+  {
+    "id": "lactarius-deliciosus-agg",
+    "taxonKeys": [
+      5248629,
+      5463476,
+      7925734
+    ]
+  },
+  {
+    "id": "lactarius-helvus",
+    "taxonKeys": [
+      5248660
+    ]
+  },
+  {
+    "id": "russula-paludosa",
+    "taxonKeys": [
+      2551201
+    ]
+  },
+  {
+    "id": "russula-emetica",
+    "taxonKeys": [
+      2551213
+    ]
+  },
+  {
+    "id": "russula-decolorans-agg",
+    "taxonKeys": [
+      2551479,
+      3360328
+    ]
+  },
+  {
+    "id": "russula-claroflava",
+    "taxonKeys": [
+      2551299
+    ]
+  },
+  {
+    "id": "russula-vinosa",
+    "taxonKeys": [
+      2551182
+    ]
+  },
+  {
+    "id": "hygrophorus-camarophyllus",
+    "taxonKeys": [
+      2538720
+    ]
+  },
+  {
+    "id": "cortinarius-caperatus",
+    "taxonKeys": [
+      2529415
+    ]
+  },
+  {
+    "id": "cantharellus-cibarius",
+    "taxonKeys": [
+      5249504
+    ]
+  },
+  {
+    "id": "hygrophoropsis-aurantiaca",
+    "taxonKeys": [
+      2525710
+    ]
+  },
+  {
+    "id": "craterellus-tubaeformis-agg",
+    "taxonKeys": [
+      2554536,
+      8871787
+    ]
+  },
+  {
+    "id": "craterellus-cornucopioides",
+    "taxonKeys": [
+      2554662
+    ]
+  },
+  {
+    "id": "albatrellus-ovinus",
+    "taxonKeys": [
+      2551823
+    ]
+  },
+  {
+    "id": "hydnum-repandum-agg",
+    "taxonKeys": [
+      2544165,
+      2554716
+    ]
+  },
+  {
+    "id": "morchella",
+    "taxonKeys": [
+      2594601
+    ]
+  },
+  {
+    "id": "tricholoma-matsutake",
+    "taxonKeys": [
+      5241820
+    ]
+  },
+  {
+    "id": "armillaria",
+    "taxonKeys": [
+      2526021
+    ]
+  },
+  {
+    "id": "kuehneromyces-mutabilis",
+    "taxonKeys": [
+      2533962
+    ]
+  },
+  {
+    "id": "agaricus-campestris-agg",
+    "taxonKeys": [
+      5243403,
+      5243458
+    ]
+  },
+  {
+    "id": "amanita-virosa",
+    "taxonKeys": [
+      5240323
+    ]
+  },
+  {
+    "id": "amanita-phalloides",
+    "taxonKeys": [
+      5240325
+    ]
+  },
+  {
+    "id": "cortinarius-rubellus",
+    "taxonKeys": [
+      2528663
+    ]
+  },
+  {
+    "id": "gyromitra-esculenta",
+    "taxonKeys": [
+      5258510
+    ]
+  },
+  {
+    "id": "galerina-marginata",
+    "taxonKeys": [
+      8118872
+    ]
+  },
+  {
+    "id": "paxillus-involutus",
+    "taxonKeys": [
+      5240002
+    ]
+  },
+  {
+    "id": "amanita-muscaria",
+    "taxonKeys": [
+      8168319
+    ]
+  },
+  {
+    "id": "amanita-regalis",
+    "taxonKeys": [
+      5240248
+    ]
+  },
+  {
+    "id": "amanita-pantherina",
+    "taxonKeys": [
+      8961574
+    ]
+  },
+  {
+    "id": "hypholoma-fasciculare",
+    "taxonKeys": [
+      3293632
+    ]
+  },
+  {
+    "id": "inocybe",
+    "taxonKeys": [
+      2527866,
+      10776858
+    ]
+  },
+  {
+    "id": "tricholoma-equestre",
+    "taxonKeys": [
+      3324883
+    ]
+  },
+  {
+    "id": "muu",
+    "taxonKeys": []
+  }
+]

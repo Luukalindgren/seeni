@@ -1,5 +1,6 @@
 import math
 
+import pytest
 import torch
 
 from seeni.lajilista import Row
@@ -30,8 +31,16 @@ def test_labels_keep_list_order_and_end_with_muu():
 
 def test_classes_outside_the_model_train_as_muu():
     index = {"a": 0, "muu": 1}
-    assert target("a", index) == 0
-    assert target("not-in-model", index) == 1
+    taxon_class = {1: "a", 2: "not-in-model"}
+    assert target(1, "a", taxon_class, index) == 0
+    assert target(2, "not-in-model", taxon_class, index) == 1
+
+
+def test_a_renamed_class_fails_instead_of_training_as_muu():
+    with pytest.raises(SystemExit):
+        target(1, "old-name", {1: "a"}, {"a": 0, "muu": 1})
+    with pytest.raises(SystemExit):
+        target(3, "a", {1: "a"}, {"a": 0, "muu": 1})
 
 
 def test_sample_weights_are_inverse_sqrt_of_class_size():

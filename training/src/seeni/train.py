@@ -39,9 +39,9 @@ from pathlib import Path
 import torch
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 
-from seeni.baseline import class_groups, dangerous
+from seeni.baseline import class_groups, dangerous, device
 from seeni.gbif_images import read_table
-from seeni.lajilista import LAJILISTA, UNKNOWN_CLASS, Row, read
+from seeni.lajilista import LAJILISTA, UNKNOWN_CLASS, Row, read, validate
 from seeni.paths import data_dir
 from seeni.preprocess import MEAN, STD, eval_transform, load, spec, train_transform
 from seeni.split import read_split
@@ -61,7 +61,16 @@ def labels(rows: list[Row]) -> list[dict]:
     return out + [{"id": UNKNOWN_CLASS, "taxonKeys": []}]
 
 
-def target(class_id: str, index: dict[str, int]) -> int:
+def target(taxon_key: int, class_id: str, taxon_class: dict[int, str], index: dict[str, int]):
+    """Output index for a manifest image. Its class comes from lajilista through the taxon,
+    and must match the manifest's, so a renamed or merged class never trains as `muu`.
+    A listed class that is not in the model trains as `muu`."""
+    listed = taxon_class.get(taxon_key)
+    if listed != class_id:
+        raise SystemExit(
+            f"taxonKey {taxon_key} is {listed} in lajilista but {class_id} in the manifest; "
+            "re-run gbif_images download and seeni.split"
+        )
     return index.get(class_id, index[UNKNOWN_CLASS])
 
 
@@ -109,21 +118,19 @@ class Images(Dataset):
         return self.transform(load(self.paths[i])), self.targets[i]
 
 
-def device() -> torch.device:
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-def load_items(index: dict[str, int]):
+def load_items(rows: list[Row], index: dict[str, int]):
     """(path, target, manifest row) for train and val. Test is never read."""
     root = data_dir()
     split = read_split()
+    taxon_class = {r.taxon_key: r.class_id for r in rows if r.taxon_key is not None}
     out = {"train": [], "val": []}
     for m in read_table(root / "manifest.parquet"):
         entry = split.get(int(m["gbifID"]))
         if entry is None or entry[0] != m["class_id"]:
             raise SystemExit(f"gbifID {m['gbifID']} is missing from split.csv; run seeni.split")
         if entry[1] in out:
-            out[entry[1]].append((root / m["path"], target(m["class_id"], index), m))
+            t = target(m["taxonKey"], m["class_id"], taxon_class, index)
+            out[entry[1]].append((root / m["path"], t, m))
     return out["train"], out["val"]
 
 
@@ -164,16 +171,14 @@ def head_parameters(model) -> list[torch.nn.Parameter]:
 
 
 def set_stage(model, head_only: bool) -> None:
-    """Train mode; in the head-only stage the frozen backbone keeps its BatchNorm statistics
-    (the head is a single Linear layer)."""
-    model.train()
+    """Train mode. In the head-only stage the frozen backbone stays in eval mode (its
+    BatchNorm statistics, no stochastic depth or dropout), so the head fits the features it
+    will see at evaluation."""
     head = {id(p) for p in head_parameters(model)}
     for p in model.parameters():
         p.requires_grad_(not head_only or id(p) in head)
-    if head_only:
-        for module in model.modules():
-            if isinstance(module, torch.nn.modules.batchnorm._BatchNorm):
-                module.eval()
+    model.train(not head_only)
+    model.get_classifier().train()
 
 
 def write_reports(out: Path, logits, y, items, classes, rows, metrics) -> None:
@@ -225,10 +230,13 @@ def cmd_train(args) -> int:
 
     torch.manual_seed(args.seed)
     rows = read(args.lajilista)
+    errors, _ = validate(rows, require_keys=True)
+    if errors or any(r.class_id == UNKNOWN_CLASS for r in rows):
+        raise SystemExit("lajilista.csv is not valid (or lists `muu`):\n" + "\n".join(errors))
     label_list = labels(rows)
     classes = [c["id"] for c in label_list]
     index = {c: i for i, c in enumerate(classes)}
-    train_items, val_items = load_items(index)
+    train_items, val_items = load_items(rows, index)
     n = len(classes)
 
     out = data_dir() / "runs" / args.name
@@ -248,16 +256,16 @@ def cmd_train(args) -> int:
         batch_size=args.batch,
         sampler=WeightedRandomSampler(sample_weights(train_targets), len(train_targets)),
         num_workers=args.workers,
-        pin_memory=True,
+        pin_memory=dev.type == "cuda",
         drop_last=True,
-        persistent_workers=True,
+        persistent_workers=args.workers > 0,
     )
     val_loader = DataLoader(
         Images([p for p, _, _ in val_items], [t for _, t, _ in val_items], eval_transform()),
         batch_size=args.batch * 2,
         num_workers=args.workers,
-        pin_memory=True,
-        persistent_workers=True,
+        pin_memory=dev.type == "cuda",
+        persistent_workers=args.workers > 0,
     )
     y_val = torch.tensor([t for _, t, _ in val_items])
     known = y_val != index[UNKNOWN_CLASS]
@@ -290,7 +298,7 @@ def cmd_train(args) -> int:
         for _ in range(epochs):
             epoch += 1
             set_stage(model, head_only)
-            start, loss_sum = time.time(), 0.0
+            start, loss_sum = time.time(), torch.zeros((), device=dev)
             for x, y in train_loader:
                 x = x.to(dev, non_blocking=True).to(memory_format=torch.channels_last)
                 y = y.to(dev, non_blocking=True)
@@ -301,7 +309,7 @@ def cmd_train(args) -> int:
                 optimizer.step()
                 scheduler.step()
                 step += 1
-                loss_sum += loss.item()
+                loss_sum += loss.detach()
                 if step % 50 == 0:
                     writer.add_scalar("train/loss", loss.item(), step)
                     writer.add_scalar("train/lr", scheduler.get_last_lr()[0], step)
@@ -313,7 +321,7 @@ def cmd_train(args) -> int:
             writer.add_scalar("val/loss", val_loss, epoch)
             is_best = metrics["val_macro_f1"] > best
             print(
-                f"epoch {epoch}/{args.epochs} {stage}: train loss {loss_sum / steps_per_epoch:.3f}"
+                f"epoch {epoch}/{args.epochs} {stage}: train loss {loss_sum.item() / steps_per_epoch:.3f}"
                 f", val loss {val_loss:.3f}, top-1 {metrics['val_top1']:.3f}, top-3 "
                 f"{metrics['val_top3']:.3f}, macro-F1 {metrics['val_macro_f1']:.3f}"
                 f"{' *' if is_best else ''} ({time.time() - start:.0f} s)",

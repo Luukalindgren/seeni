@@ -23,8 +23,6 @@ STD = (0.229, 0.224, 0.225)
 INTERPOLATION = "bilinear"
 ANTIALIAS = True
 
-_MODES = {"bilinear": transforms.InterpolationMode.BILINEAR}
-
 
 def load(path: Path) -> Image.Image:
     with Image.open(path) as image:
@@ -49,7 +47,11 @@ def spec() -> dict:
 def eval_transform() -> transforms.Compose:
     return transforms.Compose(
         [
-            transforms.Resize(RESIZE, interpolation=_MODES[INTERPOLATION], antialias=ANTIALIAS),
+            transforms.Resize(
+                RESIZE,
+                interpolation=transforms.InterpolationMode(INTERPOLATION),
+                antialias=ANTIALIAS,
+            ),
             transforms.CenterCrop(CROP),
             transforms.ToTensor(),
             transforms.Normalize(MEAN, STD),
@@ -60,7 +62,7 @@ def eval_transform() -> transforms.Compose:
 def train_transform() -> transforms.Compose:
     """Augmentation for fine-tuning (PLAN.md phase 6): a small rotation, a random crop of
     35–100 % of the image, horizontal flip, brightness and contrast. No hue jitter."""
-    mode = _MODES[INTERPOLATION]
+    mode = transforms.InterpolationMode(INTERPOLATION)
     return transforms.Compose(
         [
             transforms.RandomRotation(15, interpolation=mode),

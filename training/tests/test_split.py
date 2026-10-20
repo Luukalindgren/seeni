@@ -22,6 +22,12 @@ def test_stratified_80_10_10_by_observation():
         assert sets.count("val") == sets.count("test") == n // 10
 
 
+def test_small_class_gets_val_and_test():
+    split = assign(observations(manifest({"a": 5})), {})
+    sets = sorted(s for _, s in split.values())
+    assert sets == ["test", "train", "train", "train", "val"]
+
+
 def test_same_seed_same_split_other_seed_differs():
     obs = observations(manifest({"a": 50}))
     assert assign(obs, {}, seed=0) == assign(obs, {}, seed=0)

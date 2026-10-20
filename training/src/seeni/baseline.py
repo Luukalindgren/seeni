@@ -20,6 +20,8 @@ belong to other classes. Either test alone flags too many: classes that look ali
 neighbours without anything being wrong.
 
 The probe trains on the train set and is scored on val; test stays untouched for phase 7.
+Weight decay is picked on the same val set, so the val numbers lean slightly optimistic;
+with four candidates that differ by under a point, that is fine for a data check.
 Everything runs in fp32: the model is frozen, so embedding is evaluation, and the probe is
 one linear layer on a few thousand vectors.
 """
@@ -35,7 +37,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 
 from seeni.gbif_images import contact_sheet, read_table
-from seeni.lajilista import DANGEROUS, FOOD, LAJILISTA, Row, read
+from seeni.lajilista import LAJILISTA, Row, is_dangerous_to, read
 from seeni.paths import data_dir
 from seeni.preprocess import eval_transform, load
 from seeni.split import read_split
@@ -56,7 +58,7 @@ def out_dir() -> Path:
 
 
 def embeddings_path(model: str) -> Path:
-    return out_dir() / f"embeddings-{model.split('.')[0]}.pt"
+    return out_dir() / f"embeddings-{model}.pt"
 
 
 def device() -> torch.device:
@@ -90,7 +92,9 @@ def embed(paths: list[Path], model_name: str, batch_size: int, workers: int) -> 
     dev = device()
     model = timm.create_model(model_name, pretrained=True, num_classes=0, img_size=224)
     model = model.eval().to(dev)
-    loader = DataLoader(Images(paths), batch_size=batch_size, num_workers=workers)
+    loader = DataLoader(
+        Images(paths), batch_size=batch_size, num_workers=workers, pin_memory=dev.type == "cuda"
+    )
     out = []
     for i, batch in enumerate(loader):
         tokens = model.forward_features(batch.to(dev, non_blocking=True))
@@ -107,6 +111,8 @@ def cmd_embed(args) -> int:
     done: dict[str, torch.Tensor] = {}
     if path.exists():
         saved = torch.load(path)
+        if saved["model"] != args.model:
+            raise SystemExit(f"{path} holds {saved['model']}, not {args.model}")
         done = dict(zip(saved["images"], saved["features"]))
     todo = [m for m in manifest if m["image"] not in done]
     print(f"{len(manifest)} images, {len(todo)} to embed with {args.model}")
@@ -135,11 +141,7 @@ def class_groups(rows: list[Row]) -> dict[str, set[str]]:
 def dangerous(true_group: str, predicted_groups: set[str]) -> bool:
     """A poisonous or deadly taxon called a class with a food mushroom in it, or an
     esikäsiteltävä taxon called a class with a syötävä one (CLAUDE.md, PLAN.md phase 7)."""
-    if true_group in DANGEROUS - FOOD:
-        return bool(predicted_groups & FOOD)
-    if true_group == "esikäsiteltävä":
-        return "syötävä" in predicted_groups
-    return False
+    return any(is_dangerous_to(g, true_group) for g in predicted_groups)
 
 
 def load_data(model: str, lajilista: Path):
@@ -152,7 +154,11 @@ def load_data(model: str, lajilista: Path):
         raise SystemExit(f"{len(missing)} manifest images have no embedding; run `embed`")
     keep = [k for k, i in enumerate(saved["images"]) if i in manifest]
     items = [manifest[saved["images"][k]] for k in keep]
-    return items, saved["features"][keep], read(lajilista), read_split()
+    split = read_split()
+    stale = [m["gbifID"] for m in items if split.get(int(m["gbifID"]), ("",))[0] != m["class_id"]]
+    if stale:
+        raise SystemExit(f"{len(stale)} observations are missing from split.csv; run seeni.split")
+    return items, saved["features"][keep], read(lajilista), split
 
 
 def train_probe(x: torch.Tensor, y: torch.Tensor, n_classes: int, weight_decay: float):
@@ -181,6 +187,7 @@ def cmd_probe(args) -> int:
     index = {c: i for i, c in enumerate(classes)}
     groups = class_groups(rows)
     taxon_group = {r.taxon_key: r.ryhma for r in rows}
+    taxon_name = {r.taxon_key: r.tieteellinen for r in rows}
     dev = device()
 
     def subset(name: str):
@@ -241,22 +248,30 @@ def cmd_probe(args) -> int:
         w.writeheader()
         w.writerows(per_class)
 
+    # Classes on the list but not in the model: what would the probe call them? Their
+    # train and val images are used (the probe never saw them); test stays untouched.
+    outside = defaultdict(Counter)
+    outside_k = [
+        k
+        for k, m in enumerate(items)
+        if m["class_id"] not in index and split[int(m["gbifID"])][1] != "test"
+    ]
+    outside_pred = []
+    if outside_k:
+        with torch.no_grad():
+            outside_pred = layer((features[outside_k].to(dev) - mean) / std).argmax(1).tolist()
+        for k, j in zip(outside_k, outside_pred):
+            outside[items[k]["class_id"]][classes[j]] += 1
+
+    # Per taxon, as PLAN.md phase 7 counts it. Every prediction for a class outside the
+    # model is wrong, so those images count too.
     danger = Counter()
-    for k, p in zip(val_k, pred.tolist()):
+    for k, p in zip(val_k + outside_k, pred.tolist() + outside_pred):
         m = items[k]
         if classes[p] != m["class_id"] and dangerous(
             taxon_group[m["taxonKey"]], groups[classes[p]]
         ):
-            danger[(m["class_id"], classes[p])] += 1
-
-    # Classes on the list but not in the model: what would the probe call them?
-    outside = defaultdict(Counter)
-    ks = [k for k, m in enumerate(items) if m["class_id"] not in index]
-    if ks:
-        with torch.no_grad():
-            p = layer(((features[ks].to(dev)) - mean) / std).argmax(1).tolist()
-        for k, j in zip(ks, p):
-            outside[items[k]["class_id"]][classes[j]] += 1
+            danger[(taxon_name[m["taxonKey"]], classes[p])] += 1
 
     metrics = {
         "model": args.model,
@@ -297,14 +312,18 @@ def outlier_scores(x: torch.Tensor, labels: list[str], groups: list[int], k: int
     lab = torch.tensor([label_ids[c] for c in labels], device=x.device)
     grp = torch.tensor(groups, device=x.device)
     own, same = [], []
+    off = float("-inf")
     for start in range(0, len(x), 2048):
         sims = x[start : start + 2048] @ x.T
         rows = torch.arange(start, min(start + 2048, len(x)), device=x.device)
-        sims[grp[rows][:, None] == grp[None, :]] = -2  # self and same observation
-        nearest = sims.topk(k, dim=1).indices
-        same.append((lab[nearest] == lab[rows][:, None]).sum(1))
-        sims[lab[rows][:, None] != lab[None, :]] = -2
-        own.append(sims.topk(k, dim=1).values.clamp(min=-1).mean(1))
+        sims[grp[rows][:, None] == grp[None, :]] = off  # self and same observation
+        values, nearest = sims.topk(k, dim=1)
+        same.append(((lab[nearest] == lab[rows][:, None]) & (values > off)).sum(1))
+        sims[lab[rows][:, None] != lab[None, :]] = off
+        # A small class can have fewer than k other observations: average the real ones.
+        values = sims.topk(k, dim=1).values
+        real = values > off
+        own.append(values.where(real, 0).sum(1) / real.sum(1).clamp(min=1))
     return torch.cat(own).cpu(), torch.cat(same).cpu()
 
 

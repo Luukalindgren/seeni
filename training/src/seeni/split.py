@@ -8,7 +8,8 @@ Run from training/ on the desktop, after the phase 4 manifest is final:
 Every image of an observation (gbifID) lands in the same set, so photos of one specimen
 never end up on both sides. The split is stratified by class: within each class the
 observations are taken in a fixed pseudo-random order (from the seed) and each one goes to
-the set that is furthest below its share of 80 / 10 / 10.
+the set that is furthest below its share of 80 / 10 / 10. A class with at least three
+observations always gets one in val and one in test.
 
 An observation keeps its set once it is in split.csv. A later download only adds new
 observations, so a test image never moves into training. Observations that are no longer
@@ -28,6 +29,7 @@ from seeni.paths import REPO_ROOT, data_dir
 SPLIT = REPO_ROOT / "data-meta" / "split.csv"
 SETS = {"train": 0.8, "val": 0.1, "test": 0.1}
 SEED = 0
+MIN_OBSERVATIONS = 3
 
 
 def order(gbif_id: int, seed: int = SEED) -> str:
@@ -62,13 +64,18 @@ def assign(
     current = Counter((c, s) for g, (c, s) in existing.items() if obs.get(g) == c)
     total = Counter(obs.values())
     names = list(SETS)
+
+    def target(s: str, n: int) -> float:
+        # A class with at least MIN_OBSERVATIONS gets one val and one test observation.
+        if s != "train" and n >= MIN_OBSERVATIONS:
+            return max(SETS[s] * n, 1)
+        return SETS[s] * n
+
     for class_id, new in sorted(by_class.items()):
+        n = total[class_id]
         for gbif_id in sorted(new, key=lambda g: order(g, seed)):
-            # Furthest below its share of the class; ties go to the earlier set in SETS.
-            best = max(
-                names,
-                key=lambda s: (SETS[s] * total[class_id] - current[class_id, s], -names.index(s)),
-            )
+            # Furthest below its target; ties go to the smaller set (test, then val).
+            best = max(names, key=lambda s: (target(s, n) - current[class_id, s], names.index(s)))
             current[class_id, best] += 1
             result[gbif_id] = (class_id, best)
     return result

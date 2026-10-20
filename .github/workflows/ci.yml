@@ -34,7 +34,7 @@ jobs:
       - run: uv run pytest
 
   web:
-    name: web (test, build)
+    name: web (test, build, e2e)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -48,4 +48,6 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci
       - run: npm test
-      - run: npm run build
+      # Parity (golden fixtures in Chromium) and offline tests; test:e2e builds first.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e

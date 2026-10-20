@@ -19,9 +19,12 @@ and the golden fixtures for the parity test (hard rule 7, #10, #14) to web/tests
                                 logits and as calibrated probabilities
     tensors/<image>.npy         the expected 1×3×224×224 float32 input for a few of them
 
-Checks, which stop the export when they fail: on 50 test images, the fp32 ONNX model's top-5
-equals PyTorch's and its logits differ by less than 1e-3; the fp16 model's top-1 matches
-PyTorch on more than 99 % of them. Everything runs in fp32 on the CPU, except fp16 weights.
+Checks, which stop the export when they fail: on 200 test images (the plan asks for about 50;
+200 makes "more than 99 %" mean something), the fp32 ONNX model's top-5 equals PyTorch's and
+its logits differ by less than 1e-3; the fp16 model's top-1 matches PyTorch on more than
+99 % of them. Everything runs on the CPU in fp32, except the fp16 weights of the shipped
+model. The golden outputs are those of the shipped fp16 model, since that is what the browser
+runs; golden.json also keeps the fp32 logits for reference.
 """
 
 import argparse
@@ -34,13 +37,14 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from seeni.evaluate import checked_labels, items_for, run_dir
+from seeni.evaluate import checked_labels, items_for, load_model, run_dir
 from seeni.lajilista import LAJILISTA, UNKNOWN_CLASS, read
 from seeni.paths import REPO_ROOT, data_dir
 from seeni.preprocess import CROP, eval_transform, load, spec
 
 OPSET = 17
-CHECK_IMAGES = 50
+CHECK_IMAGES = 200
+FIXTURE_PARTS = ["images", "tensors", "golden.json"]
 FIXTURE_IMAGES = 20
 TENSOR_FIXTURES = 3
 MAX_LOGIT_DIFF = 1e-3
@@ -50,15 +54,6 @@ FIXTURES = REPO_ROOT / "web" / "tests" / "fixtures"
 
 def models_dir(version: str) -> Path:
     return REPO_ROOT / "web" / "public" / "models" / version
-
-
-def load_model(run: Path, n: int):
-    import timm
-
-    checkpoint = torch.load(run / "best.pt", map_location="cpu")
-    model = timm.create_model(checkpoint["model"], pretrained=False, num_classes=n)
-    model.load_state_dict(checkpoint["state_dict"])
-    return model.eval()
 
 
 def export_onnx(model, path: Path) -> None:
@@ -131,10 +126,12 @@ def softmax(x: np.ndarray) -> np.ndarray:
     return e / e.sum(axis=-1, keepdims=True)
 
 
-def golden(items, logits, class_ids, temperature) -> list[dict]:
-    probs = softmax(logits / temperature)
+def golden(items, logits, fp32_logits, class_ids, calibration) -> list[dict]:
+    """Expected top-5 per image. `logit` and `probability` come from the shipped fp16 model,
+    which the browser runs; `logitFp32` from the fp32 export, for reference."""
+    probs = softmax(logits / calibration["temperature"])
     out = []
-    for m, row, p in zip(items, logits, probs):
+    for m, row, ref, p in zip(items, logits, fp32_logits, probs):
         top = np.argsort(-row)[:5]
         out.append(
             {
@@ -145,7 +142,8 @@ def golden(items, logits, class_ids, temperature) -> list[dict]:
                         "index": int(i),
                         "id": class_ids[i],
                         "logit": round(float(row[i]), 5),
-                        "probability": round(float(p[i]), 5),
+                        "logitFp32": round(float(ref[i]), 5),
+                        "probability": round(float(p[i]), 6),
                     }
                     for i in top
                 ],
@@ -184,36 +182,55 @@ def cmd_export(args) -> int:
     result = check(reference, run_onnx(fp32_path, x), run_onnx(fp16_path, x))
     print(json.dumps(result, indent=2))
 
-    out = models_dir(args.version)
-    out.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(fp16_path, out / "model.onnx")
-    (out / "labels.json").write_text((run / "labels.json").read_text())
-    (out / "preprocess.json").write_text(json.dumps(spec(), indent=2) + "\n")
-    (out / "calibration.json").write_text(
+    # Everything is staged in the run's export/ folder first and copied into the repo only
+    # when it is complete, so a failure never leaves a model next to stale fixtures.
+    stage = work / "stage"
+    if stage.exists():
+        shutil.rmtree(stage)
+    (stage / "model").mkdir(parents=True)
+    shutil.copyfile(fp16_path, stage / "model" / "model.onnx")
+    shutil.copyfile(run / "labels.json", stage / "model" / "labels.json")
+    (stage / "model" / "preprocess.json").write_text(json.dumps(spec(), indent=2) + "\n")
+    (stage / "model" / "calibration.json").write_text(
         json.dumps({**calibration, "run": args.run}, indent=2) + "\n"
     )
 
-    # Golden fixtures: one image per class first, muu included, from the test set.
-    fixtures = spread(test, FIXTURE_IMAGES, "fixture")
-    if UNKNOWN_CLASS not in {m["class_id"] for m in fixtures}:
-        raise SystemExit("no muu image among the fixtures")
-    if args.fixtures.exists():
-        shutil.rmtree(args.fixtures)
-    (args.fixtures / "images").mkdir(parents=True)
-    (args.fixtures / "tensors").mkdir()
+    # Golden fixtures from the test set: a muu image, then one image per class.
+    muu = [m for m in test if m["class_id"] == UNKNOWN_CLASS]
+    if not muu:
+        raise SystemExit("the test set has no muu image")
+    first = spread(muu, 1, "fixture")
+    fixtures = first + spread([m for m in test if m not in first], FIXTURE_IMAGES - 1, "fixture")
+    for d in FIXTURE_PARTS[:2]:
+        (stage / "fixtures" / d).mkdir(parents=True)
     for m in fixtures:
-        shutil.copyfile(root / m["path"], args.fixtures / "images" / f"{m['image']}.jpg")
-    fx = inputs([args.fixtures / "images" / f"{m['image']}.jpg" for m in fixtures])
-    logits = run_onnx(out / "model.onnx", fx)
+        shutil.copyfile(root / m["path"], stage / "fixtures" / "images" / f"{m['image']}.jpg")
+    fx = inputs([stage / "fixtures" / "images" / f"{m['image']}.jpg" for m in fixtures])
+    logits = run_onnx(stage / "model" / "model.onnx", fx)
     for m, t in zip(fixtures[:TENSOR_FIXTURES], fx[:TENSOR_FIXTURES]):
-        np.save(args.fixtures / "tensors" / f"{m['image']}.npy", t[None])
+        np.save(stage / "fixtures" / "tensors" / f"{m['image']}.npy", t[None])
     record = {
         "model": f"models/{args.version}/model.onnx",
         "temperature": calibration["temperature"],
         "tensors": [f"tensors/{m['image']}.npy" for m in fixtures[:TENSOR_FIXTURES]],
-        "images": golden(fixtures, logits, class_ids, calibration["temperature"]),
+        "images": golden(fixtures, logits, run_onnx(fp32_path, fx), class_ids, calibration),
     }
-    (args.fixtures / "golden.json").write_text(json.dumps(record, indent=2) + "\n")
+    (stage / "fixtures" / "golden.json").write_text(json.dumps(record, indent=2) + "\n")
+
+    out = models_dir(args.version)
+    out.mkdir(parents=True, exist_ok=True)
+    for f in (stage / "model").iterdir():
+        shutil.copyfile(f, out / f.name)
+    # Replace only the parts of the fixtures folder the export owns.
+    args.fixtures.mkdir(parents=True, exist_ok=True)
+    for part in FIXTURE_PARTS:
+        target = args.fixtures / part
+        if target.is_dir():
+            shutil.rmtree(target)
+        elif target.exists():
+            target.unlink()
+        src = stage / "fixtures" / part
+        (shutil.copytree if src.is_dir() else shutil.copyfile)(src, target)
     (work / "attributions.md").write_text("\n".join(attribution_rows(fixtures)) + "\n")
     (work / "check.json").write_text(json.dumps(result, indent=2) + "\n")
     size = (out / "model.onnx").stat().st_size / 1e6

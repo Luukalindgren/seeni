@@ -349,10 +349,18 @@ def items_for(set_name: str, rows: list[Row]) -> list[dict]:
     return out
 
 
-def logits_for(run: Path, set_name: str, items: list[dict], n: int, workers: int) -> torch.Tensor:
-    """Logits in fp32, cached in eval/logits-<set>.pt for the same images and best.pt."""
+def load_model(run: Path, n: int):
+    """The run's best.pt in eval mode, on the CPU."""
     import timm
 
+    checkpoint = torch.load(run / "best.pt", map_location="cpu")
+    model = timm.create_model(checkpoint["model"], pretrained=False, num_classes=n)
+    model.load_state_dict(checkpoint["state_dict"])
+    return model.eval()
+
+
+def logits_for(run: Path, set_name: str, items: list[dict], n: int, workers: int) -> torch.Tensor:
+    """Logits in fp32, cached in eval/logits-<set>.pt for the same images and best.pt."""
     cache = run / "eval" / f"logits-{set_name}.pt"
     images = [m["image"] for m in items]
     stat = (run / "best.pt").stat()
@@ -361,11 +369,8 @@ def logits_for(run: Path, set_name: str, items: list[dict], n: int, workers: int
         saved = torch.load(cache)
         if saved["images"] == images and saved.get("weights") == weights:
             return saved["logits"]
-    checkpoint = torch.load(run / "best.pt", map_location="cpu")
     dev = device()
-    model = timm.create_model(checkpoint["model"], pretrained=False, num_classes=n)
-    model.load_state_dict(checkpoint["state_dict"])
-    model = model.to(dev, memory_format=torch.channels_last)
+    model = load_model(run, n).to(dev, memory_format=torch.channels_last)
     root = data_dir()
     loader = DataLoader(
         Images([root / m["path"] for m in items], [0] * len(items), eval_transform()),

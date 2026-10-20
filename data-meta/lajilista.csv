@@ -25,7 +25,7 @@ russula-paludosa,Russula paludosa,isohapero,2551201,syötävä,russula-emetica;a
 russula-emetica,Russula emetica,tulipunahapero,2551213,myrkyllinen,russula-paludosa,true,Ruokavirasto: kirpeä punainen hapero. Nimi laji.fi:stä.
 russula-decolorans-agg,Russula decolorans,kangashapero,2551479,syötävä,,true,Ruokavirasto: kangashapero = R. decolorans ja R. pubescens.
 russula-decolorans-agg,Russula pubescens,lehtoviinihapero,3360328,syötävä,,true,laji.fi: lehtoviinihapero. Ruokavirasto laskee kangashaperoksi.
-russula-claroflava,Russula claroflava,keltahapero,2551299,syötävä,,true,
+russula-claroflava,Russula claroflava,keltahapero,2551299,syötävä,tricholoma-equestre,true,"Kangaskeltavalmuska lisätty varoitukseksi (vaihe 9): keltalakkinen, malli sekoitti ne vaiheessa 7; tarkista."
 russula-vinosa,Russula vinosa,viinihapero,2551182,syötävä,,true,
 hygrophorus-camarophyllus,Hygrophorus camarophyllus,mustavahakas,2538720,syötävä,,true,
 cortinarius-caperatus,Cortinarius caperatus,kehnäsieni,2529415,syötävä,cortinarius-rubellus;cortinarius-orellanus,true,"Ruokaviraston nimeämät näköislajit ovat myrkyttömiä seitikkejä. Suippumyrkkyseitikki lisätty varmuuden vuoksi. Muut seitikit kuuluvat muu-luokkaan. Lehtomyrkkyseitikki lisätty varoitukseksi (vaihe 7), koska se on ruosteitiöinen seitikki; tarkista."
@@ -41,8 +41,8 @@ morchella,Morchella,huhtasienet,2594601,syötävä,gyromitra-esculenta;verpa-boh
 verpa-bohemica,Verpa bohemica,poimukellomörsky,5259057,myrkyllinen,morchella,false,"laji.fi käyttää nimeä Ptychoverpa bohemica (GBIF: synonyymi). Ruokavirasto: huhtasienten näköislaji. Myrkytyksiä raportoitu herkillä henkilöillä, ei suositella syötäväksi. Lisätty auditoinnissa."
 tricholoma-matsutake,Tricholoma matsutake,tuoksuvalmuska,5241820,syötävä,,true,"Harvinainen, kuvia voi olla vähän."
 armillaria,Armillaria,mesisienet,2526021,esikäsiteltävä,galerina-marginata;hypholoma-fasciculare,true,Suku luokkana. Ei Ruokaviraston suosituslistalla. Ruokavirasto: mesisieni keitetään 10 minuuttia.
-kuehneromyces-mutabilis,Kuehneromyces mutabilis,koivunkantosieni,2533962,syötävä,galerina-marginata;hypholoma-fasciculare,true,Ei Ruokaviraston suosituslistalla. Kuolemanvaarallinen sekaannusriski myrkkynääpikkään; ei aloittelijoille.
-agaricus-campestris-agg,Agaricus campestris,nurmiherkkusieni,5243458,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
+kuehneromyces-mutabilis,Kuehneromyces mutabilis,koivunkantosieni,2533962,syötävä,galerina-marginata;hypholoma-fasciculare;armillaria,true,"Ei Ruokaviraston suosituslistalla. Kuolemanvaarallinen sekaannusriski myrkkynääpikkään; ei aloittelijoille. Mesisienet lisätty varoitukseksi (vaihe 9): esikäsiteltävä, kasvaa samoin kannoilla ryhminä, ja malli sekoitti ne vaiheessa 7; tarkista."
+agaricus-campestris-agg,Agaricus campestris,nurmiherkkusieni,5243458,syötävä,amanita-virosa;amanita-phalloides;amanita-pantherina,true,Ei Ruokaviraston suosituslistalla. Pantterikärpässieni lisätty varoitukseksi (vaihe 9): malli sekoitti sen herkkusieneen vaiheessa 7; tarkista.
 agaricus-campestris-agg,Agaricus arvensis,peltoherkkusieni,5243403,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
 amanita-virosa,Amanita virosa,valkokärpässieni,5240323,tappava,agaricus-campestris-agg,true,Ruokavirasto: tappavan myrkyllinen.
 amanita-phalloides,Amanita phalloides,kavalakärpässieni,5240325,tappava,agaricus-campestris-agg,true,"Ruokavirasto: tappavan myrkyllinen, harvinainen Suomessa."

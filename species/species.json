@@ -3191,7 +3191,9 @@
       "Liha harmaantuu",
       "Kasvaa koivun alla kosteilla paikoilla"
     ],
-    "kaksoisolennot": [],
+    "kaksoisolennot": [
+      "tricholoma-equestre"
+    ],
     "tarkistukset": [
       {
         "id": "alapinta",
@@ -5572,7 +5574,8 @@
     ],
     "kaksoisolennot": [
       "galerina-marginata",
-      "hypholoma-fasciculare"
+      "hypholoma-fasciculare",
+      "armillaria"
     ],
     "tarkistukset": [
       {
@@ -5829,7 +5832,8 @@
     ],
     "kaksoisolennot": [
       "amanita-virosa",
-      "amanita-phalloides"
+      "amanita-phalloides",
+      "amanita-pantherina"
     ],
     "tarkistukset": [
       {

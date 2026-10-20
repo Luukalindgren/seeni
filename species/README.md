@@ -11,6 +11,6 @@ uv run python -m seeni.species sync    # refresh the fields from lajilista.csv
 uv run python -m seeni.species check   # validate (CI runs it in pytest)
 ```
 
-Checks (`tarkistukset`) with the same `id` in several records must be identical, since the app asks each one once. An answer lists the classes that are consistent with it; a check rules out only the classes it mentions, and only under the other answers. Drafting rule: a dangerous class (tappava, myrkyllinen, esikäsiteltävä) is ruled out only by a feature a beginner can see reliably, such as pores versus gills or the spore print colour. For an unreliable feature it is listed under every answer, so the check can rule out the food mushroom but never the dangerous one.
+Checks (`tarkistukset`) with the same `id` in several records must be identical, since the app asks each one once. An answer lists the classes that are consistent with it; a check rules out only the classes it mentions, and only under the other answers. Safety rule, enforced by `check`: a dangerous class (tappava, myrkyllinen, esikäsiteltävä) is ruled out only by a check on a feature a beginner can see reliably, listed in `RELIABLE_CHECKS` in `training/src/seeni/species.py` (pores, gills or ridges; spore print colour; milk; the inside of a morel cut in half). In every other check, a dangerous class that the check mentions is listed under every answer, so the check can rule out a food mushroom but never a dangerous one.
 
 The flow that uses these records is `web/src/flow.ts`.

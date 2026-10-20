@@ -29,7 +29,8 @@ const labels: Label[] = read('../public/models/v1/labels.json')
 const calibration: Calibration = read('../public/models/v1/calibration.json')
 const species = speciesMap(records)
 const ids = labels.map((l) => l.id)
-const EDIBLE = /syötäv|voi syödä|saa syödä|ruokasien|herkullinen/i
+// The same pattern as EDIBLE in training/src/seeni/species.py.
+const EDIBLE = /syötäv|syödä|syöd|ruokasien|herkullinen|maukas/i
 
 /** Probabilities with `top` at p and the rest spread evenly. */
 function probs(top: string, p: number, extra: Record<string, number> = {}): number[] {
@@ -62,7 +63,7 @@ describe('start', () => {
     for (const id of ids.filter((i) => i !== UNKNOWN)) {
       const state = flow(id, 0.97)
       const shown = new Set([...state.candidates.map((c) => c.id), ...state.warnings])
-      for (const c of state.candidates.filter((k) => k.source === 'model')) {
+      for (const c of state.candidates) {
         for (const x of species.get(c.id)!.kaksoisolennot) {
           if (DANGEROUS.has(species.get(x)!.ryhma)) assert.ok(shown.has(x), `${c.id} must show ${x}`)
         }
@@ -120,6 +121,17 @@ describe('checks', () => {
     assert.ok(c)
     const out = new Set(Object.keys(c.vastaukset).flatMap((a) => [...ruledOut(c, a)]))
     assert.ok([...out].some((id) => DANGEROUS.has(species.get(id)!.ryhma)), c.id)
+  })
+
+  it('keep asking while a dangerous lookalike can still be ruled out', () => {
+    const state = flow('morchella', 0.99)
+    assert.ok(state.candidates.some((c) => c.id === 'gyromitra-esculenta'))
+    assert.equal(isDone(state, species), false)
+  })
+
+  it('say the model suggests, not that answers fit, when nothing was answered', () => {
+    const text = outcomeText({ kind: 'fits', id: 'morchella', checked: [], openWarnings: [] }, species)
+    assert.ok(text[0]!.startsWith('Malli ehdottaa'))
   })
 
   it('never rule out a deadly lookalike of agaricus by the base of the stem alone', () => {

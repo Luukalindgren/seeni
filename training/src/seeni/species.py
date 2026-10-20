@@ -50,8 +50,13 @@ FIELDS = [
     "tarkistanut",
 ]
 CHECK_ID = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
-# Text the app shows must never state edibility (hard rule 8).
+# Text the app shows must never state edibility (hard rule 8). web/tests/flow.test.ts uses
+# the same pattern for the result texts.
 EDIBLE = re.compile(r"syötäv|syödä|syöd|ruokasien|herkullinen|maukas", re.IGNORECASE)
+# Checks on features a beginner can see reliably. Only these may rule out a dangerous class
+# (tappava, myrkyllinen, esikäsiteltävä); in every other check a dangerous class that the
+# check mentions is listed under every answer (species/README.md).
+RELIABLE_CHECKS = {"alapinta", "itiopoly", "maitiaisneste", "halkaisu"}
 
 
 def derived(members: list[Row]) -> dict:
@@ -64,8 +69,13 @@ def derived(members: list[Row]) -> dict:
 
 
 def sync(records: list[dict], rows: list[Row]) -> list[dict]:
-    """Records for every class of the list, in list order, derived fields refreshed."""
+    """Records for every class of the list, in list order, derived fields refreshed.
+    Refuses to drop a record whose class is no longer on the list, since its hand-written
+    content and review would be lost: rename or remove it by hand."""
     by_id = {r["id"]: r for r in records}
+    orphans = sorted(set(by_id) - set(classes(rows)))
+    if orphans:
+        raise SystemExit(f"records for classes not on the list: {orphans}; move or delete them")
     out = []
     for class_id, members in classes(rows).items():
         old = by_id.get(class_id, {})
@@ -85,6 +95,8 @@ def sync(records: list[dict], rows: list[Row]) -> list[dict]:
 
 def texts(record: dict):
     """Every string of a record that the app shows to the user."""
+    yield record.get("nimi", "")
+    yield record.get("tieteellinen", "")
     yield from record.get("tuntomerkit", [])
     for c in record.get("tarkistukset", []):
         yield c.get("kysymys", "")
@@ -105,6 +117,7 @@ def check(records: list[dict], rows: list[Row]) -> list[str]:
         errors.append(f"{UNKNOWN_CLASS} must not have a record")
     seen_checks: dict[str, dict] = {}
     listed_by_model = {x for c in in_model for x in class_lookalikes(by_class[c])}
+    classes_group = {c: class_group(m) for c, m in by_class.items()}
     for r in records:
         rid = r.get("id")
         at = f"{rid}"
@@ -146,6 +159,16 @@ def check(records: list[dict], rows: list[Row]) -> list[str]:
                 mentioned.update(fits)
             if rid not in mentioned:
                 errors.append(f"{at}: check {cid} does not mention its own class")
+            if not any(mentioned - set(fits) for fits in answers.values()):
+                errors.append(f"{at}: check {cid} can never rule anything out")
+            if cid not in RELIABLE_CHECKS:
+                group = {x: classes_group.get(x) for x in mentioned}
+                for answer, fits in answers.items():
+                    for x in sorted(m for m in mentioned - set(fits) if group[m] in DANGEROUS):
+                        errors.append(
+                            f"{at}: check {cid} answer {answer!r} rules out the dangerous {x}, "
+                            "but the check is not a reliable one"
+                        )
             if cid in seen_checks and seen_checks[cid] != c:
                 errors.append(f"{at}: check {cid} differs from the one with the same id elsewhere")
             seen_checks.setdefault(cid, c)

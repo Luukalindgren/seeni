@@ -120,15 +120,18 @@ export function start(
     if (mass >= calibration.candidateMass || candidates.length >= calibration.maxCandidates) break
   }
 
+  // Dangerous lookalikes of every candidate, also of the ones added here (hard rule 8).
   const modelProbability = new Map(order.map(({ id, p }) => [id, p]))
   const warnings: string[] = []
-  for (const c of [...candidates]) {
-    for (const x of species.get(c.id)?.kaksoisolennot ?? []) {
-      if (!isDangerous(x, species) || x === UNKNOWN) continue
+  const queue = candidates.map((c) => c.id)
+  for (let id = queue.shift(); id !== undefined; id = queue.shift()) {
+    for (const x of species.get(id)?.kaksoisolennot ?? []) {
+      if (!isDangerous(x, species)) continue
       if (candidates.some((k) => k.id === x) || warnings.includes(x)) continue
       const p = modelProbability.get(x)
       if (p === undefined) warnings.push(x)
       else candidates.push({ id: x, probability: p, source: 'lookalike' })
+      queue.push(x)
     }
   }
   return { kind: 'flow', state: { candidates: normalize(candidates), warnings, asked: [] } }
@@ -209,9 +212,18 @@ export function answer(state: State, check: Check, chosen: string): State | null
   }
 }
 
+/** Done when no check is left, or when one candidate stands out and no check left could
+ * rule out a dangerous candidate or an open warning other than it. */
 export function isDone(state: State, species: Species): boolean {
-  const top = Math.max(...state.candidates.map((c) => c.probability))
-  return top >= STAND_OUT || nextCheck(state, species) === null
+  const remaining = checksFor(state, species).filter((c) => score(c, state, species) > 0)
+  if (remaining.length === 0) return true
+  const top = [...state.candidates].sort((a, b) => b.probability - a.probability)[0]!
+  if (top.probability < STAND_OUT) return false
+  const open = new Set([
+    ...state.candidates.filter((c) => c.id !== top.id && isDangerous(c.id, species)).map((c) => c.id),
+    ...state.warnings,
+  ])
+  return !remaining.some((c) => Object.keys(c.vastaukset).some((a) => [...ruledOut(c, a)].some((x) => open.has(x))))
 }
 
 /** The result once the flow is done. Open warnings are every dangerous class still in. */
@@ -237,7 +249,11 @@ export function outcomeText(result: Outcome, species: Species): string[] {
   if (result.kind === 'not-sure') return ['En tunnista varmasti.', reminder]
   const r = species.get(result.id)
   const name = r ? `${r.nimi} (${r.tieteellinen})` : result.id
-  const lines = [`Vastauksesi sopivat lajiin ${name}.`]
+  const lines = [
+    result.checked.length > 0
+      ? `Vastauksesi sopivat lajiin ${name}.`
+      : `Malli ehdottaa lajia ${name}. Et ole vielä vastannut yhteenkään tarkistukseen.`,
+  ]
   const group = r ? GROUP_TEXT[r.ryhma] : undefined
   if (group) lines.push(group)
   if (result.openWarnings.length > 0) {

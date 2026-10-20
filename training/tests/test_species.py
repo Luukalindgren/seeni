@@ -18,7 +18,11 @@ def rows(food_lookalikes=("deadly", "warn")):
 def records(lajilista):
     out = sync([], lajilista)
     out[0]["tarkistukset"] = [
-        {"id": "x", "kysymys": "Onko?", "vastaukset": {"kyllä": ["food"], "ei": ["deadly"]}}
+        {
+            "id": "x",
+            "kysymys": "Onko?",
+            "vastaukset": {"kyllä": ["food", "deadly"], "ei": ["deadly"]},
+        }
     ]
     return out
 
@@ -37,9 +41,9 @@ def test_a_synced_draft_is_valid():
 def test_sync_fills_derived_fields_and_keeps_hand_fields():
     lajilista = rows()
     r = records(lajilista)
-    r[0]["nimi"] = "ruokasienet"
+    r[0]["nimi"] = "testisienet"
     again = sync(r, lajilista)
-    assert again[0]["nimi"] == "ruokasienet"
+    assert again[0]["nimi"] == "testisienet"
     assert again[0]["kaksoisolennot"] == ["deadly", "warn"]
     assert again[1]["ryhma"] == "tappava" and again[1]["taxonKeys"] == [2]
     assert again[0]["tarkistukset"] == r[0]["tarkistukset"]
@@ -71,3 +75,30 @@ def test_same_check_id_must_be_the_same_check():
         ]
 
     assert any("differs" in e for e in errors_after(change))
+
+
+def test_only_reliable_checks_may_rule_out_a_dangerous_class():
+    def unreliable(r):
+        r[0]["tarkistukset"][0]["vastaukset"]["kyllä"] = ["food"]
+
+    assert any("not a reliable one" in e for e in errors_after(unreliable))
+
+    def reliable(r):
+        r[0]["tarkistukset"][0]["vastaukset"]["kyllä"] = ["food"]
+        r[0]["tarkistukset"][0]["id"] = "itiopoly"
+
+    assert not any("not a reliable one" in e for e in errors_after(reliable))
+
+
+def test_edibility_in_a_name_is_caught():
+    assert any("edibility" in e for e in errors_after(lambda r: r[0].update(nimi="ruokasienet")))
+
+
+def test_sync_refuses_to_drop_a_record():
+    import pytest
+
+    lajilista = rows()
+    r = records(lajilista)
+    r.append({**r[0], "id": "gone"})
+    with pytest.raises(SystemExit):
+        sync(r, lajilista)

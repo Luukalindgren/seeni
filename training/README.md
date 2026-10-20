@@ -84,3 +84,14 @@ uv run python -m seeni.baseline outliers    # images far from their own class, w
 ```
 
 `split` keeps every observation that is already in `split.csv` in its set and only assigns new ones, so a later download never moves a test image into training. Commit `split.csv` after it changes. `embed` only embeds images it has not seen. Results go to `<data dir>/baseline/`; add bad outliers to `exclude.csv` and re-run `gbif_images download`, `split` and `embed`.
+
+## Fine-tuning (phase 6)
+
+From `training/`, in tmux:
+
+```sh
+uv run python -m seeni.train --name b0-224 --epochs 30      # EfficientNet-B0 at 224 px
+uv run tensorboard --logdir ~/seeni-data/runs               # curves
+```
+
+The run goes to `<data dir>/runs/<name>/`: `best.pt` (best val macro-F1), `labels.json`, `preprocess.json`, `metrics.json`, `per_class.csv`, `confusion.csv` and TensorBoard logs. `labels.json` is the only source of class order from here on: the `in_model` classes of `lajilista.csv` in file order, then `muu`. Until phase 7 brings real unknown data, `muu` trains on the images of listed classes that are not in the model. The eval transform and `preprocess.json` come from `seeni.preprocess`; change preprocessing only there.

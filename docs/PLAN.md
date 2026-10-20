@@ -131,7 +131,7 @@ Aloita EfficientNet-B0:lla 224 pikselin kuvakoossa. Se on pieni selaimelle ja no
 3. **Muisti ja nopeus:** pöytäkoneen RTX 3070:llä bf16 autocast (ei GradScaleria). Vain koulutus käyttää bf16:ta: arviointi, kalibrointi ja kultaiset testitulokset ajetaan fp32:na. `channels_last`, batch noin 64. Jos muisti loppuu, pienennä batchia.
 4. **Augmentointi:** RandomResizedCrop (scale 0.35–1), vaakapeilaus, pieni kierto, kirkkaus ja kontrasti. **Älä muuta sävyä (hue)**, koska väri on sienissä tuntomerkki.
 5. **Epätasapaino:** painotettu otanta, jossa paino on 1/√(kuvien määrä), ja label smoothing 0.1.
-6. **Arviointimuunnos** (lyhyempi sivu 256 → keskirajaus 224 → normalisointi) on se, joka toistetaan selaimessa täsmälleen. Määrittele se yhdessä paikassa ja vie se myöhemmin `preprocess.json`-tiedostoon.
+6. **Arviointimuunnos** (EXIF-suunta → lyhyempi sivu 256 antialiasoidulla bilineaarisella skaalauksella → keskirajaus 224 → normalisointi) on se, joka toistetaan selaimessa täsmälleen. Määrittele se yhdessä paikassa skaalaustapa mukaan lukien ja vie se `preprocess.json`-tiedostoon (#14).
 7. **Seuranta:** TensorBoard tai Weights & Biases. Tallenna paras checkpoint validoinnin macro-F1:n mukaan. Aja `tmux`issa.
 
 Aikaa kuluu muutama tunti noin 100 000 kuvalla.
@@ -159,7 +159,7 @@ Vienti tuottaa neljä tiedostoa, jotka ovat sopimus koulutuksen ja selaimen väl
 4. **Tiedostot** kansioon `web/public/models/v1/`:
    - `model.onnx`
    - `labels.json`: taulukko, jonka alkion paikka on mallin ulostulon indeksi ja alkio on `{ "id": "<class_id>", "taxonKeys": [...] }`. Järjestys tulee suoraan koulutuksesta. `muu`-luokan `taxonKeys` on tyhjä.
-   - `preprocess.json`: `resize_short` 256, `crop` 224, `mean`, `std`, RGB, NCHW
+   - `preprocess.json`: `seeni.preprocess.spec()` sellaisenaan: EXIF-suunta, lyhyempi sivu 256 (`interpolation` bilinear, `antialias` true), `centerCrop` 224, `mean`, `std`, RGB, NCHW
    - `calibration.json`: lämpötila T ja tuntematon-kynnys
 5. **Kultainen testiaineisto:** 20 testikuvaa ja niiden odotetut top-5-todennäköisyydet Pythonista hakemistoon `web/tests/fixtures/`. Näillä vaiheen 10 yhdenmukaisuustesti varmistaa, että selain laskee saman tuloksen.
 
@@ -213,7 +213,7 @@ Sovellus on Vite + TypeScript -sivu, joka ajaa mallin onnxruntime-webillä Web W
 - Kopioi onnxruntimen `.wasm`-tiedostot omaan `public`-kansioon ja aseta `ort.env.wasm.wasmPaths` niihin. Ilman tätä ne haetaan CDN:stä, eikä offline-tila toimi.
 - Aja malli Web Workerissa `OffscreenCanvas`in kanssa, niin käyttöliittymä ei jäädy. Luo istunto kerran ja tee yksi lämmittelyajo.
 - Kuva: `<input type="file" accept="image/*" capture="environment" multiple>`. Lue se `createImageBitmap(file, { imageOrientation: 'from-image' })`-kutsulla, jotta puhelinkuvien EXIF-kierto tulee oikein.
-- Esikäsittely suoraan `preprocess.json`-tiedostosta: lyhyempi sivu 256 → keskirajaus 224 → RGB / 255 → (x − mean) / std → NCHW `Float32Array`.
+- Esikäsittely suoraan `preprocess.json`-tiedostosta: lyhyempi sivu 256 → keskirajaus 224 → RGB / 255 → (x − mean) / std → NCHW `Float32Array`. Skaalaus tehdään itse dekoodatuille pikseleille PIL:n antialiasoidun bilineaarisen suodattimen mukaan, ei canvasin skaalauksella (#14).
 - Tulos: logits / T → softmax → keskiarvo kuvien yli → kynnys "en tunnista" → `labels.json` → `species.json` → varmistusohjaus.
 
 **Yhdenmukaisuustesti**

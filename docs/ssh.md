@@ -106,8 +106,11 @@ Host seeni-pc
   Register-ScheduledTask -TaskName 'WSL keep-alive' -Action $action -Trigger $trigger -Settings (New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0)
   ```
 
-  This also starts WSL again after a reboot, but only once someone logs in to Windows. This setup has not been tested on the desktop yet; the [check](#check) below tells whether it works.
-- In the Tailscale settings on Windows, turn on **Run unattended**, so the machine stays on the tailnet at the login screen and after you log out.
+  This also starts WSL again after a reboot, but only once someone logs in to Windows. Locking the screen is fine; logging out stops WSL. tmux does not keep WSL alive: it only keeps a job running when the SSH connection drops, and everything in it dies when WSL stops or Windows restarts.
+
+  `wsl --shutdown` also kills this task, and nothing restarts it until the next logon. After every `wsl --shutdown`, run `Start-ScheduledTask -TaskName 'WSL keep-alive'`.
+- Stop Windows Update from restarting the machine overnight: set active hours as wide as the setting allows and turn off *Get me up to date*. On Windows Pro, the group policy "No auto-restart with logged on users" turns automatic restarts off. A restart still needs a login before SSH works again.
+- In the Tailscale settings on Windows, turn on **Run unattended**, so the machine stays on the tailnet at the login screen and after you log out. In the Tailscale admin console, disable key expiry for the Windows machine, or it drops off the tailnet when its key expires.
 - Install Claude Code inside WSL, so agents run commands in the same environment.
 
 ## Check
@@ -123,7 +126,7 @@ Then close every Ubuntu window on the desktop and run `ssh seeni-pc` again. It s
 
 ## Troubleshooting
 
-- **Connection times out:** check that Tailscale is up on both machines (`tailscale status`), that `ip -4 addr` in WSL shows the `100.x.y.z` address, and that the Hyper-V firewall rule exists (`Get-NetFirewallHyperVRule -Name WSL-SSH`).
+- **Connection times out:** first check that WSL is running at all (`wsl -l -v` on Windows shows `Running`). If it is `Stopped`, start the keep-alive task (`Start-ScheduledTask -TaskName 'WSL keep-alive'`). Use `tailscale ping <tailscale-name>` from the Mac, not plain `ping`: the Windows firewall drops ICMP. If `tailscale ping` times out even though `tailscale status` lists both machines, restart Tailscale on Windows (`Restart-Service Tailscale` in an admin PowerShell), then run `wsl --shutdown` and start the keep-alive task, so WSL picks up the new interface. Otherwise check that Tailscale is up on both machines (`tailscale status`), that `ip -4 addr` in WSL shows the `100.x.y.z` address, and that the Hyper-V firewall rule exists (`Get-NetFirewallHyperVRule -Name WSL-SSH`).
 - **Connection refused:** sshd is not listening on 2222. Check `ss -tln | grep 2222` and `systemctl status ssh.service`, and that `ssh.socket` is disabled.
 - **Permission denied (publickey):** check the key in `~/.ssh/authorized_keys` and the `700`/`600` permissions in WSL.
 - **Works only while an Ubuntu window is open:** WSL is shutting down when idle. Check that the keep-alive task from [Long runs](#7-long-runs) is running (`Get-ScheduledTask -TaskName 'WSL keep-alive'`).

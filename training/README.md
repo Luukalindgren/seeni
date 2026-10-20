@@ -46,3 +46,28 @@ uv run python -m seeni.gbif_match --fill    # also fill empty taxonKeys whose ma
 ```
 
 `gbif_match` needs `api.gbif.org`, so run it on the desktop. Check every row of the report by hand before relying on a key.
+
+## GBIF images (phase 4)
+
+Needs `api.gbif.org` and a GBIF account, so run it on the desktop. Put the credentials in the WSL shell environment (e.g. `~/.bashrc`), never in the repo:
+
+```sh
+export GBIF_USER=...
+export GBIF_PWD=...
+export GBIF_EMAIL=...   # notification when the download is ready, and contact in the User-Agent
+```
+
+Then, from `training/`, in tmux:
+
+```sh
+uv run python -m seeni.gbif_download request --dry-run   # check the request body
+uv run python -m seeni.gbif_download request             # every taxonKey, FI/SE/NO/EE, photographed human observations
+uv run python -m seeni.gbif_download fetch --wait        # archive to <data dir>/gbif/, DOI to data-meta/gbif_download.json
+uv run python -m seeni.gbif_images index                 # CC0/CC-BY only, ≤ 1500 per taxon, ≤ 3 per observation
+uv run python -m seeni.gbif_images download              # resize to 512 px, write manifest.parquet
+uv run python -m seeni.gbif_images dedup                 # exclude duplicate photos
+uv run python -m seeni.gbif_images sheets                # contact sheets under <data dir>/review/
+uv run python -m seeni.gbif_images report                # images per class, for issue #4
+```
+
+Every step can be re-run; `download` skips images already on disk. After browsing the contact sheets, add microscope shots, spore prints, drawings and other bad images to `<data dir>/exclude.csv` (`gbifID,n,reason`) and run `download` again: the manifest drops them and their files move to `<data dir>/unused/`. Commit `data-meta/gbif_download.json`, since the attributions cite its DOI.

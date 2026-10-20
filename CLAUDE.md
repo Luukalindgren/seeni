@@ -71,7 +71,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 ## Status
 
 - [x] Repo created
-- [ ] 1. Desktop setup: WSL2, CUDA, uv, Tailscale + SSH (#1)
+- [x] 1. Desktop setup: WSL2, CUDA, uv, Tailscale + SSH (#1)
 - [x] 2. Repo structure (#2)
 - [ ] 3. Species list (#3)
 - [ ] 4. GBIF data download + license filtering (#4)

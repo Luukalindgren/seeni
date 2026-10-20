@@ -87,6 +87,13 @@ def test_python_matches_the_golden_fixtures():
     committed images, gives the golden top-5, and preprocessing gives the golden tensors."""
     transform = eval_transform()
     x = np.stack([transform(load(FIXTURES / g["file"])).numpy() for g in GOLDEN["images"]])
+    for path in GOLDEN["decoded"]:
+        name = path.removeprefix("decoded/").removesuffix(".npy")
+        g = next(g for g in GOLDEN["images"] if name in g["file"])
+        np.testing.assert_array_equal(
+            np.load(FIXTURES / path), np.asarray(load(FIXTURES / g["file"]))
+        )
+        assert f"tensors/{name}.npy" in GOLDEN["tensors"]
     for path in GOLDEN["tensors"]:
         name = path.removeprefix("tensors/").removesuffix(".npy")
         i = next(k for k, g in enumerate(GOLDEN["images"]) if name in g["file"])

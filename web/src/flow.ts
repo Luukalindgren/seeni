@@ -212,6 +212,11 @@ export function answer(state: State, check: Check, chosen: string): State | null
   }
 }
 
+/** The user could not check this: it is not asked again and rules nothing out. */
+export function skip(state: State, check: Check): State {
+  return { ...state, asked: [...state.asked, { check: check.id, answer: '' }] }
+}
+
 /** Done when no check is left, or when one candidate stands out and no check left could
  * rule out a dangerous candidate or an open warning other than it. */
 export function isDone(state: State, species: Species): boolean {
@@ -234,7 +239,8 @@ export function outcome(state: State | null, species: Species): Outcome {
     ...state.candidates.filter((c) => c.id !== top.id && isDangerous(c.id, species)).map((c) => c.id),
     ...state.warnings,
   ]
-  return { kind: 'fits', id: top.id, checked: state.asked, openWarnings }
+  const checked = state.asked.filter((a) => a.answer !== '')
+  return { kind: 'fits', id: top.id, checked, openWarnings }
 }
 
 const GROUP_TEXT: Partial<Record<Group, string>> = {

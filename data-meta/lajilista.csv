@@ -42,10 +42,10 @@ verpa-bohemica,Verpa bohemica,poimukellomörsky,5259057,myrkyllinen,morchella,fa
 tricholoma-matsutake,Tricholoma matsutake,tuoksuvalmuska,5241820,syötävä,,true,"Harvinainen, kuvia voi olla vähän."
 armillaria,Armillaria,mesisienet,2526021,esikäsiteltävä,galerina-marginata;hypholoma-fasciculare,true,Suku luokkana. Ei Ruokaviraston suosituslistalla. Ruokavirasto: mesisieni keitetään 10 minuuttia.
 kuehneromyces-mutabilis,Kuehneromyces mutabilis,koivunkantosieni,2533962,syötävä,galerina-marginata;hypholoma-fasciculare,true,Ei Ruokaviraston suosituslistalla. Kuolemanvaarallinen sekaannusriski myrkkynääpikkään; ei aloittelijoille.
-agaricus-campestris,Agaricus campestris,nurmiherkkusieni,5243458,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
-agaricus-arvensis,Agaricus arvensis,peltoherkkusieni,5243403,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
-amanita-virosa,Amanita virosa,valkokärpässieni,5240323,tappava,agaricus-campestris;agaricus-arvensis,true,Ruokavirasto: tappavan myrkyllinen.
-amanita-phalloides,Amanita phalloides,kavalakärpässieni,5240325,tappava,agaricus-campestris;agaricus-arvensis,true,"Ruokavirasto: tappavan myrkyllinen, harvinainen Suomessa."
+agaricus-campestris-agg,Agaricus campestris,nurmiherkkusieni,5243458,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
+agaricus-campestris-agg,Agaricus arvensis,peltoherkkusieni,5243403,syötävä,amanita-virosa;amanita-phalloides,true,Ei Ruokaviraston suosituslistalla.
+amanita-virosa,Amanita virosa,valkokärpässieni,5240323,tappava,agaricus-campestris-agg,true,Ruokavirasto: tappavan myrkyllinen.
+amanita-phalloides,Amanita phalloides,kavalakärpässieni,5240325,tappava,agaricus-campestris-agg,true,"Ruokavirasto: tappavan myrkyllinen, harvinainen Suomessa."
 cortinarius-rubellus,Cortinarius rubellus,suippumyrkkyseitikki,2528663,tappava,craterellus-tubaeformis-agg;cortinarius-caperatus,true,Ruokavirasto: tappavan myrkyllinen.
 cortinarius-orellanus,Cortinarius orellanus,lehtomyrkkyseitikki,2528684,tappava,cortinarius-rubellus,false,"laji.fi:ssä ei suomenkielistä nimeä, joten laji ei todennäköisesti ole Suomen lajilistalla. Nimi vain Wikimedia Commonsista, tarkista."
 gyromitra-esculenta,Gyromitra esculenta,korvasieni,5258510,tappava,morchella,true,"Ruokavirasto: tappavan myrkyllinen, ei suositeltavien ruokasienten listalla. Medioiden (IL, Kaleva) mukaan Ruokaviraston selvityksessä noin viidennes myrkystä jää keittämisen jälkeenkin; Ruokaviraston käsittelyohjeet ovat silti voimassa."

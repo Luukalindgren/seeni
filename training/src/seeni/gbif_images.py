@@ -17,9 +17,9 @@ Layout under the data directory (hard rule 2, never in git):
 
     gbif/<key>.zip           the Darwin Core Archive
     candidates.parquet       images picked by `index`
-    images/<taxonKey>/<gbifID>_<n>.jpg
+    images/<taxonKey>/<image>.jpg
     manifest.parquet         one row per image under images/, also the attribution list
-    exclude.csv              gbifID,n,reason: images to leave out (duplicates, microscope
+    exclude.csv              image,reason: images to leave out (duplicates, microscope
                              shots, spore prints, drawings). Add rows by hand after `sheets`.
     unused/                  files moved out of images/ because they are excluded or no
                              longer picked
@@ -27,6 +27,8 @@ Layout under the data directory (hard rule 2, never in git):
 
 <taxonKey> is the species list row's key, not the occurrence's own key: an occurrence
 belongs to the row whose key is in its taxon path, which matters for genus-level classes.
+<image> is <gbifID>_<hash of the image URL>, so it names the same photo in every download
+(the plan's <gbifID>_<n> would shift when a publisher adds or removes photos).
 """
 
 import argparse
@@ -36,9 +38,6 @@ import io
 import random
 import re
 import sys
-import time
-import urllib.error
-import urllib.request
 import zipfile
 from collections import Counter, defaultdict
 from collections.abc import Callable, Iterator
@@ -49,8 +48,8 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from PIL import Image, ImageDraw, ImageOps
 
-from seeni.gbif_download import gbif_dir, user_agent
-from seeni.lajilista import LAJILISTA, Row, read
+from seeni.gbif_download import gbif_dir, get
+from seeni.lajilista import LAJILISTA, LajilistaError, Row, read, validate
 from seeni.paths import data_dir
 
 SHORT_SIDE = 512
@@ -58,6 +57,7 @@ PER_TAXON = 1500
 PER_OBSERVATION = 3
 TARGET_PER_CLASS = 100
 WORKERS = 8
+MIN_HASH_BITS = 8
 
 # Occurrence fields that can hold a species list row's key: the taxon path (#4 step 4).
 LINEAGE = [
@@ -74,6 +74,7 @@ LINEAGE = [
 
 CANDIDATE_COLUMNS = [
     "path",
+    "image",
     "taxonKey",
     "class_id",
     "gbifID",
@@ -156,19 +157,24 @@ def row_for(occurrence: dict, by_key: dict[int, Row]) -> Row | None | str:
     return next(iter(found.values()))
 
 
-def read_exclude(path: Path) -> dict[tuple[int, int], str]:
+def image_id(gbif_id: int, url: str) -> str:
+    """<gbifID>_<URL hash>: the same photo gets the same id in every download."""
+    return f"{gbif_id}_{hashlib.sha1(url.encode()).hexdigest()[:10]}"
+
+
+def read_exclude(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
     with path.open(newline="", encoding="utf-8") as f:
-        return {(int(r["gbifID"]), int(r["n"])): r["reason"] for r in csv.DictReader(f)}
+        return {r["image"].strip(): r["reason"] for r in csv.DictReader(f)}
 
 
-def append_exclude(path: Path, rows: list[tuple[int, int, str]]) -> None:
+def append_exclude(path: Path, rows: list[tuple[str, str]]) -> None:
     new = not path.exists()
     with path.open("a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f, lineterminator="\n")
         if new:
-            writer.writerow(["gbifID", "n", "reason"])
+            writer.writerow(["image", "reason"])
         writer.writerows(rows)
 
 
@@ -180,14 +186,15 @@ def observation_order(gbif_id: int) -> str:
 def index(
     archive_path: Path,
     rows: list[Row],
-    exclude: dict[tuple[int, int], str],
+    exclude: dict[str, str],
     per_taxon: int = PER_TAXON,
     per_observation: int = PER_OBSERVATION,
 ) -> tuple[list[dict], dict[str, Counter]]:
     """Pick images from the archive. Returns (candidates, per-class counts of each stage)."""
     by_key = {r.taxon_key: r for r in rows if r.taxon_key is not None}
     stats: dict[str, Counter] = defaultdict(Counter)
-    occurrences: dict[int, tuple[Row, dict]] = {}
+    # Only the fields the manifest needs: occurrence.txt has about 250 columns per row.
+    occurrences: dict[int, tuple[Row, str, str, str]] = {}
     with zipfile.ZipFile(archive_path) as archive:
         for occ in read_tsv(archive, "occurrence.txt"):
             row = row_for(occ, by_key)
@@ -197,7 +204,12 @@ def index(
                 stats["?"]["ambiguous_taxon"] += 1
                 continue
             stats[row.class_id]["observations"] += 1
-            occurrences[int(occ["gbifID"])] = (row, occ)
+            occurrences[int(occ["gbifID"])] = (
+                row,
+                occ.get("countryCode", ""),
+                occ.get("eventDate", ""),
+                occ.get("datasetKey", ""),
+            )
 
         images: dict[int, list[dict]] = defaultdict(list)
         position: Counter = Counter()
@@ -207,7 +219,7 @@ def index(
                 continue
             n = position[gbif_id]
             position[gbif_id] += 1
-            row, occ = occurrences[gbif_id]
+            row, country, event_date, dataset_key = occurrences[gbif_id]
             counts = stats[row.class_id]
             counts["images"] += 1
             url = media.get("identifier", "").strip()
@@ -222,12 +234,14 @@ def index(
             if not re.match(r"https?://", url):
                 counts["rejected_no_url"] += 1
                 continue
-            if (gbif_id, n) in exclude:
+            image = image_id(gbif_id, url)
+            if image in exclude:
                 counts["excluded"] += 1
                 continue
             images[gbif_id].append(
                 {
-                    "path": f"images/{row.taxon_key}/{gbif_id}_{n}.jpg",
+                    "path": f"images/{row.taxon_key}/{image}.jpg",
+                    "image": image,
                     "taxonKey": row.taxon_key,
                     "class_id": row.class_id,
                     "gbifID": gbif_id,
@@ -236,9 +250,9 @@ def index(
                     "license_url": media.get("license", "").strip(),
                     "rights_holder": holder,
                     "creator": media.get("creator", "").strip(),
-                    "country": occ.get("countryCode", ""),
-                    "event_date": occ.get("eventDate", ""),
-                    "dataset_key": occ.get("datasetKey", ""),
+                    "country": country,
+                    "event_date": event_date,
+                    "dataset_key": dataset_key,
                     "url": url,
                     "download_url": download_url(url),
                     "gbif_download": archive_path.stem,
@@ -281,22 +295,6 @@ def read_table(path: Path) -> list[dict]:
 # --- Download, resize, manifest ----------------------------------------------------------
 
 
-def http_get(url: str) -> bytes:
-    request = urllib.request.Request(url, headers={"User-Agent": user_agent()})
-    for attempt in range(4):
-        try:
-            with urllib.request.urlopen(request, timeout=60) as response:
-                return response.read()
-        except urllib.error.HTTPError as e:
-            if e.code != 429 and e.code < 500 or attempt == 3:
-                raise
-        except OSError:
-            if attempt == 3:
-                raise
-        time.sleep(2 ** (attempt + 1))
-    raise AssertionError("unreachable")
-
-
 def resize(data: bytes, short_side: int = SHORT_SIDE) -> Image.Image:
     """Upright RGB image whose shorter side is short_side. Smaller images are not enlarged."""
     image = ImageOps.exif_transpose(Image.open(io.BytesIO(data)))
@@ -309,13 +307,11 @@ def resize(data: bytes, short_side: int = SHORT_SIDE) -> Image.Image:
 
 
 def fetch_one(candidate: dict, root: Path, get: Get) -> str | None:
-    """Download one image unless it is already there. Returns an error message or None."""
+    """Download and resize one image. Returns an error message or None."""
     dest = root / candidate["path"]
-    if dest.exists():
-        return None
     try:
         image = resize(get(candidate["download_url"]))
-    except (OSError, ValueError, Image.DecompressionBombError) as e:  # skip, retry next run
+    except Exception as e:  # noqa: BLE001  one broken image or host must not stop the run
         return f"{type(e).__name__}: {e}"
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(".tmp")
@@ -324,7 +320,7 @@ def fetch_one(candidate: dict, root: Path, get: Get) -> str | None:
     return None
 
 
-def download(candidates: list[dict], root: Path, get: Get = http_get, workers: int = WORKERS):
+def download(candidates: list[dict], root: Path, get: Get = get, workers: int = WORKERS):
     todo = [c for c in candidates if not (root / c["path"]).exists()]
     failures = []
     with ThreadPoolExecutor(max_workers=workers) as pool:
@@ -346,11 +342,7 @@ def build_manifest(root: Path) -> list[dict]:
     """
     candidates = read_table(root / "candidates.parquet")
     exclude = read_exclude(root / "exclude.csv")
-    keep = [
-        c
-        for c in candidates
-        if (c["gbifID"], c["n"]) not in exclude and (root / c["path"]).exists()
-    ]
+    keep = [c for c in candidates if c["image"] not in exclude and (root / c["path"]).exists()]
     wanted = {c["path"] for c in keep}
     images = root / "images"
     for file in sorted(images.rglob("*")) if images.exists() else []:
@@ -377,15 +369,21 @@ def dhash(image: Image.Image) -> int:
     return bits
 
 
-def duplicates(hashes: dict[str, tuple[int, str]]) -> list[tuple[str, str]]:
-    """(path, reason) for each image to exclude, given path -> (hash, class_id).
+def low_detail(h: int) -> bool:
+    """Nearly flat images (very dark, overexposed, blurred) share hashes without being copies."""
+    return not MIN_HASH_BITS <= h.bit_count() <= 64 - MIN_HASH_BITS
 
-    Within a class the first path of a group stays. A photo that appears in two classes
-    has conflicting labels, so every copy goes.
+
+def duplicates(hashes: dict[str, tuple[int, str]]) -> list[tuple[str, str]]:
+    """(image, reason) for each image to exclude, given image -> (hash, class_id).
+
+    Within a class the first image of a group stays. A photo that appears in two classes
+    has conflicting labels, so every copy goes. Low-detail hashes are never grouped.
     """
     groups: dict[int, list[str]] = defaultdict(list)
-    for path, (h, _) in sorted(hashes.items()):
-        groups[h].append(path)
+    for image, (h, _) in sorted(hashes.items()):
+        if not low_detail(h):
+            groups[h].append(image)
     out = []
     for paths in groups.values():
         if len(paths) < 2:
@@ -452,7 +450,15 @@ def latest_archive() -> Path:
 def cmd_index(args) -> int:
     root = data_dir()
     archive = args.archive or latest_archive()
-    rows = read(args.lajilista)
+    try:
+        rows = read(args.lajilista)
+        errors, _ = validate(rows, require_keys=True)
+    except LajilistaError as e:
+        errors = e.errors
+    if errors:
+        for e in errors:
+            print(f"error: {e}", file=sys.stderr)
+        return 1
     candidates, stats = index(
         archive, rows, read_exclude(root / "exclude.csv"), args.per_taxon, args.per_observation
     )
@@ -480,7 +486,7 @@ def cmd_download(args) -> int:
     root = data_dir()
     candidates = read_table(root / "candidates.parquet")
     exclude = read_exclude(root / "exclude.csv")
-    candidates = [c for c in candidates if (c["gbifID"], c["n"]) not in exclude]
+    candidates = [c for c in candidates if c["image"] not in exclude]
     tried, failures = download(candidates, root, workers=args.workers)
     with (root / "download_failures.csv").open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, ["path", "url", "error"], lineterminator="\n")
@@ -497,10 +503,9 @@ def cmd_dedup(args) -> int:
     manifest = read_table(root / "manifest.parquet")
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
         hashes = pool.map(hash_file, (root / m["path"] for m in manifest))
-        by_path = {m["path"]: (h, m["class_id"]) for m, h in zip(manifest, hashes)}
-    found = duplicates(by_path)
-    keys = {m["path"]: (m["gbifID"], m["n"]) for m in manifest}
-    append_exclude(root / "exclude.csv", [(*keys[p], reason) for p, reason in found])
+        by_image = {m["image"]: (h, m["class_id"]) for m, h in zip(manifest, hashes)}
+    found = duplicates(by_image)
+    append_exclude(root / "exclude.csv", found)
     manifest = build_manifest(root)
     print(f"excluded {len(found)} duplicates; manifest: {len(manifest)} images")
     return 0
@@ -517,11 +522,9 @@ def cmd_sheets(args) -> int:
     rng = random.Random(args.seed)
     for class_id, items in sorted(by_class.items()):
         sample = sorted(rng.sample(items, min(args.sample, len(items))), key=lambda m: m["path"])
-        sheet = contact_sheet(
-            [root / m["path"] for m in sample], [f"{m['gbifID']}_{m['n']}" for m in sample]
-        )
+        sheet = contact_sheet([root / m["path"] for m in sample], [m["image"] for m in sample])
         sheet.save(out / f"{class_id}.jpg", quality=85)
-    print(f"{len(by_class)} sheets in {out}. Add bad images to exclude.csv as gbifID,n,reason")
+    print(f"{len(by_class)} sheets in {out}. Add bad images to exclude.csv as image,reason")
     print("and run `download` again to update the manifest.")
     return 0
 

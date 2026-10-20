@@ -1,6 +1,8 @@
+import io
 import json
 
-from seeni.gbif_download import citation, record_download, request_body
+from seeni import gbif_download
+from seeni.gbif_download import citation, download_zip, record_download, request_body
 from seeni.lajilista import read
 
 HEADER = "class_id,tieteellinen,nimi,taxonKey,ryhma,kaksoisolennot,in_model\n"
@@ -49,3 +51,34 @@ def test_record_download_replaces_same_key(tmp_path):
     downloads = json.loads(path.read_text(encoding="utf-8"))["downloads"]
     assert [d["key"] for d in downloads] == [META["key"], "other"]
     assert downloads[0]["totalRecords"] == 1001
+
+
+class FakeResponse(io.BytesIO):
+    def __init__(self, data, status):
+        super().__init__(data)
+        self.status = status
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+
+def test_download_zip_resumes_a_partial_file(tmp_path, monkeypatch):
+    data = b"0123456789" * 100
+    requests = []
+
+    def urlopen(request, timeout):
+        requests.append(request.get_header("Range"))
+        if len(requests) == 1:
+            raise ConnectionResetError("reset")
+        start = int(request.get_header("Range")[6:-1])
+        return FakeResponse(data[start:], 206)
+
+    (tmp_path / "k.zip.part").write_bytes(data[:300])
+    monkeypatch.setattr(gbif_download.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(gbif_download.time, "sleep", lambda s: None)
+    download_zip({"key": "k", "size": len(data), "downloadLink": "https://x"}, tmp_path / "k.zip")
+    assert (tmp_path / "k.zip").read_bytes() == data
+    assert requests == ["bytes=300-", "bytes=300-"]

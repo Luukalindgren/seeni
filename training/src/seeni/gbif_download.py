@@ -19,6 +19,7 @@ committed, because the site's attributions cite it.
 
 import argparse
 import base64
+import http.client
 import json
 import os
 import sys
@@ -79,52 +80,81 @@ def credentials() -> tuple[str, str, str]:
     return user, password, os.environ.get("GBIF_EMAIL", "")
 
 
-def http(url: str, data: bytes | None = None, headers: dict | None = None) -> bytes:
-    request = urllib.request.Request(
-        url, data=data, headers={"User-Agent": user_agent(), **(headers or {})}
-    )
+def get(url: str, headers: dict | None = None, timeout: int = 60) -> bytes:
+    """GET with retries on connection errors, 429 and 5xx. Other HTTP errors raise at once."""
+    request = urllib.request.Request(url, headers={"User-Agent": user_agent(), **(headers or {})})
     for attempt in range(4):
         try:
-            with urllib.request.urlopen(request, timeout=60) as response:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
                 return response.read()
         except urllib.error.HTTPError as e:
             if e.code != 429 and e.code < 500 or attempt == 3:
-                detail = e.read().decode("utf-8", "replace")[:500]
-                raise SystemExit(f"{url}: HTTP {e.code}: {detail}") from e
-        except OSError:
+                raise
+        except (OSError, http.client.HTTPException):
             if attempt == 3:
                 raise
-        time.sleep(2**attempt)
+        time.sleep(2 ** (attempt + 1))
     raise AssertionError("unreachable")
 
 
 def send_request(body: dict, user: str, password: str) -> str:
+    """POST the request once: a retry after a timeout could queue a second download."""
     token = base64.b64encode(f"{user}:{password}".encode()).decode()
-    key = http(
+    request = urllib.request.Request(
         f"{API}/occurrence/download/request",
         data=json.dumps(body).encode(),
-        headers={"Content-Type": "application/json", "Authorization": f"Basic {token}"},
+        headers={
+            "User-Agent": user_agent(),
+            "Content-Type": "application/json",
+            "Authorization": f"Basic {token}",
+        },
     )
-    return key.decode().strip()
+    try:
+        with urllib.request.urlopen(request, timeout=300) as response:
+            return response.read().decode().strip()
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", "replace")[:500]
+        raise SystemExit(f"download request refused: HTTP {e.code}: {detail}") from e
 
 
 def status(key: str) -> dict:
-    return json.loads(http(f"{API}/occurrence/download/{key}"))
+    return json.loads(get(f"{API}/occurrence/download/{key}"))
 
 
-def download_zip(meta: dict, dest: Path) -> None:
-    """Stream the archive to dest. A finished file of the right size is not fetched again."""
+def download_zip(meta: dict, dest: Path, attempts: int = 5) -> None:
+    """Stream the archive to dest, resuming a partial .part file after a dropped connection.
+
+    A finished file of the right size is not fetched again.
+    """
     size = meta.get("size")
     if dest.exists() and size and dest.stat().st_size == size:
         return
     url = meta.get("downloadLink") or f"{API}/occurrence/download/request/{meta['key']}.zip"
     part = dest.with_suffix(".zip.part")
-    request = urllib.request.Request(url, headers={"User-Agent": user_agent()})
-    with urllib.request.urlopen(request, timeout=120) as response, part.open("wb") as f:
-        while chunk := response.read(1 << 20):
-            f.write(chunk)
+    for attempt in range(attempts):
+        have = part.stat().st_size if part.exists() else 0
+        if size and have == size:
+            break
+        headers = {"User-Agent": user_agent()}
+        if have:
+            headers["Range"] = f"bytes={have}-"
+        try:
+            request = urllib.request.Request(url, headers=headers)
+            # 206 continues the part; 200 means the server sent the whole file again.
+            with (
+                urllib.request.urlopen(request, timeout=120) as response,
+                part.open("ab" if response.status == 206 else "wb") as f,
+            ):
+                while chunk := response.read(1 << 20):
+                    f.write(chunk)
+            break
+        except (OSError, http.client.HTTPException) as e:
+            if attempt == attempts - 1:
+                raise
+            print(f"download interrupted ({e}), resuming", file=sys.stderr)
+            time.sleep(2 ** (attempt + 1))
     if size and part.stat().st_size != size:
-        raise SystemExit(f"{part}: got {part.stat().st_size} bytes, GBIF says {size}")
+        raise SystemExit(f"{part}: got {part.stat().st_size} bytes, GBIF says {size}; run again")
     part.replace(dest)
 
 

@@ -70,4 +70,4 @@ uv run python -m seeni.gbif_images sheets                # contact sheets under 
 uv run python -m seeni.gbif_images report                # images per class, for issue #4
 ```
 
-Every step can be re-run; `download` skips images already on disk. After browsing the contact sheets, add microscope shots, spore prints, drawings and other bad images to `<data dir>/exclude.csv` (`gbifID,n,reason`) and run `download` again: the manifest drops them and their files move to `<data dir>/unused/`. Commit `data-meta/gbif_download.json`, since the attributions cite its DOI.
+Every step can be re-run; `download` skips images already on disk. After browsing the contact sheets, add microscope shots, spore prints, drawings and other bad images to `<data dir>/exclude.csv` (`image,reason`, where `image` is the label on the sheet) and run `download` again: the manifest drops them and their files move to `<data dir>/unused/`. Commit `data-meta/gbif_download.json`, since the attributions cite its DOI.

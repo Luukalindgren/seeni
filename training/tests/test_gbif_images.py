@@ -11,6 +11,7 @@ from seeni.gbif_images import (
     download,
     download_url,
     duplicates,
+    image_id,
     index,
     normalize_license,
     read_table,
@@ -133,11 +134,15 @@ def test_index_assigns_rows_by_taxon_path_and_filters_licenses(tmp_path, rows):
         img(0, 3),
     ]
     archive = make_archive(tmp_path / "0001.zip", occurrences, media)
-    candidates, stats = index(archive, rows, exclude={(2, 0): "microscope"})
-    assert [(c["path"], c["license"], c["rights_holder"]) for c in candidates] == [
-        ("images/100/1_0.jpg", "CC-BY-4.0", "Kuvaaja"),
-        ("images/100/1_2.jpg", "CC-BY-4.0", "Tekijä"),
-    ]
+    excluded = image_id(2, "https://x.org/2/0.jpg")
+    candidates, stats = index(archive, rows, exclude={excluded: "microscope"})
+    first, third = image_id(1, "https://x.org/1/0.jpg"), image_id(1, "https://x.org/1/2.jpg")
+    assert [(c["path"], c["n"], c["license"], c["rights_holder"]) for c in candidates] == sorted(
+        [
+            (f"images/100/{first}.jpg", 0, "CC-BY-4.0", "Kuvaaja"),
+            (f"images/100/{third}.jpg", 2, "CC-BY-4.0", "Tekijä"),
+        ]
+    )
     assert stats["boletus-agg"]["rejected_license"] == 1
     assert stats["boletus-agg"]["rejected_no_rights_holder"] == 1
     assert stats["morchella"]["excluded"] == 1
@@ -153,7 +158,7 @@ def test_index_caps_per_observation_and_per_taxon(tmp_path, rows):
     per_obs = {}
     for c in candidates:
         per_obs.setdefault(c["gbifID"], []).append(c["n"])
-    assert all(ns == [0, 1] or ns == [0] for ns in per_obs.values())
+    assert all(sorted(ns) in ([0, 1], [0]) for ns in per_obs.values())
     again, _ = index(archive, rows, {}, per_taxon=7, per_observation=2)
     assert again == candidates
 
@@ -172,6 +177,7 @@ def test_resize_shorter_side_and_no_upscale():
 def candidate(gbif_id, n=0, taxon=100, class_id="boletus-agg"):
     return {c: "" for c in CANDIDATE_COLUMNS} | {
         "path": f"images/{taxon}/{gbif_id}_{n}.jpg",
+        "image": f"{gbif_id}_{n}",
         "taxonKey": taxon,
         "class_id": class_id,
         "gbifID": gbif_id,
@@ -204,7 +210,7 @@ def test_manifest_moves_excluded_and_unpicked_files(tmp_path):
         path = tmp_path / "images/100" / f"{name}.jpg"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(jpeg())
-    (tmp_path / "exclude.csv").write_text("gbifID,n,reason\n2,0,drawing\n", encoding="utf-8")
+    (tmp_path / "exclude.csv").write_text("image,reason\n2_0,drawing\n", encoding="utf-8")
     manifest = build_manifest(tmp_path)
     assert [m["path"] for m in manifest] == ["images/100/1_0.jpg"]
     assert read_table(tmp_path / "manifest.parquet")[0]["gbifID"] == 1
@@ -215,19 +221,25 @@ def test_manifest_moves_excluded_and_unpicked_files(tmp_path):
 def test_dhash_survives_resize_and_duplicates():
     gradient = Image.linear_gradient("L").convert("RGB")
     assert dhash(gradient) == dhash(gradient.resize((100, 100)))
+    h1, h2, h3 = 0x0F0F0F0F0F0F0F0F, 0x00FF00FF00FF00FF, 0x3333333333333333
     found = duplicates(
         {
-            "images/1/a.jpg": (5, "x"),
-            "images/1/b.jpg": (5, "x"),
-            "images/1/c.jpg": (6, "x"),
-            "images/2/d.jpg": (7, "x"),
-            "images/3/e.jpg": (7, "y"),
+            "1_a": (h1, "x"),
+            "1_b": (h1, "x"),
+            "1_c": (h2, "x"),
+            "2_d": (h3, "x"),
+            "3_e": (h3, "y"),
+            # Flat images share a hash without being copies.
+            "4_f": (0, "x"),
+            "5_g": (0, "y"),
+            "6_h": (2**64 - 1, "x"),
+            "7_i": (2**64 - 1, "x"),
         }
     )
     assert found == [
-        ("images/1/b.jpg", "duplicate of images/1/a.jpg"),
-        ("images/2/d.jpg", "duplicate across classes"),
-        ("images/3/e.jpg", "duplicate across classes"),
+        ("1_b", "duplicate of 1_a"),
+        ("2_d", "duplicate across classes"),
+        ("3_e", "duplicate across classes"),
     ]
 
 
@@ -238,3 +250,9 @@ def test_report_rows_lists_every_class(rows):
         {"class_id": "boletus-agg", "in_model": True, "images": 3, "observations": 2, "ok": True},
         {"class_id": "morchella", "in_model": True, "images": 0, "observations": 0, "ok": False},
     ]
+
+
+def test_image_id_follows_the_url_not_the_position():
+    assert image_id(1, "https://x.org/a.jpg") == image_id(1, "https://x.org/a.jpg")
+    assert image_id(1, "https://x.org/a.jpg") != image_id(1, "https://x.org/b.jpg")
+    assert image_id(1, "https://x.org/a.jpg").startswith("1_")

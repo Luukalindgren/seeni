@@ -101,14 +101,17 @@ Host seeni-pc
 - WSL must keep running when no Ubuntu window is open, otherwise SSH has nothing to connect to. WSL stops a distro soon after its last Windows-side process exits, even with sshd running. One way to keep it up is a Task Scheduler task on Windows that runs at logon and keeps a `wsl.exe` process open:
 
   ```powershell
-  $action  = New-ScheduledTaskAction -Execute 'wsl.exe' -Argument '-d Ubuntu-24.04 --exec sleep infinity'
-  $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
-  Register-ScheduledTask -TaskName 'WSL keep-alive' -Action $action -Trigger $trigger -Settings (New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0)
+  $action   = New-ScheduledTaskAction -Execute 'conhost.exe' -Argument '--headless wsl.exe -d Ubuntu-24.04 --exec sleep infinity'
+  $trigger  = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+  $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1) -MultipleInstances IgnoreNew
+  Register-ScheduledTask -TaskName 'WSL keep-alive' -Action $action -Trigger $trigger -Settings $settings
   ```
+
+  `conhost.exe --headless` runs `wsl.exe` without a window. Started directly, `wsl.exe` opens a terminal window on the desktop, and closing that window stops WSL about eight minutes later. The restart settings start the task again a minute after it fails.
 
   This also starts WSL again after a reboot, but only once someone logs in to Windows. Locking the screen is fine; logging out stops WSL. tmux does not keep WSL alive: it only keeps a job running when the SSH connection drops, and everything in it dies when WSL stops or Windows restarts.
 
-  `wsl --shutdown` also kills this task, and nothing restarts it until the next logon. After every `wsl --shutdown`, run `Start-ScheduledTask -TaskName 'WSL keep-alive'`.
+  `wsl --shutdown` also stops this task, and the restart settings may not bring it back. After every `wsl --shutdown`, run `Start-ScheduledTask -TaskName 'WSL keep-alive'`.
 - Stop Windows Update from restarting the machine overnight: set active hours as wide as the setting allows and turn off *Get me up to date*. On Windows Pro, the group policy "No auto-restart with logged on users" turns automatic restarts off. A restart still needs a login before SSH works again.
 - In the Tailscale settings on Windows, turn on **Run unattended**, so the machine stays on the tailnet at the login screen and after you log out. In the Tailscale admin console, disable key expiry for the Windows machine, or it drops off the tailnet when its key expires.
 - Install Claude Code inside WSL, so agents run commands in the same environment.

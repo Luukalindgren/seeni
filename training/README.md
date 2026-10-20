@@ -94,4 +94,19 @@ uv run python -m seeni.train --name b0-224 --epochs 30      # EfficientNet-B0 at
 uv run tensorboard --logdir ~/seeni-data/runs               # curves
 ```
 
-The run goes to `<data dir>/runs/<name>/`: `best.pt` (best val macro-F1), `labels.json`, `preprocess.json`, `metrics.json`, `per_class.csv`, `confusion.csv` and TensorBoard logs. `labels.json` is the only source of class order from here on: the `in_model` classes of `lajilista.csv` in file order, then `muu`. Until phase 7 brings real unknown data, `muu` trains on the images of listed classes that are not in the model. The eval transform and `preprocess.json` come from `seeni.preprocess`; change preprocessing only there.
+The run goes to `<data dir>/runs/<name>/`: `best.pt` (best val macro-F1), `labels.json`, `preprocess.json`, `metrics.json`, `per_class.csv`, `confusion.csv` and TensorBoard logs. `labels.json` is the only source of class order from here on: the `in_model` classes of `lajilista.csv` in file order, then `muu`. `muu` trains on the images from `seeni.muu` (phase 7). Images of listed classes that are not in the model are never trained on. The eval transform and `preprocess.json` come from `seeni.preprocess`; change preprocessing only there.
+
+## Unknown class and evaluation (phase 7)
+
+`muu` images come from their own GBIF download: fungi that are not on the species list (identified to species, so a genus-level "Russula sp." cannot be a listed species) and forest-floor non-mushrooms (mosses, conifers, heather, ferns, leaves, grasses, slime moulds). From `training/`:
+
+```sh
+uv run python -m seeni.muu request          # then: fetch --wait, index, download, dedup, sheets
+uv run python -m seeni.split                # assigns the new muu observations
+uv run python -m seeni.train --name b0-224-muu --epochs 30
+uv run python -m seeni.evaluate val --run b0-224-muu      # T and the unknown threshold, on val
+uv run python -m seeni.evaluate errors --run b0-224-muu   # contact sheets of the val confusions
+uv run python -m seeni.evaluate test --run b0-224-muu     # once, at the end
+```
+
+`muu` images live under `<data dir>/muu/` with their own manifest; `exclude.csv` is shared. `evaluate` writes `<run>/eval/`: `calibration.json` (T and the threshold, for `web/public/models/vN/calibration.json`), `threshold-val.csv`, and `report-<set>.md/.json` with the standard metrics and dangerous confusion per taxon, raw, after the threshold and after the threshold and lookalike warnings. The `outside` rows are the dangerous species that are not in the model. The report of the released model is in `docs/reports/`.

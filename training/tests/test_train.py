@@ -29,11 +29,17 @@ def test_labels_keep_list_order_and_end_with_muu():
     ]
 
 
-def test_classes_outside_the_model_train_as_muu():
+def test_classes_outside_the_model_are_not_trained_and_muu_images_are():
     index = {"a": 0, "muu": 1}
     taxon_class = {1: "a", 2: "not-in-model"}
     assert target(1, "a", taxon_class, index) == 0
-    assert target(2, "not-in-model", taxon_class, index) == 1
+    assert target(2, "not-in-model", taxon_class, index) is None
+    assert target(77, "muu", taxon_class, index) == 1
+
+
+def test_a_listed_taxon_in_muu_fails():
+    with pytest.raises(SystemExit):
+        target(1, "muu", {1: "a"}, {"a": 0, "muu": 1})
 
 
 def test_a_renamed_class_fails_instead_of_training_as_muu():

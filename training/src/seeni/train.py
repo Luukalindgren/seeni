@@ -17,9 +17,9 @@ Output goes under <data dir>/runs/<name>/ (hard rule 2, never in git):
     tb/                TensorBoard logs
 
 Classes are the `in_model` classes of lajilista.csv in file order, then `muu` (hard rule 5).
-Until phase 7 collects real unknown data, `muu` holds the manifest's images of classes that
-are on the list but not in the model; they are lookalikes, and "I don't know" is the safe
-answer for them.
+`muu` trains on the images from seeni.muu: fungi that are not on the list and
+non-mushrooms. Images of listed classes that are not in the model are never trained on:
+phase 7 measures on them how the model handles a dangerous species it has not seen.
 
 Training: a few epochs of the head only at 1e-3 (backbone frozen, its BatchNorm in eval
 mode), then the whole model at 3e-4: on B0 that beat 1e-4 by 1.8 points of val top-1. AdamW, linear warmup and cosine decay per stage, bf16
@@ -40,8 +40,8 @@ import torch
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 
 from seeni.baseline import class_groups, dangerous, device
-from seeni.gbif_images import read_table
 from seeni.lajilista import LAJILISTA, UNKNOWN_CLASS, Row, read, validate
+from seeni.muu import read_manifests
 from seeni.paths import data_dir
 from seeni.preprocess import MEAN, STD, eval_transform, load, spec, train_transform
 from seeni.split import read_split
@@ -61,17 +61,24 @@ def labels(rows: list[Row]) -> list[dict]:
     return out + [{"id": UNKNOWN_CLASS, "taxonKeys": []}]
 
 
-def target(taxon_key: int, class_id: str, taxon_class: dict[int, str], index: dict[str, int]):
-    """Output index for a manifest image. Its class comes from lajilista through the taxon,
-    and must match the manifest's, so a renamed or merged class never trains as `muu`.
-    A listed class that is not in the model trains as `muu`."""
+def target(
+    taxon_key: int, class_id: str, taxon_class: dict[int, str], index: dict[str, int]
+) -> int | None:
+    """Output index for a manifest image, or None for a listed class that is not in the
+    model. Its class comes from lajilista through the taxon, and must match the manifest's,
+    so a renamed or merged class never trains as `muu` or drops out. A `muu` image's taxon
+    is not on the list."""
+    if class_id == UNKNOWN_CLASS:
+        if taxon_key in taxon_class:
+            raise SystemExit(f"taxonKey {taxon_key} is in lajilista but in a muu image")
+        return index[UNKNOWN_CLASS]
     listed = taxon_class.get(taxon_key)
     if listed != class_id:
         raise SystemExit(
             f"taxonKey {taxon_key} is {listed} in lajilista but {class_id} in the manifest; "
             "re-run gbif_images download and seeni.split"
         )
-    return index.get(class_id, index[UNKNOWN_CLASS])
+    return index.get(class_id)
 
 
 def sample_weights(targets: list[int]) -> list[float]:
@@ -124,12 +131,12 @@ def load_items(rows: list[Row], index: dict[str, int]):
     split = read_split()
     taxon_class = {r.taxon_key: r.class_id for r in rows if r.taxon_key is not None}
     out = {"train": [], "val": []}
-    for m in read_table(root / "manifest.parquet"):
+    for m in read_manifests(root):
         entry = split.get(int(m["gbifID"]))
         if entry is None or entry[0] != m["class_id"]:
             raise SystemExit(f"gbifID {m['gbifID']} is missing from split.csv; run seeni.split")
-        if entry[1] in out:
-            t = target(m["taxonKey"], m["class_id"], taxon_class, index)
+        t = target(m["taxonKey"], m["class_id"], taxon_class, index)
+        if entry[1] in out and t is not None:
             out[entry[1]].append((root / m["path"], t, m))
     return out["train"], out["val"]
 
@@ -215,8 +222,10 @@ def write_reports(out: Path, logits, y, items, classes, rows, metrics) -> None:
     taxon_name = {r.taxon_key: r.tieteellinen for r in rows}
     danger = Counter()
     for (_, _, m), p in zip(items, pred.tolist()):
-        if classes[p] != m["class_id"] and dangerous(
-            taxon_group[m["taxonKey"]], groups.get(classes[p], set())
+        if (
+            m["class_id"] != UNKNOWN_CLASS
+            and classes[p] != m["class_id"]
+            and dangerous(taxon_group[m["taxonKey"]], groups.get(classes[p], set()))
         ):
             danger[f"{taxon_name[m['taxonKey']]} -> {classes[p]}"] += 1
     metrics["dangerous_confusions"] = dict(danger.most_common())

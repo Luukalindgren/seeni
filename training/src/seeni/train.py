@@ -22,7 +22,7 @@ are on the list but not in the model; they are lookalikes, and "I don't know" is
 answer for them.
 
 Training: a few epochs of the head only at 1e-3 (backbone frozen, its BatchNorm in eval
-mode), then the whole model at 1e-4. AdamW, linear warmup and cosine decay per stage, bf16
+mode), then the whole model at 3e-4: on B0 that beat 1e-4 by 1.8 points of val top-1. AdamW, linear warmup and cosine decay per stage, bf16
 autocast, channels_last, label smoothing 0.1 and sampling weighted by 1/sqrt(class size).
 Evaluation runs in fp32. Test stays untouched for phase 7.
 """
@@ -361,7 +361,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--epochs", type=int, default=25, help="total, head stage included")
     parser.add_argument("--head-epochs", type=int, default=3)
     parser.add_argument("--head-lr", type=float, default=1e-3)
-    parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--lr", type=float, default=3e-4, help="full-model stage")
     parser.add_argument("--weight-decay", type=float, default=0.05)
     parser.add_argument("--warmup", type=float, default=1.0, help="warmup epochs per stage")
     parser.add_argument("--batch", type=int, default=64)

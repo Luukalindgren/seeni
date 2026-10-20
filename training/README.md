@@ -90,7 +90,7 @@ uv run python -m seeni.baseline outliers    # images far from their own class, w
 From `training/`, in tmux:
 
 ```sh
-uv run python -m seeni.train --name b0-224-v1 --epochs 30   # EfficientNet-B0 at 224 px
+uv run python -m seeni.train --name b0-224 --epochs 30      # EfficientNet-B0 at 224 px
 uv run tensorboard --logdir ~/seeni-data/runs               # curves
 ```
 

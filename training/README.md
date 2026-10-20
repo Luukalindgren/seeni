@@ -110,3 +110,13 @@ uv run python -m seeni.evaluate test --run b0-224-muu     # once, at the end
 ```
 
 `muu` images live under `<data dir>/muu/` with their own manifest; `exclude.csv` is shared. `evaluate` writes `<run>/eval/`: `calibration.json` (T and the threshold, for `web/public/models/vN/calibration.json`), `threshold-val.csv`, and `report-<set>.md/.json` with the standard metrics and dangerous confusion per taxon, raw, after the threshold and after the threshold and lookalike warnings. The `outside` rows are the dangerous species that are not in the model. The report of the released model is in `docs/reports/`.
+
+## ONNX export (phase 8)
+
+From `training/`, after `seeni.evaluate val` and `test`:
+
+```sh
+uv run python -m seeni.export --run b0-224-muu --version v1
+```
+
+It exports the run to ONNX (opset 17, input `input`, output `logits`, dynamic batch), checks the fp32 model against PyTorch on 50 test images (identical top-5, logits within 1e-3), converts to fp16 with fp32 inputs and outputs and checks that top-1 still matches on more than 99 %. It then writes `web/public/models/<version>/`: `model.onnx` (fp16), `labels.json`, `preprocess.json` (from `seeni.preprocess.spec()`) and `calibration.json`, and regenerates the golden fixtures in `web/tests/fixtures/`: 20 test images, `golden.json` with the expected top-5 logits and calibrated probabilities, and the expected input tensors of three of them as `.npy`. Credit new fixture images in `ATTRIBUTIONS.md` with the rows it prints. `tests/test_export.py` checks the published files and runs the committed model on the fixtures, the Python half of the parity test (#10).

@@ -143,7 +143,8 @@ export function preprocess(p: Pixels, spec: PreprocessSpec): Float32Array {
   if (spec.resize.interpolation !== 'bilinear' || !spec.resize.antialias) {
     throw new Error(`unsupported resize ${JSON.stringify(spec.resize)}`)
   }
-  if (spec.colorSpace !== 'RGB' || spec.layout !== 'NCHW' || spec.dtype !== 'float32') {
+  // decode() always applies EXIF orientation, as seeni.preprocess.load does.
+  if (!spec.exifOrientation || spec.colorSpace !== 'RGB' || spec.layout !== 'NCHW' || spec.dtype !== 'float32') {
     throw new Error('unsupported preprocess.json')
   }
   const [w, h] = resizedSize(p.width, p.height, spec.resize.shorterSide)

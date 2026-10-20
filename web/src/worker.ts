@@ -15,15 +15,20 @@ ready.then(
   (e) => postMessage({ id: 0, kind: 'error', message: String(e) } satisfies Response),
 )
 
-self.onmessage = async (event: MessageEvent<Request>) => {
+// One request at a time: the session never runs twice at once.
+let queue: Promise<void> = Promise.resolve()
+
+self.onmessage = (event: MessageEvent<Request>) => {
   const { id, images } = event.data
-  try {
-    const classifier = await ready
-    const pixels = []
-    for (const image of images) pixels.push(await decode(image))
-    const probabilities = await classifier.classify(pixels)
-    postMessage({ id, kind: 'result', probabilities } satisfies Response)
-  } catch (e) {
-    postMessage({ id, kind: 'error', message: String(e) } satisfies Response)
-  }
+  queue = queue.then(async () => {
+    try {
+      const classifier = await ready
+      const pixels = []
+      for (const image of images) pixels.push(await decode(image))
+      const probabilities = await classifier.classify(pixels)
+      postMessage({ id, kind: 'result', probabilities } satisfies Response)
+    } catch (e) {
+      postMessage({ id, kind: 'error', message: String(e) } satisfies Response)
+    }
+  })
 }

@@ -1,7 +1,12 @@
 name: Pages
 
 # Builds the web app and publishes it to https://luukalindgren.github.io/seeni/ on every
-# push to main (PLAN.md phase 10). The repository's Pages source must be "GitHub Actions".
+# push to main (PLAN.md phase 10). The tests (unit, parity, offline) run in ci.yml on the PR
+# and on main; this only builds and deploys.
+#
+# Deploying is off until a person turns it on: set the repository's Pages source to
+# "GitHub Actions" and the repository variable DEPLOY_PAGES to true. The species texts are
+# unreviewed drafts (hard rule 8), so turning it on is a decision for the owner.
 on:
   push:
     branches: [main]
@@ -18,6 +23,7 @@ concurrency:
 
 jobs:
   build:
+    if: vars.DEPLOY_PAGES == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -30,9 +36,7 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
-      - run: npm test
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

@@ -7,14 +7,30 @@ import { averageProbabilities, softmax } from './flow.ts'
 import { loadFiles, MODEL_VERSION, type ModelFiles } from './modelFiles.ts'
 import { preprocess, type Pixels } from './preprocess.ts'
 
+const MAX_SHORT_SIDE = 1024
+
 /** Decoded, upright pixels. EXIF orientation is applied, and colour management is off, as
  * PIL does not apply ICC profiles either. */
 export async function decode(image: Blob): Promise<Pixels> {
-  const bitmap = await createImageBitmap(image, {
-    imageOrientation: 'from-image',
-    colorSpaceConversion: 'none',
-    premultiplyAlpha: 'none',
-  })
+  const options = { colorSpaceConversion: 'none', premultiplyAlpha: 'none' } as const
+  let bitmap = await createImageBitmap(image, { ...options, imageOrientation: 'from-image' })
+  // A large phone photo (12–48 MP) is first scaled down by the browser to MAX_SHORT_SIDE,
+  // which keeps the canvas and the pixel copies within mobile memory and canvas limits.
+  // The exact resize to the model size follows in preprocess(). This is a reduction of at
+  // most a few times with high-quality filtering, not the aliasing 4000 → 256 jump of #14;
+  // the fixtures are 512 px and never take this path.
+  const short = Math.min(bitmap.width, bitmap.height)
+  if (short > MAX_SHORT_SIDE) {
+    const scale = MAX_SHORT_SIDE / short
+    const resized = await createImageBitmap(bitmap, {
+      ...options,
+      resizeWidth: Math.round(bitmap.width * scale),
+      resizeHeight: Math.round(bitmap.height * scale),
+      resizeQuality: 'high',
+    })
+    bitmap.close()
+    bitmap = resized
+  }
   const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
   const context = canvas.getContext('2d', { willReadFrequently: true })
   if (!context) throw new Error('no 2d context')

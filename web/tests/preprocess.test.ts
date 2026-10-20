@@ -5,28 +5,14 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
 
+import { readNpy as parseNpy } from '../src/npy.ts'
 import { preprocess, resizedSize, type PreprocessSpec } from '../src/preprocess.ts'
 
 const fixtures = new URL('./fixtures/', import.meta.url)
 const golden = JSON.parse(readFileSync(new URL('golden.json', fixtures), 'utf8'))
 const spec: PreprocessSpec = JSON.parse(readFileSync(new URL('../public/models/v1/preprocess.json', import.meta.url), 'utf8'))
 
-/** A minimal .npy reader: little-endian uint8 or float32, C order. */
-function readNpy(path: URL): { shape: number[]; data: Uint8Array | Float32Array } {
-  const buf = readFileSync(path)
-  assert.equal(buf.subarray(1, 6).toString('latin1'), 'NUMPY')
-  const major = buf[6]!
-  const headerLength = major === 1 ? buf.readUInt16LE(8) : buf.readUInt32LE(8)
-  const offset = (major === 1 ? 10 : 12) + headerLength
-  const header = buf.subarray(major === 1 ? 10 : 12, offset).toString('latin1')
-  assert.ok(header.includes("'fortran_order': False"))
-  const shape = header.match(/'shape': \(([^)]*)\)/)![1]!.split(',').filter((s) => s.trim()).map(Number)
-  const body = buf.subarray(offset)
-  if (header.includes("'|u1'")) return { shape, data: new Uint8Array(body) }
-  assert.ok(header.includes("'<f4'"))
-  const copy = new Uint8Array(body)
-  return { shape, data: new Float32Array(copy.buffer, copy.byteOffset, copy.byteLength / 4) }
-}
+const readNpy = (path: URL) => parseNpy(new Uint8Array(readFileSync(path)))
 
 describe('preprocess', () => {
   it('sizes like torchvision Resize', () => {

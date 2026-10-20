@@ -3,6 +3,7 @@
 import { expect, test } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 
+import { softmax } from '../src/flow.ts'
 import type { ParityResult } from '../src/parity.ts'
 
 const golden = JSON.parse(readFileSync(new URL('../tests/fixtures/golden.json', import.meta.url), 'utf8'))
@@ -10,13 +11,6 @@ const golden = JSON.parse(readFileSync(new URL('../tests/fixtures/golden.json', 
 // Within a few 8-bit levels after normalization (#14): 3 / 255 / smallest std.
 const MAX_TENSOR_DIFF = 3 / 255 / 0.224
 const MAX_PROBABILITY_DIFF = 0.02
-
-function softmax(logits: number[], t: number): number[] {
-  const m = Math.max(...logits.map((x) => x / t))
-  const e = logits.map((x) => Math.exp(x / t - m))
-  const s = e.reduce((a, b) => a + b, 0)
-  return e.map((x) => x / s)
-}
 
 test('browser matches the Python golden outputs', async ({ page }) => {
   await page.goto('http://localhost:5173/seeni/parity.html')

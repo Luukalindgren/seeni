@@ -212,13 +212,13 @@ export function answer(state: State, check: Check, chosen: string): State | null
   }
 }
 
-/** Done when no check is left, or when one candidate stands out and no check left could
- * rule out a dangerous candidate or an open warning other than it. */
 /** The user could not check this: it is not asked again and rules nothing out. */
 export function skip(state: State, check: Check): State {
   return { ...state, asked: [...state.asked, { check: check.id, answer: '' }] }
 }
 
+/** Done when no check is left, or when one candidate stands out and no check left could
+ * rule out a dangerous candidate or an open warning other than it. */
 export function isDone(state: State, species: Species): boolean {
   const remaining = checksFor(state, species).filter((c) => score(c, state, species) > 0)
   if (remaining.length === 0) return true

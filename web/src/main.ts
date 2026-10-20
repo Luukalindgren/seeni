@@ -70,6 +70,15 @@ worker.onmessage = (event: MessageEvent<Response>) => {
   pending.delete(r.id)
 }
 
+// A worker that fails to load or crashes would leave every request waiting forever.
+function failAll(message: string) {
+  status.textContent = `Tunnistin ei toimi: ${message}`
+  for (const [id, resolve] of pending) resolve({ id, kind: 'error', message })
+  pending.clear()
+}
+worker.onerror = (e) => failAll(e.message || 'virhe tunnistimessa')
+worker.onmessageerror = () => failAll('viesti tunnistimelta ei kelvannut')
+
 function classify(images: Blob[]): Promise<Response> {
   const id = nextId++
   return new Promise((resolve) => {
@@ -162,10 +171,16 @@ function render(state: State | null) {
   result.append(answers)
 }
 
+// Only the latest set of photos may show a result: an earlier one that finishes later is
+// dropped, so the result on screen always belongs to the photos on screen.
+let latest = 0
+
 input.addEventListener('change', async () => {
   const images = Array.from(input.files ?? [])
   input.value = ''
   if (images.length === 0) return
+  const request = ++latest
+  for (const img of previews.querySelectorAll('img')) URL.revokeObjectURL(img.src)
   previews.replaceChildren(
     ...images.map((f) => {
       const img = el('img')
@@ -175,12 +190,14 @@ input.addEventListener('change', async () => {
     }),
   )
   result.replaceChildren(el('p', 'Tunnistetaan…'))
-  files ??= await loadFiles(base)
-  const r = await classify(images)
-  if (r.kind !== 'result') {
-    result.replaceChildren(el('p', `Tunnistus epäonnistui: ${r.kind === 'error' ? r.message : ''}`))
-    return
+  try {
+    files ??= await loadFiles(base)
+    const r = await classify(images)
+    if (request !== latest) return
+    if (r.kind !== 'result') throw new Error(r.kind === 'error' ? r.message : r.kind)
+    const first = start(r.probabilities, files.labels, species, files.calibration)
+    render(first.kind === 'flow' ? first.state : null)
+  } catch (e) {
+    if (request === latest) result.replaceChildren(el('p', `Tunnistus epäonnistui: ${String(e)}`))
   }
-  const first = start(r.probabilities, files.labels, species, files.calibration)
-  render(first.kind === 'flow' ? first.state : null)
 })

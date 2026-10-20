@@ -55,7 +55,7 @@ The work is split into eleven phases described in [`docs/PLAN.md`](docs/PLAN.md)
 
 - **Code** is licensed under the [MIT License](LICENSE).
 - **Species data** (`species/`, `data-meta/lajilista.csv`, `data-meta/split.csv`) is licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/), with credit to the sources listed in `ATTRIBUTIONS.md`.
-- **Model files** (`web/public/models/`) will be released under CC BY 4.0, provided the licenses of the pretrained weights they start from allow it. Those licenses are checked before the first model is published (#6, #11).
+- **Model files** (`web/public/models/`) are licensed under CC BY 4.0. They start from timm's `efficientnet_b0.ra_in1k` weights, which are Apache-2.0 (checked from the model card, #11).
 - **Attribution data** in `data-meta/` reproduces each photographer's credit and license, and is not relicensed.
 - **Training images** belong to their photographers and are used under their own CC0 or CC-BY licenses. They are not distributed in this repository.
 

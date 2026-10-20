@@ -6,12 +6,10 @@ Sections marked *pending* are filled in by the phase in brackets. Nothing in the
 
 ## Training images
 
-*Pending (#4, #11).*
-
 The model is trained on photos shared through [GBIF](https://www.gbif.org/) under CC0 or CC-BY licenses: mushrooms, and for the unknown class `muu` also other fungi and non-fungi such as moss, cones, leaves and plants (#7). Every photographer is credited, whatever the class. Each photo's license is taken from GBIF `multimedia.txt`, not from the occurrence record. The photos are not distributed in this repository or with the app, but the model is derived from them.
 
 - GBIF occurrence downloads: species images GBIF.org (20 October 2026) https://doi.org/10.15468/dl.fadmpu; unknown class `muu` GBIF.org (20 October 2026) https://doi.org/10.15468/dl.3x49qy (both recorded in `data-meta/gbif_download.json`)
-- Photographers and licenses: a full list is generated from the image manifest and published on the app's attributions page
+- Photographers and licenses: 29 858 images by 988 rights holders (28 178 CC-BY-4.0, 1 680 CC0-1.0). `seeni.attributions` generates the list from the image manifests: per rights holder in `web/public/attributions.json`, shown in the app under "Tietoa ja lähteet", and per image (with its GBIF record and source URL) in `data-meta/attributions.parquet`.
 
 ## Images committed to this repository
 
@@ -54,12 +52,12 @@ Golden test fixtures for the parity test (#8), photos from the test set, resized
 
 ## Pretrained weights
 
-*Pending (#5, #6).* Check each license from the model card before release.
+Licenses checked from the model cards (#11).
 
 | Model | Used for | Source | License |
 | --- | --- | --- | --- |
-| DINOv2 | Baseline only, not shipped (#5) | [facebookresearch/dinov2](https://github.com/facebookresearch/dinov2) | To be checked |
-| EfficientNet-B0 | Starting point of the shipped model (#6) | [timm](https://github.com/huggingface/pytorch-image-models) | To be checked |
+| DINOv2 ViT-B/14 | Baseline only, not shipped (#5) | [facebookresearch/dinov2](https://github.com/facebookresearch/dinov2) | Apache-2.0 |
+| EfficientNet-B0 (`efficientnet_b0.ra_in1k`, trained on ImageNet-1k) | Starting point of the shipped model (#6) | [timm on Hugging Face](https://huggingface.co/timm/efficientnet_b0.ra_in1k) | Apache-2.0 |
 
 ## Software
 
@@ -67,8 +65,8 @@ Libraries shipped with the web app:
 
 | Library | License |
 | --- | --- |
-| *Pending (#10):* [onnxruntime-web](https://github.com/microsoft/onnxruntime) | MIT |
-| *Pending (#10):* [vite-plugin-pwa](https://github.com/vite-pwa/vite-plugin-pwa) and Workbox | MIT |
+| [onnxruntime-web](https://github.com/microsoft/onnxruntime) | MIT |
+| [vite-plugin-pwa](https://github.com/vite-pwa/vite-plugin-pwa) and [Workbox](https://github.com/GoogleChrome/workbox) | MIT |
 
 Tools used to build the app and train the model, not shipped:
 
@@ -79,3 +77,5 @@ Tools used to build the app and train the model, not shipped:
 | [timm](https://github.com/huggingface/pytorch-image-models) | Apache-2.0 |
 | [Vite](https://github.com/vitejs/vite) | MIT |
 | [TypeScript](https://github.com/microsoft/TypeScript) | Apache-2.0 |
+| [ONNX](https://github.com/onnx/onnx), [onnxruntime](https://github.com/microsoft/onnxruntime), [onnxconverter-common](https://github.com/microsoft/onnxconverter-common) | Apache-2.0, MIT, MIT |
+| [Playwright](https://github.com/microsoft/playwright) | Apache-2.0 |

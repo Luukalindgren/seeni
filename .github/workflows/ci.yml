@@ -34,7 +34,7 @@ jobs:
       - run: uv run pytest
 
   web:
-    name: web (build)
+    name: web (test, build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -47,4 +47,5 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
+      - run: npm test
       - run: npm run build

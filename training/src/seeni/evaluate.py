@@ -52,7 +52,6 @@ from seeni.lajilista import (
     LAJILISTA,
     UNKNOWN_CLASS,
     Row,
-    class_group,
     class_lookalikes,
     classes,
     read,
@@ -141,11 +140,13 @@ class ClassInfo:
     @classmethod
     def from_rows(cls, rows: list[Row]) -> "ClassInfo":
         by_class = classes(rows)
-        group = {c: class_group(r) for c, r in by_class.items()}
+        groups = {c: {x.ryhma for x in r} for c, r in by_class.items()}
+        # A lookalike is dangerous by its content: any of its taxa, as dangerous confusion
+        # is counted, not only its merged group.
         return cls(
-            groups={c: {x.ryhma for x in r} for c, r in by_class.items()},
+            groups=groups,
             warn={
-                c: {x for x in class_lookalikes(r) if group.get(x) in DANGEROUS}
+                c: {x for x in class_lookalikes(r) if groups.get(x, set()) & DANGEROUS}
                 for c, r in by_class.items()
             },
         )
@@ -166,6 +167,7 @@ class Outcome:
     answered: bool
     danger: str  # "", "a" or "b": the top-1 class is a dangerous confusion
     residual: bool  # danger, answered, and the true class not on screen
+    food_shown: bool = False  # answered with a food mushroom among the candidates
 
 
 def outcomes(
@@ -200,6 +202,8 @@ def outcomes(
                 answered=shown is not None,
                 danger=danger,
                 residual=residual,
+                food_shown=shown is not None
+                and any(info.groups.get(class_ids[i], set()) & FOOD for i in shown),
             )
         )
     return out
@@ -242,7 +246,7 @@ def unknown_metrics(results: list[Outcome], items: list[dict], info: ClassInfo) 
             o for o, m in zip(results, items) if o.true == UNKNOWN_CLASS and m.get("kind") == kind
         ]
         if rel:
-            food = sum(o.answered and bool(info.groups.get(o.top1, set()) & FOOD) for o in rel)
+            food = sum(o.food_shown for o in rel)
             out[f"muu_{kind}"] = {
                 "images": len(rel),
                 "not_sure": sum(not o.answered for o in rel) / len(rel),
@@ -289,7 +293,7 @@ def threshold_curve(probs, items, class_ids, info, taxon_group) -> list[dict]:
                 "species_answered": u.get("species_answered"),
                 "species_top1_when_answered": u.get("species_top1_when_answered"),
                 "muu_fungi_not_sure": u.get("muu_fungi", {}).get("not_sure"),
-                "muu_fungi_food": u.get("muu_fungi", {}).get("answered_as_food_class", 0.0),
+                "muu_fungi_food": u["muu_fungi"]["answered_as_food_class"],
                 "muu_other_not_sure": u.get("muu_other", {}).get("not_sure"),
                 "at_risk": s["a"]["images"] + s["b"]["images"],
             }
@@ -346,14 +350,16 @@ def items_for(set_name: str, rows: list[Row]) -> list[dict]:
 
 
 def logits_for(run: Path, set_name: str, items: list[dict], n: int, workers: int) -> torch.Tensor:
-    """Logits in fp32, cached in eval/logits-<set>.pt for the same images."""
+    """Logits in fp32, cached in eval/logits-<set>.pt for the same images and best.pt."""
     import timm
 
     cache = run / "eval" / f"logits-{set_name}.pt"
     images = [m["image"] for m in items]
+    stat = (run / "best.pt").stat()
+    weights = [stat.st_size, stat.st_mtime_ns]
     if cache.exists():
         saved = torch.load(cache)
-        if saved["images"] == images:
+        if saved["images"] == images and saved.get("weights") == weights:
             return saved["logits"]
     checkpoint = torch.load(run / "best.pt", map_location="cpu")
     dev = device()
@@ -369,7 +375,7 @@ def logits_for(run: Path, set_name: str, items: list[dict], n: int, workers: int
     )
     logits = predict(model, loader, dev)
     cache.parent.mkdir(parents=True, exist_ok=True)
-    torch.save({"images": images, "logits": logits}, cache)
+    torch.save({"images": images, "weights": weights, "logits": logits}, cache)
     return logits
 
 
@@ -482,7 +488,7 @@ def markdown(report: dict) -> str:
             m = u[f"muu_{kind}"]
             lines.append(
                 f'- muu {kind} ({m["images"]} images): "en tunnista" {pct(m["not_sure"])}, '
-                f"answered as a class with a food mushroom {pct(m['answered_as_food_class'])}"
+                f"answered with a food mushroom among the candidates {pct(m['answered_as_food_class'])}"
             )
     for name in ("in_model", "outside"):
         if name not in report["safety"]:
@@ -546,6 +552,8 @@ def cmd_evaluate(args, set_name: str) -> int:
 
     if set_name == "val":
         items = items_for("val", rows)
+        if not any(m.get("kind") == "fungi" for m in items):
+            raise SystemExit("val has no muu fungi; run the seeni.muu pipeline and seeni.split")
         logits = logits_for(run, "val", items, len(class_ids), args.workers)
         y = torch.tensor([index[m["class_id"]] for m in items])
         temperature = fit_temperature(logits, y)
@@ -623,6 +631,8 @@ def cmd_errors(args) -> int:
     rows = read(args.lajilista)
     run = run_dir(args.run)
     class_ids = checked_labels(run, rows)
+    if not (run / "eval" / "calibration.json").exists():
+        raise SystemExit("run `val` first: the sheets use the T fixed on val")
     calibration = json.loads((run / "eval" / "calibration.json").read_text())
     items = items_for(args.set, rows)
     logits = logits_for(run, args.set, items, len(class_ids), args.workers)

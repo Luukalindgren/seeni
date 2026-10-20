@@ -77,7 +77,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - [x] 4. GBIF data download + license filtering (#4)
 - [x] 5. Split + DINOv2 baseline (#5)
 - [x] 6. Fine-tuning (#6)
-- [ ] 7. Evaluation, calibration, unknown class (#7)
+- [x] 7. Evaluation, calibration, unknown class (#7)
 - [ ] 8. ONNX export + golden fixtures (#8)
 - [ ] 9. Species database + verification flow (#9)
 - [ ] 10. Web app, PWA, GitHub Pages (#10)

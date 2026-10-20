@@ -365,9 +365,8 @@ def cmd_dedup(args) -> int:
         hashes = pool.map(gi.hash_file, (root / m["path"] for m in manifest))
         by_image = {m["image"]: (h, m["class_id"]) for m, h in zip(manifest, hashes)}
     muu_images = {m["image"] for m in manifest if m["class_id"] == UNKNOWN_CLASS}
-    found = [
-        d for d in gi.duplicates(by_image) if d[0] not in gi.read_exclude(root / "exclude.csv")
-    ]
+    excluded = gi.read_exclude(root / "exclude.csv")
+    found = [d for d in gi.duplicates(by_image) if d[0] not in excluded]
     found = [d for d in found if d[0] in muu_images or d[1] == "duplicate across classes"]
     gi.append_exclude(root / "exclude.csv", found)
     species = sum(1 for image, _ in found if image not in muu_images)

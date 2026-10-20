@@ -130,14 +130,26 @@ def load_items(rows: list[Row], index: dict[str, int]):
     root = data_dir()
     split = read_split()
     taxon_class = {r.taxon_key: r.class_id for r in rows if r.taxon_key is not None}
+    # A muu image's species key is never listed (target checks it), and its genus must not
+    # be a listed genus class either: seeni.muu checked the full path against the list it
+    # was indexed with, and a genus class added later would overlap (hard rule 5).
+    genera = {r.tieteellinen for r in rows if r.is_genus}
     out = {"train": [], "val": []}
     for m in read_manifests(root):
         entry = split.get(int(m["gbifID"]))
         if entry is None or entry[0] != m["class_id"]:
             raise SystemExit(f"gbifID {m['gbifID']} is missing from split.csv; run seeni.split")
+        if m["class_id"] == UNKNOWN_CLASS and m["scientific_name"].split(" ")[0] in genera:
+            raise SystemExit(
+                f"muu image {m['image']} ({m['scientific_name']}) is in a listed genus; "
+                "re-run seeni.muu index and download"
+            )
         t = target(m["taxonKey"], m["class_id"], taxon_class, index)
         if entry[1] in out and t is not None:
             out[entry[1]].append((root / m["path"], t, m))
+    unknown = index[UNKNOWN_CLASS]
+    if not any(t == unknown for _, t, _ in out["train"]):
+        raise SystemExit("muu has no training images; run the seeni.muu pipeline and seeni.split")
     return out["train"], out["val"]
 
 

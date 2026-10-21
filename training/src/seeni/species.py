@@ -60,7 +60,7 @@ CHECK_ID = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 # The English part leaves out a plain "eat", which the warnings need.
 EDIBLE = re.compile(
     r"syötäv|syödä|syöd|ruokasien|herkullinen|maukas"
-    r"|edible|delicious|tasty|food mushroom|good to eat|safe to eat|can be eaten",
+    r"|edib|eaten|eatable|culinary|\bchoice\b|delicious|tasty|food mushroom|good to eat|safe to eat",
     re.IGNORECASE,
 )
 # Checks on features a beginner can see reliably. Only these may rule out a dangerous class

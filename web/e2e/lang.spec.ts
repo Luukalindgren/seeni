@@ -53,3 +53,13 @@ test('opens in English from ?lang=en, also the lookalike sheet', async ({ page }
   await expect(sheet).toContainText('How to tell it from chanterelle')
   await expect(sheet).not.toContainText('kyllä')
 })
+
+test('the warning has its own language switch, and a switch drops ?lang= from the address', async ({ page }) => {
+  await page.goto('http://localhost:4173/seeni/?lang=fi')
+  await expect(page.locator('#warning h2')).toHaveText('Ennen kuin aloitat')
+  await page.locator('#warning-lang').click()
+  await expect(page.locator('#warning h2')).toHaveText('Before you start')
+  expect(new URL(page.url()).searchParams.has('lang')).toBe(false)
+  await page.reload()
+  await expect(page.locator('#warning h2')).toHaveText('Before you start')
+})

@@ -1468,3 +1468,16 @@ body.live-on .adding {
   font-weight: 700;
   letter-spacing: 0.03em;
 }
+
+/* The language switch on the warning, which covers the header until it is accepted. */
+#warning {
+  position: relative;
+}
+#warning-lang {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+}
+#warning h2 {
+  padding-right: 3.5rem;
+}

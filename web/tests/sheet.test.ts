@@ -1,7 +1,7 @@
 // The identification sheet of a lookalike (#47).
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { describe, it } from 'node:test'
+import { afterEach, describe, it } from 'node:test'
 
 import { speciesMap, type Label, type SpeciesRecord } from '../src/flow.ts'
 import { LANGS, setLang } from '../src/i18n.ts'
@@ -51,6 +51,8 @@ describe('sheet', () => {
     assert.equal(sheet('amanita-phalloides', null, species, model).label, 'Tappavan myrkyllinen')
   })
 
+  afterEach(() => setLang('fi'))
+
   it('never states edibility, in either language, for any species compared with any lookalike', () => {
     for (const l of LANGS) {
       setLang(l)
@@ -64,7 +66,6 @@ describe('sheet', () => {
         }
       }
     }
-    setLang('fi')
   })
 
   it('labels danger the same way in English', () => {
@@ -73,6 +74,5 @@ describe('sheet', () => {
     assert.equal(sheet('amanita-phalloides', null, local, model).label, 'Deadly poisonous')
     assert.equal(sheet('cantharellus-cibarius', null, local, model).label, null)
     assert.equal(sheet('lactarius-rufus', null, local, model).label, 'Poisonous raw')
-    setLang('fi')
   })
 })

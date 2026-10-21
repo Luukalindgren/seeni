@@ -149,7 +149,7 @@ export const CAPTION_EN: Record<string, string> = {
   'keltainen, oliivi': 'yellow, olive',
   'kenno tai poimuja': 'honeycomb or folds',
   'kennomainen': 'honeycomb',
-  'kiinni vain huipusta': 'joined at the top',
+  'kiinni vain huipusta': 'only at the tip',
   'kuitujuovainen': 'fibrous',
   'lähes sileä': 'almost smooth',
   'maassa': 'on the ground',

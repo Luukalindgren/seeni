@@ -60,6 +60,7 @@ const ICON = {
 const app = document.querySelector<HTMLDivElement>('#app')!
 app.innerHTML = `
   <dialog id="warning" aria-labelledby="warning-title" closedby="none">
+    <button id="warning-lang" class="round lang" type="button" data-t="languageShort" data-t-aria="language"></button>
     <h2 id="warning-title" data-t="warningTitle"></h2>
     <p data-t="warningText"></p>
     <p><strong data-t="warningNever"></strong>
@@ -210,7 +211,11 @@ function startGrassIfLarge() {
   dropArt.setVisible(currentView === 'home')
 }
 
+// Set while the language switch re-renders the result in place: no scroll, no fade.
+let inPlace = false
+
 function show(view: keyof typeof views) {
+  if (inPlace && view === currentView) return
   currentView = view
   if (view === 'home') {
     liveDismissed = false
@@ -384,6 +389,7 @@ function newPhotoButton(): HTMLElement {
 }
 
 function renderNotSure() {
+  resultOfPhotos = true
   const box = el('div', undefined, 'unsure')
   const icon = el('span', undefined, 'unsure-icon')
   icon.innerHTML = ICON.mushroom
@@ -409,7 +415,11 @@ function renderNotSure() {
   show('result')
 }
 
+// True while the result view shows the result of the current photos, not an error.
+let resultOfPhotos = false
+
 function render(state: State | null, raw: Map<string, number>) {
+  resultOfPhotos = true
   if (state) asked = state.asked
   if (state === null) {
     renderNotSure()
@@ -854,6 +864,7 @@ async function identify(images: File[]) {
   } catch (e) {
     await minimum
     if (request !== latest) return
+    resultOfPhotos = false
     result.replaceChildren(el('h2', t().failed), el('p', String(e)))
     // An added photo that fails leaves the earlier photos and answers as they were.
     if (add) {
@@ -1176,13 +1187,26 @@ function switchLang(l: Lang) {
   checks = checkById(species)
   applyStatic()
   status.textContent = statusText()
-  if (currentView === 'result' && photos.length > 0) {
+  if (currentView === 'result' && resultOfPhotos && photos.length > 0) {
     result.classList.remove('enter')
-    identifyPhotos()
+    inPlace = true
+    try {
+      identifyPhotos()
+    } finally {
+      inPlace = false
+    }
+  }
+  // A link with ?lang= would otherwise override the choice on the next load.
+  const url = new URL(location.href)
+  if (url.searchParams.has('lang')) {
+    url.searchParams.delete('lang')
+    history.replaceState(history.state, '', url)
   }
   if (sheetDialog.open) renderSheet()
   photographersLoaded = false
   $('#photographers').replaceChildren(el('p', t().loading))
   void loadPhotographers()
 }
-$('#lang').addEventListener('click', () => switchLang(lang() === 'fi' ? 'en' : 'fi'))
+for (const button of document.querySelectorAll('#lang, #warning-lang')) {
+  button.addEventListener('click', () => switchLang(lang() === 'fi' ? 'en' : 'fi'))
+}

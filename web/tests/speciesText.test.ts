@@ -1,10 +1,11 @@
-// Species content in English (#52): complete, and never changing the logic.
+// Species content in English (#52): never changing the logic. Its coverage is checked by
+// training/src/seeni/species.py (check_translation), which CI runs.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
 
 import { answer, speciesMap, start, type Calibration, type Label, type SpeciesRecord } from '../src/flow.ts'
-import { answerText, localizeRecords, translationProblems, type Translation } from '../src/speciesText.ts'
+import { answerText, localizeRecords, type Translation } from '../src/speciesText.ts'
 import { EDIBLE } from './edible.ts'
 
 const read = (path: string) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'))
@@ -14,21 +15,6 @@ const labels: Label[] = read('../public/models/v1/labels.json')
 const calibration: Calibration = read('../public/models/v1/calibration.json')
 
 describe('species.en.json', () => {
-  it('covers exactly the records, features, checks and answers of species.json', () => {
-    assert.deepEqual(translationProblems(records, en), [])
-  })
-
-  it('reports what is missing or extra', () => {
-    const broken: Translation = structuredClone(en)
-    delete broken.records['amanita-phalloides']
-    delete broken.checks['tyvi']!.vastaukset['kyllä']
-    broken.checks['tyvi']!.vastaukset['ehkä'] = 'maybe'
-    const problems = translationProblems(records, broken).join('\n')
-    assert.match(problems, /record amanita-phalloides: no English name/)
-    assert.match(problems, /check tyvi: no English text for "kyllä"/)
-    assert.match(problems, /check tyvi: "ehkä" is not an answer/)
-  })
-
   it('never states edibility', () => {
     for (const r of Object.values(en.records)) for (const text of [r.nimi, ...r.tuntomerkit]) assert.doesNotMatch(text, EDIBLE)
     for (const c of Object.values(en.checks)) for (const text of [c.kysymys, ...Object.values(c.vastaukset)]) assert.doesNotMatch(text, EDIBLE)

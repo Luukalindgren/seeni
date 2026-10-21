@@ -16,7 +16,8 @@ const base = import.meta.env.BASE_URL
 let shown = -1
 
 function load(): Promise<Classifier> {
-  shown = -1
+  shown = 0
+  postMessage({ id: 0, kind: 'progress', percent: 0 } satisfies Response)
   const loading = Classifier.create(base, ['wasm'], (loaded, total) => {
     // Never 100 % before ready: the model still has to start after the download.
     const percent = Math.min(99, Math.floor((100 * loaded) / total))
@@ -32,9 +33,10 @@ function load(): Promise<Classifier> {
 }
 
 // A download that broke off (a dropped connection on the first visit) is tried again when
-// the next photo comes in, instead of failing every photo until the page is reloaded. Any
-// other failure (the runtime or the model would not start) stays: trying again would only
-// download everything again for the same error.
+// the next photo comes in, instead of failing every photo until the page is reloaded; once
+// per photo, with no retry in the background. Any other failure (a missing file, or the
+// runtime or the model would not start) stays: trying again would only download everything
+// again for the same error.
 let ready: Promise<Classifier> | null = null
 function classifier(): Promise<Classifier> {
   return (ready ??= load().catch((e: unknown) => {
@@ -51,8 +53,8 @@ self.onmessage = (event: MessageEvent<Request>) => {
   const { id, images } = event.data
   queue = queue.then(async () => {
     try {
-      // A failed download starts again here (see classifier()).
-      const model = await classifier().catch(() => classifier())
+      // After a failed download, this starts a new one (see classifier()).
+      const model = await classifier()
       // A file that is not an image (or not in a format the browser reads) is left out,
       // so one bad file among several photos does not fail them all.
       const pixels = []

@@ -16,21 +16,28 @@ const MAX_SHORT_SIDE = 1024
 /** Bytes downloaded so far, of about `total`. */
 export type Progress = (loaded: number, total: number) => void
 
-/** A file that could not be downloaded, e.g. on a dropped connection: worth trying again. */
+/** A file that could not be downloaded because of the connection or the server (a network
+ * error or HTTP 5xx), not because it is missing: worth trying again. */
 export class DownloadError extends Error {}
+
+/** A network error (fetch and stream reads reject with a TypeError) as a DownloadError. */
+function retryable(e: unknown, what: string): unknown {
+  return e instanceof TypeError ? new DownloadError(`${what}: ${String(e)}`) : e
+}
 
 /** The whole file, counting the bytes as they arrive. */
 async function download(url: string, onBytes: (n: number) => void, signal: AbortSignal): Promise<Uint8Array> {
   try {
     return await fetchAll(url, onBytes, signal)
   } catch (e) {
-    throw new DownloadError(`${url}: ${String(e)}`)
+    throw retryable(e, url)
   }
 }
 
 async function fetchAll(url: string, onBytes: (n: number) => void, signal: AbortSignal): Promise<Uint8Array> {
   const response = await fetch(url, { signal })
-  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  if (response.status >= 500) throw new DownloadError(`${url}: HTTP ${response.status}`)
+  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`)
   if (!response.body) {
     const bytes = new Uint8Array(await response.arrayBuffer())
     onBytes(bytes.length)
@@ -112,7 +119,7 @@ export class Classifier {
     const abort = new AbortController()
     const [files, wasm, model] = await Promise.all([
       loadFiles(base).catch((e: unknown) => {
-        throw new DownloadError(String(e))
+        throw retryable(e, 'labels.json, preprocess.json, calibration.json')
       }),
       download(wasmUrl, counted, abort.signal),
       download(`${base}models/${MODEL_VERSION}/model.onnx`, counted, abort.signal),
@@ -137,6 +144,7 @@ export class Classifier {
         lastError = e
       }
     }
+    ort.env.wasm.wasmBinary = undefined
     throw lastError
   }
 

@@ -40,6 +40,56 @@ Golden test fixtures for the parity test (#8), photos from the test set, resized
 | `web/tests/fixtures/images/3907717437_73dbe2a915.jpg` | Rune Zakariassen | CC-BY-4.0 | [GBIF 3907717437](https://www.gbif.org/occurrence/3907717437) |
 | `web/tests/fixtures/images/2273593665_7c11ee40f6.jpg` | Kirsti Anne Mandal | CC-BY-4.0 | [GBIF 2273593665](https://www.gbif.org/occurrence/2273593665) |
 
+Example photos of each species, shown in the app's result view and chosen by `species/kuvat.json` (`seeni.species_images`), resized to 480 px:
+
+| File | Author | License | Source |
+| --- | --- | --- | --- |
+| `web/public/species/boletus-edulis-agg.jpg` | Siv Moen | CC-BY-4.0 | [GBIF 1933115692](https://www.gbif.org/occurrence/1933115692) |
+| `web/public/species/tylopilus-felleus.jpg` | Inger-Lise Fonneland | CC-BY-4.0 | [GBIF 2848728427](https://www.gbif.org/occurrence/2848728427) |
+| `web/public/species/leccinum-versipelle-agg.jpg` | Morten Pettersen | CC-BY-4.0 | [GBIF 2336096294](https://www.gbif.org/occurrence/2336096294) |
+| `web/public/species/leccinum-scabrum.jpg` | Tove Jacobsen | CC-BY-4.0 | [GBIF 4437223184](https://www.gbif.org/occurrence/4437223184) |
+| `web/public/species/suillus-variegatus.jpg` | Ole Reitan | CC-BY-4.0 | [GBIF 5906031307](https://www.gbif.org/occurrence/5906031307) |
+| `web/public/species/suillus-luteus.jpg` | relet | CC0-1.0 | [GBIF 2423128576](https://www.gbif.org/occurrence/2423128576) |
+| `web/public/species/suillus-bovinus.jpg` | Andreas Schneider | CC-BY-4.0 | [GBIF 4172237397](https://www.gbif.org/occurrence/4172237397) |
+| `web/public/species/lactarius-trivialis-agg.jpg` | Ole Reitan | CC-BY-4.0 | [GBIF 4923453732](https://www.gbif.org/occurrence/4923453732) |
+| `web/public/species/lactarius-rufus.jpg` | Else Landsem | CC-BY-4.0 | [GBIF 5287764019](https://www.gbif.org/occurrence/5287764019) |
+| `web/public/species/lactarius-torminosus.jpg` | Morten Pettersen | CC-BY-4.0 | [GBIF 2359967843](https://www.gbif.org/occurrence/2359967843) |
+| `web/public/species/lactarius-pubescens.jpg` | Siv Moen | CC-BY-4.0 | [GBIF 2407204499](https://www.gbif.org/occurrence/2407204499) |
+| `web/public/species/lactarius-deliciosus-agg.jpg` | Gunnar Bureid | CC-BY-4.0 | [GBIF 2402510348](https://www.gbif.org/occurrence/2402510348) |
+| `web/public/species/lactarius-helvus.jpg` | Ellen Renate Andreassen | CC-BY-4.0 | [GBIF 5841811500](https://www.gbif.org/occurrence/5841811500) |
+| `web/public/species/russula-paludosa.jpg` | Tove Jacobsen | CC-BY-4.0 | [GBIF 6434861585](https://www.gbif.org/occurrence/6434861585) |
+| `web/public/species/russula-emetica.jpg` | Siv Moen | CC-BY-4.0 | [GBIF 2410469437](https://www.gbif.org/occurrence/2410469437) |
+| `web/public/species/russula-decolorans-agg.jpg` | Siv Moen | CC-BY-4.0 | [GBIF 2399974770](https://www.gbif.org/occurrence/2399974770) |
+| `web/public/species/russula-claroflava.jpg` | Per Morten  Selle | CC-BY-4.0 | [GBIF 3921204461](https://www.gbif.org/occurrence/3921204461) |
+| `web/public/species/russula-vinosa.jpg` | Per Marstad | CC-BY-4.0 | [GBIF 2411532639](https://www.gbif.org/occurrence/2411532639) |
+| `web/public/species/hygrophorus-camarophyllus.jpg` | Wenche Eli Johansen | CC-BY-4.0 | [GBIF 2408362578](https://www.gbif.org/occurrence/2408362578) |
+| `web/public/species/cortinarius-caperatus.jpg` | Heinähukka | CC-BY-4.0 | [GBIF 4438838143](https://www.gbif.org/occurrence/4438838143) |
+| `web/public/species/cantharellus-cibarius.jpg` | Johan Adler | CC-BY-4.0 | [GBIF 6550883990](https://www.gbif.org/occurrence/6550883990) |
+| `web/public/species/hygrophoropsis-aurantiaca.jpg` | Jan Alsvik | CC-BY-4.0 | [GBIF 1933295190](https://www.gbif.org/occurrence/1933295190) |
+| `web/public/species/craterellus-tubaeformis-agg.jpg` | Inger Kristoffersen | CC-BY-4.0 | [GBIF 2408323761](https://www.gbif.org/occurrence/2408323761) |
+| `web/public/species/craterellus-cornucopioides.jpg` | Morten Pettersen | CC-BY-4.0 | [GBIF 3408487326](https://www.gbif.org/occurrence/3408487326) |
+| `web/public/species/albatrellus-ovinus.jpg` | Inger-Lise Fonneland | CC-BY-4.0 | [GBIF 6574911460](https://www.gbif.org/occurrence/6574911460) |
+| `web/public/species/hydnum-repandum-agg.jpg` | Siv Moen | CC-BY-4.0 | [GBIF 2409288982](https://www.gbif.org/occurrence/2409288982) |
+| `web/public/species/morchella.jpg` | Ole Reitan | CC-BY-4.0 | [GBIF 5150059390](https://www.gbif.org/occurrence/5150059390) |
+| `web/public/species/tricholoma-matsutake.jpg` | Siv Moen | CC-BY-4.0 | [GBIF 4404645623](https://www.gbif.org/occurrence/4404645623) |
+| `web/public/species/armillaria.jpg` | Jan Alsvik | CC-BY-4.0 | [GBIF 6574909346](https://www.gbif.org/occurrence/6574909346) |
+| `web/public/species/kuehneromyces-mutabilis.jpg` | Inger Kristoffersen | CC-BY-4.0 | [GBIF 2403802593](https://www.gbif.org/occurrence/2403802593) |
+| `web/public/species/agaricus-campestris-agg.jpg` | Tove Jacobsen | CC-BY-4.0 | [GBIF 2823036417](https://www.gbif.org/occurrence/2823036417) |
+| `web/public/species/amanita-virosa.jpg` | Kirsti Anne  Mandal | CC-BY-4.0 | [GBIF 2421635434](https://www.gbif.org/occurrence/2421635434) |
+| `web/public/species/amanita-phalloides.jpg` | Inger-Lise Fonneland | CC-BY-4.0 | [GBIF 2400039989](https://www.gbif.org/occurrence/2400039989) |
+| `web/public/species/cortinarius-rubellus.jpg` | Edel Humstad | CC-BY-4.0 | [GBIF 2408464409](https://www.gbif.org/occurrence/2408464409) |
+| `web/public/species/gyromitra-esculenta.jpg` | Per Marstad | CC-BY-4.0 | [GBIF 2409616406](https://www.gbif.org/occurrence/2409616406) |
+| `web/public/species/galerina-marginata.jpg` | Johan Adler | CC-BY-4.0 | [GBIF 5889279375](https://www.gbif.org/occurrence/5889279375) |
+| `web/public/species/paxillus-involutus.jpg` | Kirsti Anne  Mandal | CC-BY-4.0 | [GBIF 6495174005](https://www.gbif.org/occurrence/6495174005) |
+| `web/public/species/amanita-muscaria.jpg` | Ola Vestre | CC-BY-4.0 | [GBIF 5841665361](https://www.gbif.org/occurrence/5841665361) |
+| `web/public/species/amanita-regalis.jpg` | Nils Edvard Stokke | CC-BY-4.0 | [GBIF 2416594147](https://www.gbif.org/occurrence/2416594147) |
+| `web/public/species/amanita-pantherina.jpg` | Geir K. Knudsen | CC-BY-4.0 | [GBIF 5841598276](https://www.gbif.org/occurrence/5841598276) |
+| `web/public/species/hypholoma-fasciculare.jpg` | Ole Christian Hagestad | CC-BY-4.0 | [GBIF 4131950390](https://www.gbif.org/occurrence/4131950390) |
+| `web/public/species/inocybe.jpg` | Tove Jacobsen | CC-BY-4.0 | [GBIF 2822917384](https://www.gbif.org/occurrence/2822917384) |
+| `web/public/species/tricholoma-equestre.jpg` | Morten Pettersen | CC-BY-4.0 | [GBIF 4437233428](https://www.gbif.org/occurrence/4437233428) |
+| `web/public/species/cortinarius-orellanus.jpg` | Inger-Lise Fonneland | CC-BY-4.0 | [GBIF 1823027126](https://www.gbif.org/occurrence/1823027126) |
+| `web/public/species/verpa-bohemica.jpg` | Tero Linjama | CC0-1.0 | [GBIF 3301903748](https://www.gbif.org/occurrence/3301903748) |
+
 ## Species data sources
 
 *Pending (#3).* `data-meta/lajilista.csv` and `species/species.json` are compiled from the sources below. Each source's license and required credit is recorded here before release.

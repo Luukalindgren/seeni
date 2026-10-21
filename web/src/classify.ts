@@ -1,7 +1,9 @@
 // The model in the browser (PLAN.md phase 10): decode → preprocess (preprocess.json) →
 // onnxruntime-web → logits / T → softmax → mean over images. Used by the Web Worker and by
 // the parity page. Images never leave the device (hard rule 9).
-import * as ort from 'onnxruntime-web/webgpu'
+// The WASM-only bundle: its runtime is 14 MB against 27 MB for the WebGPU one, so the first
+// load is about a third lighter, and EfficientNet-B0 runs well under a second on WASM.
+import * as ort from 'onnxruntime-web/wasm'
 
 import { averageProbabilities, softmax } from './flow.ts'
 import { loadFiles, MODEL_VERSION, type ModelFiles } from './modelFiles.ts'
@@ -51,11 +53,11 @@ export class Classifier {
     this.provider = provider
   }
 
-  /** Create the session once and do one warm-up run. WebGPU first, WASM as the fallback. */
-  static async create(base: string, providers: string[] = ['webgpu', 'wasm']): Promise<Classifier> {
-    // The webgpu bundle refers to its .wasm with new URL(..., import.meta.url), so Vite
-    // copies it into the build and the app serves it itself, which offline needs. No
-    // wasmPaths: the default points at that copy, not at a CDN.
+  /** Create the session once and do one warm-up run. */
+  static async create(base: string, providers: string[] = ['wasm']): Promise<Classifier> {
+    // The bundle refers to its .wasm with new URL(..., import.meta.url), so Vite copies it
+    // into the build and the app serves it itself, which offline needs. No wasmPaths: the
+    // default points at that copy, not at a CDN.
     // GitHub Pages sends no cross-origin isolation headers, so threads are not available.
     ort.env.wasm.numThreads = 1
     const files = await loadFiles(base)

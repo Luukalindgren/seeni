@@ -100,6 +100,7 @@ app.innerHTML = `
         <div class="live-status"></div>
         <button id="live-info" class="live-link" type="button" data-t="info"></button>
         <button id="live-finds" class="live-link" type="button" hidden></button>
+        <button id="live-guide" class="live-link" type="button" data-t="guideTitle"></button>
       </div>
       <div class="live-bar">
         <button id="live-back" class="round" type="button" data-t-aria="back">${ICON.close}</button>
@@ -124,7 +125,10 @@ app.innerHTML = `
     <button id="live-retry" class="live-link" type="button" hidden data-t="liveRetry"></button>
     <p id="live-help" class="hint" role="status" hidden data-t="liveHelp"></p>
     <p id="status" class="status"></p>
-    <button id="finds-open" class="live-link" type="button" hidden></button>
+    <div class="home-links">
+      <button id="guide-open" class="live-link" type="button" data-t="guideTitle"></button>
+      <button id="finds-open" class="live-link" type="button" hidden></button>
+    </div>
   </section>
 
   <section id="loading" class="view" hidden>
@@ -161,6 +165,16 @@ app.innerHTML = `
     <h2 id="finds-title" data-t="findsTitle"></h2>
     <p class="fine" data-t="findsNote"></p>
     <ul id="finds-list" class="finds-list"></ul>
+  </dialog>
+
+  <dialog id="guide" aria-labelledby="guide-title">
+    <div class="sheet-top">
+      <button id="guide-close" class="round" type="button" data-t-aria="close">${ICON.close}</button>
+    </div>
+    <h2 id="guide-title" data-t="guideTitle"></h2>
+    <p class="fine" data-t="guideNote"></p>
+    <input id="guide-search" type="search" autocomplete="off" data-t-aria="guideSearch" />
+    <ul id="guide-list" class="guide-list"></ul>
   </dialog>
 
   <canvas id="grass" aria-hidden="true"></canvas>
@@ -982,6 +996,60 @@ $('#finds-close').addEventListener('click', () => findsDialog.close())
 findsDialog.addEventListener('close', revokeFindUrls)
 if ('indexedDB' in window) void refreshFindsCount()
 
+// --- Species guide ------------------------------------------------------------------------
+// Every species Seeni knows, and the dangerous ones it only warns about, in one searchable
+// list; each opens its species sheet, so the features and lookalikes can be read before
+// going to the forest, offline. The list names no edibility (hard rule 8): the danger
+// label is the only group shown.
+
+const guideDialog = $<HTMLDialogElement>('#guide')
+const guideSearch = $<HTMLInputElement>('#guide-search')
+
+function renderGuide() {
+  const list = $('#guide-list')
+  const query = guideSearch.value.trim().toLocaleLowerCase()
+  const all = [...species.values()]
+    .filter((r) => !query || r.nimi.toLocaleLowerCase().includes(query) || r.tieteellinen.toLocaleLowerCase().includes(query))
+    .sort((a, b) => a.nimi.localeCompare(b.nimi, lang()))
+  list.replaceChildren()
+  if (all.length === 0) list.append(el('li', t().guideNone, 'finds-empty'))
+  for (const r of all) {
+    const li = el('li')
+    const open = el('button', undefined, 'lookalike')
+    open.type = 'button'
+    open.setAttribute('aria-haspopup', 'dialog')
+    const thumb = el('span', undefined, 'thumb')
+    const img = el('img')
+    img.src = `${base}species/${r.id}.jpg`
+    img.alt = ''
+    img.loading = 'lazy'
+    thumb.append(img)
+    const text = el('span', undefined, 'lookalike-text')
+    text.append(el('strong', r.nimi), el('span', r.tieteellinen, 'latin'))
+    const b = badge(r.id)
+    if (b) text.append(b)
+    open.append(thumb, text)
+    open.addEventListener('click', () => openSheet(r.id, r.id))
+    li.append(open)
+    list.append(li)
+  }
+}
+
+async function openGuide() {
+  try {
+    files ??= await loadFiles(base)
+    modelClasses ??= new Set(files.labels.map((l) => l.id))
+  } catch {
+    return
+  }
+  guideSearch.placeholder = t().guideSearch
+  renderGuide()
+  if (!guideDialog.open) guideDialog.showModal()
+}
+for (const id of ['#guide-open', '#live-guide']) $(id).addEventListener('click', () => void openGuide())
+$('#guide-close').addEventListener('click', () => guideDialog.close())
+guideSearch.addEventListener('input', renderGuide)
+
 // --- Species sheet (#47) -----------------------------------------------------------------
 // A lookalike in the result opens its identification info in a modal: features, how it
 // differs from the species of the result, its own lookalikes (which open in the same modal,
@@ -1531,6 +1599,8 @@ function switchLang(l: Lang) {
   renderSeasonSettings()
   void refreshFindsCount()
   if (findsDialog.open) void renderFinds()
+  guideSearch.placeholder = t().guideSearch
+  if (guideDialog.open) renderGuide()
   // A link with ?lang= would otherwise override the choice on the next load.
   const url = new URL(location.href)
   if (url.searchParams.has('lang')) {

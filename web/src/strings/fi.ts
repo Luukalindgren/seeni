@@ -121,6 +121,10 @@ export const fi = {
   seasonRegionAuto: 'Ei valittu',
 
   // My finds
+  guideTitle: 'Lajiopas',
+  guideNote: 'Kaikki lajit, jotka Seeni tunnistaa, ja vaaralliset lajit, joista se varoittaa. Avaa laji, niin näet sen tuntomerkit ja kaksoisolennot.',
+  guideSearch: 'Hae lajia',
+  guideNone: 'Lajia ei löytynyt.',
   findsTitle: 'Omat löydöt',
   findsOpen: (n: number) => `Omat löydöt (${n})`,
   findsSave: 'Tallenna omiin löytöihin',

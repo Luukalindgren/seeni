@@ -121,22 +121,30 @@ const again = $<HTMLButtonElement>('#again')
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const largeScreen = window.matchMedia('(min-width: 900px) and (hover: hover) and (pointer: fine)')
-const grass = largeScreen.matches ? startGrass($<HTMLCanvasElement>('#grass')) : null
+// The grass starts when the window is (or later becomes) large.
+let grass: ReturnType<typeof startGrass> | null = null
+let currentView: keyof typeof views = 'home'
+function startGrassIfLarge() {
+  if (grass || !largeScreen.matches) return
+  grass = startGrass($<HTMLCanvasElement>('#grass'), reducedMotion)
+  grass.setVisible(currentView === 'home')
+}
 
 function show(view: keyof typeof views) {
+  currentView = view
   const swap = () => {
     for (const [name, el] of Object.entries(views)) el.hidden = name !== view
     again.hidden = view !== 'result'
-    // The photo of the last identification is no longer needed once back home.
-    if (view === 'home') setPreview(null)
     window.scrollTo(0, 0)
   }
+  // The photo of the last identification is no longer needed once back home.
+  if (view === 'home') setPreview(null)
   grass?.setVisible(view === 'home')
   // A soft cross-fade between views where the browser supports it.
   if (document.startViewTransition && !reducedMotion) document.startViewTransition(swap)
   else swap()
 }
-grass?.setVisible(true)
+startGrassIfLarge()
 
 again.addEventListener('click', () => show('home'))
 $('#info').addEventListener('click', () => {
@@ -442,6 +450,10 @@ async function checkCamera() {
 }
 void checkCamera()
 navigator.mediaDevices?.addEventListener?.('devicechange', () => void checkCamera())
+largeScreen.addEventListener('change', () => {
+  startGrassIfLarge()
+  void checkCamera()
+})
 
 // The buttons are labels for hidden file inputs; Enter and Space open them like a button.
 for (const label of document.querySelectorAll<HTMLLabelElement>('.actions label')) {
@@ -488,15 +500,16 @@ window.addEventListener('drop', (e) => {
   e.preventDefault()
   dragDepth = 0
   drop.classList.remove('dragging')
-  // The warning has to be accepted first.
-  if (dialog.open) return
+  // The warning has to be accepted first, and the webcam dialog covers the page.
+  if (dialog.open || webcamDialog.open) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)
   void identify(images)
 })
 
 // Pasting an image from the clipboard identifies it too.
 window.addEventListener('paste', (e) => {
-  if (dialog.open) return
+  // The warning has to be accepted first, and the webcam dialog covers the page.
+  if (dialog.open || webcamDialog.open) return
   const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
   if (images.length === 0) return
   e.preventDefault()

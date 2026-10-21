@@ -19,8 +19,11 @@ export function setupWebcam(
   onPhoto: (photo: File) => void,
 ): () => void {
   let stream: MediaStream | null = null
+  // Each opening gets a number; a camera that answers after a newer opening is switched off.
+  let opening = 0
 
   function stop() {
+    opening++
     for (const track of stream?.getTracks() ?? []) track.stop()
     stream = null
     video.srcObject = null
@@ -32,7 +35,8 @@ export function setupWebcam(
   })
 
   shutter.addEventListener('click', () => {
-    if (!stream || video.videoWidth === 0) return
+    if (!stream || video.videoWidth === 0 || shutter.disabled) return
+    shutter.disabled = true
     const canvas = document.createElement('canvas')
     canvas.width = video.videoWidth
     canvas.height = video.videoHeight
@@ -48,6 +52,8 @@ export function setupWebcam(
   })
 
   return async function open() {
+    stop()
+    const current = opening
     note.textContent = ''
     shutter.disabled = true
     dialog.showModal()
@@ -56,8 +62,8 @@ export function setupWebcam(
         video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
         audio: false,
       })
-      // The dialog may have been closed while the permission prompt was open.
-      if (!dialog.open) {
+      // The dialog may have been closed, or opened again, while the permission prompt was open.
+      if (!dialog.open || current !== opening) {
         for (const track of s.getTracks()) track.stop()
         return
       }
@@ -66,6 +72,7 @@ export function setupWebcam(
       await video.play()
       shutter.disabled = false
     } catch {
+      if (current !== opening) return
       note.textContent = 'Kameraa ei saatu käyttöön. Voit valita kuvan laitteelta.'
     }
   }

@@ -848,7 +848,7 @@ footer summary {
   }
 
   /* The result without a species (or an error) has no photo: one column. */
-  #result:not(:has(.hero)) {
+  #result:not([hidden]):not(:has(.hero)) {
     display: block;
     max-width: 40rem;
     margin: 0 auto;

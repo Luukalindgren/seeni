@@ -31,9 +31,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // The model, its JSON files and the onnxruntime WebAssembly go into the precache,
+        // The model, its JSON files, the species photos and the onnxruntime WebAssembly go into the precache,
         // so the app works offline after the first load.
-        globPatterns: ['**/*.{js,mjs,css,html,png,json,onnx,wasm}'],
+        globPatterns: ['**/*.{js,mjs,css,html,png,jpg,json,onnx,wasm}'],
         // The default 2 MiB would silently leave the model and the runtime out.
         maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
       },

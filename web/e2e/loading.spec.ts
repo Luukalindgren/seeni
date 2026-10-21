@@ -45,19 +45,39 @@ test('a photo chosen while the model downloads shows the download in the wait', 
   await expect(page.locator('#loading-model')).toBeHidden()
 })
 
-test('a model download that fails is tried again when a photo comes in', async ({ page }) => {
-  // The first download of the model breaks off, as on a dropped connection.
-  let attempts = 0
-  await page.route('**/model.onnx', async (route) => {
-    if (attempts++ === 0) await route.abort('connectionreset')
-    else await route.continue()
+// Without the service worker, so that its precache cannot serve the second download.
+test.describe('without a service worker', () => {
+  test.use({ serviceWorkers: 'block' })
+
+  test('a model download that fails is tried again when a photo comes in', async ({ page }) => {
+    // The first download of the model breaks off, as on a dropped connection.
+    let attempts = 0
+    await page.route('**/model.onnx', async (route) => {
+      if (attempts++ === 0) await route.abort('connectionreset')
+      else await route.continue()
+    })
+    await page.goto('http://localhost:4173/seeni/')
+    await page.getByRole('checkbox').check()
+    await page.getByRole('button', { name: 'Hyväksyn' }).click()
+    await expect(page.locator('#status')).toContainText('Mallin lataus epäonnistui')
+    await page.locator('#gallery').setInputFiles(chanterelle)
+    await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+    await expect(page.locator('#status')).toHaveClass(/ready/)
+    expect(attempts).toBe(2)
   })
-  await page.goto('http://localhost:4173/seeni/')
-  await page.getByRole('checkbox').check()
-  await page.getByRole('button', { name: 'Hyväksyn' }).click()
-  await expect(page.locator('#status')).toContainText('Mallin lataus epäonnistui')
-  await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
-  await expect(page.locator('#status')).toHaveClass(/ready/)
-  expect(attempts).toBe(2)
+
+  test('a model that downloads but will not start is not downloaded again for every photo', async ({ page }) => {
+    let attempts = 0
+    await page.route('**/model.onnx', async (route) => {
+      attempts++
+      await route.fulfill({ body: 'not a model' })
+    })
+    await page.goto('http://localhost:4173/seeni/')
+    await page.getByRole('checkbox').check()
+    await page.getByRole('button', { name: 'Hyväksyn' }).click()
+    await expect(page.locator('#status')).toContainText('Mallin lataus epäonnistui')
+    await page.locator('#gallery').setInputFiles(chanterelle)
+    await expect(page.locator('#result h2').first()).toHaveText('Tunnistus epäonnistui', { timeout: 60_000 })
+    expect(attempts).toBe(1)
+  })
 })

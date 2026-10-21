@@ -16,10 +16,21 @@ const MAX_SHORT_SIDE = 1024
 /** Bytes downloaded so far, of about `total`. */
 export type Progress = (loaded: number, total: number) => void
 
+/** A file that could not be downloaded, e.g. on a dropped connection: worth trying again. */
+export class DownloadError extends Error {}
+
 /** The whole file, counting the bytes as they arrive. */
-async function download(url: string, onBytes: (n: number) => void): Promise<Uint8Array> {
-  const response = await fetch(url)
-  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`)
+async function download(url: string, onBytes: (n: number) => void, signal: AbortSignal): Promise<Uint8Array> {
+  try {
+    return await fetchAll(url, onBytes, signal)
+  } catch (e) {
+    throw new DownloadError(`${url}: ${String(e)}`)
+  }
+}
+
+async function fetchAll(url: string, onBytes: (n: number) => void, signal: AbortSignal): Promise<Uint8Array> {
+  const response = await fetch(url, { signal })
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
   if (!response.body) {
     const bytes = new Uint8Array(await response.arrayBuffer())
     onBytes(bytes.length)
@@ -96,11 +107,21 @@ export class Classifier {
     const counted = (n: number) => {
       if (!settled) onProgress?.((loaded += n), __LOAD_BYTES__)
     }
+    // When one download fails, the other one stops too, so that a new try does not compete
+    // with it for the connection.
+    const abort = new AbortController()
     const [files, wasm, model] = await Promise.all([
-      loadFiles(base),
-      download(wasmUrl, counted),
-      download(`${base}models/${MODEL_VERSION}/model.onnx`, counted),
-    ]).finally(() => (settled = true))
+      loadFiles(base).catch((e: unknown) => {
+        throw new DownloadError(String(e))
+      }),
+      download(wasmUrl, counted, abort.signal),
+      download(`${base}models/${MODEL_VERSION}/model.onnx`, counted, abort.signal),
+    ])
+      .catch((e: unknown) => {
+        abort.abort()
+        throw e
+      })
+      .finally(() => (settled = true))
     ort.env.wasm.wasmBinary = wasm
     let lastError: unknown
     for (const provider of providers) {

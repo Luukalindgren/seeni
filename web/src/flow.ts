@@ -254,6 +254,26 @@ export function replay(state: State, asked: State['asked'], species: Species): S
   return next ?? state
 }
 
+/** The listed lookalikes of the top species that the flow does not carry: those that are not
+ * dangerous (a dangerous one is always a candidate or a warning already) and that the answers
+ * so far have not ruled out. Shown with the other options so that, for example, a chanterelle
+ * still names the false chanterelle. Only for a species that is not dangerous itself: a
+ * deadly result does not list a food mushroom beside it as an alternative. Display only; it
+ * never changes the candidates or the checks. */
+export function listedLookalikes(state: State, topId: string, species: Species): string[] {
+  if (isDangerous(topId, species)) return []
+  const checks = checkById(species)
+  const out = new Set<string>()
+  for (const a of state.asked) {
+    const check = checks.get(a.check)
+    if (check && a.answer !== '' && a.answer in check.vastaukset) for (const id of ruledOut(check, a.answer)) out.add(id)
+  }
+  const shown = new Set([...state.candidates.map((c) => c.id), ...state.warnings])
+  return (species.get(topId)?.kaksoisolennot ?? []).filter(
+    (id) => !isDangerous(id, species) && !shown.has(id) && !out.has(id) && species.has(id),
+  )
+}
+
 /** The user could not check this: it is not asked again and rules nothing out. */
 export function skip(state: State, check: Check): State {
   return { ...state, asked: [...state.asked, { check: check.id, answer: '' }] }

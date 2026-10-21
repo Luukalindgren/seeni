@@ -10,6 +10,7 @@ import {
   averageProbabilities,
   checkById,
   isDone,
+  listedLookalikes,
   nextCheck,
   outcome,
   outcomeText,
@@ -237,5 +238,32 @@ describe('probabilities', () => {
 
   it('average over images', () => {
     assert.deepEqual(averageProbabilities([[1, 0], [0, 1]]), [0.5, 0.5])
+  })
+})
+
+describe('listed lookalikes', () => {
+  it('names the false chanterelle beside a chanterelle, until an answer rules it out', () => {
+    const r = start(probs('cantharellus-cibarius', 0.99), labels, species, calibration)
+    assert.equal(r.kind, 'flow')
+    const state = (r as { state: State }).state
+    assert.deepEqual(listedLookalikes(state, 'cantharellus-cibarius', species), ['hygrophoropsis-aurantiaca'])
+    const ruling = [...checkById(species).values()].find((c) =>
+      Object.keys(c.vastaukset).some((a) => ruledOut(c, a).has('hygrophoropsis-aurantiaca')),
+    )
+    if (ruling) {
+      const a = Object.keys(ruling.vastaukset).find((x) => ruledOut(ruling, x).has('hygrophoropsis-aurantiaca'))!
+      const after = { ...state, asked: [{ check: ruling.id, answer: a }] }
+      assert.deepEqual(listedLookalikes(after, 'cantharellus-cibarius', species), [])
+    }
+  })
+
+  it('lists nothing extra beside a dangerous species, and never a dangerous one', () => {
+    const r = start(probs('gyromitra-esculenta', 0.99), labels, species, calibration) as { state: State }
+    assert.deepEqual(listedLookalikes(r.state, 'gyromitra-esculenta', species), [])
+    for (const rec of records) {
+      for (const id of listedLookalikes({ candidates: [{ id: rec.id, probability: 1, source: 'model' }], warnings: [], asked: [] }, rec.id, species)) {
+        assert.ok(!DANGEROUS.has(species.get(id)!.ryhma), `${rec.id} → ${id}`)
+      }
+    }
   })
 })

@@ -15,6 +15,7 @@ import {
   type SpeciesRecord,
   type State,
 } from './flow.ts'
+import { checkPicture } from './checkArt.ts'
 import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
@@ -366,6 +367,12 @@ function render(state: State | null, raw: Map<string, number>) {
     const box = el('section', undefined, 'verify')
     box.append(el('h3', 'Näin varmistat lajin'))
     box.append(el('p', check.kysymys, 'question'))
+    const art = checkPicture(check.id)
+    if (art) {
+      const figure = el('figure', undefined, 'check-figure')
+      figure.innerHTML = art
+      box.append(figure)
+    }
     const answers = el('div', undefined, 'answers')
     for (const a of Object.keys(check.vastaukset)) {
       const button = el('button', a, 'answer')

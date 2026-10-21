@@ -4,6 +4,7 @@
 // feature, not of a species: the question and the answers in species.json stay the source.
 
 import type { Check } from './flow.ts'
+import { lang, t } from './i18n.ts'
 
 // Colours of the "Metsänpohja" look (style.css), plus mushroom colours.
 const INK = '#5e5549'
@@ -26,14 +27,16 @@ interface Panel {
 function picture(panels: Panel[]): string {
   const cols = panels.length === 4 ? 2 : Math.min(panels.length, 3)
   const rows = Math.ceil(panels.length / cols)
+  const english = lang() === 'en'
+  const caption = (p: Panel) => (english ? CAPTION_EN[p.caption] ?? p.caption : p.caption)
   const parts = panels.map((p, i) => {
     const x = (i % cols) * W
     const y = Math.floor(i / cols) * H
-    return `<g transform="translate(${x} ${y})">${p.body}<text x="60" y="117" text-anchor="middle" fill="${INK}" stroke="none">${p.caption}</text></g>`
+    return `<g transform="translate(${x} ${y})">${p.body}<text x="60" y="117" text-anchor="middle" fill="${INK}" stroke="none">${caption(p)}</text></g>`
   })
-  const label = panels.map((p) => p.caption).join(', ')
+  const label = t().pictureLabel(panels.map(caption).join(', '))
   return (
-    `<svg class="check-art" viewBox="0 0 ${cols * W} ${rows * H}" role="img" aria-label="Kuva: ${label}" ` +
+    `<svg class="check-art" viewBox="0 0 ${cols * W} ${rows * H}" role="img" aria-label="${label}" ` +
     `fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" ` +
     `font-family="inherit" font-size="12">${parts.join('')}</svg>`
   )
@@ -126,6 +129,69 @@ const CLUSTER: [number, number][] = [
 ]
 
 const soil = '<path d="M4 80 Q30 76 60 80 T116 80 V100 H4 Z" fill="#d9c7a4" stroke="none"/>'
+
+// The captions in English, by the Finnish caption (#52).
+export const CAPTION_EN: Record<string, string> = {
+  'aivomainen': 'like a brain',
+  'ei muutu': 'no change',
+  'ei nestettä': 'no milk',
+  'ei rengasta': 'no ring',
+  'ei suomuja': 'no scales',
+  'ei tappeja, ei rengasta': 'no warts, no ring',
+  'ei verkkoa': 'no net',
+  'harjut, poimut': 'ridges, folds',
+  'harmaanruskea': 'greyish brown',
+  'heltat': 'gills',
+  'isoja, kulmikkaita': 'large, angular',
+  'kaksivärinen': 'two-coloured',
+  'kannolla, ryhmänä': 'clustered on wood',
+  'kellertävät, ruoste': 'yellowish, rust',
+  'keltainen, oliivi': 'yellow, olive',
+  'kenno tai poimuja': 'honeycomb or folds',
+  'kennomainen': 'honeycomb',
+  'kiinni vain huipusta': 'only at the tip',
+  'kuitujuovainen': 'fibrous',
+  'lähes sileä': 'almost smooth',
+  'maassa': 'on the ground',
+  'monta kammiota': 'many chambers',
+  'murtuu kuin liitu': 'snaps like chalk',
+  'ohuet heltat': 'thin gills',
+  'ontto, uurteinen': 'hollow, grooved',
+  'oranssi, liha tummuu': 'orange, darkens',
+  'oranssia': 'orange',
+  'paksu mukula': 'thick bulb',
+  'paksut harjut': 'thick ridges',
+  'pieniä, tiheitä': 'small, crowded',
+  'piikit': 'spines',
+  'pillistö': 'pores',
+  'pinkki, suklaa': 'pink, chocolate',
+  'punainen, tapit': 'red, warts',
+  'pussimainen tuppi': 'sac-like volva',
+  'rengas': 'ring',
+  'rengas, kuurainen': 'ring, frosted',
+  'repeää kuituisena': 'tears into fibres',
+  'rikinkeltaiset': 'sulphur yellow',
+  'ruosteenruskea': 'rust brown',
+  'ruskea, tapit': 'brown, warts',
+  'sileä reuna': 'smooth edge',
+  'suklaa, violetinmusta': 'dark brown, violet',
+  'suomuinen, tumma': 'scaly, dark',
+  'tavallinen tyvi': 'plain base',
+  'tumma verkko': 'dark net',
+  'tummat suomut': 'dark scales',
+  'tummuu ruskeaksi': 'turns brown',
+  'umpinainen': 'solid',
+  'vaalea verkko': 'pale net',
+  'vaaleanpunainen': 'pink',
+  'valkoinen, harmaa': 'white, grey',
+  'valkoinen, okra': 'white, ochre',
+  'valkoiset, kerma': 'white, cream',
+  'valkoista': 'white',
+  'vesikirkasta': 'clear',
+  'villava reuna': 'woolly edge',
+  'yksi ontelo': 'one hollow',
+  'yksivärinen': 'one colour',
+}
 
 // --- The pictures, by check id ---
 

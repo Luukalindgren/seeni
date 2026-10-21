@@ -1,14 +1,17 @@
 // The identification sheet of a lookalike (#47).
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { describe, it } from 'node:test'
+import { afterEach, describe, it } from 'node:test'
 
 import { speciesMap, type Label, type SpeciesRecord } from '../src/flow.ts'
+import { LANGS, setLang } from '../src/i18n.ts'
 import { differences, sheet, sheetTexts } from '../src/sheet.ts'
+import { answerText, localizeRecords, type Translation } from '../src/speciesText.ts'
 import { EDIBLE } from './edible.ts'
 
 const read = (path: string) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'))
 const records: SpeciesRecord[] = read('../../species/species.json')
+const en: Translation = read('../../species/species.en.json')
 const labels: Label[] = read('../public/models/v1/labels.json')
 const species = speciesMap(records)
 const model = new Set(labels.map((l) => l.id))
@@ -48,11 +51,28 @@ describe('sheet', () => {
     assert.equal(sheet('amanita-phalloides', null, species, model).label, 'Tappavan myrkyllinen')
   })
 
-  it('never states edibility, for any species compared with any lookalike', () => {
-    for (const a of species.keys()) {
-      for (const b of [null, ...species.get(a)!.kaksoisolennot]) {
-        for (const text of sheetTexts(sheet(a, b, species, model))) assert.doesNotMatch(text, EDIBLE, `${a}/${b}: ${text}`)
+  afterEach(() => setLang('fi'))
+
+  it('never states edibility, in either language, for any species compared with any lookalike', () => {
+    for (const l of LANGS) {
+      setLang(l)
+      const local = speciesMap(localizeRecords(records, l, en))
+      const answer = (c: { id: string }, k: string) => answerText(c, k, l, en)
+      for (const a of local.keys()) {
+        for (const b of [null, ...local.get(a)!.kaksoisolennot]) {
+          for (const text of sheetTexts(sheet(a, b, local, model), answer)) {
+            assert.doesNotMatch(text, EDIBLE, `${l} ${a}/${b}: ${text}`)
+          }
+        }
       }
     }
+  })
+
+  it('labels danger the same way in English', () => {
+    setLang('en')
+    const local = speciesMap(localizeRecords(records, 'en', en))
+    assert.equal(sheet('amanita-phalloides', null, local, model).label, 'Deadly poisonous')
+    assert.equal(sheet('cantharellus-cibarius', null, local, model).label, null)
+    assert.equal(sheet('lactarius-rufus', null, local, model).label, 'Poisonous raw')
   })
 })

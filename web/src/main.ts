@@ -2,6 +2,7 @@
 // identified species with its photo, group, lookalikes and how to make sure. Everything
 // runs on the device; no image or result is sent anywhere (hard rule 9).
 import speciesRecords from '../../species/species.json'
+import speciesEn from '../../species/species.en.json'
 import {
   DANGEROUS,
   answer,
@@ -15,10 +16,14 @@ import {
   speciesMap,
   start,
   type SpeciesRecord,
+  type Check,
   type State,
 } from './flow.ts'
 import { checkPicture } from './checkArt.ts'
-import { GROUP_LABEL, SHEET_TEXT, sheet } from './sheet.ts'
+import { groupLabel, sheet, sheetText } from './sheet.ts'
+import { initialLang, lang, setLang, storedLang, t, type Lang } from './i18n.ts'
+import { answerText, localizeRecords, type Translation } from './speciesText.ts'
+import type { Strings } from './strings/fi.ts'
 import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
@@ -28,10 +33,17 @@ import { hasCamera, setupWebcam } from './webcam.ts'
 import type { Request, Response } from './worker.ts'
 import './style.css'
 
-const species = speciesMap(speciesRecords as unknown as SpeciesRecord[])
-const checks = checkById(species)
+// The language first (#52): `?lang=`, then the stored choice, then the browser's.
+setLang(initialLang(location.search, storedLang(), navigator.languages ?? [navigator.language]))
+
+const records = speciesRecords as unknown as SpeciesRecord[]
+const english = speciesEn as Translation
+// The species in the current language. Only the texts change with the language; ids,
+// groups, lookalikes and answer keys are the same, so the flow state carries over.
+let species = speciesMap(localizeRecords(records, lang(), english))
+let checks = checkById(species)
 const base = import.meta.env.BASE_URL
-const REMINDER = 'Tunnistus ei ole koskaan varma. Älä syö sientä tämän sovelluksen perusteella.'
+const answerLabel = (check: Check, key: string) => answerText(check, key, lang(), english)
 
 // Stroke icons, inline so they work offline and follow the text colour.
 const svg = (body: string, size = 24) =>
@@ -48,18 +60,15 @@ const ICON = {
 const app = document.querySelector<HTMLDivElement>('#app')!
 app.innerHTML = `
   <dialog id="warning" aria-labelledby="warning-title" closedby="none">
-    <h2 id="warning-title">Ennen kuin aloitat</h2>
-    <p>Seeni ehdottaa sienilajeja kuvasta ja näyttää niiden vaaralliset kaksoisolennot. Se ei kerro,
-    voiko sientä syödä, eikä sen tuloksiin voi luottaa sataprosenttisesti. Lajitiedot ovat
-    tarkistamattomia luonnoksia.</p>
-    <p><strong>Älä koskaan syö sientä tämän sovelluksen perusteella.</strong>
-    Varmista tunnistus aina sieneuvojalta tai luotettavasta lähteestä.</p>
-    <p class="fine">Kuvat käsitellään vain tällä laitteella, eikä mitään lähetetä minnekään.
-    Koodi on MIT-lisensoitu, malli ja lajitiedot CC BY 4.0. Kuvaajat ja lähteet löydät myöhemmin
-    kohdasta Tietoa ja lähteet.</p>
+    <button id="warning-lang" class="round lang" type="button" data-t="languageShort" data-t-aria="language"></button>
+    <h2 id="warning-title" data-t="warningTitle"></h2>
+    <p data-t="warningText"></p>
+    <p><strong data-t="warningNever"></strong>
+    <span data-t="warningVerify"></span></p>
+    <p class="fine" data-t="warningFine"></p>
     <label class="consent"><input id="consent-check" type="checkbox" />
-    <span>Ymmärrän, että tunnistus voi olla väärä, enkä syö sientä sovelluksen perusteella.</span></label>
-    <button id="accept" class="primary" type="button" disabled>Hyväksyn</button>
+    <span data-t="consentCheck"></span></label>
+    <button id="accept" class="primary" type="button" disabled data-t="accept"></button>
   </dialog>
 
   <header class="topbar">
@@ -67,74 +76,75 @@ app.innerHTML = `
       <img src="${base}icons/icon-192.png" alt="" width="36" height="36" />
       <span>Seeni</span>
     </h1>
-    <button id="again" class="pill" type="button" hidden>${ICON.plus} Uusi kuva</button>
-    <button id="info" class="round" type="button" aria-label="Tietoa ja lähteet">${ICON.info}</button>
+    <button id="again" class="pill" type="button" hidden>${ICON.plus} <span data-t="newPhoto"></span></button>
+    <button id="lang" class="round lang" type="button" data-t="languageShort" data-t-aria="language"></button>
+    <button id="info" class="round" type="button" data-t-aria="info">${ICON.info}</button>
   </header>
 
   <section id="home" class="view">
     <div id="adding" class="adding" hidden>
-      <p><strong>Lisää kuva samasta sienestä <span id="adding-count"></span></strong>
-      Hyviä kulmia: lakki ylhäältä, lakin alapinta, jalka ja tyvi.</p>
-      <button id="adding-cancel" class="pill" type="button">Takaisin tulokseen</button>
+      <p><strong><span data-t="addingTitle"></span> <span id="adding-count"></span></strong>
+      <span data-t="addingTips"></span></p>
+      <button id="adding-cancel" class="pill" type="button" data-t="backToResult"></button>
     </div>
     <div id="live" class="live" hidden>
       <video playsinline muted autoplay aria-hidden="true"></video>
       <div class="live-card">
-        <p class="live-title">Kuvaa sieni</p>
-        <p class="live-text">Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.</p>
-        <button id="live-take" class="primary big" type="button">${ICON.camera} Ota kuva</button>
-        <label class="secondary big" for="gallery" tabindex="0">${ICON.image} Valitse kuva</label>
+        <p class="live-title" data-t="liveTitle"></p>
+        <p class="live-text" data-t="intro"></p>
+        <button id="live-take" class="primary big" type="button">${ICON.camera} <span data-t="takePhoto"></span></button>
+        <label class="secondary big" for="gallery" tabindex="0">${ICON.image} <span data-t="pickPhoto"></span></label>
         <div class="live-status"></div>
-        <button id="live-info" class="live-link" type="button">Tietoa ja lähteet</button>
+        <button id="live-info" class="live-link" type="button" data-t="info"></button>
       </div>
       <div class="live-bar">
-        <button id="live-back" class="round" type="button" aria-label="Takaisin">${ICON.close}</button>
-        <button id="live-shutter" class="shutter" type="button" aria-label="Ota kuva"></button>
-        <label class="round" for="gallery" tabindex="0" aria-label="Valitse kuva">${ICON.image}</label>
+        <button id="live-back" class="round" type="button" data-t-aria="back">${ICON.close}</button>
+        <button id="live-shutter" class="shutter" type="button" data-t-aria="takePhoto"></button>
+        <label class="round" for="gallery" tabindex="0" data-t-aria="pickPhoto">${ICON.image}</label>
       </div>
     </div>
-    <p class="intro">Kuvaa sieni, niin Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.</p>
+    <p class="intro" data-t="introHome"></p>
     <label id="drop" class="drop" for="gallery" aria-hidden="true">
-      <span class="drop-text">Pudota kuva</span>
+      <span class="drop-text" data-t="dropPhoto"></span>
       ${ICON.mushroom}
       <canvas class="art"></canvas>
     </label>
     <div class="actions">
-      <button id="webcam" class="primary big" type="button" hidden>${ICON.camera} Ota kuva</button>
-      <label class="primary big" for="camera" tabindex="0">${ICON.camera} Ota kuva</label>
+      <button id="webcam" class="primary big" type="button" hidden>${ICON.camera} <span data-t="takePhoto"></span></button>
+      <label class="primary big" for="camera" tabindex="0">${ICON.camera} <span data-t="takePhoto"></span></label>
       <input id="camera" type="file" accept="image/*" capture="environment" hidden />
-      <label class="secondary big" for="gallery" tabindex="0">${ICON.image} Valitse kuva</label>
+      <label class="secondary big" for="gallery" tabindex="0">${ICON.image} <span data-t="pickPhoto"></span></label>
       <input id="gallery" type="file" accept="image/*" multiple hidden />
     </div>
-    <p class="hint">Parhaiten onnistuu, kun koko sieni näkyy. Voit valita useita kuvia samasta sienestä.</p>
-    <button id="live-retry" class="live-link" type="button" hidden>Käytä live-kameraa</button>
-    <p id="live-help" class="hint" role="status" hidden>Kamera ei käynnistynyt. Jos sen käyttö on estetty, salli se Safarissa osoiterivin aA-valikosta: Verkkosivuston asetukset → Kamera → Salli. Kotinäytön sovelluksessa sulje sovellus ja avaa se uudelleen. Androidissa salli kamera osoiterivin lukkokuvakkeesta. Jos kamera on toisen sovelluksen käytössä, sulje se.</p>
-    <p id="status" class="status">Ladataan mallia…</p>
+    <p class="hint" data-t="hint"></p>
+    <button id="live-retry" class="live-link" type="button" hidden data-t="liveRetry"></button>
+    <p id="live-help" class="hint" role="status" hidden data-t="liveHelp"></p>
+    <p id="status" class="status"></p>
   </section>
 
   <section id="loading" class="view" hidden>
     <figure class="scan" aria-hidden="true"><img id="preview" alt="" /></figure>
     <span class="loader" aria-hidden="true">${ICON.mushroom}</span>
-    <p>Tunnistetaan…</p>
+    <p data-t="identifying"></p>
   </section>
 
   <section id="result" class="view" hidden aria-live="polite"></section>
 
-  <dialog id="webcam-dialog" aria-label="Kamera">
+  <dialog id="webcam-dialog" data-t-aria="camera">
     <video autoplay playsinline muted></video>
     <p class="note" aria-live="polite"></p>
     <div class="row">
-      <button id="shutter" class="primary big" type="button">${ICON.camera} Ota kuva</button>
-      <button id="webcam-cancel" class="secondary big" type="button">Peruuta</button>
+      <button id="shutter" class="primary big" type="button">${ICON.camera} <span data-t="takePhoto"></span></button>
+      <button id="webcam-cancel" class="secondary big" type="button" data-t="cancel"></button>
     </div>
   </dialog>
 
   <dialog id="sheet" aria-labelledby="sheet-title">
     <div class="sheet-top">
-      <button id="sheet-back" class="round" type="button" aria-label="Edellinen laji" hidden>
+      <button id="sheet-back" class="round" type="button" data-t-aria="previousSpecies" hidden>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
       </button>
-      <button id="sheet-close" class="round" type="button" aria-label="Sulje">${ICON.close}</button>
+      <button id="sheet-close" class="round" type="button" data-t-aria="close">${ICON.close}</button>
     </div>
     <div id="sheet-body"></div>
   </dialog>
@@ -143,30 +153,41 @@ app.innerHTML = `
 
   <footer>
     <details id="about">
-      <summary>Tietoa ja lähteet</summary>
-      <p>Seeni ei kerro, voiko sientä syödä. Se ehdottaa lajeja, näyttää niiden vaaralliset
-      kaksoisolennot ja ohjaa tarkistamaan tuntomerkit. Kuvat käsitellään vain tällä laitteella,
-      eikä mitään lähetetä minnekään. Lajitiedot ovat tarkistamattomia luonnoksia.</p>
-      <p>Malli on opetettu valokuvilla, jotka on jaettu <a href="https://www.gbif.org/">GBIF</a>in
-      kautta CC0- tai CC BY -lisenssillä (GBIF.org, lataukset
-      <a href="https://doi.org/10.15468/dl.fadmpu">10.15468/dl.fadmpu</a> ja
-      <a href="https://doi.org/10.15468/dl.3x49qy">10.15468/dl.3x49qy</a>). Lajien nimet ovat
-      <a href="https://doi.org/10.15468/39omei">GBIFin taksonomiasta</a> ja
-      <a href="https://laji.fi/">Laji.fi:stä</a> (CC BY 4.0), lajivalinta Ruokaviraston
-      kauppasienilistasta. Malli perustuu EfficientNet-B0-painoihin
-      (<a href="https://huggingface.co/timm/efficientnet_b0.ra_in1k">timm</a>, Apache-2.0) ja
-      toimii selaimessa <a href="https://github.com/microsoft/onnxruntime">onnxruntime-webillä</a> (MIT).
-      Lisenssit: koodi MIT, malli ja lajitiedot CC BY 4.0.
-      <a href="https://github.com/Luukalindgren/seeni">Lähdekoodi</a>.</p>
-      <h3>Kuvaajat</h3>
-      <div id="photographers"><p>Ladataan…</p></div>
+      <summary data-t="info"></summary>
+      <p data-t="aboutText"></p>
+      <p data-t-html="aboutSourcesHtml"></p>
+      <p data-t="aboutTranslation"></p>
+      <h3 data-t="photographers"></h3>
+      <div id="photographers"><p data-t="loading"></p></div>
     </details>
   </footer>
 `
 
+// The fixed texts of the page, in the current language. Keys are checked against the
+// strings: an unknown key throws in the tests' build of the page.
+type StringKey = { [K in keyof Strings]: Strings[K] extends string ? K : never }[keyof Strings]
+function applyStatic() {
+  const s = t()
+  const text = (key: string) => s[key as StringKey]
+  for (const e of app.querySelectorAll<HTMLElement>('[data-t]')) e.textContent = text(e.dataset.t!)
+  for (const e of app.querySelectorAll<HTMLElement>('[data-t-html]')) e.innerHTML = text(e.dataset.tHtml!)
+  for (const e of app.querySelectorAll<HTMLElement>('[data-t-aria]')) e.setAttribute('aria-label', text(e.dataset.tAria!))
+  ;(app.querySelector('[data-t="aboutTranslation"]') as HTMLElement).hidden = s.aboutTranslation === ''
+  document.title = s.htmlTitle
+  document.querySelector('meta[name="description"]')?.setAttribute('content', s.description)
+}
+applyStatic()
+
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel)!
 const views = { home: $('#home'), loading: $('#loading'), result: $('#result') }
 const status = $<HTMLParagraphElement>('#status')
+// The status line as a function of the language, so a switch can show it again.
+let statusText: () => string = () => t().loadingModel
+function setStatus(text: () => string) {
+  statusText = text
+  status.textContent = text()
+}
+setStatus(statusText)
 const result = views.result
 const again = $<HTMLButtonElement>('#again')
 
@@ -190,7 +211,11 @@ function startGrassIfLarge() {
   dropArt.setVisible(currentView === 'home')
 }
 
+// Set while the language switch re-renders the result in place: no scroll, no fade.
+let inPlace = false
+
 function show(view: keyof typeof views) {
+  if (inPlace && view === currentView) return
   currentView = view
   if (view === 'home') {
     liveDismissed = false
@@ -282,10 +307,13 @@ worker.onmessage = (event: MessageEvent<Response>) => {
   const r = event.data
   if (r.id === 0) {
     if (r.kind === 'ready') {
-      status.textContent = 'Valmis · toimii ilman verkkoa'
+      setStatus(() => t().ready)
       status.classList.add('ready')
     }
-    else if (r.kind === 'error') status.textContent = `Mallin lataus epäonnistui: ${r.message}`
+    else if (r.kind === 'error') {
+      const message = r.message
+      setStatus(() => t().modelFailed(message))
+    }
     return
   }
   pending.get(r.id)?.(r)
@@ -295,12 +323,12 @@ worker.onmessage = (event: MessageEvent<Response>) => {
 // A worker that fails to load or crashes would leave every request waiting forever.
 function failAll(message: string) {
   status.classList.remove('ready')
-  status.textContent = `Tunnistin ei toimi: ${message}`
+  setStatus(() => t().workerFailed(message))
   for (const [id, resolve] of pending) resolve({ id, kind: 'error', message })
   pending.clear()
 }
-worker.onerror = (e) => failAll(e.message || 'virhe tunnistimessa')
-worker.onmessageerror = () => failAll('viesti tunnistimelta ei kelvannut')
+worker.onerror = (e) => failAll(e.message || t().workerError)
+worker.onmessageerror = () => failAll(t().workerMessageError)
 
 function classify(images: Blob[]): Promise<Response> {
   const id = nextId++
@@ -332,7 +360,7 @@ fetch(`${base}species/credits.json`)
 
 function badge(id: string): HTMLElement | null {
   const g = species.get(id)?.ryhma
-  const label = g ? GROUP_LABEL[g] : undefined
+  const label = g ? groupLabel(g) : null
   return label ? el('span', label, `badge ${g === 'esikäsiteltävä' ? 'pre' : 'danger'}`) : null
 }
 
@@ -345,14 +373,14 @@ function photo(id: string, cls: string): HTMLElement {
   figure.append(img)
   const c = credits[id]
   if (c && (cls === 'hero-photo' || cls === 'sheet-photo')) {
-    const caption = el('figcaption', `Kuva: ${c.author}, ${c.license}`)
+    const caption = el('figcaption', t().photoCredit(c.author, c.license))
     figure.append(caption)
   }
   return figure
 }
 
 function newPhotoButton(): HTMLElement {
-  const b = el('button', 'Tunnista uusi sieni', 'primary big')
+  const b = el('button', t().identifyNew, 'primary big')
   b.addEventListener('click', () => {
     setAdding(false)
     show('home')
@@ -361,19 +389,21 @@ function newPhotoButton(): HTMLElement {
 }
 
 function renderNotSure() {
+  resultOfPhotos = true
   const box = el('div', undefined, 'unsure')
   const icon = el('span', undefined, 'unsure-icon')
   icon.innerHTML = ICON.mushroom
   icon.setAttribute('aria-hidden', 'true')
   const tips = el('ul', undefined, 'tips')
-  for (const tip of ['Lakki ylhäältä', 'Lakin alapinta', 'Jalan tyvi']) tips.append(el('li', tip))
+  const s = t()
+  for (const tip of s.notSureTips) tips.append(el('li', tip))
   box.append(
     icon,
-    el('h2', 'En tunnista varmasti'),
-    el('p', 'Sieni voi olla laji, jota Seeni ei tunne, tai kuva voi olla epäselvä.'),
-    el('p', 'Kuvaa koko sieni läheltä ja hyvässä valossa:'),
+    el('h2', s.notSureTitle),
+    el('p', s.notSureText),
+    el('p', s.notSureHow),
     tips,
-    el('p', REMINDER, 'reminder'),
+    el('p', s.reminder, 'reminder'),
   )
   const strip = photoStrip()
   if (strip) box.append(strip)
@@ -385,7 +415,11 @@ function renderNotSure() {
   show('result')
 }
 
+// True while the result view shows the result of the current photos, not an error.
+let resultOfPhotos = false
+
 function render(state: State | null, raw: Map<string, number>) {
+  resultOfPhotos = true
   if (state) asked = state.asked
   if (state === null) {
     renderNotSure()
@@ -406,7 +440,7 @@ function render(state: State | null, raw: Map<string, number>) {
   if (b) body.append(b)
   const answered = state.asked.some((a) => a.answer !== '')
   if (answered) {
-    body.append(el('p', 'Vastauksesi sopivat tähän lajiin.', 'confidence'))
+    body.append(el('p', t().answersFit, 'confidence'))
   } else {
     // Never "100 %": the model is never certain.
     const percent = Math.min(99, Math.round((raw.get(top.id) ?? top.probability) * 100))
@@ -415,7 +449,7 @@ function render(state: State | null, raw: Map<string, number>) {
     bar.style.width = `${percent}%`
     meter.append(bar)
     const confidence = el('p', undefined, 'confidence')
-    confidence.append(meter, el('span', `Mallin arvio: ${percent} %`))
+    confidence.append(meter, el('span', t().modelEstimate(percent)))
     body.append(confidence)
   }
   if (record?.tuntomerkit.length) {
@@ -434,7 +468,7 @@ function render(state: State | null, raw: Map<string, number>) {
     ...state.warnings,
   ].sort((x, y) => Number(isDangerousId(y)) - Number(isDangerousId(x)))
   if (others.length > 0) {
-    side.append(el('h3', 'Kaksoisolennot ja muut vaihtoehdot'))
+    side.append(el('h3', t().lookalikesTitle))
     const list = el('ul', undefined, 'lookalikes')
     for (const id of others) {
       const li = el('li')
@@ -465,7 +499,7 @@ function render(state: State | null, raw: Map<string, number>) {
   const check = done ? null : nextCheck(state, species)
   if (check) {
     const box = el('section', undefined, 'verify')
-    box.append(el('h3', 'Näin varmistat lajin'))
+    box.append(el('h3', t().verifyTitle))
     box.append(el('p', check.kysymys, 'question'))
     const art = checkPicture(check)
     if (art) {
@@ -475,7 +509,7 @@ function render(state: State | null, raw: Map<string, number>) {
     }
     const answers = el('div', undefined, 'answers')
     for (const a of Object.keys(check.vastaukset)) {
-      const button = el('button', a, 'answer')
+      const button = el('button', answerLabel(check, a), 'answer')
       button.addEventListener('click', () => {
         result.classList.remove('enter')
         const next = answer(state, check, a)
@@ -484,7 +518,7 @@ function render(state: State | null, raw: Map<string, number>) {
       })
       answers.append(button)
     }
-    const skipButton = el('button', 'En pysty tarkistamaan tätä', 'answer ghost')
+    const skipButton = el('button', t().cannotCheck, 'answer ghost')
     skipButton.addEventListener('click', () => {
       result.classList.remove('enter')
       render(skip(state, check), raw)
@@ -494,7 +528,7 @@ function render(state: State | null, raw: Map<string, number>) {
     side.append(box)
   } else if (others.some(isDangerousId)) {
     side.append(
-      el('p', 'Vaarallisia kaksoisolentoja ei voi sulkea pois tällä sovelluksella. Varmista laji sieneuvojalta.', 'reminder'),
+      el('p', t().cannotRuleOut, 'reminder'),
     )
   }
 
@@ -503,17 +537,17 @@ function render(state: State | null, raw: Map<string, number>) {
     const ul = el('ul', undefined, 'checked')
     for (const a of checked.checked) {
       const k = checks.get(a.check)
-      ul.append(el('li', `${k?.kysymys ?? a.check} – ${a.answer}`))
+      ul.append(el('li', `${k?.kysymys ?? a.check} – ${k ? answerLabel(k, a.answer) : a.answer}`))
     }
-    side.append(el('h3', 'Tarkistamasi asiat'), ul)
+    side.append(el('h3', t().checkedTitle), ul)
   }
 
   const strip = photoStrip()
-  if (strip) side.append(el('h3', 'Kuvasi'), strip)
+  if (strip) side.append(el('h3', t().yourPhotos), strip)
   const addButton = addPhotoButton()
   if (addButton) side.append(addButton)
   side.append(placeSection(record?.nimi ?? null))
-  side.append(el('p', REMINDER, 'reminder'), newPhotoButton())
+  side.append(el('p', t().reminder, 'reminder'), newPhotoButton())
   show('result')
 }
 
@@ -581,23 +615,24 @@ function placeSection(nimi: string | null): HTMLElement {
 function fillPlace(status: 'loading' | 'failed' | null = null) {
   const box = placeBox
   if (!box) return
-  box.replaceChildren(el('h3', 'Löytöpaikka'))
+  const s = t()
+  box.replaceChildren(el('h3', s.placeTitle))
   if (!place) {
-    const save = el('button', status === 'loading' ? 'Haetaan sijaintia…' : 'Tallenna löytöpaikka', 'secondary big')
+    const save = el('button', status === 'loading' ? s.placeLoading : s.placeSave, 'secondary big')
     save.type = 'button'
     save.disabled = status === 'loading'
     save.addEventListener('click', () => void findPlace())
     box.append(save)
     if (status === 'failed') {
-      box.append(el('p', 'Sijaintia ei saatu. Kuvassa ei ole sijaintia, ja sijainnin käyttö on estetty tai ei onnistunut.', 'place-error'))
+      box.append(el('p', s.placeFailed, 'place-error'))
     }
-    box.append(el('p', 'Sijainti luetaan kuvasta tai puhelimesta vain, kun painat. Se ei lähde laitteelta, ellet avaa karttaa tai jaa sitä.', 'place-note'))
+    box.append(el('p', s.placeNote, 'place-note'))
     return
   }
-  const label = placeLabel(placeName, new Date())
+  const label = placeLabel(placeName, new Date(), s.placeLabel)
   const apple = appleMapsUrl(place.position, label)
   const google = googleMapsUrl(place.position)
-  box.append(el('p', place.fromPhoto ? 'Sijainti kuvasta.' : 'Nykyinen sijaintisi.', 'place-note'))
+  box.append(el('p', place.fromPhoto ? s.placeFromPhoto : s.placeCurrent, 'place-note'))
   const links = el('div', undefined, 'place-links')
   const link = (text: string, href: string) => {
     const a = el('a', text, 'secondary big')
@@ -606,16 +641,16 @@ function fillPlace(status: 'loading' | 'failed' | null = null) {
     a.rel = 'noopener noreferrer'
     return a
   }
-  links.append(link('Avaa Apple Mapsissa', apple), link('Avaa Google Mapsissa', google))
+  links.append(link(s.placeApple, apple), link(s.placeGoogle, google))
   if ('share' in navigator) {
-    const share = el('button', 'Jaa', 'secondary big')
+    const share = el('button', s.share, 'secondary big')
     share.type = 'button'
     // Apple devices open the Apple Maps link in Maps; others the Google one.
     const url = /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? apple : google
     share.addEventListener('click', () => navigator.share({ title: label, url }).catch(() => undefined))
     links.append(share)
   }
-  const forget = el('button', 'Unohda sijainti', 'answer ghost')
+  const forget = el('button', s.placeForget, 'answer ghost')
   forget.type = 'button'
   forget.addEventListener('click', () => {
     forgetPlace()
@@ -645,6 +680,7 @@ function renderSheet() {
   const current = sheetStack[sheetStack.length - 1]
   if (!current || !modelClasses) return
   const s = sheet(current.id, current.compareTo, species, modelClasses)
+  const text = sheetText()
   sheetBack.hidden = sheetStack.length < 2
   sheetBody.replaceChildren()
   sheetBody.append(photo(s.id, 'sheet-photo'))
@@ -655,27 +691,28 @@ function renderSheet() {
   if (b) sheetBody.append(b)
   if (s.warningOnly) {
     sheetBody.append(
-      el('p', SHEET_TEXT.warningOnly, 'sheet-note'),
+      el('p', text.warningOnly, 'sheet-note'),
     )
   }
   if (s.tuntomerkit.length) {
-    sheetBody.append(el('h3', SHEET_TEXT.features))
+    sheetBody.append(el('h3', text.features))
     const ul = el('ul', undefined, 'features')
     for (const t of s.tuntomerkit) ul.append(el('li', t))
     sheetBody.append(ul)
   }
   if (s.compareTo) {
-    sheetBody.append(el('h3', SHEET_TEXT.compare(s.compareTo.nimi)))
+    sheetBody.append(el('h3', text.compare(s.compareTo.nimi)))
     if (s.compareTo.differences.length === 0) {
-      sheetBody.append(el('p', SHEET_TEXT.noDifference, 'sheet-note'))
+      sheetBody.append(el('p', text.noDifference, 'sheet-note'))
     } else {
       const ul = el('ul', undefined, 'differences')
       for (const d of s.compareTo.differences) {
         const li = el('li')
         li.append(el('p', d.check.kysymys, 'difference-question'))
         const dl = el('dl')
-        dl.append(el('dt', s.nimi), el('dd', d.self.join(' tai ') || '–'))
-        dl.append(el('dt', s.compareTo.nimi), el('dd', d.other.join(' tai ') || '–'))
+        const answers = (keys: string[]) => keys.map((k) => answerLabel(d.check, k)).join(t().or) || '–'
+        dl.append(el('dt', s.nimi), el('dd', answers(d.self)))
+        dl.append(el('dt', s.compareTo.nimi), el('dd', answers(d.other)))
         li.append(dl)
         ul.append(li)
       }
@@ -683,7 +720,7 @@ function renderSheet() {
     }
   }
   if (s.lookalikes.length) {
-    sheetBody.append(el('h3', SHEET_TEXT.lookalikes))
+    sheetBody.append(el('h3', text.lookalikes))
     const ul = el('ul', undefined, 'sheet-lookalikes')
     for (const l of s.lookalikes) {
       const li = el('li')
@@ -698,12 +735,12 @@ function renderSheet() {
     sheetBody.append(ul)
   }
   if (s.lahteet.length) {
-    sheetBody.append(el('h3', SHEET_TEXT.sources))
+    sheetBody.append(el('h3', text.sources))
     const ul = el('ul', undefined, 'sources')
     for (const t of s.lahteet) ul.append(el('li', t))
     sheetBody.append(ul)
   }
-  sheetBody.append(el('p', REMINDER, 'reminder'))
+  sheetBody.append(el('p', t().reminder, 'reminder'))
   sheetDialog.scrollTop = 0
 }
 
@@ -798,7 +835,7 @@ async function identify(images: File[]) {
   const room = add ? MAX_PHOTOS - photos.length : MAX_PHOTOS
   const chosen = images.slice(0, Math.max(0, room))
   if (chosen.length < images.length) {
-    photoNotice = `Yhdestä sienestä käytetään enintään ${MAX_PHOTOS} kuvaa. ${images.length - chosen.length} kuvaa jätettiin pois.`
+    photoNotice = t().tooManyPhotos(MAX_PHOTOS, images.length - chosen.length)
   }
   if (chosen.length === 0) {
     show('result')
@@ -827,10 +864,11 @@ async function identify(images: File[]) {
   } catch (e) {
     await minimum
     if (request !== latest) return
-    result.replaceChildren(el('h2', 'Tunnistus epäonnistui'), el('p', String(e)))
+    resultOfPhotos = false
+    result.replaceChildren(el('h2', t().failed), el('p', String(e)))
     // An added photo that fails leaves the earlier photos and answers as they were.
     if (add) {
-      const back = el('button', 'Takaisin tulokseen', 'secondary big')
+      const back = el('button', t().backToResult, 'secondary big')
       back.addEventListener('click', () => identifyPhotos())
       result.append(back)
     }
@@ -871,7 +909,8 @@ function setAdding(on: boolean) {
 function addPhotoButton(): HTMLElement | null {
   if (photos.length === 0 || photos.length >= MAX_PHOTOS) return null
   const b = el('button', undefined, 'secondary big')
-  b.innerHTML = `${ICON.plus} Lisää kuva samasta sienestä`
+  b.innerHTML = ICON.plus
+  b.append(` ${t().addPhoto}`)
   b.addEventListener('click', () => {
     setAdding(true)
     show('home')
@@ -899,12 +938,12 @@ function fillStrip(strip: HTMLElement) {
     const item = el('figure', undefined, 'shot')
     const img = el('img')
     img.src = p.url
-    img.alt = `Kuvasi ${i + 1}`
+    img.alt = t().yourPhoto(i + 1)
     item.append(img)
     if (photos.length > 1) {
       const remove = el('button', undefined, 'shot-remove')
       remove.type = 'button'
-      remove.setAttribute('aria-label', `Poista kuva ${i + 1}`)
+      remove.setAttribute('aria-label', t().removePhoto(i + 1))
       remove.innerHTML = ICON.close
       remove.addEventListener('click', () => removePhoto(i))
       item.append(remove)
@@ -1112,28 +1151,62 @@ interface Attributions {
   photographers: { name: string; images: number; licenses: string[] }[]
 }
 
-$<HTMLDetailsElement>('#about').addEventListener(
-  'toggle',
-  async () => {
-    const target = $('#photographers')
-    try {
-      const response = await fetch(`${base}attributions.json`)
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      const a: Attributions = await response.json()
-      const intro = el('p', `Malli on opetettu ${a.images} kuvalla. Kiitos kaikille kuvaajille. Aineistot: `)
-      a.downloads.forEach((d, i) => {
-        const link = el('a', d.citation)
-        link.href = `https://doi.org/${d.doi}`
-        intro.append(link, i < a.downloads.length - 1 ? '; ' : '.')
-      })
-      const list = el('ul', undefined, 'photographers')
-      for (const p of a.photographers) {
-        list.append(el('li', `${p.name} (${p.images} kuva${p.images === 1 ? '' : 'a'}, ${p.licenses.join(', ')})`))
-      }
-      target.replaceChildren(intro, list)
-    } catch (e) {
-      target.replaceChildren(el('p', `Luettelon lataus epäonnistui: ${String(e)}`))
+let photographersLoaded = false
+async function loadPhotographers() {
+  if (photographersLoaded || !$<HTMLDetailsElement>('#about').open) return
+  photographersLoaded = true
+  const target = $('#photographers')
+  try {
+    const response = await fetch(`${base}attributions.json`)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const a: Attributions = await response.json()
+    const intro = el('p', t().trainedOn(a.images))
+    a.downloads.forEach((d, i) => {
+      const link = el('a', d.citation)
+      link.href = `https://doi.org/${d.doi}`
+      intro.append(link, i < a.downloads.length - 1 ? '; ' : '.')
+    })
+    const list = el('ul', undefined, 'photographers')
+    for (const p of a.photographers) {
+      list.append(el('li', t().photographer(p.name, p.images, p.licenses.join(', '))))
     }
-  },
-  { once: true },
-)
+    target.replaceChildren(intro, list)
+  } catch (e) {
+    target.replaceChildren(el('p', t().listFailed(String(e))))
+  }
+}
+$<HTMLDetailsElement>('#about').addEventListener('toggle', () => void loadPhotographers())
+
+// --- Language (#52) ----------------------------------------------------------------------
+// The header button switches between Finnish and English at once: the page texts, the
+// species texts and the open result and sheet, keeping the photos and the answers.
+
+function switchLang(l: Lang) {
+  setLang(l, true)
+  species = speciesMap(localizeRecords(records, l, english))
+  checks = checkById(species)
+  applyStatic()
+  status.textContent = statusText()
+  if (currentView === 'result' && resultOfPhotos && photos.length > 0) {
+    result.classList.remove('enter')
+    inPlace = true
+    try {
+      identifyPhotos()
+    } finally {
+      inPlace = false
+    }
+  }
+  // A link with ?lang= would otherwise override the choice on the next load.
+  const url = new URL(location.href)
+  if (url.searchParams.has('lang')) {
+    url.searchParams.delete('lang')
+    history.replaceState(history.state, '', url)
+  }
+  if (sheetDialog.open) renderSheet()
+  photographersLoaded = false
+  $('#photographers').replaceChildren(el('p', t().loading))
+  void loadPhotographers()
+}
+for (const button of document.querySelectorAll('#lang, #warning-lang')) {
+  button.addEventListener('click', () => switchLang(lang() === 'fi' ? 'en' : 'fi'))
+}

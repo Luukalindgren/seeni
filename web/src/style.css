@@ -1517,21 +1517,25 @@ body.live-on .adding {
   font-size: 0.9rem;
   opacity: 0.85;
 }
-#finds {
+#finds,
+#guide {
   width: min(34rem, calc(100vw - 1.5rem));
   max-height: calc(100dvh - 1.5rem);
   overflow-y: auto;
   padding-top: 0.75rem;
 }
-#finds .sheet-top {
+#finds .sheet-top,
+#guide .sheet-top {
   padding: 0;
   justify-content: flex-end;
 }
-#finds h2 {
+#finds h2,
+#guide h2 {
   color: var(--fg);
   margin: -2rem 0 0;
 }
-#finds .fine {
+#finds .fine,
+#guide .fine {
   font-size: 0.85rem;
   color: var(--muted);
 }
@@ -1595,23 +1599,13 @@ body.live-on .adding {
 .home-links #finds-open:not([hidden]) {
   margin: 0;
 }
-#guide {
-  width: min(34rem, calc(100vw - 1.5rem));
-  max-height: calc(100dvh - 1.5rem);
-  overflow-y: auto;
-  padding-top: 0.75rem;
-}
-#guide .sheet-top {
+.guide-list {
+  list-style: none;
   padding: 0;
-  justify-content: flex-end;
-}
-#guide h2 {
-  color: var(--fg);
-  margin: -2rem 0 0;
-}
-#guide .fine {
-  font-size: 0.85rem;
-  color: var(--muted);
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 #guide-search {
   width: 100%;
@@ -1622,12 +1616,4 @@ body.live-on .adding {
   border-radius: 999px;
   background: var(--bg);
   color: var(--fg);
-}
-.guide-list {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
 }

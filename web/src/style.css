@@ -820,7 +820,11 @@ footer summary {
 
 .photographers {
   columns: 2;
+  column-gap: 2rem;
   padding-left: 1rem;
+  /* A rights holder named by a long number or URL wraps instead of running into the
+     next column. */
+  overflow-wrap: anywhere;
 }
 
 /* Large screens */

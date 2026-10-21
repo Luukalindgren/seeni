@@ -27,3 +27,18 @@ for (const lang of ['fi', 'en'] as const) {
     await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName('Seeni')
   })
 }
+
+test('long species names stay inside their cards at 320 px', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 })
+  await page.goto('http://localhost:4173/seeni/')
+  await page.getByRole('checkbox').check()
+  await page.getByRole('button', { name: 'Hyväksyn' }).click()
+  await page.locator('#guide-open').click()
+  await expect(page.locator('#guide .lookalike').first()).toBeVisible()
+  const outside = await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>('#guide .lookalikes li')]
+      .filter((li) => li.querySelector('strong')!.getBoundingClientRect().right > li.getBoundingClientRect().right)
+      .map((li) => li.querySelector('strong')!.textContent),
+  )
+  expect(outside).toEqual([])
+})

@@ -679,6 +679,23 @@ dialog h2 {
   font-size: 0.85rem;
 }
 
+/* Narrow phones: less padding and a smaller picture and name leave room for the long names. */
+@media (max-width: 360px) {
+  dialog {
+    padding-inline: 1rem;
+  }
+  .lookalikes li {
+    gap: 0.65rem;
+  }
+  .lookalikes .thumb img {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  .lookalikes strong {
+    font-size: 1rem;
+  }
+}
+
 .thumb {
   display: block;
   margin: 0;
@@ -1328,6 +1345,13 @@ body.live-on .adding {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
+}
+
+/* Long compound names (suippumyrkkyseitikki) break instead of running past a narrow card. */
+.lookalike-text strong {
+  hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
 .lookalikes li:has(.lookalike:hover) {

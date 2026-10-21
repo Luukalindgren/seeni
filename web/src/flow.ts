@@ -156,6 +156,24 @@ export function start(
   return { kind: 'flow', state: { candidates: normalize(candidates), warnings, asked: [] } }
 }
 
+// On "not sure", a dangerous class with at least this probability is still named.
+export const RESEMBLES_MIN = 0.1
+
+/** On "not sure" from the model: the dangerous classes the photo still resembles somewhat,
+ * most likely first. A deadly species that loses to an edible one below the "not sure"
+ * threshold (e.g. 65 % / 28 %) would otherwise go unmentioned. Display only: they are not
+ * candidates and no check is asked about them. */
+export function dangerousResemblances(
+  probabilities: ReadonlyMap<string, number>,
+  species: Species,
+  min = RESEMBLES_MIN,
+): string[] {
+  return [...probabilities]
+    .filter(([id, p]) => p >= min && isDangerous(id, species))
+    .sort((a, b) => b[1] - a[1])
+    .map(([id]) => id)
+}
+
 function checksFor(state: State, species: Species): Check[] {
   const seen = new Map<string, Check>()
   for (const id of [...state.candidates.map((c) => c.id), ...state.warnings]) {

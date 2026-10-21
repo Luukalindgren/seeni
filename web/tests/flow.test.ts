@@ -9,6 +9,7 @@ import {
   answer,
   averageProbabilities,
   checkById,
+  dangerousResemblances,
   isDone,
   listedLookalikes,
   nextCheck,
@@ -239,6 +240,26 @@ describe('probabilities', () => {
 
   it('average over images', () => {
     assert.deepEqual(averageProbabilities([[1, 0], [0, 1]]), [0.5, 0.5])
+  })
+})
+
+describe('dangerous resemblances on "not sure"', () => {
+  const map = (p: number[]) => new Map(ids.map((id, i) => [id, p[i]!]))
+
+  it('names a deadly class that lost to an edible one below the threshold', () => {
+    const p = probs('suillus-bovinus', 0.62, { 'paxillus-involutus': 0.28 })
+    assert.equal(start(p, labels, species, calibration).kind, 'not-sure')
+    assert.deepEqual(dangerousResemblances(map(p), species), ['paxillus-involutus'])
+  })
+
+  it('lists only dangerous classes above the minimum, most likely first, never muu', () => {
+    const p = probs(UNKNOWN, 0.5, { inocybe: 0.12, 'amanita-virosa': 0.2, 'cantharellus-cibarius': 0.15, 'russula-emetica': 0.05 })
+    assert.deepEqual(dangerousResemblances(map(p), species), ['amanita-virosa', 'inocybe'])
+  })
+
+  it('every class it can name is dangerous', () => {
+    const all = new Map(ids.map((id) => [id, 1]))
+    for (const id of dangerousResemblances(all, species)) assert.ok(DANGEROUS.has(species.get(id)!.ryhma), id)
   })
 })
 

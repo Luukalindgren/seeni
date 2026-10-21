@@ -8,6 +8,7 @@ import {
   answer,
   averageProbabilities,
   checkById,
+  dangerousResemblances,
   isDone,
   listedLookalikes,
   nextCheck,
@@ -477,7 +478,7 @@ function newPhotoButton(): HTMLElement {
   return b
 }
 
-function renderNotSure() {
+function renderNotSure(raw: ReadonlyMap<string, number>) {
   resultOfPhotos = true
   const box = el('div', undefined, 'unsure')
   const icon = el('span', undefined, 'unsure-icon')
@@ -492,8 +493,16 @@ function renderNotSure() {
     el('p', s.notSureText),
     el('p', s.notSureHow),
     tips,
-    el('p', s.reminder, 'reminder'),
   )
+  // Dangerous species the photo still resembles, unless the answers have ruled things out:
+  // then the model's guesses are not what the user has checked.
+  const resembles = asked.some((a) => a.answer !== '') ? [] : dangerousResemblances(raw, species)
+  if (resembles.length > 0) {
+    const list = el('ul', undefined, 'lookalikes')
+    for (const id of resembles) list.append(speciesRow(id, () => openSheet(id, id)))
+    box.append(el('h3', s.notSureDanger, 'unsure-danger'), list)
+  }
+  box.append(el('p', s.reminder, 'reminder'))
   const strip = photoStrip()
   if (strip) box.append(strip)
   const addButton = addPhotoButton()
@@ -518,7 +527,7 @@ function render(state: State | null, raw: Map<string, number>) {
   shown = { state, raw }
   if (state) asked = state.asked
   if (state === null) {
-    renderNotSure()
+    renderNotSure(raw)
     return
   }
   const done = isDone(state, species)

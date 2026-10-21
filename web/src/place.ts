@@ -18,20 +18,32 @@ export function exifPosition(buffer: ArrayBuffer): Position | null {
   if (view.byteLength < 4 || view.getUint16(0) !== 0xffd8) return null
   let offset = 2
   while (offset + 4 <= view.byteLength) {
-    const marker = view.getUint16(offset)
-    const length = view.getUint16(offset + 2)
-    if ((marker & 0xff00) !== 0xff00 || length < 2) return null
-    // APP1 with "Exif\0\0".
-    if (marker === 0xffe1 && offset + 10 <= view.byteLength && view.getUint32(offset + 4) === 0x45786966) {
-      return tiffPosition(view, offset + 10)
+    if (view.getUint8(offset) !== 0xff) return null
+    const marker = view.getUint8(offset + 1)
+    // Fill bytes before a marker, and markers without a length (TEM, RSTn).
+    if (marker === 0xff) {
+      offset++
+      continue
     }
-    if (marker === 0xffda) return null // start of scan: no EXIF before the image data
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+      offset += 2
+      continue
+    }
+    if (marker === 0xda) return null // start of scan: no EXIF before the image data
+    const length = view.getUint16(offset + 2)
+    if (length < 2) return null
+    // APP1 with "Exif\0\0". The TIFF data is read only within this segment.
+    if (marker === 0xe1 && length >= 8 && offset + 10 <= view.byteLength && view.getUint32(offset + 4) === 0x45786966 && view.getUint16(offset + 8) === 0) {
+      const end = Math.min(view.byteLength, offset + 2 + length)
+      return tiffPosition(new DataView(buffer, offset + 10, end - offset - 10))
+    }
     offset += 2 + length
   }
   return null
 }
 
-function tiffPosition(view: DataView, tiff: number): Position | null {
+function tiffPosition(view: DataView): Position | null {
+  const tiff = 0
   try {
     const little = view.getUint16(tiff) === 0x4949
     const u16 = (at: number) => view.getUint16(tiff + at, little)
@@ -76,10 +88,11 @@ function tiffPosition(view: DataView, tiff: number): Position | null {
   }
 }
 
-/** "Kantarellipaikka 21.10.2026": the name of the place, from the species and the date. */
-export function placeLabel(nimi: string, date: Date): string {
-  const name = nimi.charAt(0).toUpperCase() + nimi.slice(1)
-  return `${name}paikka ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`
+/** "Löytöpaikka 21.10.2026 (kantarelli?)": the name of the place. The species is the model's
+ * guess, so it is marked as one: a saved spot must not read as a confirmed identification. */
+export function placeLabel(nimi: string | null, date: Date): string {
+  const day = `Löytöpaikka ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`
+  return nimi ? `${day} (${nimi}?)` : day
 }
 
 const coordinate = (x: number) => x.toFixed(6)

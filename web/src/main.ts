@@ -377,6 +377,7 @@ function renderNotSure() {
   if (strip) box.append(strip)
   const addButton = addPhotoButton()
   if (addButton) box.append(addButton)
+  if (photos.length > 0) box.append(placeSection(null))
   box.append(newPhotoButton())
   result.replaceChildren(box)
   show('result')
@@ -509,7 +510,7 @@ function render(state: State | null, raw: Map<string, number>) {
   if (strip) side.append(el('h3', 'Kuvasi'), strip)
   const addButton = addPhotoButton()
   if (addButton) side.append(addButton)
-  side.append(placeSection(record?.nimi ?? top.id))
+  side.append(placeSection(record?.nimi ?? null))
   side.append(el('p', REMINDER, 'reminder'), newPhotoButton())
   show('result')
 }
@@ -520,6 +521,16 @@ function render(state: State | null, raw: Map<string, number>) {
 // in a Maps link or share that the user opens (hard rule 9).
 
 let place: { position: Position; fromPhoto: boolean } | null = null
+// Raised when the photos change, so a position that arrives late for older photos is dropped.
+let placeRequest = 0
+// The section on screen and the species it is named after; a re-render replaces both.
+let placeBox: HTMLElement | null = null
+let placeName: string | null = null
+
+function forgetPlace() {
+  place = null
+  placeRequest++
+}
 
 async function photoPosition(): Promise<Position | null> {
   for (const p of photos) {
@@ -543,58 +554,72 @@ function currentPosition(): Promise<Position> {
   })
 }
 
-function placeSection(nimi: string): HTMLElement {
-  const box = el('section', undefined, 'place')
-  const fill = () => {
-    box.replaceChildren(el('h3', 'Löytöpaikka'))
-    if (!place) {
-      const save = el('button', 'Tallenna löytöpaikka', 'secondary big')
-      save.type = 'button'
-      save.addEventListener('click', async () => {
-        save.disabled = true
-        save.textContent = 'Haetaan sijaintia…'
-        const fromPhoto = await photoPosition().catch(() => null)
-        try {
-          place = fromPhoto ? { position: fromPhoto, fromPhoto: true } : { position: await currentPosition(), fromPhoto: false }
-          fill()
-        } catch {
-          save.disabled = false
-          save.textContent = 'Tallenna löytöpaikka'
-          box.querySelector('.place-error')?.remove()
-          box.append(el('p', 'Sijaintia ei saatu. Kuvassa ei ole sijaintia, ja sijainnin käyttö on estetty tai ei onnistunut.', 'place-error'))
-        }
-      })
-      box.append(save, el('p', 'Sijainti luetaan kuvasta tai puhelimesta vain, kun painat. Se ei lähde laitteelta, ellet avaa karttaa tai jaa sitä.', 'place-note'))
-      return
-    }
-    const label = placeLabel(nimi, new Date())
-    box.append(el('p', place.fromPhoto ? 'Sijainti kuvasta.' : 'Nykyinen sijaintisi.', 'place-note'))
-    const links = el('div', undefined, 'place-links')
-    const link = (text: string, href: string) => {
-      const a = el('a', text, 'secondary big')
-      a.href = href
-      a.target = '_blank'
-      a.rel = 'noopener noreferrer'
-      return a
-    }
-    links.append(link('Avaa Apple Mapsissa', appleMapsUrl(place.position, label)), link('Avaa Google Mapsissa', googleMapsUrl(place.position)))
-    if ('share' in navigator) {
-      const share = el('button', 'Jaa', 'secondary big')
-      share.type = 'button'
-      const url = appleMapsUrl(place.position, label)
-      share.addEventListener('click', () => navigator.share({ title: label, url }).catch(() => undefined))
-      links.append(share)
-    }
-    const forget = el('button', 'Unohda sijainti', 'answer ghost')
-    forget.type = 'button'
-    forget.addEventListener('click', () => {
-      place = null
-      fill()
-    })
-    box.append(links, forget)
+async function findPlace() {
+  const request = ++placeRequest
+  fillPlace('loading')
+  try {
+    const fromPhoto = await photoPosition().catch(() => null)
+    const found = fromPhoto ? { position: fromPhoto, fromPhoto: true } : { position: await currentPosition(), fromPhoto: false }
+    if (request !== placeRequest) return
+    place = found
+    fillPlace()
+  } catch {
+    if (request === placeRequest) fillPlace('failed')
   }
-  fill()
-  return box
+}
+
+// The species is null on the "not sure" screen.
+function placeSection(nimi: string | null): HTMLElement {
+  placeBox = el('section', undefined, 'place')
+  placeName = nimi
+  fillPlace()
+  return placeBox
+}
+
+function fillPlace(status: 'loading' | 'failed' | null = null) {
+  const box = placeBox
+  if (!box) return
+  box.replaceChildren(el('h3', 'Löytöpaikka'))
+  if (!place) {
+    const save = el('button', status === 'loading' ? 'Haetaan sijaintia…' : 'Tallenna löytöpaikka', 'secondary big')
+    save.type = 'button'
+    save.disabled = status === 'loading'
+    save.addEventListener('click', () => void findPlace())
+    box.append(save)
+    if (status === 'failed') {
+      box.append(el('p', 'Sijaintia ei saatu. Kuvassa ei ole sijaintia, ja sijainnin käyttö on estetty tai ei onnistunut.', 'place-error'))
+    }
+    box.append(el('p', 'Sijainti luetaan kuvasta tai puhelimesta vain, kun painat. Se ei lähde laitteelta, ellet avaa karttaa tai jaa sitä.', 'place-note'))
+    return
+  }
+  const label = placeLabel(placeName, new Date())
+  const apple = appleMapsUrl(place.position, label)
+  const google = googleMapsUrl(place.position)
+  box.append(el('p', place.fromPhoto ? 'Sijainti kuvasta.' : 'Nykyinen sijaintisi.', 'place-note'))
+  const links = el('div', undefined, 'place-links')
+  const link = (text: string, href: string) => {
+    const a = el('a', text, 'secondary big')
+    a.href = href
+    a.target = '_blank'
+    a.rel = 'noopener noreferrer'
+    return a
+  }
+  links.append(link('Avaa Apple Mapsissa', apple), link('Avaa Google Mapsissa', google))
+  if ('share' in navigator) {
+    const share = el('button', 'Jaa', 'secondary big')
+    share.type = 'button'
+    // Apple devices open the Apple Maps link in Maps; others the Google one.
+    const url = /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? apple : google
+    share.addEventListener('click', () => navigator.share({ title: label, url }).catch(() => undefined))
+    links.append(share)
+  }
+  const forget = el('button', 'Unohda sijainti', 'answer ghost')
+  forget.type = 'button'
+  forget.addEventListener('click', () => {
+    forgetPlace()
+    fillPlace()
+  })
+  box.append(links, forget)
 }
 
 function isDangerousId(id: string): boolean {
@@ -761,7 +786,7 @@ let adding = false
 function clearPhotos() {
   for (const p of photos) URL.revokeObjectURL(p.url)
   photos = []
-  place = null
+  forgetPlace()
 }
 
 async function identify(images: File[]) {
@@ -827,6 +852,9 @@ function identifyPhotos() {
 function removePhoto(index: number) {
   const [gone] = photos.splice(index, 1)
   if (gone) URL.revokeObjectURL(gone.url)
+  // The position may have come from the removed photo, or be on its way from it.
+  if (place?.fromPhoto) place = null
+  placeRequest++
   identifyPhotos()
 }
 

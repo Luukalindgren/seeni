@@ -63,6 +63,22 @@ describe('exifPosition', () => {
     assert.equal(exifPosition(jpegWithGps([0, 0, 0], 'N', [0, 0, 0], 'E')), null)
   })
 
+  it('skips fill bytes before a marker', () => {
+    const jpeg = new Uint8Array(jpegWithGps([60, 0, 0], 'N', [24, 0, 0], 'E'))
+    const padded = new Uint8Array(jpeg.length + 2)
+    padded.set(jpeg.subarray(0, 2))
+    padded.set([0xff, 0xff], 2)
+    padded.set(jpeg.subarray(2), 4)
+    assert.equal(exifPosition(padded.buffer)?.lat, 60)
+  })
+
+  it('does not read past the EXIF segment', () => {
+    const jpeg = new Uint8Array(jpegWithGps([60, 0, 0], 'N', [24, 0, 0], 'E'))
+    // Shorten the segment so that the GPS values fall outside it.
+    new DataView(jpeg.buffer).setUint16(4, 2 + 6 + 90)
+    assert.equal(exifPosition(jpeg.buffer), null)
+  })
+
   it('gives null for a truncated file instead of throwing', () => {
     assert.equal(exifPosition(jpegWithGps([60, 0, 0], 'N', [24, 0, 0], 'E').slice(0, 60)), null)
   })
@@ -71,12 +87,13 @@ describe('exifPosition', () => {
 describe('links', () => {
   const p = { lat: 60.1701234, lon: 24.9412345 }
 
-  it('names the place after the species and the day', () => {
-    assert.equal(placeLabel('kantarelli', new Date(2026, 9, 21)), 'Kantarellipaikka 21.10.2026')
+  it('names the place after the day, with the species marked as a guess', () => {
+    assert.equal(placeLabel('kantarelli', new Date(2026, 9, 21)), 'Löytöpaikka 21.10.2026 (kantarelli?)')
+    assert.equal(placeLabel(null, new Date(2026, 9, 21)), 'Löytöpaikka 21.10.2026')
   })
 
   it('opens Apple Maps at a pin with the name, and Google Maps at the place', () => {
-    assert.equal(appleMapsUrl(p, 'Kantarellipaikka 21.10.2026'), 'https://maps.apple.com/?ll=60.170123,24.941235&q=Kantarellipaikka%2021.10.2026')
+    assert.equal(appleMapsUrl(p, 'Löytöpaikka 21.10.2026'), 'https://maps.apple.com/?ll=60.170123,24.941235&q=L%C3%B6yt%C3%B6paikka%2021.10.2026')
     assert.equal(googleMapsUrl(p), 'https://www.google.com/maps/search/?api=1&query=60.170123,24.941235')
   })
 })

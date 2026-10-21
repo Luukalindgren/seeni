@@ -46,7 +46,7 @@ test('uses the position in the photo', async ({ page }) => {
   await page.getByRole('button', { name: 'Tallenna löytöpaikka' }).click()
   await expect(page.locator('.place')).toContainText('Sijainti kuvasta')
   const apple = page.getByRole('link', { name: 'Avaa Apple Mapsissa' })
-  await expect(apple).toHaveAttribute('href', /^https:\/\/maps\.apple\.com\/\?ll=61\.500000,23\.750000&q=Kantarellipaikka%20/)
+  await expect(apple).toHaveAttribute('href', /^https:\/\/maps\.apple\.com\/\?ll=61\.500000,23\.750000&q=L%C3%B6yt%C3%B6paikka%20\d+\.\d+\.\d{4}%20\(kantarelli%3F\)$/)
   await expect(page.getByRole('link', { name: 'Avaa Google Mapsissa' })).toHaveAttribute(
     'href',
     'https://www.google.com/maps/search/?api=1&query=61.500000,23.750000',

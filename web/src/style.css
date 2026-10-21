@@ -1173,3 +1173,99 @@ body.live-on {
     transition: none;
   }
 }
+
+/* Several photos of one mushroom (#46): the banner while adding one, and the thumbnails. */
+
+.adding {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1.25rem;
+  background: var(--moss-soft);
+  color: var(--fg);
+  font-size: 0.9rem;
+}
+
+.adding[hidden] {
+  display: none;
+}
+
+.adding p {
+  margin: 0;
+  flex: 1 1 14rem;
+}
+
+.adding strong {
+  display: block;
+}
+
+/* Over the live camera, the banner floats at the top. */
+body.live-on .adding {
+  position: fixed;
+  top: calc(0.75rem + env(safe-area-inset-top));
+  left: 0.75rem;
+  right: 0.75rem;
+  z-index: 11;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.25);
+}
+
+.photo-strip {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 0.75rem;
+}
+
+.shot {
+  position: relative;
+  flex: none;
+  width: 5rem;
+  height: 5rem;
+  margin: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.shot-remove {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.55);
+  color: #fff;
+  cursor: pointer;
+}
+
+.shot-remove svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.unsure .photo-strip {
+  justify-content: center;
+}
+
+.photo-notice {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}

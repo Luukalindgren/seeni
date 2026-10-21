@@ -8,10 +8,12 @@ import {
   UNKNOWN,
   answer,
   averageProbabilities,
+  checkById,
   isDone,
   nextCheck,
   outcome,
   outcomeText,
+  replay,
   ruledOut,
   softmax,
   speciesMap,
@@ -86,6 +88,61 @@ describe('start', () => {
     const state = flow('suillus-luteus', 0.8, { 'suillus-bovinus': 0.1, 'suillus-variegatus': 0.06 })
     const model = state.candidates.filter((c) => c.source === 'model').map((c) => c.id)
     assert.deepEqual(model, ['suillus-luteus', 'suillus-bovinus', 'suillus-variegatus'])
+  })
+})
+
+describe('several photos', () => {
+  // 29 photos of a chanterelle and one that clearly shows a death cap.
+  const perImage = [...Array.from({ length: 29 }, () => probs('cantharellus-cibarius', 0.999)), probs('amanita-phalloides', 0.8)]
+  const shown = (s: ReturnType<typeof start>) =>
+    s.kind === 'flow' ? new Set([...s.state.candidates.map((c) => c.id), ...s.state.warnings]) : new Set<string>()
+
+  it('shows a dangerous class that is top-1 in one photo even when the average hides it', () => {
+    const mean = averageProbabilities(perImage)
+    assert.ok(!shown(start(mean, labels, species, calibration)).has('amanita-phalloides'), 'the average alone hides it')
+    assert.ok(shown(start(mean, labels, species, calibration, perImage)).has('amanita-phalloides'))
+  })
+
+  it('does not add a harmless class or one below the threshold from a single photo', () => {
+    const low = [...perImage.slice(0, 29), probs('amanita-phalloides', calibration.unknownThreshold - 0.01)]
+    assert.ok(!shown(start(averageProbabilities(low), labels, species, calibration, low)).has('amanita-phalloides'))
+  })
+
+  it('shows it also when the average alone says not sure', () => {
+    const two = [probs('cantharellus-cibarius', 0.95), probs('amanita-phalloides', 0.9)]
+    const mean = averageProbabilities(two)
+    assert.deepEqual(start(mean, labels, species, calibration), { kind: 'not-sure' })
+    assert.ok(shown(start(mean, labels, species, calibration, two)).has('amanita-phalloides'))
+  })
+
+  it('does not add a harmless class from a single photo', () => {
+    assert.ok(!DANGEROUS.has(species.get('boletus-edulis-agg')!.ryhma))
+    const mixed = [...perImage.slice(0, 29), probs('boletus-edulis-agg', 0.9)]
+    assert.ok(!shown(start(averageProbabilities(mixed), labels, species, calibration, mixed)).has('boletus-edulis-agg'))
+  })
+
+  it('does not keep an answer about classes that are no longer in', () => {
+    const fresh = flow('boletus-edulis-agg', 0.97)
+    const unrelated = { check: 'maitiaisneste', answer: 'valkoista' }
+    const c = checkById(species).get('maitiaisneste')!
+    assert.ok(![...fresh.candidates.map((x) => x.id), ...fresh.warnings].some((id) => Object.values(c.vastaukset).flat().includes(id)))
+    assert.deepEqual(replay(fresh, [unrelated], species).asked, [])
+  })
+
+  it('keeps the answers given before a photo was added', () => {
+    const before = flow('cantharellus-cibarius')
+    const c = nextCheck(before, species)!
+    const fitting = Object.keys(c.vastaukset).find((a) => c.vastaukset[a]!.includes('cantharellus-cibarius'))!
+    const answered = answer(before, c, fitting)!
+    const again = replay(flow('cantharellus-cibarius', 0.85), answered.asked, species)
+    assert.deepEqual(again.asked, answered.asked)
+    assert.deepEqual(again.warnings, answer(flow('cantharellus-cibarius', 0.85), c, fitting)!.warnings)
+  })
+
+  it('starts over when the earlier answers rule out every new candidate', () => {
+    const fresh = flow('cantharellus-cibarius', 0.97)
+    const pores = { check: 'alapinta', answer: 'pillistö (sienimäinen, pienet reiät)' }
+    assert.deepEqual(replay(fresh, [pores], species), fresh)
   })
 })
 

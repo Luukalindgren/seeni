@@ -24,6 +24,7 @@ import {
   type SpeciesRecord,
   type State,
 } from '../src/flow.ts'
+import { EDIBLE } from './edible.ts'
 
 const read = (path: string) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'))
 const records: SpeciesRecord[] = read('../../species/species.json')
@@ -31,8 +32,6 @@ const labels: Label[] = read('../public/models/v1/labels.json')
 const calibration: Calibration = read('../public/models/v1/calibration.json')
 const species = speciesMap(records)
 const ids = labels.map((l) => l.id)
-// The same pattern as EDIBLE in training/src/seeni/species.py.
-const EDIBLE = /syötäv|syödä|syöd|ruokasien|herkullinen|maukas/i
 
 /** Probabilities with `top` at p and the rest spread evenly. */
 function probs(top: string, p: number, extra: Record<string, number> = {}): number[] {

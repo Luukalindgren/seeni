@@ -14,11 +14,11 @@ import {
   skip,
   speciesMap,
   start,
-  type Group,
   type SpeciesRecord,
   type State,
 } from './flow.ts'
 import { checkPicture } from './checkArt.ts'
+import { GROUP_LABEL, SHEET_TEXT, sheet } from './sheet.ts'
 import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
@@ -124,6 +124,16 @@ app.innerHTML = `
       <button id="shutter" class="primary big" type="button">${ICON.camera} Ota kuva</button>
       <button id="webcam-cancel" class="secondary big" type="button">Peruuta</button>
     </div>
+  </dialog>
+
+  <dialog id="sheet" aria-labelledby="sheet-title">
+    <div class="sheet-top">
+      <button id="sheet-back" class="round" type="button" aria-label="Edellinen laji" hidden>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <button id="sheet-close" class="round" type="button" aria-label="Sulje">${ICON.close}</button>
+    </div>
+    <div id="sheet-body"></div>
   </dialog>
 
   <canvas id="grass" aria-hidden="true"></canvas>
@@ -260,6 +270,8 @@ if (!consented) dialog.showModal()
 
 const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })
 let files: ModelFiles | null = null
+// The ids of the model's classes, known once the model files are loaded.
+let modelClasses: ReadonlySet<string> | null = null
 let nextId = 1
 const pending = new Map<number, (r: Response) => void>()
 
@@ -315,12 +327,6 @@ fetch(`${base}species/credits.json`)
   .then((c) => (credits = c))
   .catch(() => undefined)
 
-const GROUP_LABEL: Partial<Record<Group, string>> = {
-  tappava: 'Tappavan myrkyllinen',
-  myrkyllinen: 'Myrkyllinen',
-  esikäsiteltävä: 'Myrkyllinen raakana',
-}
-
 function badge(id: string): HTMLElement | null {
   const g = species.get(id)?.ryhma
   const label = g ? GROUP_LABEL[g] : undefined
@@ -335,7 +341,7 @@ function photo(id: string, cls: string): HTMLElement {
   img.loading = 'lazy'
   figure.append(img)
   const c = credits[id]
-  if (c && cls === 'hero-photo') {
+  if (c && (cls === 'hero-photo' || cls === 'sheet-photo')) {
     const caption = el('figcaption', `Kuva: ${c.author}, ${c.license}`)
     figure.append(caption)
   }
@@ -428,13 +434,24 @@ function render(state: State | null, raw: Map<string, number>) {
     const list = el('ul', undefined, 'lookalikes')
     for (const id of others) {
       const li = el('li')
-      li.append(photo(id, 'thumb'))
-      const text = el('div')
-      text.append(el('strong', species.get(id)?.nimi ?? id))
-      text.append(el('span', species.get(id)?.tieteellinen ?? '', 'latin'))
+      const open = el('button', undefined, 'lookalike')
+      open.type = 'button'
+      open.setAttribute('aria-haspopup', 'dialog')
+      const r = species.get(id)
+      const thumb = el('span', undefined, 'thumb')
+      const img = el('img')
+      img.src = `${base}species/${id}.jpg`
+      img.alt = ''
+      img.loading = 'lazy'
+      thumb.append(img)
+      const text = el('span', undefined, 'lookalike-text')
+      text.append(el('strong', r?.nimi ?? id))
+      text.append(el('span', r?.tieteellinen ?? '', 'latin'))
       const ob = badge(id)
       if (ob) text.append(ob)
-      li.append(text)
+      open.append(thumb, text)
+      open.addEventListener('click', () => openSheet(id, top.id))
+      li.append(open)
       list.append(li)
     }
     side.append(list)
@@ -500,6 +517,125 @@ function isDangerousId(id: string): boolean {
   return g !== undefined && DANGEROUS.has(g)
 }
 
+// --- Species sheet (#47) -----------------------------------------------------------------
+// A lookalike in the result opens its identification info in a modal: features, how it
+// differs from the species of the result, its own lookalikes (which open in the same modal,
+// with a back step) and sources. Each opened sheet is a history entry, so the phone's back
+// button steps back and finally closes it. Opening a sheet changes nothing in the flow.
+
+const sheetDialog = $<HTMLDialogElement>('#sheet')
+const sheetBody = $('#sheet-body')
+const sheetBack = $<HTMLButtonElement>('#sheet-back')
+// The sheets opened, the current one last; each has one history entry.
+let sheetStack: { id: string; compareTo: string }[] = []
+
+function renderSheet() {
+  const current = sheetStack[sheetStack.length - 1]
+  if (!current || !modelClasses) return
+  const s = sheet(current.id, current.compareTo, species, modelClasses)
+  sheetBack.hidden = sheetStack.length < 2
+  sheetBody.replaceChildren()
+  sheetBody.append(photo(s.id, 'sheet-photo'))
+  sheetBody.append(el('h2', s.nimi))
+  sheetBody.lastElementChild!.id = 'sheet-title'
+  sheetBody.append(el('p', s.tieteellinen, 'latin'))
+  const b = badge(s.id)
+  if (b) sheetBody.append(b)
+  if (s.warningOnly) {
+    sheetBody.append(
+      el('p', SHEET_TEXT.warningOnly, 'sheet-note'),
+    )
+  }
+  if (s.tuntomerkit.length) {
+    sheetBody.append(el('h3', SHEET_TEXT.features))
+    const ul = el('ul', undefined, 'features')
+    for (const t of s.tuntomerkit) ul.append(el('li', t))
+    sheetBody.append(ul)
+  }
+  if (s.compareTo) {
+    sheetBody.append(el('h3', SHEET_TEXT.compare(s.compareTo.nimi)))
+    if (s.compareTo.differences.length === 0) {
+      sheetBody.append(el('p', SHEET_TEXT.noDifference, 'sheet-note'))
+    } else {
+      const ul = el('ul', undefined, 'differences')
+      for (const d of s.compareTo.differences) {
+        const li = el('li')
+        li.append(el('p', d.check.kysymys, 'difference-question'))
+        const dl = el('dl')
+        dl.append(el('dt', s.nimi), el('dd', d.self.join(' tai ') || '–'))
+        dl.append(el('dt', s.compareTo.nimi), el('dd', d.other.join(' tai ') || '–'))
+        li.append(dl)
+        ul.append(li)
+      }
+      sheetBody.append(ul)
+    }
+  }
+  if (s.lookalikes.length) {
+    sheetBody.append(el('h3', SHEET_TEXT.lookalikes))
+    const ul = el('ul', undefined, 'sheet-lookalikes')
+    for (const l of s.lookalikes) {
+      const li = el('li')
+      const open = el('button', l.nimi, 'link')
+      open.type = 'button'
+      open.addEventListener('click', () => openSheet(l.id, current.compareTo))
+      li.append(open)
+      const lb = badge(l.id)
+      if (lb) li.append(lb)
+      ul.append(li)
+    }
+    sheetBody.append(ul)
+  }
+  if (s.lahteet.length) {
+    sheetBody.append(el('h3', SHEET_TEXT.sources))
+    const ul = el('ul', undefined, 'sources')
+    for (const t of s.lahteet) ul.append(el('li', t))
+    sheetBody.append(ul)
+  }
+  sheetBody.append(el('p', REMINDER, 'reminder'))
+  sheetDialog.scrollTop = 0
+}
+
+function openSheet(id: string, compareTo: string) {
+  if (!species.has(id) || !modelClasses) return
+  sheetStack.push({ id, compareTo })
+  history.pushState({ sheet: sheetStack.length }, '')
+  renderSheet()
+  if (!sheetDialog.open) sheetDialog.showModal()
+}
+
+// Every sheet has a history entry: back (the phone's, the arrow, or Escape) goes one sheet
+// back, and closing goes back over all of them.
+window.addEventListener('popstate', () => {
+  if (sheetStack.length === 0) return
+  sheetStack.pop()
+  if (sheetStack.length === 0) sheetDialog.close()
+  else renderSheet()
+})
+function closeSheet() {
+  const n = sheetStack.length
+  sheetStack = []
+  if (sheetDialog.open) sheetDialog.close()
+  if (n > 0) history.go(-n)
+}
+sheetBack.addEventListener('click', () => history.back())
+$('#sheet-close').addEventListener('click', closeSheet)
+// Android's back button reaches a modal dialog as `cancel`: one sheet back, like popstate.
+sheetDialog.addEventListener('cancel', (e) => {
+  e.preventDefault()
+  history.back()
+})
+// A browser may still close it on its own (a second quick Escape); drop the leftover entries.
+sheetDialog.addEventListener('close', () => {
+  if (sheetStack.length > 0) closeSheet()
+})
+// The backdrop: a press and release both on the dialog element itself, outside its content.
+let pressOnBackdrop = false
+sheetDialog.addEventListener('pointerdown', (e) => (pressOnBackdrop = e.target === sheetDialog))
+sheetDialog.addEventListener('click', (e) => {
+  if (pressOnBackdrop && e.target === sheetDialog) closeSheet()
+  pressOnBackdrop = false
+})
+
 // --- Photos in ---------------------------------------------------------------------------
 
 // Only the latest set of photos may show a result.
@@ -562,6 +698,7 @@ async function identify(images: File[]) {
   show('loading')
   try {
     files ??= await loadFiles(base)
+    modelClasses ??= new Set(files.labels.map((l) => l.id))
     const r = await classify(chosen)
     await minimum
     if (request !== latest) return
@@ -785,7 +922,7 @@ function gust(on: boolean) {
 const drop = $('#drop')
 let dragDepth = 0
 window.addEventListener('dragenter', (e) => {
-  if (!e.dataTransfer?.types.includes('Files') || !consented || webcamDialog.open) return
+  if (!e.dataTransfer?.types.includes('Files') || !consented || webcamDialog.open || sheetDialog.open) return
   dragDepth++
   drop.classList.add('dragging')
   gust(true)
@@ -809,7 +946,7 @@ window.addEventListener('drop', (e) => {
   drop.classList.remove('dragging')
   gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (!consented || webcamDialog.open) return
+  if (!consented || webcamDialog.open || sheetDialog.open) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)
   void identify(images)
 })
@@ -817,7 +954,7 @@ window.addEventListener('drop', (e) => {
 // Pasting an image from the clipboard identifies it too.
 window.addEventListener('paste', (e) => {
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (!consented || webcamDialog.open) return
+  if (!consented || webcamDialog.open || sheetDialog.open) return
   const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
   if (images.length === 0) return
   e.preventDefault()

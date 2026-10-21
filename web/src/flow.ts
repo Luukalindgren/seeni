@@ -167,7 +167,7 @@ function checksFor(state: State, species: Species): Check[] {
   return [...seen.values()].filter((c) => !asked.has(c.id))
 }
 
-function mentioned(check: Check): Set<string> {
+export function mentioned(check: Check): Set<string> {
   return new Set(Object.values(check.vastaukset).flat())
 }
 

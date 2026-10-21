@@ -3,6 +3,8 @@
 // work, cost almost nothing to precache and work offline. A drawing is a sketch of the
 // feature, not of a species: the question and the answers in species.json stay the source.
 
+import type { Check } from './flow.ts'
+
 // Colours of the "Metsänpohja" look (style.css), plus mushroom colours.
 const INK = '#5e5549'
 const CAP = '#b8875a'
@@ -15,6 +17,8 @@ const W = 120
 const H = 130
 
 interface Panel {
+  // The answer in species.json this panel shows; several panels may show one answer.
+  answer: string
   caption: string
   body: string
 }
@@ -104,17 +108,22 @@ function morel(pits: boolean): string {
     marks =
       '<path d="M40 30 Q48 20 56 30 T72 30 T84 34 M36 46 Q44 36 52 46 T68 46 T86 48 M40 60 Q48 52 56 60 T72 60 T82 62" stroke="#6f2f1f" stroke-width="2"/>'
   }
-  const fill = pits ? '#c19a62' : '#8f3f28'
   const shape = pits
-    ? '<path d="M60 8 C86 14 88 66 80 72 H40 C32 66 34 14 60 8 Z"/>'
-    : '<path d="M60 14 C92 12 96 46 86 70 H34 C22 46 28 12 60 14 Z"/>'
-  return `${stem(70, 96)}${shape.replace('<path', `<path fill="${fill}"`)}${marks}`
+    ? '<path d="M60 8 C86 14 88 66 80 72 H40 C32 66 34 14 60 8 Z" fill="#c19a62"/>'
+    : '<path d="M60 14 C92 12 96 46 86 70 H34 C22 46 28 12 60 14 Z" fill="#8f3f28"/>'
+  return `${stem(70, 96)}${shape}${marks}`
 }
-
-const pts = (p: [number, number][]) => p
 
 const arrow = (x1: number, y1: number, x2: number, y2: number) =>
   `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="${MOSS}" stroke-width="2"/><circle cx="${x2}" cy="${y2}" r="2.5" fill="${MOSS}" stroke="none"/>`
+
+const WARTS: [number, number][] = [
+  [36, 40], [50, 32], [64, 30], [78, 34], [88, 44], [28, 47], [58, 40], [74, 44], [44, 46],
+]
+const warts = () => WARTS.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.8" fill="${STEM}" stroke="none"/>`).join('')
+const CLUSTER: [number, number][] = [
+  [40, 20], [56, 14], [72, 18], [86, 26],
+]
 
 const soil = '<path d="M4 80 Q30 76 60 80 T116 80 V100 H4 Z" fill="#d9c7a4" stroke="none"/>'
 
@@ -122,155 +131,155 @@ const soil = '<path d="M4 80 Q30 76 60 80 T116 80 V100 H4 Z" fill="#d9c7a4" stro
 
 const PICTURES: Record<string, Panel[]> = {
   alapinta: [
-    { caption: 'pillistö', body: pores('#e7d27e', '#9a8338') },
+    { answer: 'pillistö (sienimäinen, pienet reiät)', caption: 'pillistö', body: pores('#e7d27e', '#9a8338') },
     {
-      caption: 'piikit',
+      answer: 'piikit', caption: 'piikit',
       body: `${stem(50)}${Array.from({ length: 15 }, (_, i) => 19 + i * 5.6)
         .map((x) => `<path d="M${x} 50 L${x + 2.2} 61 L${x + 4.4} 50" fill="${UNDER}" stroke-width="0.9"/>`)
         .join('')}${capSide('#e2c79a')}`,
     },
-    { caption: 'heltat', body: gills('#f3ead6') },
-    { caption: 'harjut, poimut', body: funnel('#e9b949', true) },
-    { caption: 'lähes sileä', body: funnel('#4a4040', false) },
-    { caption: 'kennomainen lakki', body: morel(true) },
+    { answer: 'heltat (ohuet levyt)', caption: 'heltat', body: gills('#f3ead6') },
+    { answer: 'matalat, haarovat harjut tai poimut', caption: 'harjut, poimut', body: funnel('#e9b949', true) },
+    { answer: 'lähes sileä', caption: 'lähes sileä', body: funnel('#4a4040', false) },
+    {
+      answer: 'ei erillistä alapintaa: lakki on kennomainen tai poimuttunut', caption: 'kenno tai poimuja',
+      body: `<g transform="translate(-6 16) scale(0.62)">${morel(true)}</g><g transform="translate(52 16) scale(0.62)">${morel(false)}</g>`,
+    },
   ],
   'pillisto-vari': [
-    { caption: 'valkoinen, harmaa', body: pores('#efede7', '#b9b4aa') },
-    { caption: 'vaaleanpunainen', body: pores('#e9bdb3', '#b9877c') },
-    { caption: 'keltainen, oliivi', body: pores('#c8c45a', '#86812c') },
+    { answer: 'valkoinen tai vaalean harmaa', caption: 'valkoinen, harmaa', body: pores('#efede7', '#b9b4aa') },
+    { answer: 'vaaleanpunainen', caption: 'vaaleanpunainen', body: pores('#e9bdb3', '#b9877c') },
+    { answer: 'keltainen, vihertävä tai oliivi', caption: 'keltainen, oliivi', body: pores('#c8c45a', '#86812c') },
   ],
   'jalan-verkko': [
-    { caption: 'vaalea verkko', body: netStem('#a77c52', '#f6efe2') },
-    { caption: 'tumma verkko', body: netStem('#efe3c8', '#6b4a2d') },
-    { caption: 'ei verkkoa', body: netStem('#efe3c8', null) },
+    { answer: 'vaalea verkko', caption: 'vaalea verkko', body: netStem('#a77c52', '#f6efe2') },
+    { answer: 'tumma, ruskea verkko', caption: 'tumma verkko', body: netStem('#efe3c8', '#6b4a2d') },
+    { answer: 'ei verkkoa', caption: 'ei verkkoa', body: netStem('#efe3c8', null) },
   ],
   'jalan-nukka': [
-    { caption: 'tummat suomut', body: scaberStem(true) },
-    { caption: 'ei suomuja', body: scaberStem(false) },
+    { answer: 'kyllä', caption: 'tummat suomut', body: scaberStem(true) },
+    { answer: 'ei', caption: 'ei suomuja', body: scaberStem(false) },
   ],
   'punikki-vai-lehmantatti': [
-    { caption: 'oranssi, liha tummuu', body: cutBolete('#c8642c', '#7f8a9c') },
-    { caption: 'harmaanruskea', body: cutBolete('#8b6f55', '#fbf8f1') },
+    { answer: 'kyllä', caption: 'oranssi, liha tummuu', body: cutBolete('#c8642c', '#7f8a9c') },
+    { answer: 'ei, lakki harmaanruskea', caption: 'harmaanruskea', body: cutBolete('#8b6f55', '#fbf8f1') },
   ],
   'suillus-rengas': [
-    { caption: 'rengas', body: `${stem(50)}<path d="M50 64 Q60 74 70 64 L73 70 Q60 80 47 70 Z" fill="#e9e1cf"/>${capSide('#8a5a33')}${arrow(96, 80, 74, 70)}` },
-    { caption: 'ei rengasta', body: `${stem(50)}${capSide('#a77445')}` },
+    { answer: 'kyllä', caption: 'rengas', body: `${stem(50)}<path d="M50 64 Q60 74 70 64 L73 70 Q60 80 47 70 Z" fill="#e9e1cf"/>${capSide('#8a5a33')}${arrow(96, 80, 74, 70)}` },
+    { answer: 'ei', caption: 'ei rengasta', body: `${stem(50)}${capSide('#a77445')}` },
   ],
   'suillus-pillit': [
-    { caption: 'isoja, kulmikkaita', body: underside('#c9a95a', bigPores()) },
-    { caption: 'pieniä, tiheitä', body: pores('#d9bd5e', '#93772c', 5, 1.2) },
+    { answer: 'isoja ja kulmikkaita', caption: 'isoja, kulmikkaita', body: underside('#c9a95a', bigPores()) },
+    { answer: 'pieniä ja tiheitä', caption: 'pieniä, tiheitä', body: pores('#d9bd5e', '#93772c', 5, 1.2) },
   ],
   itiopoly: [
-    { caption: 'valkoinen, kerma', body: sporePrint('#f2ead8') },
-    { caption: 'ruosteenruskea', body: sporePrint('#a5602a') },
-    { caption: 'suklaa, violetinmusta', body: sporePrint('#3b2a33') },
+    { answer: 'valkoinen, kerma tai vaalea okra', caption: 'valkoinen, okra', body: sporePrint('#efe0bf') },
+    { answer: 'ruosteenruskea tai kellanruskea', caption: 'ruosteenruskea', body: sporePrint('#a5602a') },
+    { answer: 'tumma suklaanruskea tai violetinmusta', caption: 'suklaa, violetinmusta', body: sporePrint('#3b2a33') },
   ],
   maitiaisneste: [
-    { caption: 'valkoista', body: milk('#ffffff') },
-    { caption: 'oranssia', body: milk('#e8742c') },
-    { caption: 'vesikirkasta', body: milk('#dcecf2') },
-    { caption: 'ei nestettä', body: milk(null) },
+    { answer: 'valkoista', caption: 'valkoista', body: milk('#ffffff') },
+    { answer: 'oranssia tai porkkananpunaista', caption: 'oranssia', body: milk('#e8742c', '#a14c14') },
+    { answer: 'vesikirkasta', caption: 'vesikirkasta', body: milk('#dcecf2', '#7fa4b3') },
+    { answer: 'ei tule nestettä', caption: 'ei nestettä', body: milk(null) },
   ],
   'lakin-reuna-karvainen': [
-    { caption: 'villava reuna', body: capMargin(true) },
-    { caption: 'sileä reuna', body: capMargin(false) },
+    { answer: 'kyllä, selvästi villava', caption: 'villava reuna', body: capMargin(true) },
+    { answer: 'ei', caption: 'sileä reuna', body: capMargin(false) },
   ],
   'heltat-tummuvat': [
-    { caption: 'tummuu ruskeaksi', body: `${gillsSide('#9a7a4c')}<ellipse cx="74" cy="57" rx="8" ry="3.5" fill="#6b4024" stroke="none"/>${arrow(100, 82, 76, 60)}` },
-    { caption: 'ei muutu', body: `${gillsSide('#9a7a4c')}${arrow(100, 82, 76, 60)}` },
+    { answer: 'kyllä', caption: 'tummuu ruskeaksi', body: `${gillsSide('#9a7a4c')}<ellipse cx="74" cy="57" rx="8" ry="3.5" fill="#6b4024" stroke="none"/>${arrow(100, 82, 76, 60)}` },
+    { answer: 'ei', caption: 'ei muutu', body: `${gillsSide('#9a7a4c')}${arrow(100, 82, 76, 60)}` },
   ],
   tyvi: [
-    { caption: 'pussimainen tuppi', body: base('volva') },
-    { caption: 'paksu mukula', body: base('bulb') },
-    { caption: 'tavallinen tyvi', body: base('plain') },
+    { answer: 'kyllä', caption: 'pussimainen tuppi', body: base('volva') },
+    { answer: 'kyllä', caption: 'paksu mukula', body: base('bulb') },
+    { answer: 'ei', caption: 'tavallinen tyvi', body: base('plain') },
   ],
   'liitumainen-jalka': [
     {
-      caption: 'murtuu kuin liitu',
+      answer: 'murtuu kuin liitu', caption: 'murtuu kuin liitu',
       body: `<path d="M48 14 H72 V50 L60 52 L48 50 Z" fill="${STEM}"/><path d="M48 60 L60 58 L72 60 V96 H48 Z" fill="${STEM}"/>`,
     },
     {
-      caption: 'repeää kuituisena',
+      answer: 'repeää kuituisena', caption: 'repeää kuituisena',
       body: `<path d="M48 14 H72 V48 L69 56 L66 49 L63 57 L60 49 L57 56 L54 49 L51 55 L48 48 Z" fill="${STEM}"/><path d="M48 66 L51 58 L54 65 L57 57 L60 65 L63 58 L66 65 L69 57 L72 66 V96 H48 Z" fill="${STEM}"/>`,
     },
   ],
   'punainen-lakki-valkoiset-tapit': [
     {
-      caption: 'tapit ja rengas',
-      body: `${stem(50)}<path d="M51 64 Q60 72 69 64 L71 69 Q60 77 49 69 Z" fill="${STEM}"/>${capSide('#c8321f')}${pts([
-        [36, 40], [50, 32], [64, 30], [78, 34], [88, 44], [28, 47], [58, 40], [74, 44], [44, 46],
-      ])
-        .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.8" fill="#fbf8f1" stroke="none"/>`)
-        .join('')}`,
+      answer: 'kyllä', caption: 'punainen, tapit',
+      body: `${stem(50)}<path d="M51 64 Q60 72 69 64 L71 69 Q60 77 49 69 Z" fill="${STEM}"/>${capSide('#c8321f')}${warts()}`,
     },
-    { caption: 'sileä lakki', body: `${stem(50)}${capSide('#c8321f')}` },
+    {
+      answer: 'kyllä', caption: 'ruskea, tapit',
+      body: `${stem(50)}<path d="M51 64 Q60 72 69 64 L71 69 Q60 77 49 69 Z" fill="${STEM}"/>${capSide('#8a6a45')}${warts()}`,
+    },
+    { answer: 'ei', caption: 'ei tappeja, ei rengasta', body: `${stem(50)}${capSide('#c8321f')}` },
   ],
   'kasvualusta-puu': [
     {
-      caption: 'kannolla, ryhmänä',
-      body: `<path d="M24 98 V62 Q60 54 96 62 V98 Z" fill="#9a7650"/><ellipse cx="60" cy="62" rx="36" ry="7" fill="#c7a77c"/>${pts([
-        [40, 20], [56, 14], [72, 18], [86, 26],
-      ])
-        .map(
+      answer: 'kyllä', caption: 'kannolla, ryhmänä',
+      body: `<path d="M24 98 V62 Q60 54 96 62 V98 Z" fill="#9a7650"/><ellipse cx="60" cy="62" rx="36" ry="7" fill="#c7a77c"/>${CLUSTER.map(
           ([x, y]) =>
             `<path d="M${x - 2} ${y + 12} Q${x} ${y + 26} ${x + (x - 60) * 0.1} 60 H${x + 4 + (x - 60) * 0.1} Q${x + 3} ${y + 26} ${x + 3} ${y + 12}" fill="${STEM}" stroke-width="1.2"/><path d="M${x - 11} ${y + 12} Q${x} ${y - 6} ${x + 12} ${y + 12} Z" fill="#c08a45" stroke-width="1.2"/>`,
         )
         .join('')}`,
     },
-    { caption: 'maassa', body: `${soil}${stem(50, 84)}${capSide('#b8875a')}` },
+    { answer: 'ei, maassa', caption: 'maassa', body: `${soil}${stem(50, 84)}${capSide('#b8875a')}` },
   ],
   'kalvorengas-seitikki': [
     {
-      caption: 'rengas, kuurainen lakki',
+      answer: 'kyllä', caption: 'rengas, kuurainen',
       body: `${stem(50)}<path d="M50 62 Q60 70 70 62 L72 67 Q60 75 48 67 Z" fill="#ffffff"/>${capSide('#c7a15f')}<path d="M30 40 Q38 34 44 40 M50 28 Q56 22 62 28 M68 32 Q76 28 82 36 M40 48 Q50 44 58 48" stroke="#f4ecdc" stroke-width="2"/>${arrow(98, 82, 73, 67)}`,
     },
-    { caption: 'ei rengasta', body: `${stem(50)}${capSide('#c7a15f')}` },
+    { answer: 'ei', caption: 'ei rengasta', body: `${stem(50)}${capSide('#c7a15f')}` },
   ],
   'harjut-vai-heltat': [
-    { caption: 'paksut harjut', body: underside('#e9b949', ridgeLines()) },
-    { caption: 'ohuet heltat', body: underside('#f0a33a', gillLines(72, '#a5591a', 0.7)) },
+    { answer: 'paksuja ja matalia harjuja', caption: 'paksut harjut', body: underside('#e9b949', ridgeLines()) },
+    { answer: 'ohuita ja tiheitä heltoja', caption: 'ohuet heltat', body: underside('#f0a33a', gillLines(72, '#a5591a', 0.7)) },
   ],
   'suppilo-ontto-jalka': [
     {
-      caption: 'ontto, uurteinen',
+      answer: 'kyllä', caption: 'ontto, uurteinen',
       body: `<ellipse cx="60" cy="50" rx="30" ry="18" fill="#c9a04a"/><path d="M60 32 V40" /><ellipse cx="60" cy="52" rx="17" ry="8" fill="#3c3128"/>`,
     },
-    { caption: 'umpinainen', body: `<circle cx="60" cy="50" r="22" fill="#c9a04a"/><circle cx="60" cy="50" r="17" fill="${STEM}"/>` },
+    { answer: 'ei, umpinainen', caption: 'umpinainen', body: `<circle cx="60" cy="50" r="22" fill="#c9a04a"/><circle cx="60" cy="50" r="17" fill="${STEM}"/>` },
   ],
   halkaisu: [
     {
-      caption: 'yksi ontelo',
+      answer: 'yksi yhtenäinen ontelo, lakki kiinni jalassa', caption: 'yksi ontelo',
       body: `<path d="M60 8 C86 14 88 66 80 72 L76 96 H44 L40 72 C32 66 34 14 60 8 Z" fill="#c19a62"/><path d="M60 16 C78 22 78 62 72 70 L69 92 H51 L48 70 C42 62 42 22 60 16 Z" fill="${STEM}"/>`,
     },
     {
-      caption: 'lakki irti, pumpulia',
+      answer: 'lakki kiinni vain jalan huipusta, jalka täynnä pumpulia', caption: 'kiinni vain huipusta',
       body: `<path d="M60 8 C84 10 86 44 82 54 H38 C34 44 36 10 60 8 Z" fill="#a8743f"/><path d="M60 14 C78 16 79 44 77 54 H43 C41 44 42 16 60 14 Z" fill="#ffffff"/><path d="M52 16 Q60 12 68 16 V96 H52 Z" fill="#f4efe4"/>${cotton()}`,
     },
     {
-      caption: 'monta kammiota',
+      answer: 'poimuinen, monta kammiota', caption: 'monta kammiota',
       body: `<path d="M60 14 C92 12 96 46 86 70 L76 96 H44 L34 70 C22 46 28 12 60 14 Z" fill="#8f3f28"/><path d="M40 30 Q48 22 56 32 Q50 42 42 40 Z M62 24 Q76 22 80 34 Q70 40 64 34 Z M38 52 Q46 46 52 54 Q46 62 40 60 Z M58 46 Q70 42 76 52 Q68 60 60 56 Z M48 74 Q56 70 62 76 L60 90 H50 Z" fill="${STEM}"/>`,
     },
   ],
   'lakin-pinta-kennot': [
-    { caption: 'kennomainen', body: morel(true) },
-    { caption: 'aivomainen', body: morel(false) },
+    { answer: 'kennomainen', caption: 'kennomainen', body: morel(true) },
+    { answer: 'aivomainen', caption: 'aivomainen', body: morel(false) },
   ],
   'heltojen-vari-vaalea': [
-    { caption: 'valkoiset, kerma', body: gills('#f7f2e6') },
-    { caption: 'vaaleanpunaiset, ruskeat', body: gills('#b4796a') },
-    { caption: 'rikinkeltaiset', body: gills('#d8d24a', '#7d7a20') },
-    { caption: 'ruosteenruskeat', body: gills('#b06d2c', '#6a3b12') },
+    { answer: 'valkoiset tai kermanväriset', caption: 'valkoiset, kerma', body: gills('#f7f2e6') },
+    { answer: 'vaaleanpunaiset tai suklaanruskeat', caption: 'pinkki, suklaa', body: gills('#b4796a') },
+    { answer: 'rikinkeltaiset tai vihertävät', caption: 'rikinkeltaiset', body: gills('#d8d24a', '#7d7a20') },
+    { answer: 'kellertävät tai ruosteenruskeat', caption: 'kellertävät, ruoste', body: gills('#b06d2c', '#6a3b12') },
   ],
   'puoliksi-kuivunut-lakki': [
     {
-      caption: 'kaksivärinen',
+      answer: 'kyllä', caption: 'kaksivärinen',
       body: `<circle cx="60" cy="50" r="40" fill="#8a5a2b"/><circle cx="60" cy="50" r="24" fill="#d4ab6c" stroke="none"/><circle cx="60" cy="50" r="5" fill="#b07a3c" stroke="none"/>`,
     },
-    { caption: 'yksivärinen', body: `<circle cx="60" cy="50" r="40" fill="#a5733d"/><circle cx="60" cy="50" r="5" fill="#8d5f2e" stroke="none"/>` },
+    { answer: 'ei', caption: 'yksivärinen', body: `<circle cx="60" cy="50" r="40" fill="#a5733d"/><circle cx="60" cy="50" r="5" fill="#8d5f2e" stroke="none"/>` },
   ],
   'jalka-suomuinen': [
-    { caption: 'suomuinen, tumma', body: ringedStem(true) },
-    { caption: 'kuitujuovainen', body: ringedStem(false) },
+    { answer: 'suomuinen ja tumma', caption: 'suomuinen, tumma', body: ringedStem(true) },
+    { answer: 'hopeisen kuitujuovainen', caption: 'kuitujuovainen', body: ringedStem(false) },
   ],
 }
 
@@ -285,8 +294,9 @@ function cotton(): string {
 function netStem(colour: string, net: string | null): string {
   let mesh = ''
   if (net) {
-    for (let y = 20; y <= 56; y += 7) {
-      for (let x = 49 + ((y / 7) % 2) * 3.5; x <= 69; x += 7) {
+    for (let row = 0; row <= 5; row++) {
+      const y = 20 + row * 7
+      for (let x = 49 + (row % 2) * 3.5; x <= 66; x += 7) {
         mesh += `<path d="M${x} ${y} l3.5 -3.5 l3.5 3.5 l-3.5 3.5 Z" stroke="${net}" stroke-width="1"/>`
       }
     }
@@ -297,8 +307,9 @@ function netStem(colour: string, net: string | null): string {
 function scaberStem(scales: boolean): string {
   let marks = ''
   if (scales) {
-    for (let y = 18; y <= 90; y += 6) {
-      for (let x = 46 + ((y / 6) % 2) * 3; x <= 72; x += 7) marks += `<path d="M${x} ${y} l2 3" stroke="#2c241c" stroke-width="1.6"/>`
+    for (let row = 0; row <= 12; row++) {
+      const y = 18 + row * 6
+      for (let x = 46 + (row % 2) * 3; x <= 72; x += 7) marks += `<path d="M${x} ${y} l2 3" stroke="#2c241c" stroke-width="1.6"/>`
     }
   }
   return `<path d="M44 12 Q60 6 76 12 L78 92 Q60 100 42 92 Z" fill="#f2ede4"/>${marks}<path d="M28 12 Q60 0 92 12" stroke-width="3" stroke="#a5541f"/>`
@@ -310,8 +321,9 @@ function cutBolete(cap: string, flesh: string): string {
 
 function bigPores(): string {
   let out = ''
-  for (let y = 18; y <= 82; y += 13) {
-    for (let x = 26 + ((y / 13) % 2) * 6; x <= 94; x += 12) {
+  for (let row = 0; row <= 5; row++) {
+    const y = 18 + row * 13
+    for (let x = 26 + (row % 2) * 6; x <= 94; x += 12) {
       const d = Math.hypot(x - 60, y - 50)
       if (d < 34 && d > 15) out += `<path d="M${x - 4} ${y - 3} L${x + 1} ${y - 5} L${x + 5} ${y} L${x + 2} ${y + 5} L${x - 4} ${y + 3} Z" fill="#7d6422" stroke="none"/>`
     }
@@ -340,9 +352,9 @@ function sporePrint(colour: string): string {
   return `<rect x="14" y="8" width="46" height="84" fill="#ffffff"/><rect x="60" y="8" width="46" height="84" fill="#2a241d"/>${rays}`
 }
 
-function milk(colour: string | null): string {
+function milk(colour: string | null, edge = INK): string {
   const drop = colour
-    ? `<path d="M74 59 Q81 69 74 75 Q67 69 74 59 Z" fill="${colour}" stroke="${colour === '#ffffff' ? INK : colour === '#dcecf2' ? '#7fa4b3' : '#a14c14'}" stroke-width="1"/>`
+    ? `<path d="M74 59 Q81 69 74 75 Q67 69 74 59 Z" fill="${colour}" stroke="${edge}" stroke-width="1"/>`
     : ''
   return `${gillsSide('#c7865a')}${drop}${arrow(104, 84, 78, 66)}`
 }
@@ -381,9 +393,15 @@ function ringedStem(scales: boolean): string {
   return `<path d="M50 30 V96 H70 V30" fill="${fill}"/><path d="M50 30 V48 H70 V30" fill="#e6d5b6"/><path d="M48 48 H72 L70 52 H50 Z" fill="#c69c62"/>${marks}<path d="M24 30 Q60 4 96 30 Z" fill="#b9813f"/>`
 }
 
-export function checkPicture(id: string): string | undefined {
-  const panels = PICTURES[id]
-  return panels ? picture(panels) : undefined
+// The picture of a check, its panels in the order of the check's answers. Nothing when the
+// panels do not show exactly the check's answers: a picture of other answers would mislead.
+export function checkPicture(check: Pick<Check, 'id' | 'vastaukset'>): string | undefined {
+  const panels = PICTURES[check.id]
+  if (!panels) return undefined
+  const order = Object.keys(check.vastaukset)
+  const shown = new Set(panels.map((p) => p.answer))
+  if (shown.size !== order.length || order.some((a) => !shown.has(a))) return undefined
+  return picture([...panels].sort((a, b) => order.indexOf(a.answer) - order.indexOf(b.answer)))
 }
 
 export const CHECK_PICTURE_IDS = Object.keys(PICTURES)

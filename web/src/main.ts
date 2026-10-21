@@ -367,7 +367,7 @@ function render(state: State | null, raw: Map<string, number>) {
     const box = el('section', undefined, 'verify')
     box.append(el('h3', 'Näin varmistat lajin'))
     box.append(el('p', check.kysymys, 'question'))
-    const art = checkPicture(check.id)
+    const art = checkPicture(check)
     if (art) {
       const figure = el('figure', undefined, 'check-figure')
       figure.innerHTML = art

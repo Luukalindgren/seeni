@@ -243,9 +243,30 @@ function startGrassIfLarge() {
 // Set while the language switch re-renders the result in place: no scroll, no fade.
 let inPlace = false
 
+// The views other than home have one history entry, so the phone's back button returns to
+// the start screen instead of leaving the app. The species sheets are entries on top of it.
+interface Entry {
+  view: 'result'
+  // The number of sheets open at this entry.
+  sheet?: number
+}
+const entry = () => history.state as Entry | null
+const onViewEntry = () => entry()?.view === 'result'
+const pushEntry = (sheet?: number) => history.pushState({ view: 'result', sheet } satisfies Entry, '')
+// Set while the back step of a button that went home is on its way; see popstate.
+let leavingEntry = false
+// The app always starts at home: an entry left over from before a reload says otherwise.
+if (entry()) history.replaceState(null, '')
+
 function show(view: keyof typeof views) {
   if (inPlace && view === currentView) return
   currentView = view
+  if (view !== 'home' && !onViewEntry()) pushEntry()
+  // Home from a button: drop the entry, so back from home leaves the app as expected.
+  else if (view === 'home' && !adding && onViewEntry() && !leavingEntry) {
+    leavingEntry = true
+    history.back()
+  }
   if (view === 'home') {
     liveDismissed = false
     void startLive()
@@ -1148,18 +1169,46 @@ function renderSheet() {
 function openSheet(id: string, compareTo: string) {
   if (!species.has(id) || !modelClasses) return
   sheetStack.push({ id, compareTo })
-  history.pushState({ sheet: sheetStack.length }, '')
+  pushEntry(sheetStack.length)
   renderSheet()
   if (!sheetDialog.open) sheetDialog.showModal()
 }
 
 // Every sheet has a history entry: back (the phone's, the arrow, or Escape) goes one sheet
-// back, and closing goes back over all of them.
+// back, and closing goes back over all of them. Back from the result (or the wait) goes to
+// the start screen, and back while adding a photo returns to the result.
 window.addEventListener('popstate', () => {
-  if (sheetStack.length === 0) return
-  sheetStack.pop()
-  if (sheetStack.length === 0) sheetDialog.close()
-  else renderSheet()
+  const depth = entry()?.sheet ?? 0
+  if (sheetStack.length > depth) {
+    sheetStack.length = depth
+    if (depth === 0) sheetDialog.close()
+    else renderSheet()
+  }
+  if (leavingEntry) {
+    // The back step of a button that went home. A photo picked in between has started
+    // loading without an entry of its own.
+    leavingEntry = false
+    if (currentView !== 'home') pushEntry()
+    return
+  }
+  if (onViewEntry()) {
+    // Forward onto an entry that nothing on screen matches: step back over it. (A sheet
+    // opened from the species guide is on the start screen too.)
+    if (depth > sheetStack.length || (currentView === 'home' && !adding && sheetStack.length === 0)) history.back()
+    return
+  }
+  // Back to the start screen. The webcam dialog may be open on a computer.
+  if (webcamDialog.open) webcamDialog.close()
+  if (adding || (currentView === 'loading' && loadingAdded)) {
+    // Back while adding a photo (or waiting for the added one): the result as it was.
+    latest++
+    setAdding(false)
+    if (shown) render(shown.state, shown.raw)
+  } else if (currentView !== 'home') {
+    // A photo still being identified is not shown.
+    latest++
+    show('home')
+  }
 })
 function closeSheet() {
   const n = sheetStack.length
@@ -1226,6 +1275,8 @@ let asked: State['asked'] = []
 let photoNotice = ''
 // True while the user takes or picks another photo of the same mushroom.
 let adding = false
+// True while the photo being identified is added to the earlier ones.
+let loadingAdded = false
 
 function clearPhotos() {
   for (const p of photos) URL.revokeObjectURL(p.url)
@@ -1237,6 +1288,7 @@ function clearPhotos() {
 async function identify(images: File[]) {
   if (images.length === 0) return
   const add = adding && photos.length > 0
+  loadingAdded = add
   setAdding(false)
   const room = add ? MAX_PHOTOS - photos.length : MAX_PHOTOS
   const chosen = images.slice(0, Math.max(0, room))

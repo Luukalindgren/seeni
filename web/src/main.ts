@@ -107,6 +107,8 @@ app.innerHTML = `
       <input id="gallery" type="file" accept="image/*" multiple hidden />
     </div>
     <p class="hint">Parhaiten onnistuu, kun koko sieni näkyy. Voit valita useita kuvia samasta sienestä.</p>
+    <button id="live-retry" class="live-link" type="button" hidden>Käytä live-kameraa</button>
+    <p id="live-help" class="hint" hidden>Kameran käyttö on estetty. Safarissa salli se osoiterivin aA-valikosta: Verkkosivuston asetukset → Kamera → Salli. Kotinäytön sovelluksessa sulje sovellus ja avaa se uudelleen. Androidissa salli kamera osoiterivin lukkokuvakkeesta.</p>
     <p id="status" class="status">Ladataan mallia…</p>
   </section>
 
@@ -951,7 +953,17 @@ async function startLive() {
     liveFailed = true
     setLive(false)
   } else if (!liveAllowed()) stopLive()
+  liveRetry.hidden = !liveFailed
 }
+
+// After a denied permission, the plain start screen offers to ask again (#69). The browser
+// may reject the new request without asking, so the help tells how to allow the camera.
+const liveRetry = $<HTMLButtonElement>('#live-retry')
+liveRetry.addEventListener('click', async () => {
+  liveFailed = false
+  await startLive()
+  $('#live-help').hidden = !liveFailed
+})
 
 function stopLive() {
   liveCamera.stop()

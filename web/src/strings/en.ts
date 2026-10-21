@@ -38,6 +38,7 @@ export const en: Strings = {
   liveHelp:
     'The camera did not start. If it is blocked, allow it in Safari from the aA menu in the address bar: Website Settings → Camera → Allow. In the home-screen app, close the app and open it again. On Android, allow the camera from the lock icon in the address bar. If another app is using the camera, close it.',
   loadingModel: 'Loading the model…',
+  loadingModelPercent: (percent: number) => `Loading the model… ${percent}%`,
   ready: 'Ready · works offline',
   modelFailed: (message: string) => `Loading the model failed: ${message}`,
   workerFailed: (message: string) => `The identifier does not work: ${message}`,

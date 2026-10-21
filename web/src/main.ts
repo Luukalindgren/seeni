@@ -9,6 +9,7 @@ import {
   averageProbabilities,
   checkById,
   isDone,
+  listedLookalikes,
   nextCheck,
   outcome,
   replay,
@@ -466,11 +467,14 @@ function render(state: State | null, raw: Map<string, number>) {
   const side = el('div', undefined, 'side')
   result.append(hero, side)
 
-  // Lookalikes: every other candidate and open warning, dangerous ones first.
+  // Lookalikes: every other candidate and open warning, dangerous ones first, then the
+  // species' other listed lookalikes.
   const others = [
-    ...state.candidates.filter((c) => c.id !== top.id).map((c) => c.id),
-    ...state.warnings,
-  ].sort((x, y) => Number(isDangerousId(y)) - Number(isDangerousId(x)))
+    ...[...state.candidates.filter((c) => c.id !== top.id).map((c) => c.id), ...state.warnings].sort(
+      (x, y) => Number(isDangerousId(y)) - Number(isDangerousId(x)),
+    ),
+    ...listedLookalikes(state, top.id, species, checks),
+  ]
   if (others.length > 0) {
     side.append(el('h3', t().lookalikesTitle))
     const list = el('ul', undefined, 'lookalikes')

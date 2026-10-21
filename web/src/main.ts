@@ -146,10 +146,11 @@ function show(view: keyof typeof views) {
     for (const [name, el] of Object.entries(views)) el.hidden = name !== view
     again.hidden = view !== 'result'
     window.scrollTo(0, 0)
+    // Only now, with home shown, does the drop area have a size to draw at.
+    dropArt?.setVisible(view === 'home')
   }
   // The photo of the last identification is no longer needed once back home.
   if (view === 'home') setPreview(null)
-  dropArt?.setVisible(view === 'home')
   // A soft cross-fade between views where the browser supports it.
   if (document.startViewTransition && !reducedMotion) document.startViewTransition(swap)
   else swap()

@@ -15,8 +15,6 @@ interface Blade {
 // Moss and grass greens, back layer lighter and fainter than the front one.
 const BACK = ['rgb(157 176 159 / 0.3)', 'rgb(176 190 160 / 0.28)', 'rgb(140 165 140 / 0.26)']
 const FRONT = ['rgb(51 81 63 / 0.34)', 'rgb(78 110 80 / 0.32)', 'rgb(96 124 82 / 0.3)', 'rgb(62 125 79 / 0.26)']
-const STRONG_BACK = ['rgb(157 176 159 / 0.7)', 'rgb(176 190 160 / 0.65)', 'rgb(140 165 140 / 0.6)']
-const STRONG_FRONT = ['rgb(51 81 63 / 0.75)', 'rgb(78 110 80 / 0.7)', 'rgb(96 124 82 / 0.65)', 'rgb(62 125 79 / 0.6)']
 
 // The wind at time `t` (s) and page position `x` (px), as a lean in radians: two slow waves
 // travelling across the page, so neighbours move together. Shared with the drop area.
@@ -31,8 +29,6 @@ export interface GrassOptions {
   calmMiddle: boolean
   // How far the pointer reaches, in px.
   reach: number
-  // Stronger colours, for grass on a white background.
-  strong?: boolean
 }
 
 export interface Grass {
@@ -59,7 +55,7 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, options: G
   let rect = canvas.getBoundingClientRect()
 
   function blade(x: number, front: boolean): Blade {
-    const palette = options.strong ? (front ? STRONG_FRONT : STRONG_BACK) : front ? FRONT : BACK
+    const palette = front ? FRONT : BACK
     return {
       x,
       height: (options.height[0] + Math.random() * options.height[1]) * (front ? 0.75 : 1),

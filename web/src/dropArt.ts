@@ -12,8 +12,6 @@ const LINE = 'rgb(224 214 197)'
 const MOSS = '#33513f'
 const CAP = '#efe3c8'
 const STEM = '#fbf8f1'
-// Room around the shape for its waves and shadow, in px.
-const MARGIN = 28
 
 export interface DropArt {
   setVisible(visible: boolean): void
@@ -32,11 +30,12 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
   let last = 0
   let gust = 0
   let gustTarget = 0
-  // The pointer, raw and smoothed, in canvas coordinates; far away until the mouse moves.
-  let pointerX = -1e4
-  let pointerY = -1e4
-  let softX = -1e4
-  let softY = -1e4
+  // The pointer in the window, or null while it is outside; and followed smoothly, in
+  // canvas coordinates. `presence` fades the push in and out as the pointer comes and goes.
+  let pointer: { x: number; y: number } | null = null
+  let softX = 0
+  let softY = 0
+  let presence = 0
   // The mushroom's bend in radians: positive leans right.
   let bend = 0
 
@@ -55,12 +54,12 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
     const dy = y - softY
     const d = Math.hypot(dx, dy)
     if (d >= reach || d === 0) return [x, y]
-    const k = (1 - d / reach) ** 2 * strength
+    const k = (1 - d / reach) ** 2 * strength * presence
     return [x + (dx / d) * k, y + (dy / d) * k]
   }
 
-  function drawShape(t: number, cx: number, cy: number, r: number) {
-    const lean = still ? 0 : windAt(t, cx) * (1 + gust * 2)
+  function drawShape(t: number, cx: number, cy: number, r: number, pageX: number) {
+    const lean = still ? 0 : windAt(t, pageX) * (1 + gust * 2)
     ctx.beginPath()
     const steps = 160
     for (let i = 0; i <= steps; i++) {
@@ -79,31 +78,27 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
     const [r0, g0, b0] = CARD
     const [r1, g1, b1] = MOSS_SOFT
     const mix = (a: number, b: number) => Math.round(a + (b - a) * gust)
-    ctx.save()
-    ctx.shadowColor = 'rgb(51 81 63 / 0.13)'
-    ctx.shadowBlur = 40
-    ctx.shadowOffsetY = 18
+    // The soft shadow comes from CSS (drop-shadow on the canvas), not from a blur per frame.
     ctx.fillStyle = `rgb(${mix(r0!, r1!)} ${mix(g0!, g1!)} ${mix(b0!, b1!)})`
     ctx.fill()
-    ctx.restore()
     ctx.lineWidth = 1.5
     ctx.strokeStyle = gust > 0.5 ? MOSS : LINE
     ctx.stroke()
   }
 
-  function drawMushroom(t: number, ease: number, cx: number, cy: number, r: number) {
+  function drawMushroom(t: number, ease: number, cx: number, cy: number, r: number, pageX: number) {
     const baseX = cx
     const baseY = cy + r * 0.62
     const stemHeight = r * 0.4
     const capWidth = r * 0.84
     const capHeight = r * 0.4
     // Wind and pointer, eased like a grass blade.
-    const wind = still ? 0 : windAt(t, cx) * 1.3 * (1 + gust * 2) + gust * 0.08
+    const wind = still ? 0 : windAt(t, pageX) * 1.3 * (1 + gust * 2) + gust * 0.08
     let push = 0
     const dx = baseX - softX
     const dy = baseY - stemHeight - softY
     const d = Math.hypot(dx, dy)
-    if (d < 150) push = Math.sign(dx || 1) * (1 - d / 150) ** 2 * 0.35
+    if (d < 150) push = Math.sign(dx || 1) * (1 - d / 150) ** 2 * 0.35 * presence
     bend += (wind + push - bend) * ease
     const topX = baseX + Math.sin(bend) * stemHeight
     const topY = baseY - Math.cos(bend) * stemHeight
@@ -167,22 +162,33 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
     last = time
     const ease = still ? 1 : 1 - Math.pow(1 - 0.06, dt * 60)
     gust += (gustTarget - gust) * (still ? 1 : 1 - Math.pow(1 - 0.05, dt * 60))
-    // The pointer is followed smoothly, so the shape never jumps.
-    const follow = still ? 1 : 1 - Math.pow(1 - 0.12, dt * 60)
-    softX = softX < -1e3 || pointerX < -1e3 ? pointerX : softX + (pointerX - softX) * follow
-    softY = softY < -1e3 || pointerY < -1e3 ? pointerY : softY + (pointerY - softY) * follow
+    // Measured every frame, as the area moves when the text around it changes.
+    const rect = canvas.getBoundingClientRect()
+    // The pointer is followed smoothly, and its push fades in and out, so nothing jumps.
+    const follow = 1 - Math.pow(1 - 0.12, dt * 60)
+    if (pointer) {
+      const x = pointer.x - rect.left
+      const y = pointer.y - rect.top
+      softX = presence < 0.01 ? x : softX + (x - softX) * follow
+      softY = presence < 0.01 ? y : softY + (y - softY) * follow
+    }
+    presence += ((pointer ? 1 : 0) - presence) * (1 - Math.pow(1 - 0.08, dt * 60))
     ctx.clearRect(0, 0, width, height)
+    // The shape has the size of the drop area; the canvas reaches past it for the waves.
+    const r = (canvas.parentElement?.clientWidth ?? 0) / 2
+    if (r <= 0) return
     const cx = width / 2
     const cy = height / 2
-    const r = Math.min(width, height) / 2 - MARGIN
-    drawShape(t, cx, cy, r)
-    drawMushroom(t, ease, cx, cy, r)
+    // The wind of the grass at this place on the page (the grass canvas starts at x 0).
+    const pageX = rect.left + cx
+    drawShape(t, cx, cy, r, pageX)
+    drawMushroom(t, ease, cx, cy, r, pageX)
   }
 
   function loop(time: number) {
-    draw(time)
     frame = visible && !document.hidden ? requestAnimationFrame(loop) : 0
     if (frame === 0) last = 0
+    else draw(time)
   }
 
   function run() {
@@ -194,16 +200,17 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
   }
 
   window.addEventListener('pointermove', (e) => {
-    if (!visible || still) return
-    // Measured here, as the area moves when the text around it changes.
-    const rect = canvas.getBoundingClientRect()
-    pointerX = e.clientX - rect.left
-    pointerY = e.clientY - rect.top
+    if (visible && !still) pointer = { x: e.clientX, y: e.clientY }
   })
+  // The mouse left the window: nothing pushes the shape any more.
   document.documentElement.addEventListener('mouseleave', () => {
-    pointerX = pointerY = -1e4
+    pointer = null
   })
   document.addEventListener('visibilitychange', run)
+  // Without motion nothing redraws on its own, so redraw at the new size.
+  window.addEventListener('resize', () => {
+    if (still && visible) draw(0)
+  })
 
   return {
     setVisible(v: boolean) {
@@ -212,7 +219,7 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
     },
     setGust(g: boolean) {
       gustTarget = g ? 1 : 0
-      if (still) draw(0)
+      if (still && visible) draw(0)
     },
   }
 }

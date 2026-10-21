@@ -234,6 +234,7 @@ svg {
 
 .drop.live .art {
   display: block;
+  filter: drop-shadow(0 1.1rem 1.4rem var(--shadow));
 }
 
 .drop.live .mushroom {

@@ -243,9 +243,16 @@ function startGrassIfLarge() {
 // Set while the language switch re-renders the result in place: no scroll, no fade.
 let inPlace = false
 
+// The views other than home have one history entry, so the phone's back button returns to
+// the start screen instead of leaving the app. Sheets of the species sheet are on top of it.
+const onViewEntry = () => (history.state as { view?: string } | null)?.view === 'result'
+
 function show(view: keyof typeof views) {
   if (inPlace && view === currentView) return
   currentView = view
+  if (view !== 'home' && !onViewEntry()) history.pushState({ view: 'result' }, '')
+  // Home from a button: drop the entry, so back from home leaves the app as expected.
+  else if (view === 'home' && !adding && onViewEntry()) history.back()
   if (view === 'home') {
     liveDismissed = false
     void startLive()
@@ -1148,18 +1155,32 @@ function renderSheet() {
 function openSheet(id: string, compareTo: string) {
   if (!species.has(id) || !modelClasses) return
   sheetStack.push({ id, compareTo })
-  history.pushState({ sheet: sheetStack.length }, '')
+  history.pushState({ view: 'result', sheet: sheetStack.length }, '')
   renderSheet()
   if (!sheetDialog.open) sheetDialog.showModal()
 }
 
 // Every sheet has a history entry: back (the phone's, the arrow, or Escape) goes one sheet
-// back, and closing goes back over all of them.
+// back, and closing goes back over all of them. Back from the result (or the wait) goes to
+// the start screen, and back while adding a photo returns to the result.
 window.addEventListener('popstate', () => {
-  if (sheetStack.length === 0) return
-  sheetStack.pop()
-  if (sheetStack.length === 0) sheetDialog.close()
-  else renderSheet()
+  const state = history.state as { view?: string; sheet?: number } | null
+  const depth = state?.sheet ?? 0
+  if (sheetStack.length > depth) {
+    sheetStack.length = depth
+    if (depth === 0) sheetDialog.close()
+    else renderSheet()
+  }
+  if (onViewEntry()) return
+  if (adding) {
+    history.pushState({ view: 'result' }, '')
+    setAdding(false)
+    show('result')
+  } else if (currentView !== 'home') {
+    // A photo still being identified is not shown.
+    latest++
+    show('home')
+  }
 })
 function closeSheet() {
   const n = sheetStack.length

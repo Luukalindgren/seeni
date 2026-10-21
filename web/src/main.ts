@@ -15,7 +15,7 @@ import {
   type SpeciesRecord,
   type State,
 } from './flow.ts'
-import { startGrass } from './grass.ts'
+import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
 import type { Request, Response } from './worker.ts'
@@ -60,9 +60,9 @@ app.innerHTML = `
   <section id="home" class="view">
     <p class="intro">Kuvaa sieni, niin Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.</p>
     <label id="drop" class="drop" for="gallery" aria-hidden="true">
-      <span class="ripple"></span><span class="ripple"></span>
-      ${ICON.mushroom}
       <span class="drop-text">Pudota kuva</span>
+      ${ICON.mushroom}
+      <canvas class="tuft"></canvas>
     </label>
     <div class="actions">
       <button id="webcam" class="primary big" type="button" hidden>${ICON.camera} Ota kuva</button>
@@ -121,13 +121,26 @@ const again = $<HTMLButtonElement>('#again')
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const largeScreen = window.matchMedia('(min-width: 900px) and (hover: hover) and (pointer: fine)')
-// The grass starts when the window is (or later becomes) large.
-let grass: ReturnType<typeof startGrass> | null = null
+// The grass starts when the window is (or later becomes) large: a strip along the bottom
+// of every view, and a tuft the mushroom stands in inside the drop area.
+let grass: Grass | null = null
+let tuft: Grass | null = null
 let currentView: keyof typeof views = 'home'
 function startGrassIfLarge() {
   if (grass || !largeScreen.matches) return
-  grass = startGrass($<HTMLCanvasElement>('#grass'), reducedMotion)
-  grass.setVisible(currentView === 'home')
+  grass = startGrass($<HTMLCanvasElement>('#grass'), reducedMotion, {
+    height: [24, 60],
+    calmMiddle: true,
+    reach: 120,
+  })
+  grass.setVisible(true)
+  tuft = startGrass($<HTMLCanvasElement>('.tuft'), reducedMotion, {
+    height: [22, 44],
+    calmMiddle: false,
+    reach: 80,
+    strong: true,
+  })
+  tuft.setVisible(currentView === 'home')
 }
 
 function show(view: keyof typeof views) {
@@ -139,7 +152,7 @@ function show(view: keyof typeof views) {
   }
   // The photo of the last identification is no longer needed once back home.
   if (view === 'home') setPreview(null)
-  grass?.setVisible(view === 'home')
+  tuft?.setVisible(view === 'home')
   // A soft cross-fade between views where the browser supports it.
   if (document.startViewTransition && !reducedMotion) document.startViewTransition(swap)
   else swap()
@@ -266,13 +279,22 @@ function newPhotoButton(): HTMLElement {
 }
 
 function renderNotSure() {
-  result.replaceChildren(
+  const box = el('div', undefined, 'unsure')
+  const icon = el('span', undefined, 'unsure-icon')
+  icon.innerHTML = ICON.mushroom
+  icon.setAttribute('aria-hidden', 'true')
+  const tips = el('ul', undefined, 'tips')
+  for (const tip of ['Lakki ylhäältä', 'Lakin alapinta', 'Jalan tyvi']) tips.append(el('li', tip))
+  box.append(
+    icon,
     el('h2', 'En tunnista varmasti'),
-    el('p', 'Kuvasta ei löytynyt lajia, jonka Seeni tunnistaisi riittävän varmasti. Sieni voi olla laji, jota Seeni ei tunne, tai kuva voi olla epäselvä.'),
-    el('p', 'Kokeile kuvata koko sieni läheltä ja hyvässä valossa: lakki ylhäältä, lakin alapinta ja jalan tyvi.', 'hint'),
+    el('p', 'Sieni voi olla laji, jota Seeni ei tunne, tai kuva voi olla epäselvä.'),
+    el('p', 'Kuvaa koko sieni läheltä ja hyvässä valossa:'),
+    tips,
     el('p', REMINDER, 'reminder'),
     newPhotoButton(),
   )
+  result.replaceChildren(box)
   show('result')
 }
 
@@ -476,13 +498,20 @@ for (const id of ['#camera', '#gallery']) {
 // Some images (e.g. HEIC on Windows) have no MIME type; let the decoder decide for those.
 const isImage = (f: File) => f.type === '' || f.type.startsWith('image/')
 
+// A photo dragged over the page brings a gust of wind to the grass.
+function gust(on: boolean) {
+  grass?.setGust(on)
+  tuft?.setGust(on)
+}
+
 // Drag and drop for large screens: photos dropped anywhere on the page are identified.
 const drop = $('#drop')
 let dragDepth = 0
 window.addEventListener('dragenter', (e) => {
-  if (!e.dataTransfer?.types.includes('Files')) return
+  if (!e.dataTransfer?.types.includes('Files') || dialog.open || webcamDialog.open) return
   dragDepth++
   drop.classList.add('dragging')
+  gust(true)
 })
 window.addEventListener('dragleave', (e) => {
   if (!e.dataTransfer?.types.includes('Files')) return
@@ -490,6 +519,7 @@ window.addEventListener('dragleave', (e) => {
   if (e.relatedTarget === null || --dragDepth <= 0) {
     dragDepth = 0
     drop.classList.remove('dragging')
+    gust(false)
   }
 })
 window.addEventListener('dragover', (e) => {
@@ -500,6 +530,7 @@ window.addEventListener('drop', (e) => {
   e.preventDefault()
   dragDepth = 0
   drop.classList.remove('dragging')
+  gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
   if (dialog.open || webcamDialog.open) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)

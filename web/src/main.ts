@@ -398,18 +398,17 @@ let nextId = 1
 const pending = new Map<number, (r: Response) => void>()
 // "Works offline" is said only once the service worker is active, which is when it has
 // precached the app and the model. On the first visit the model loads before that.
-let modelReady = false
 let offlineReady = false
 void navigator.serviceWorker?.ready.then(() => {
   offlineReady = true
-  if (modelReady) setStatus(() => t().readyOffline, true)
+  // Only over "ready": an error shown since then stays.
+  if (status.classList.contains('ready')) setStatus(() => t().readyOffline, true)
 })
 
 worker.onmessage = (event: MessageEvent<Response>) => {
   const r = event.data
   if (r.id === 0) {
     if (r.kind === 'ready') {
-      modelReady = true
       setStatus(() => (offlineReady ? t().readyOffline : t().ready), true)
     } else if (r.kind === 'progress') {
       const percent = r.percent

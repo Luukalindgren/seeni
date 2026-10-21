@@ -178,7 +178,7 @@ More photos of each species for the app's species gallery, chosen by `species/ga
 | `web/public/species/gallery/hydnum-repandum-agg-3.jpg` | Bjørn Eidhammer | CC-BY-4.0 | [GBIF 2333052915](https://www.gbif.org/occurrence/2333052915) |
 | `web/public/species/gallery/morchella-1.jpg` | Astrid Grendstad | CC-BY-4.0 | [GBIF 5163880517](https://www.gbif.org/occurrence/5163880517) |
 | `web/public/species/gallery/morchella-2.jpg` | Jostein Sandvik | CC-BY-4.0 | [GBIF 3469517427](https://www.gbif.org/occurrence/3469517427) |
-| `web/public/species/gallery/morchella-3.jpg` | Ole Christian Hagestad | CC-BY-4.0 | [GBIF 3803928356](https://www.gbif.org/occurrence/3803928356) |
+| `web/public/species/gallery/morchella-3.jpg` | Jan Sørensen | CC-BY-4.0 | [GBIF 4109621382](https://www.gbif.org/occurrence/4109621382) |
 | `web/public/species/gallery/tricholoma-matsutake-1.jpg` | Erik Kagge | CC-BY-4.0 | [GBIF 4930092317](https://www.gbif.org/occurrence/4930092317) |
 | `web/public/species/gallery/tricholoma-matsutake-2.jpg` | Turid Helland | CC-BY-4.0 | [GBIF 4948239158](https://www.gbif.org/occurrence/4948239158) |
 | `web/public/species/gallery/tricholoma-matsutake-3.jpg` | Rune Solvang | CC-BY-4.0 | [GBIF 4465976530](https://www.gbif.org/occurrence/4465976530) |

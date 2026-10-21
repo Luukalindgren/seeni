@@ -1450,3 +1450,8 @@ body.live-on .adding {
   font-size: 0.9rem;
   opacity: 0.85;
 }
+
+#live-retry:not([hidden]) {
+  display: block;
+  margin: 0 auto;
+}

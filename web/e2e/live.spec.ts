@@ -87,5 +87,24 @@ test.describe('falls back to the plain start screen', () => {
     await consent(page)
     await expect(page.locator('#home .actions')).toBeVisible()
     await expect(page.locator('#live')).toBeHidden()
+    // Asking again while still denied explains how to allow the camera (#69).
+    await page.locator('#live-retry').click()
+    await expect(page.locator('#live-help')).toBeVisible()
+    await expect(page.locator('#live')).toBeHidden()
+  })
+
+  test('and asks again on request once the camera is allowed', async ({ page }) => {
+    await page.addInitScript(() => {
+      const real = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices)
+      let calls = 0
+      navigator.mediaDevices.getUserMedia = (c) =>
+        ++calls === 1 ? Promise.reject(new DOMException('denied', 'NotAllowedError')) : real(c)
+    })
+    await consent(page)
+    await expect(page.locator('#live')).toBeHidden()
+    await page.locator('#live-retry').click()
+    await expect(page.locator('#live')).toBeVisible()
+    await expect.poll(() => cameraOn(page)).toBe(true)
+    await expect(page.locator('#live-retry')).toBeHidden()
   })
 })

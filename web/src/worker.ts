@@ -4,13 +4,23 @@ import { Classifier, decode } from './classify.ts'
 export type Request = { id: number; images: Blob[] }
 export type Response =
   | { id: number; kind: 'ready'; provider: string }
+  // While the model loads: the share downloaded, 0–99 (100 only once ready).
+  | { id: number; kind: 'progress'; percent: number }
   // The calibrated probabilities of each image, in the order they were sent; null for an
   // image that could not be decoded.
   | { id: number; kind: 'result'; perImage: (number[] | null)[] }
   | { id: number; kind: 'error'; message: string }
 
 const base = import.meta.env.BASE_URL
-const ready = Classifier.create(base)
+// At most one progress message per percent.
+let shown = -1
+const ready = Classifier.create(base, ['wasm'], (loaded, total) => {
+  // Never 100 % before ready: the model still has to start after the download.
+  const percent = Math.min(99, Math.floor((100 * loaded) / total))
+  if (percent === shown) return
+  shown = percent
+  postMessage({ id: 0, kind: 'progress', percent } satisfies Response)
+})
 
 ready.then(
   (c) => postMessage({ id: 0, kind: 'ready', provider: c.provider } satisfies Response),

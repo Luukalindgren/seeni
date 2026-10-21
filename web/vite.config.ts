@@ -1,12 +1,25 @@
+import { statSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { MODEL_VERSION } from './src/modelFiles.ts'
 
 // GitHub Pages serves the app from https://luukalindgren.github.io/seeni/.
 // Change base to '/' when moving to seeni.fi.
 const base = '/seeni/'
 
+// What the first visit downloads before it can identify: the model and the WebAssembly
+// runtime, uncompressed. The loading status shows progress against it (the server may send
+// them compressed, so Content-Length does not tell).
+// Computed when the config loads: restart the dev server after exporting a new model.
+const loadBytes =
+  statSync(fileURLToPath(new URL(`public/models/${MODEL_VERSION}/model.onnx`, import.meta.url))).size +
+  statSync(createRequire(import.meta.url).resolve('onnxruntime-web/ort-wasm-simd-threaded.wasm')).size
+
 export default defineConfig({
   base,
+  define: { __LOAD_BYTES__: JSON.stringify(loadBytes) },
   // species.json lives in ../species, outside the web root.
   server: { fs: { allow: ['..'] } },
   worker: { format: 'es' },

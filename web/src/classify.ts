@@ -4,12 +4,43 @@
 // The WASM-only bundle: its runtime is 14 MB against 27 MB for the WebGPU one, so the first
 // load is about a third lighter, and EfficientNet-B0 runs well under a second on WASM.
 import * as ort from 'onnxruntime-web/wasm'
+// The same file the bundle refers to; fetched here so its download can show progress.
+import wasmUrl from 'onnxruntime-web/ort-wasm-simd-threaded.wasm?url'
 
 import { softmax } from './flow.ts'
 import { loadFiles, MODEL_VERSION, type ModelFiles } from './modelFiles.ts'
 import { preprocess, type Pixels } from './preprocess.ts'
 
 const MAX_SHORT_SIDE = 1024
+
+/** Bytes downloaded so far, of about `total`. */
+export type Progress = (loaded: number, total: number) => void
+
+/** The whole file, counting the bytes as they arrive. */
+async function download(url: string, onBytes: (n: number) => void): Promise<Uint8Array> {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`)
+  if (!response.body) {
+    const bytes = new Uint8Array(await response.arrayBuffer())
+    onBytes(bytes.length)
+    return bytes
+  }
+  const chunks: Uint8Array[] = []
+  let length = 0
+  const reader = response.body.getReader()
+  for (let r = await reader.read(); !r.done; r = await reader.read()) {
+    chunks.push(r.value)
+    length += r.value.length
+    onBytes(r.value.length)
+  }
+  const bytes = new Uint8Array(length)
+  let offset = 0
+  for (const c of chunks) {
+    bytes.set(c, offset)
+    offset += c.length
+  }
+  return bytes
+}
 
 /** Decoded, upright pixels. EXIF orientation is applied, and colour management is off, as
  * PIL does not apply ICC profiles either. */
@@ -54,14 +85,23 @@ export class Classifier {
   }
 
   /** Create the session once and do one warm-up run. */
-  static async create(base: string, providers: string[] = ['wasm']): Promise<Classifier> {
-    // The bundle refers to its .wasm with new URL(..., import.meta.url), so Vite copies it
-    // into the build and the app serves it itself, which offline needs. No wasmPaths: the
-    // default points at that copy, not at a CDN.
+  static async create(base: string, providers: string[] = ['wasm'], onProgress?: Progress): Promise<Classifier> {
     // GitHub Pages sends no cross-origin isolation headers, so threads are not available.
     ort.env.wasm.numThreads = 1
-    const files = await loadFiles(base)
-    const model = `${base}models/${MODEL_VERSION}/model.onnx`
+    // The runtime (.wasm) and the model are downloaded here, not by onnxruntime, to count the
+    // bytes; the runtime goes in as wasmBinary. Vite copies the .wasm into the build, so the
+    // app serves it itself, which offline needs (never a CDN).
+    let loaded = 0
+    let settled = false
+    const counted = (n: number) => {
+      if (!settled) onProgress?.((loaded += n), __LOAD_BYTES__)
+    }
+    const [files, wasm, model] = await Promise.all([
+      loadFiles(base),
+      download(wasmUrl, counted),
+      download(`${base}models/${MODEL_VERSION}/model.onnx`, counted),
+    ]).finally(() => (settled = true))
+    ort.env.wasm.wasmBinary = wasm
     let lastError: unknown
     for (const provider of providers) {
       try {
@@ -69,6 +109,8 @@ export class Classifier {
         const classifier = new Classifier(files, session, provider)
         const crop = files.preprocess.centerCrop
         await classifier.logits([new Float32Array(3 * crop * crop)])
+        // The runtime is compiled; the bytes need not stay in memory.
+        ort.env.wasm.wasmBinary = undefined
         return classifier
       } catch (e) {
         lastError = e

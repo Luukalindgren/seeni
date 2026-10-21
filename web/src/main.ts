@@ -371,6 +371,9 @@ worker.onmessage = (event: MessageEvent<Response>) => {
     if (r.kind === 'ready') {
       setStatus(() => t().ready)
       status.classList.add('ready')
+    } else if (r.kind === 'progress') {
+      const percent = r.percent
+      setStatus(() => t().loadingModelPercent(percent))
     }
     else if (r.kind === 'error') {
       const message = r.message

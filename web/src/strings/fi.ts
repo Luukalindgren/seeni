@@ -40,6 +40,7 @@ export const fi = {
   liveHelp:
     'Kamera ei käynnistynyt. Jos sen käyttö on estetty, salli se Safarissa osoiterivin aA-valikosta: Verkkosivuston asetukset → Kamera → Salli. Kotinäytön sovelluksessa sulje sovellus ja avaa se uudelleen. Androidissa salli kamera osoiterivin lukkokuvakkeesta. Jos kamera on toisen sovelluksen käytössä, sulje se.',
   loadingModel: 'Ladataan mallia…',
+  loadingModelPercent: (percent: number) => `Ladataan mallia… ${percent} %`,
   ready: 'Valmis · toimii ilman verkkoa',
   modelFailed: (message: string) => `Mallin lataus epäonnistui: ${message}`,
   workerFailed: (message: string) => `Tunnistin ei toimi: ${message}`,

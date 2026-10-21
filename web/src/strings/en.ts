@@ -116,6 +116,13 @@ export const en: Strings = {
   seasonRegion: 'Region when the photo has no location',
   seasonRegionAuto: 'Not chosen',
 
+  installOpen: 'Install as an app',
+  installTitle: 'Install Seeni',
+  installWhy:
+    'Opened from the home screen, Seeni fills the screen and works offline, and the browser keeps your finds even if you do not use it for a week.',
+  installStep1: 'Tap the browser’s Share button (a square with an arrow pointing up).',
+  installStep2: 'Choose Add to Home Screen. If you do not see it, scroll the menu down.',
+  installStep3: 'Tap Add. From then on, open Seeni from its icon on the home screen.',
   guideTitle: 'Species guide',
   guideNote: 'Every species Seeni recognizes, and the dangerous species it warns about. Open a species to see its features and lookalikes.',
   guideSearch: 'Search for a species',

@@ -1525,24 +1525,28 @@ body.live-on .adding {
   opacity: 0.85;
 }
 #finds,
-#guide {
+#guide,
+#install {
   width: min(34rem, calc(100vw - 1.5rem));
   max-height: calc(100dvh - 1.5rem);
   overflow-y: auto;
   padding-top: 0.75rem;
 }
 #finds .sheet-top,
-#guide .sheet-top {
+#guide .sheet-top,
+#install .sheet-top {
   padding: 0;
   justify-content: flex-end;
 }
 #finds h2,
-#guide h2 {
+#guide h2,
+#install h2 {
   color: var(--fg);
   margin: -2rem 0 0;
 }
 #finds .fine,
-#guide .fine {
+#guide .fine,
+#install .fine {
   font-size: 0.85rem;
   color: var(--muted);
 }
@@ -1606,6 +1610,15 @@ body.live-on .adding {
 }
 #finds-backup-status:empty {
   display: none;
+}
+
+/* Install as an app. */
+.install-steps {
+  margin: 1rem 0 0.5rem;
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 /* Species guide. */

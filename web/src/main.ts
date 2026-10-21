@@ -272,7 +272,7 @@ function startGrassIfLarge() {
     reach: 120,
   })
   grass.setVisible(true)
-  $('#drop').classList.add('live')
+  $('#drop').classList.add('drawn')
   dropArt = startDropArt($<HTMLCanvasElement>('#drop .art'), reducedMotion)
   dropArt.setVisible(currentView === 'home')
 }

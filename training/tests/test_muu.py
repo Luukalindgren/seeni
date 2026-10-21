@@ -1,7 +1,7 @@
 import zipfile
 
 from seeni.lajilista import Row
-from seeni.muu import FUNGI, index, kind_of, predicate, sample
+from seeni.muu import FUNGI, common, index, kind_of, predicate, sample
 
 BY = "http://creativecommons.org/licenses/by/4.0/"
 NC = "http://creativecommons.org/licenses/by-nc/4.0/"
@@ -129,3 +129,15 @@ def test_index_takes_one_licensed_image_per_observation(tmp_path):
     )
     assert all(c["class_id"] == "muu" and c["path"].startswith("muu/images/") for c in candidates)
     assert stats["skipped_observations"] == 1
+
+
+def test_common_takes_the_most_observed_species():
+    by_species = {
+        1: [{"gbifID": i} for i in range(10)],
+        2: [{"gbifID": i} for i in range(10, 13)],
+        3: [{"gbifID": 20}],
+    }
+    picked = common(by_species, n=2, per_species=5)
+    assert len(picked) == 8
+    assert {c["gbifID"] for c in picked} >= {10, 11, 12}
+    assert 20 not in {c["gbifID"] for c in picked}

@@ -19,13 +19,14 @@ Golden test fixtures for the parity test (#8), photos from the test set, resized
 
 | File | Author | License | Source |
 | --- | --- | --- | --- |
-| `web/tests/fixtures/images/1825514568_6b6b5c2f2f.jpg` | Edvin W. Johannesen | CC-BY-4.0 | [GBIF 1825514568](https://www.gbif.org/occurrence/1825514568) |
+| `web/tests/fixtures/images/2627618689_60309adb20.jpg` | Nils Edvard Stokke | CC-BY-4.0 | [GBIF 2627618689](https://www.gbif.org/occurrence/2627618689) |
 | `web/tests/fixtures/images/3345075329_9ae2b10657.jpg` | Grete Strømsøe | CC-BY-4.0 | [GBIF 3345075329](https://www.gbif.org/occurrence/3345075329) |
 | `web/tests/fixtures/images/6509447648_53910f941e.jpg` | Turid Helland | CC-BY-4.0 | [GBIF 6509447648](https://www.gbif.org/occurrence/6509447648) |
 | `web/tests/fixtures/images/3902687238_108eefcd58.jpg` | Andreas Schneider | CC-BY-4.0 | [GBIF 3902687238](https://www.gbif.org/occurrence/3902687238) |
 | `web/tests/fixtures/images/4906525380_8bb8a2a5c1.jpg` | Nina Fiskerstrand | CC-BY-4.0 | [GBIF 4906525380](https://www.gbif.org/occurrence/4906525380) |
 | `web/tests/fixtures/images/1825461784_fabbfc8795.jpg` | Herdis Torsvik | CC-BY-4.0 | [GBIF 1825461784](https://www.gbif.org/occurrence/1825461784) |
 | `web/tests/fixtures/images/1933241549_d85735d691.jpg` | Nils Edvard Stokke | CC-BY-4.0 | [GBIF 1933241549](https://www.gbif.org/occurrence/1933241549) |
+| `web/tests/fixtures/images/3408602375_c3728d07ba.jpg` | Nils Edvard Stokke | CC-BY-4.0 | [GBIF 3408602375](https://www.gbif.org/occurrence/3408602375) |
 | `web/tests/fixtures/images/2332763687_13ebb07747.jpg` | Bjørn Eidhammer | CC-BY-4.0 | [GBIF 2332763687](https://www.gbif.org/occurrence/2332763687) |
 | `web/tests/fixtures/images/2404829784_7b1d4788b9.jpg` | Siv Moen | CC-BY-4.0 | [GBIF 2404829784](https://www.gbif.org/occurrence/2404829784) |
 | `web/tests/fixtures/images/2311308865_49672be74e.jpg` | Niklas Wahlberg | CC0-1.0 | [GBIF 2311308865](https://www.gbif.org/occurrence/2311308865) |
@@ -33,7 +34,6 @@ Golden test fixtures for the parity test (#8), photos from the test set, resized
 | `web/tests/fixtures/images/6543661534_ad51590436.jpg` | Rune Zakariassen | CC-BY-4.0 | [GBIF 6543661534](https://www.gbif.org/occurrence/6543661534) |
 | `web/tests/fixtures/images/2399204317_8b2e5f0f13.jpg` | Christian Kortner | CC-BY-4.0 | [GBIF 2399204317](https://www.gbif.org/occurrence/2399204317) |
 | `web/tests/fixtures/images/2399768854_3c38548cbb.jpg` | Tove Jacobsen | CC-BY-4.0 | [GBIF 2399768854](https://www.gbif.org/occurrence/2399768854) |
-| `web/tests/fixtures/images/3924311384_75e4b57cb2.jpg` | Perry Gunnar Larsen | CC-BY-4.0 | [GBIF 3924311384](https://www.gbif.org/occurrence/3924311384) |
 | `web/tests/fixtures/images/3898901380_935e1cee5e.jpg` | Jan Alsvik | CC-BY-4.0 | [GBIF 3898901380](https://www.gbif.org/occurrence/3898901380) |
 | `web/tests/fixtures/images/4930092317_56c4bbe814.jpg` | Erik Kagge | CC-BY-4.0 | [GBIF 4930092317](https://www.gbif.org/occurrence/4930092317) |
 | `web/tests/fixtures/images/4131993520_beb025dd09.jpg` | Ole Christian Hagestad | CC-BY-4.0 | [GBIF 4131993520](https://www.gbif.org/occurrence/4131993520) |

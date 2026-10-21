@@ -10,7 +10,7 @@ import { preprocess, resizedSize, type PreprocessSpec } from '../src/preprocess.
 
 const fixtures = new URL('./fixtures/', import.meta.url)
 const golden = JSON.parse(readFileSync(new URL('golden.json', fixtures), 'utf8'))
-const spec: PreprocessSpec = JSON.parse(readFileSync(new URL('../public/models/v1/preprocess.json', import.meta.url), 'utf8'))
+const spec: PreprocessSpec = JSON.parse(readFileSync(new URL('../public/models/v2/preprocess.json', import.meta.url), 'utf8'))
 
 const readNpy = (path: URL) => parseNpy(new Uint8Array(readFileSync(path)))
 

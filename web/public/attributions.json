@@ -1,8 +1,8 @@
 {
- "images": 29858,
+ "images": 37858,
  "licenses": {
-  "CC-BY-4.0": 28178,
-  "CC0-1.0": 1680
+  "CC-BY-4.0": 35413,
+  "CC0-1.0": 2445
  },
  "downloads": [
   {
@@ -58,10 +58,24 @@
    ]
   },
   {
+   "name": "Agnes",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "agujaceratops",
    "images": 3,
    "licenses": [
     "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "ahaukka",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
    ]
   },
   {
@@ -73,7 +87,7 @@
   },
   {
    "name": "Aina Nøding",
-   "images": 10,
+   "images": 11,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -101,7 +115,7 @@
   },
   {
    "name": "Albin Larsson",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC0-1.0"
    ]
@@ -115,14 +129,14 @@
   },
   {
    "name": "Aleksi Lehikoinen",
-   "images": 7,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Alex Sosnovshchenko",
-   "images": 273,
+   "images": 296,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -150,7 +164,7 @@
   },
   {
    "name": "Alexis Tinker-Tsavalas",
-   "images": 2,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -171,7 +185,7 @@
   },
   {
    "name": "Allan T. Souza",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -185,7 +199,14 @@
   },
   {
    "name": "Alma Helene Hansen Kural",
-   "images": 9,
+   "images": 10,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Alv Terje Fotland",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -206,7 +227,7 @@
   },
   {
    "name": "Amanda Sue Unneberg",
-   "images": 7,
+   "images": 9,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -220,14 +241,14 @@
   },
   {
    "name": "Anders Blix",
-   "images": 5,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Anders Gunnar Helle",
-   "images": 12,
+   "images": 19,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -248,7 +269,7 @@
   },
   {
    "name": "Anders Røynstrand",
-   "images": 41,
+   "images": 51,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -262,28 +283,49 @@
   },
   {
    "name": "Andrea Bender",
-   "images": 60,
+   "images": 77,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Andrea Cathrin Gisti Ganger",
-   "images": 4,
+   "images": 6,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Andrea Villarreal Rodríguez",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Andreas Eriksson",
-   "images": 7,
+   "images": 9,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Andreas Knudsen Sund",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Andreas Myklebust",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Andreas Schneider",
-   "images": 186,
+   "images": 208,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -303,22 +345,29 @@
    ]
   },
   {
+   "name": "Anette Gjervik",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Anette Pedersen Trane",
-   "images": 8,
+   "images": 10,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Anisha Kumra",
-   "images": 23,
+   "images": 24,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Anita",
-   "images": 7,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -353,7 +402,14 @@
   },
   {
    "name": "Anna Baadsvik",
-   "images": 3,
+   "images": 4,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Anna Elen Solland",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -380,6 +436,13 @@
    ]
   },
   {
+   "name": "Anna Margaretha Mikkola Muhrman",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "anne borgedahl",
    "images": 1,
    "licenses": [
@@ -388,7 +451,14 @@
   },
   {
    "name": "Anne Christenson",
-   "images": 67,
+   "images": 86,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Anne Grethe Myrset",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -436,6 +506,13 @@
    ]
   },
   {
+   "name": "Anne Nesbakken",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Anne Norheim",
    "images": 1,
    "licenses": [
@@ -472,35 +549,42 @@
   },
   {
    "name": "anneleen_kool",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
+   "name": "Annett Gallwas",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Annette Sønvisen",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Annie Evankow",
-   "images": 32,
+   "images": 48,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Anniina Kuusijärvi",
-   "images": 8,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Annika Lindqvist",
-   "images": 17,
+   "images": 21,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -514,7 +598,7 @@
   },
   {
    "name": "Antti Leväsaari",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -529,6 +613,13 @@
   {
    "name": "Are Nakrem",
    "images": 2,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Are Nordgaard",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -556,14 +647,14 @@
   },
   {
    "name": "Arild Omberg",
-   "images": 80,
+   "images": 100,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Arild Skylstad",
-   "images": 52,
+   "images": 60,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -577,7 +668,14 @@
   },
   {
    "name": "Arne Aronsen",
-   "images": 35,
+   "images": 39,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Arne Berg",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -591,21 +689,21 @@
   },
   {
    "name": "Arne Holgersson",
-   "images": 9,
+   "images": 13,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Arne Mæhlen",
-   "images": 16,
+   "images": 23,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Arne Reitan",
-   "images": 54,
+   "images": 69,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -633,14 +731,14 @@
   },
   {
    "name": "Arto Määttä",
-   "images": 6,
+   "images": 8,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Arttu Hallberg",
-   "images": 11,
+   "images": 12,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -654,21 +752,21 @@
   },
   {
    "name": "Arvid Næss",
-   "images": 27,
+   "images": 29,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "asdombro98",
-   "images": 23,
+   "images": 24,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Asgeir Holm",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -696,7 +794,7 @@
   },
   {
    "name": "Attila Samu",
-   "images": 5,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -710,28 +808,35 @@
   },
   {
    "name": "Axel Amendolara",
-   "images": 6,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Axel Gudmundsson",
-   "images": 26,
+   "images": 28,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Barry Stewart",
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "bartholomewhasty",
-   "images": 6,
+   "images": 7,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Basse",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -745,7 +850,7 @@
   },
   {
    "name": "Beate Nygård Johansson",
-   "images": 5,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -766,14 +871,14 @@
   },
   {
    "name": "Bente Rian",
-   "images": 336,
+   "images": 430,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Berit Næss",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -783,6 +888,13 @@
    "images": 1,
    "licenses": [
     "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Bettina Grieser Johns",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
    ]
   },
   {
@@ -801,7 +913,7 @@
   },
   {
    "name": "Bjørn Eidhammer",
-   "images": 751,
+   "images": 931,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -815,7 +927,7 @@
   },
   {
    "name": "Bjørn-Arild Omdal",
-   "images": 6,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -837,6 +949,20 @@
   {
    "name": "Bohan Jia",
    "images": 16,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "brageffs",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "brettaugust",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -867,6 +993,13 @@
    "images": 2,
    "licenses": [
     "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "camicami",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
    ]
   },
   {
@@ -913,21 +1046,21 @@
   },
   {
    "name": "Cassandra",
-   "images": 53,
+   "images": 56,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Cathrine Amundsen",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Cato Erga",
-   "images": 16,
+   "images": 17,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -948,7 +1081,7 @@
   },
   {
    "name": "Cecilie Ness",
-   "images": 62,
+   "images": 76,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1011,21 +1144,28 @@
   },
   {
    "name": "Christian Berg",
-   "images": 7,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Christian Kortner",
-   "images": 81,
+   "images": 109,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Christina Elgert",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Christina Hustvedt Myklebust",
-   "images": 24,
+   "images": 39,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1060,7 +1200,7 @@
   },
   {
    "name": "Christopher Kullenberg",
-   "images": 27,
+   "images": 31,
    "licenses": [
     "CC0-1.0"
    ]
@@ -1081,13 +1221,27 @@
   },
   {
    "name": "Cilla Moerman",
-   "images": 43,
+   "images": 49,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Cleary Ødegård",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Cole Wolf",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Cristina Villaverde",
    "images": 1,
    "licenses": [
     "CC-BY-4.0"
@@ -1102,21 +1256,21 @@
   },
   {
    "name": "Dag Endresen",
-   "images": 16,
+   "images": 17,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Dag Leonard Fjeldstad",
-   "images": 22,
+   "images": 24,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Dagny Mandt",
-   "images": 18,
+   "images": 26,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1130,14 +1284,14 @@
   },
   {
    "name": "Daniel Das",
-   "images": 3,
+   "images": 10,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Daniel Ghyselinck",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1151,7 +1305,7 @@
   },
   {
    "name": "darmozrac",
-   "images": 8,
+   "images": 9,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1193,7 +1347,7 @@
   },
   {
    "name": "delognut",
-   "images": 12,
+   "images": 14,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1207,7 +1361,7 @@
   },
   {
    "name": "Denys Vynokurov",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1256,7 +1410,7 @@
   },
   {
    "name": "dschigel",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1270,7 +1424,7 @@
   },
   {
    "name": "Edel Humstad",
-   "images": 69,
+   "images": 88,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1284,7 +1438,7 @@
   },
   {
    "name": "Edoardo Nardelli",
-   "images": 26,
+   "images": 51,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1298,7 +1452,7 @@
   },
   {
    "name": "Edvin W. Johannesen",
-   "images": 170,
+   "images": 185,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1318,22 +1472,29 @@
    ]
   },
   {
+   "name": "Eetu Rantala",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Egil Østby",
-   "images": 33,
+   "images": 58,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Eija-Leena Laiho",
-   "images": 8,
+   "images": 10,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Einar Falkeid",
-   "images": 19,
+   "images": 22,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1347,49 +1508,56 @@
   },
   {
    "name": "Eira Ramberg",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Eirik Gorseth Sønstevold",
-   "images": 2,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Eirik Hissingby Trandem",
-   "images": 28,
+   "images": 40,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Eirik Sortevik",
-   "images": 84,
+   "images": 115,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
-   "name": "Eiroth",
-   "images": 36,
-   "licenses": [
-    "CC0-1.0"
-   ]
-  },
-  {
-   "name": "Elena Obradović",
+   "name": "Eirik Sønstevold",
    "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
+   "name": "Eiroth",
+   "images": 38,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
+   "name": "Elena Obradović",
+   "images": 2,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Eli Heiberg",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1403,14 +1571,14 @@
   },
   {
    "name": "Elin Lundby",
-   "images": 9,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Elin Viker Thorkildsen",
-   "images": 1,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1445,7 +1613,7 @@
   },
   {
    "name": "Elisabeth Bråten Fjeld",
-   "images": 86,
+   "images": 102,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1466,14 +1634,21 @@
   },
   {
    "name": "Ellen Christensen",
-   "images": 63,
+   "images": 71,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Ellen Renate Andreassen",
-   "images": 63,
+   "images": 68,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "elmade",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1494,7 +1669,7 @@
   },
   {
    "name": "Else Landsem",
-   "images": 152,
+   "images": 178,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1508,7 +1683,7 @@
   },
   {
    "name": "Emil Berge",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1522,13 +1697,20 @@
   },
   {
    "name": "Emilie Konstanse Eide Nyheim",
-   "images": 15,
+   "images": 16,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Emina",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Emma",
    "images": 1,
    "licenses": [
     "CC-BY-4.0"
@@ -1542,8 +1724,22 @@
    ]
   },
   {
+   "name": "Emma Stadaas",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "empressmoth",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
    "name": "Endre Harvold Kvangraven",
-   "images": 3,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1571,14 +1767,14 @@
   },
   {
    "name": "Erik Hegge-Jansen",
-   "images": 6,
+   "images": 16,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Erik Kagge",
-   "images": 61,
+   "images": 119,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1626,6 +1822,20 @@
    ]
   },
   {
+   "name": "Esa Aalto",
+   "images": 2,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
+   "name": "Espen Andersen",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Ester Öpik",
    "images": 3,
    "licenses": [
@@ -1634,14 +1844,28 @@
   },
   {
    "name": "Eva Espeland",
-   "images": 5,
+   "images": 6,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Eva Førlandsås",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Eva Weme",
-   "images": 189,
+   "images": 271,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Even Dankowicz",
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1655,7 +1879,7 @@
   },
   {
    "name": "Fabian Lea",
-   "images": 5,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1670,6 +1894,20 @@
   {
    "name": "Felix Elias Anoufriev Johansen",
    "images": 5,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Felix Meyer",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Feo Marshmallow",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1711,14 +1949,14 @@
   },
   {
    "name": "Frantz Sortland",
-   "images": 15,
+   "images": 18,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Fred Arild Grøneng",
-   "images": 17,
+   "images": 23,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1739,7 +1977,7 @@
   },
   {
    "name": "Fredrikke Monsen",
-   "images": 11,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1767,7 +2005,7 @@
   },
   {
    "name": "Frode Jenset",
-   "images": 1,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1788,7 +2026,7 @@
   },
   {
    "name": "Gaute Mohn Jenssen",
-   "images": 30,
+   "images": 44,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1837,7 +2075,7 @@
   },
   {
    "name": "Giorgio Zavattoni",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC0-1.0"
    ]
@@ -1851,14 +2089,14 @@
   },
   {
    "name": "Gjermund Holsæter",
-   "images": 43,
+   "images": 108,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Gjermund Sandvik Halgunset",
-   "images": 2,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1879,7 +2117,21 @@
   },
   {
    "name": "Grete Strømsøe",
-   "images": 37,
+   "images": 40,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Grethe Haugøy",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Gro Christensen",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1900,35 +2152,35 @@
   },
   {
    "name": "Gry Føyerland Blix",
-   "images": 13,
+   "images": 19,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Gry Handberg",
-   "images": 61,
+   "images": 75,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Gry Støvind Hoell",
-   "images": 35,
+   "images": 42,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Grzegorz Górecki",
-   "images": 235,
+   "images": 303,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Gudny Brenden",
-   "images": 103,
+   "images": 112,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1942,14 +2194,14 @@
   },
   {
    "name": "Gunnar Bureid",
-   "images": 635,
+   "images": 846,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Gunnar Engan",
-   "images": 37,
+   "images": 43,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1962,6 +2214,13 @@
    ]
   },
   {
+   "name": "Gunner Kjerulf Poulsen",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
    "name": "Gunnhild Marthinsen",
    "images": 1,
    "licenses": [
@@ -1970,14 +2229,14 @@
   },
   {
    "name": "Gunvor Bollingmo",
-   "images": 96,
+   "images": 121,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Gunvor Skjelstad",
-   "images": 42,
+   "images": 44,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -1991,41 +2250,48 @@
   },
   {
    "name": "Gustaf Fredell",
-   "images": 13,
+   "images": 17,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Gyril Horn",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Hallvard Holtung",
-   "images": 28,
+   "images": 54,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Haltiamieli",
-   "images": 30,
+   "images": 35,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Halvard Hatlen",
-   "images": 310,
+   "images": 357,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "halvor losnedahl",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Halvor Røberg",
    "images": 1,
    "licenses": [
     "CC-BY-4.0"
@@ -2040,28 +2306,28 @@
   },
   {
    "name": "Hanna Larsson",
-   "images": 13,
+   "images": 15,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Hanna U.",
-   "images": 4,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Hanne Alise Bolstad-Heien",
-   "images": 1,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Hanne Bolstad-Heien",
-   "images": 6,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2082,7 +2348,7 @@
   },
   {
    "name": "Hans Andreas Sagstuen",
-   "images": 301,
+   "images": 353,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2090,6 +2356,13 @@
   {
    "name": "Hans Karl Karlsen",
    "images": 5,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Hans Peter Bye",
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2103,7 +2376,7 @@
   },
   {
    "name": "Hans Petter Schwencke",
-   "images": 96,
+   "images": 106,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2117,7 +2390,7 @@
   },
   {
    "name": "Harald",
-   "images": 6,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2131,7 +2404,7 @@
   },
   {
    "name": "Harald Misund",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2159,7 +2432,7 @@
   },
   {
    "name": "Hauk Liebe",
-   "images": 17,
+   "images": 39,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2194,7 +2467,7 @@
   },
   {
    "name": "Heidi Kjempekjenn",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2215,7 +2488,7 @@
   },
   {
    "name": "Heiko Liebel",
-   "images": 25,
+   "images": 37,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2229,7 +2502,7 @@
   },
   {
    "name": "Heinähukka",
-   "images": 58,
+   "images": 59,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2243,14 +2516,14 @@
   },
   {
    "name": "Helene Vacarisas",
-   "images": 10,
+   "images": 14,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Helge Fjeldstad",
-   "images": 2,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2292,7 +2565,7 @@
   },
   {
    "name": "Henning Larsen",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2306,7 +2579,7 @@
   },
   {
    "name": "Herdis Torsvik",
-   "images": 39,
+   "images": 45,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2320,7 +2593,7 @@
   },
   {
    "name": "Hilde Bye",
-   "images": 6,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2362,14 +2635,14 @@
   },
   {
    "name": "hkro",
-   "images": 4,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "hkujala",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2383,21 +2656,21 @@
   },
   {
    "name": "hop_o",
-   "images": 15,
-   "licenses": [
-    "CC-BY-4.0"
-   ]
-  },
-  {
-   "name": "Hulda C.H. Holte",
    "images": 20,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
+   "name": "Hulda C.H. Holte",
+   "images": 24,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Hulda Holte",
-   "images": 16,
+   "images": 21,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2411,7 +2684,14 @@
   },
   {
    "name": "Håkon Brandt Fjeld",
-   "images": 13,
+   "images": 20,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Håkon Eide Gundersen",
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2460,16 +2740,23 @@
   },
   {
    "name": "Iida Österman",
-   "images": 15,
+   "images": 19,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Ilkka Kaita-aho",
-   "images": 92,
+   "images": 157,
    "licenses": [
     "CC0-1.0"
+   ]
+  },
+  {
+   "name": "Ilona Hellerud",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
    ]
   },
   {
@@ -2494,6 +2781,13 @@
    ]
   },
   {
+   "name": "Inga Cathrin Winsvold",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Ingar Pettersen",
    "images": 1,
    "licenses": [
@@ -2502,7 +2796,7 @@
   },
   {
    "name": "Ingar Sundet",
-   "images": 10,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2530,21 +2824,21 @@
   },
   {
    "name": "Inger Kristoffersen",
-   "images": 260,
+   "images": 351,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Inger Skrede",
-   "images": 2,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Inger-Lise Fonneland",
-   "images": 1178,
+   "images": 1463,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2579,7 +2873,14 @@
   },
   {
    "name": "Ingunn Moslet",
-   "images": 10,
+   "images": 12,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Ingunn Woldmo",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2628,7 +2929,7 @@
   },
   {
    "name": "J Harald Larsen",
-   "images": 16,
+   "images": 18,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2662,8 +2963,15 @@
    ]
   },
   {
+   "name": "Jakob Teigland Engebretsen",
+   "images": 4,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Jan Alsvik",
-   "images": 711,
+   "images": 975,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2677,42 +2985,49 @@
   },
   {
    "name": "Jan Ole Olsen",
-   "images": 84,
+   "images": 105,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Jan Stenkjær",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jan Sørensen",
-   "images": 224,
+   "images": 292,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jan Tore Aakre",
-   "images": 14,
+   "images": 16,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jan Wesenberg",
-   "images": 9,
+   "images": 11,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jane Sundelius",
-   "images": 8,
+   "images": 9,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jani Kettunen",
-   "images": 13,
+   "images": 14,
    "licenses": [
     "CC0-1.0"
    ]
@@ -2725,8 +3040,15 @@
    ]
   },
   {
-   "name": "Jannik Stokholm",
+   "name": "Janne Säteri",
    "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Jannik Stokholm",
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2754,14 +3076,14 @@
   },
   {
    "name": "Jarmo Tahvanainen",
-   "images": 13,
+   "images": 14,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jeanette Elden",
-   "images": 15,
+   "images": 17,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2774,36 +3096,43 @@
    ]
   },
   {
+   "name": "jen",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
    "name": "Jennifer Fresco",
-   "images": 7,
+   "images": 10,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jenny Floen",
-   "images": 6,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jens Ullenius",
-   "images": 235,
+   "images": 300,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Jens-Christian Svenning",
-   "images": 4,
+   "images": 9,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jere Kahanpää",
-   "images": 17,
+   "images": 26,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2816,15 +3145,22 @@
    ]
   },
   {
+   "name": "Jerry Lanfear",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Jesse Rorabaugh",
-   "images": 15,
+   "images": 18,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Jessica Barlow",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC0-1.0"
    ]
@@ -2851,6 +3187,20 @@
    ]
   },
   {
+   "name": "Joachim Seehusen",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Joham Villhjerte øiesvold",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Johan",
    "images": 8,
    "licenses": [
@@ -2859,7 +3209,7 @@
   },
   {
    "name": "Johan Adler",
-   "images": 603,
+   "images": 654,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2873,14 +3223,14 @@
   },
   {
    "name": "Johan Sirnes",
-   "images": 88,
+   "images": 108,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Johan Tore Rødland",
-   "images": 13,
+   "images": 15,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2901,7 +3251,7 @@
   },
   {
    "name": "Johannes",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC0-1.0"
    ]
@@ -2922,21 +3272,28 @@
   },
   {
    "name": "Johannes Skahjem",
-   "images": 18,
+   "images": 28,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "John Bjarne Jordal",
-   "images": 10,
+   "images": 19,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "John Martin Mjelde",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Johnny R. Pedersen",
-   "images": 45,
+   "images": 55,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2950,14 +3307,14 @@
   },
   {
    "name": "Jon Arne Wilhelmsen",
-   "images": 31,
+   "images": 32,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jon Bekken",
-   "images": 25,
+   "images": 33,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -2985,7 +3342,7 @@
   },
   {
    "name": "Jon Trygve Johnsen",
-   "images": 95,
+   "images": 127,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3006,7 +3363,14 @@
   },
   {
    "name": "Jonas Heggedal",
-   "images": 77,
+   "images": 88,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Jono",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3027,14 +3391,14 @@
   },
   {
    "name": "Jordi M-R",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jordi Moreno-Romero",
-   "images": 10,
+   "images": 11,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3055,21 +3419,28 @@
   },
   {
    "name": "Josh Jenkins Shaw",
-   "images": 10,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jostein Sandvik",
-   "images": 5,
+   "images": 9,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Josua Gärtner",
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "jounipeltonen",
-   "images": 1,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3083,7 +3454,7 @@
   },
   {
    "name": "JS",
-   "images": 12,
+   "images": 14,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3111,7 +3482,7 @@
   },
   {
    "name": "Juliane Lien Nordhaug",
-   "images": 2,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3132,21 +3503,21 @@
   },
   {
    "name": "June Erlandsen Høgås",
-   "images": 20,
+   "images": 26,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Jurgen Wegter",
-   "images": 28,
+   "images": 31,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "jussi majaniemi",
-   "images": 11,
+   "images": 12,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3174,7 +3545,7 @@
   },
   {
    "name": "Jørn Olav Løkken",
-   "images": 10,
+   "images": 21,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3188,6 +3559,13 @@
   },
   {
    "name": "K. Pernille Bakkevig",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "K.P.",
    "images": 1,
    "licenses": [
     "CC-BY-4.0"
@@ -3209,56 +3587,63 @@
   },
   {
    "name": "Kai Stick",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "kaizer",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "kallne",
-   "images": 117,
+   "images": 119,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "KAR",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Kari Ekeberg Nilsen",
-   "images": 72,
+   "images": 79,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Kari Lehikoinen",
-   "images": 7,
+   "images": 10,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
+   "name": "Kari Nutti Stidal Øystese",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Kari Undrum",
-   "images": 4,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Kari Østengen",
-   "images": 21,
+   "images": 22,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3272,14 +3657,21 @@
   },
   {
    "name": "Karl Anders Olaussen",
-   "images": 4,
+   "images": 6,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Karl Kjetil Skuseth",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Karl Wesenberg",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3293,21 +3685,28 @@
   },
   {
    "name": "Karoline Sando",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Karolis Keturka",
-   "images": 9,
+   "images": 11,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Kathleen Helleland",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "katifungi",
-   "images": 13,
+   "images": 15,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3321,7 +3720,7 @@
   },
   {
    "name": "Kay Arne  Johansen",
-   "images": 11,
+   "images": 14,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3341,8 +3740,15 @@
    ]
   },
   {
+   "name": "Kevin Holston",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Kiarash j",
-   "images": 3,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3363,14 +3769,14 @@
   },
   {
    "name": "Kine Hals Bødker",
-   "images": 5,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Kirsti Anne  Mandal",
-   "images": 660,
+   "images": 850,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3398,28 +3804,35 @@
   },
   {
    "name": "Kjell Larsen",
-   "images": 2,
+   "images": 4,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Kjersti Helgeland",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Kjersti Marielle Wischmann Sæbø",
-   "images": 8,
+   "images": 9,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Kjersti Nerbråten Tjernshaugen",
-   "images": 78,
+   "images": 131,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Kjetil Harkestad",
-   "images": 11,
+   "images": 12,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3433,14 +3846,14 @@
   },
   {
    "name": "Klaus Meyer",
-   "images": 5,
+   "images": 9,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Knut Hessen",
-   "images": 18,
+   "images": 19,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3454,21 +3867,21 @@
   },
   {
    "name": "kong",
-   "images": 7,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Konsta Ala-Ilomäki",
-   "images": 12,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Konsta Happonen",
-   "images": 3,
+   "images": 7,
    "licenses": [
     "CC0-1.0"
    ]
@@ -3496,14 +3909,14 @@
   },
   {
    "name": "Kristian Victor Seres",
-   "images": 8,
+   "images": 9,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Kristin Daugstad",
-   "images": 6,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3524,7 +3937,7 @@
   },
   {
    "name": "Kristin Victoria Haukelidsæter",
-   "images": 3,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3559,14 +3972,14 @@
   },
   {
    "name": "Kristoffer Olsen",
-   "images": 12,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Kristoffer Selvig",
-   "images": 16,
+   "images": 25,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3608,7 +4021,7 @@
   },
   {
    "name": "L. Pikorainen",
-   "images": 2,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3635,6 +4048,13 @@
    ]
   },
   {
+   "name": "Lauri Raami",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Leah",
    "images": 2,
    "licenses": [
@@ -3643,7 +4063,7 @@
   },
   {
    "name": "Leila S. Berg",
-   "images": 110,
+   "images": 139,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3692,14 +4112,21 @@
   },
   {
    "name": "Lillian Iversen",
-   "images": 80,
+   "images": 98,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Lin Hauglund",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Lina",
-   "images": 6,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3713,21 +4140,21 @@
   },
   {
    "name": "Linda Lötjönen",
-   "images": 49,
+   "images": 57,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Line Eid",
-   "images": 2,
+   "images": 9,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Line Moe",
-   "images": 40,
+   "images": 44,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3768,8 +4195,15 @@
    ]
   },
   {
+   "name": "Lise Lossius Skrede",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Liv Åm",
-   "images": 58,
+   "images": 114,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3783,7 +4217,7 @@
   },
   {
    "name": "Loan Mathiassen",
-   "images": 47,
+   "images": 51,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3824,6 +4258,20 @@
    ]
   },
   {
+   "name": "Ludvig Hafström",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
+   "name": "Luke Gorrie",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
    "name": "LUKE STANLEY",
    "images": 6,
    "licenses": [
@@ -3846,7 +4294,7 @@
   },
   {
    "name": "Lutra lutra",
-   "images": 145,
+   "images": 171,
    "licenses": [
     "CC0-1.0"
    ]
@@ -3881,23 +4329,37 @@
   },
   {
    "name": "Macarena Tapland",
-   "images": 59,
+   "images": 64,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Mads Markmanrud",
-   "images": 8,
+   "images": 9,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Mads Munkejord",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Maeve Hall",
-   "images": 30,
+   "images": 31,
    "licenses": [
     "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Maggie Tester",
+   "images": 2,
+   "licenses": [
+    "CC0-1.0"
    ]
   },
   {
@@ -3916,7 +4378,7 @@
   },
   {
    "name": "Magnar Olsen",
-   "images": 23,
+   "images": 27,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3958,14 +4420,14 @@
   },
   {
    "name": "Mali Ramsfjell",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Malin Emilie Hoff",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -3999,6 +4461,13 @@
    ]
   },
   {
+   "name": "Maren Kongelstad",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Maren Toft",
    "images": 1,
    "licenses": [
@@ -4014,7 +4483,7 @@
   },
   {
    "name": "Margit Kildevang",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC0-1.0"
    ]
@@ -4042,7 +4511,14 @@
   },
   {
    "name": "Mari Helene Knapstad",
-   "images": 2,
+   "images": 4,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Maria Elisabeth Klepp",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4070,14 +4546,14 @@
   },
   {
    "name": "Marianne Libakken",
-   "images": 12,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Marianne Moe",
-   "images": 75,
+   "images": 103,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4091,14 +4567,14 @@
   },
   {
    "name": "Marianne Smestad",
-   "images": 9,
+   "images": 12,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Marianne Solem",
-   "images": 11,
+   "images": 15,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4118,6 +4594,13 @@
    ]
   },
   {
+   "name": "Marino Linić",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
    "name": "Marios Thoma",
    "images": 1,
    "licenses": [
@@ -4133,7 +4616,7 @@
   },
   {
    "name": "Marit Holst",
-   "images": 2,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4161,21 +4644,21 @@
   },
   {
    "name": "Marit Roksvåg Iversen",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Marita Fleseland",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Marius Aas Høy",
-   "images": 14,
+   "images": 15,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4217,7 +4700,7 @@
   },
   {
    "name": "Marte Kristoffersen",
-   "images": 82,
+   "images": 96,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4231,7 +4714,7 @@
   },
   {
    "name": "martin ingemansson",
-   "images": 6,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4245,7 +4728,7 @@
   },
   {
    "name": "Martin Kalfatovic",
-   "images": 1,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4259,7 +4742,7 @@
   },
   {
    "name": "Martin Paliocha",
-   "images": 17,
+   "images": 26,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4308,7 +4791,7 @@
   },
   {
    "name": "Mathilde Norby Lorentzen",
-   "images": 78,
+   "images": 111,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4329,14 +4812,21 @@
   },
   {
    "name": "Matti Vaihevuori Hernández",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Max  Taylor",
-   "images": 10,
+   "images": 12,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Max Taylor",
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4419,8 +4909,22 @@
    ]
   },
   {
+   "name": "Michi Rentsch",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
    "name": "Mikael Niku",
-   "images": 11,
+   "images": 12,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Mikael Nyman",
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4441,14 +4945,21 @@
   },
   {
    "name": "Mikaela Olsen",
-   "images": 6,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
+   "name": "Mike Mulqueen",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
    "name": "Mikko Heikkinen",
-   "images": 92,
+   "images": 135,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4469,14 +4980,14 @@
   },
   {
    "name": "Mikko Saarinen",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Milan Johannes Despotovic",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4490,14 +5001,14 @@
   },
   {
    "name": "Milla Carne",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Miriam Berntsen",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4546,14 +5057,14 @@
   },
   {
    "name": "Morten Pettersen",
-   "images": 840,
+   "images": 947,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Morten Rosenvold Villadsen",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC0-1.0"
    ]
@@ -4567,7 +5078,7 @@
   },
   {
    "name": "muukalainen",
-   "images": 138,
+   "images": 151,
    "licenses": [
     "CC0-1.0"
    ]
@@ -4595,7 +5106,7 @@
   },
   {
    "name": "Natalia Zhekova",
-   "images": 13,
+   "images": 18,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4623,7 +5134,7 @@
   },
   {
    "name": "Naturforvaltning Lørenskog kommune",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4637,7 +5148,7 @@
   },
   {
    "name": "nicholas Humphrey",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4672,7 +5183,7 @@
   },
   {
    "name": "Nicolás Tamargo",
-   "images": 14,
+   "images": 27,
    "licenses": [
     "CC0-1.0"
    ]
@@ -4686,21 +5197,21 @@
   },
   {
    "name": "Niklas Wahlberg",
-   "images": 30,
+   "images": 33,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Nils Edvard Stokke",
-   "images": 783,
+   "images": 1079,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Nils Valland",
-   "images": 9,
+   "images": 11,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4714,7 +5225,7 @@
   },
   {
    "name": "Nina  Lundberg",
-   "images": 67,
+   "images": 84,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4728,14 +5239,28 @@
   },
   {
    "name": "Nina Fiskerstrand",
-   "images": 318,
+   "images": 362,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Nina Langhelle",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Nina Lundberg",
-   "images": 55,
+   "images": 73,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Nina Mäki-Kihniä",
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4756,21 +5281,21 @@
   },
   {
    "name": "Norrland",
-   "images": 6,
+   "images": 7,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "North Ross",
-   "images": 21,
+   "images": 23,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "nuujaka",
-   "images": 22,
+   "images": 25,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4791,7 +5316,7 @@
   },
   {
    "name": "Oda Sofie Dahle",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4819,7 +5344,7 @@
   },
   {
    "name": "Oddvar Olsen",
-   "images": 197,
+   "images": 203,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4833,7 +5358,7 @@
   },
   {
    "name": "Ola Martin Wergeland Krog",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4847,7 +5372,7 @@
   },
   {
    "name": "Ola Vestre",
-   "images": 270,
+   "images": 344,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4875,21 +5400,21 @@
   },
   {
    "name": "Ole",
-   "images": 9,
+   "images": 10,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Ole Bjørn Braathen",
-   "images": 256,
+   "images": 307,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Ole Christian Hagestad",
-   "images": 301,
+   "images": 354,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4917,7 +5442,7 @@
   },
   {
    "name": "Ole Reitan",
-   "images": 308,
+   "images": 340,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4930,15 +5455,22 @@
    ]
   },
   {
+   "name": "Olga Hilmo",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Olina Søyland Bru",
-   "images": 102,
+   "images": 112,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "OlleHanna",
-   "images": 4,
+   "images": 15,
    "licenses": [
     "CC0-1.0"
    ]
@@ -4952,21 +5484,21 @@
   },
   {
    "name": "Ove Fosså",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Paco Cardenas",
-   "images": 5,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Pascal Schaldach",
-   "images": 9,
+   "images": 10,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -4986,6 +5518,13 @@
    ]
   },
   {
+   "name": "Pauline Haugen",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "pavlaki1968",
    "images": 1,
    "licenses": [
@@ -4994,21 +5533,21 @@
   },
   {
    "name": "Paweł Zuzelski",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Pedro Berg Johnsen",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Peeter Talvistu",
-   "images": 31,
+   "images": 37,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5050,28 +5589,35 @@
   },
   {
    "name": "Per Erling Johansen",
-   "images": 19,
+   "images": 21,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Per Fadnes",
-   "images": 17,
+   "images": 20,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Per Fotland",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Per Gerhard Ihlen",
-   "images": 104,
+   "images": 136,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Per Inge Værnesbranden",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5085,14 +5631,14 @@
   },
   {
    "name": "Per Marstad",
-   "images": 818,
+   "images": 1058,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Per Morten  Selle",
-   "images": 10,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5113,14 +5659,14 @@
   },
   {
    "name": "Per Trygve Karstensen",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Per Vetlesen",
-   "images": 204,
+   "images": 230,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5134,21 +5680,28 @@
   },
   {
    "name": "Pernille",
-   "images": 64,
+   "images": 68,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Pernille Fritheim",
-   "images": 16,
+   "images": 21,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Perry Gunnar Larsen",
-   "images": 1492,
+   "images": 1733,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Peter Chen 2.0",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5162,21 +5715,21 @@
   },
   {
    "name": "Petri Rintala",
-   "images": 11,
+   "images": 13,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Petter Goksøyr Åsen",
-   "images": 24,
+   "images": 28,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Petter Oksum Eriksen",
-   "images": 15,
+   "images": 18,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5204,7 +5757,7 @@
   },
   {
    "name": "PIF Lørenskog kommune",
-   "images": 5,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5239,7 +5792,7 @@
   },
   {
    "name": "portulaca",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5267,7 +5820,7 @@
   },
   {
    "name": "Pyry Liedes",
-   "images": 99,
+   "images": 105,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5288,14 +5841,21 @@
   },
   {
    "name": "Pål Alvereng",
-   "images": 7,
+   "images": 13,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Pål Martin Eid",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Pål Theodorsen",
-   "images": 10,
+   "images": 11,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5316,7 +5876,7 @@
   },
   {
    "name": "Ragnar Skrede",
-   "images": 39,
+   "images": 61,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5330,6 +5890,13 @@
   },
   {
    "name": "ragnvald",
+   "images": 5,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "rainerburkard",
    "images": 5,
    "licenses": [
     "CC-BY-4.0"
@@ -5357,29 +5924,36 @@
    ]
   },
   {
-   "name": "Reidar Strand",
+   "name": "Reidar Harju",
    "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
+   "name": "Reidar Strand",
+   "images": 4,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Reidun Braathen",
-   "images": 340,
+   "images": 431,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Reidun Myking",
-   "images": 12,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "relet",
-   "images": 91,
+   "images": 98,
    "licenses": [
     "CC0-1.0"
    ]
@@ -5428,14 +6002,14 @@
   },
   {
    "name": "Rine Hanssen",
-   "images": 23,
+   "images": 25,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Rita Dahl Aspevik",
-   "images": 9,
+   "images": 10,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5456,14 +6030,14 @@
   },
   {
    "name": "Roar Nybø",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Roar Olsen",
-   "images": 26,
+   "images": 38,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5477,14 +6051,14 @@
   },
   {
    "name": "Roar Pettersen",
-   "images": 25,
+   "images": 28,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Rob van Kruining",
-   "images": 390,
+   "images": 520,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5519,14 +6093,21 @@
   },
   {
    "name": "Rolf Tengesdal",
-   "images": 4,
+   "images": 6,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Rolv Lundheim",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Ron de Goede",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5554,7 +6135,7 @@
   },
   {
    "name": "Rukaya Johaadien",
-   "images": 10,
+   "images": 12,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5567,6 +6148,13 @@
    ]
   },
   {
+   "name": "Rune  Botnermyr",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Rune Christensen",
    "images": 2,
    "licenses": [
@@ -5574,15 +6162,29 @@
    ]
   },
   {
+   "name": "Rune Gravdahl",
+   "images": 5,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Rune Solvang",
-   "images": 156,
+   "images": 180,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Rune Zakariassen",
-   "images": 1041,
+   "images": 1502,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Råg Ranes",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5596,7 +6198,7 @@
   },
   {
    "name": "Sami Törnblom",
-   "images": 16,
+   "images": 23,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5624,35 +6226,49 @@
   },
   {
    "name": "Sarah Fjørtoft",
-   "images": 1,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Sarah Kirn",
-   "images": 4,
+   "images": 5,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Sarah Lerstad",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Sarah Richardson",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Sarah Zukoff",
-   "images": 24,
+   "images": 26,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Saskia Kollegger",
-   "images": 8,
+   "images": 10,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "seanmegh",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC0-1.0"
    ]
@@ -5694,42 +6310,49 @@
   },
   {
    "name": "Sieglinde Hansen [1939-2019]",
-   "images": 141,
+   "images": 330,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "siennasienna",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Sigmund Ås",
-   "images": 89,
+   "images": 101,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Signe Videm",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Signe Vrålstad",
-   "images": 16,
+   "images": 26,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Sigrid Jakob",
-   "images": 5,
+   "images": 9,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Sigurd Anders Svalestad",
-   "images": 36,
+   "images": 41,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5757,14 +6380,21 @@
   },
   {
    "name": "Siiri Jaakkola",
-   "images": 18,
+   "images": 19,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Silja Holhjem",
-   "images": 11,
+   "images": 13,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Silje Maloney",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5785,7 +6415,7 @@
   },
   {
    "name": "Simen Hyll Hansen",
-   "images": 20,
+   "images": 25,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5806,14 +6436,14 @@
   },
   {
    "name": "sindre vågsdal",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "siri Jensen",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5827,28 +6457,28 @@
   },
   {
    "name": "Siri Lie Olsen",
-   "images": 97,
+   "images": 149,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Sirianna Pettersen",
-   "images": 5,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Sissel Carlstrøm",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Siv Moen",
-   "images": 1567,
+   "images": 2095,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5876,14 +6506,14 @@
   },
   {
    "name": "Smriti S.",
-   "images": 1,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Snorre Henriksen",
-   "images": 68,
+   "images": 83,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5903,6 +6533,13 @@
    ]
   },
   {
+   "name": "Solveig Bygdås",
+   "images": 6,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "SOLVEIG KONST",
    "images": 2,
    "licenses": [
@@ -5911,6 +6548,13 @@
   },
   {
    "name": "Solveig Vatne Gustavsen",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Sondre Fink",
    "images": 1,
    "licenses": [
     "CC-BY-4.0"
@@ -5931,6 +6575,13 @@
    ]
   },
   {
+   "name": "Stefan Wolmarans",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "stein-tommy johansen",
    "images": 2,
    "licenses": [
@@ -5939,7 +6590,7 @@
   },
   {
    "name": "Steinar Stueflotten",
-   "images": 8,
+   "images": 10,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -5967,7 +6618,7 @@
   },
   {
    "name": "Stian Bue Pettersen",
-   "images": 5,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6002,7 +6653,28 @@
   },
   {
    "name": "Stig Rubach",
-   "images": 21,
+   "images": 28,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Stig Storheil",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Stine Reitan",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Stine Svang",
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6022,15 +6694,29 @@
    ]
   },
   {
+   "name": "Sunniva",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "sunnmoringen",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Susann Pettersen",
-   "images": 8,
+   "images": 12,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Susanna",
-   "images": 54,
+   "images": 64,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6051,7 +6737,7 @@
   },
   {
    "name": "Svein Almedal",
-   "images": 5,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6065,21 +6751,21 @@
   },
   {
    "name": "Svein Lund",
-   "images": 17,
+   "images": 20,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Svein Olav B. Drangeid",
-   "images": 76,
+   "images": 85,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Sverre Lundemo",
-   "images": 4,
+   "images": 11,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6093,7 +6779,7 @@
   },
   {
    "name": "Sylvain Gérard",
-   "images": 30,
+   "images": 39,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6114,7 +6800,7 @@
   },
   {
    "name": "tdec",
-   "images": 21,
+   "images": 23,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6128,7 +6814,7 @@
   },
   {
    "name": "Teemu Kurppa",
-   "images": 46,
+   "images": 129,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6141,15 +6827,22 @@
    ]
   },
   {
+   "name": "Terho Taarna",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Terje Bjerkan",
-   "images": 39,
+   "images": 42,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Terje Høiland",
-   "images": 2,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6184,7 +6877,7 @@
   },
   {
    "name": "Terje Spolén Nilsen",
-   "images": 133,
+   "images": 200,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6197,15 +6890,22 @@
    ]
   },
   {
+   "name": "Tero Kuusela",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
    "name": "Tero Linjama",
-   "images": 272,
+   "images": 344,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Tessa Frenay",
-   "images": 110,
+   "images": 137,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6226,14 +6926,14 @@
   },
   {
    "name": "Theo Ruissen",
-   "images": 9,
+   "images": 10,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Theodor Korsgaard",
-   "images": 152,
+   "images": 234,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6254,7 +6954,7 @@
   },
   {
    "name": "Thomas Hirsch",
-   "images": 7,
+   "images": 9,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6282,7 +6982,7 @@
   },
   {
    "name": "Tim Johnson",
-   "images": 5,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6296,7 +6996,7 @@
   },
   {
    "name": "Tina helene Kristensen",
-   "images": 7,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6310,7 +7010,7 @@
   },
   {
    "name": "Tittanoora Martikainen",
-   "images": 37,
+   "images": 38,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6318,6 +7018,13 @@
   {
    "name": "tobijw",
    "images": 13,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Tom Dalhøy",
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6338,21 +7045,21 @@
   },
   {
    "name": "Tomas Pocius",
-   "images": 6,
+   "images": 9,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "tomisc",
-   "images": 12,
+   "images": 13,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Tommy Solberg",
-   "images": 30,
+   "images": 44,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6365,6 +7072,13 @@
    ]
   },
   {
+   "name": "tomsch97",
+   "images": 1,
+   "licenses": [
+    "CC0-1.0"
+   ]
+  },
+  {
    "name": "Tone Heggelund",
    "images": 1,
    "licenses": [
@@ -6373,7 +7087,7 @@
   },
   {
    "name": "Tonje",
-   "images": 2,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6394,7 +7108,7 @@
   },
   {
    "name": "Torfinn Bjørseth",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6408,7 +7122,7 @@
   },
   {
    "name": "Torgrim Breiehagen",
-   "images": 7,
+   "images": 8,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6429,7 +7143,7 @@
   },
   {
    "name": "Toril Jømne",
-   "images": 8,
+   "images": 9,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6443,21 +7157,21 @@
   },
   {
    "name": "Tove  Bakar",
-   "images": 6,
+   "images": 7,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Tove Jacobsen",
-   "images": 2377,
+   "images": 2842,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Trine Boquist",
-   "images": 41,
+   "images": 50,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6471,7 +7185,14 @@
   },
   {
    "name": "Trine Parmer",
-   "images": 8,
+   "images": 14,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Tristan Haab",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6492,7 +7213,7 @@
   },
   {
    "name": "Trond Sørhuus",
-   "images": 20,
+   "images": 28,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6534,7 +7255,7 @@
   },
   {
    "name": "Turid Helland",
-   "images": 45,
+   "images": 46,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6555,14 +7276,21 @@
   },
   {
    "name": "Ulla-Britt Bøe",
-   "images": 18,
+   "images": 22,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Ulrik Andreassen",
-   "images": 299,
+   "images": 374,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Ulrike Jüse",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6583,7 +7311,14 @@
   },
   {
    "name": "Una Harstad Cusick",
-   "images": 5,
+   "images": 8,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "unidentifiedcritter",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6604,14 +7339,14 @@
   },
   {
    "name": "V_Nebenfuehr",
-   "images": 1,
+   "images": 2,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Valerii Darmostuk",
-   "images": 3,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6625,14 +7360,14 @@
   },
   {
    "name": "VASILEIOS TSIRKINIDIS",
-   "images": 4,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Veeti Varjo",
-   "images": 11,
+   "images": 12,
    "licenses": [
     "CC0-1.0"
    ]
@@ -6646,14 +7381,14 @@
   },
   {
    "name": "Vegard Stav",
-   "images": 6,
+   "images": 11,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Vemund Opedal",
-   "images": 30,
+   "images": 32,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6667,7 +7402,7 @@
   },
   {
    "name": "Vesa Oikonen",
-   "images": 71,
+   "images": 469,
    "licenses": [
     "CC0-1.0"
    ]
@@ -6688,7 +7423,7 @@
   },
   {
    "name": "Vigdis Helene Furuknap",
-   "images": 2,
+   "images": 5,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6730,7 +7465,7 @@
   },
   {
    "name": "Vivian Fadum",
-   "images": 1,
+   "images": 3,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6743,8 +7478,15 @@
    ]
   },
   {
+   "name": "Vsevolod Rudyi",
+   "images": 1,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
    "name": "Wenche Eli Johansen",
-   "images": 10,
+   "images": 14,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6772,7 +7514,7 @@
   },
   {
    "name": "Wiljam Eklund",
-   "images": 13,
+   "images": 21,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6793,28 +7535,28 @@
   },
   {
    "name": "Willow Peo Hansen",
-   "images": 64,
+   "images": 87,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "wkee4ager",
-   "images": 91,
+   "images": 94,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "Wouter Koch",
-   "images": 37,
+   "images": 41,
    "licenses": [
     "CC0-1.0"
    ]
   },
   {
    "name": "Yehor Yatsiuk",
-   "images": 46,
+   "images": 58,
    "licenses": [
     "CC0-1.0"
    ]
@@ -6828,14 +7570,14 @@
   },
   {
    "name": "Yvonne Karin Martin",
-   "images": 3,
+   "images": 4,
    "licenses": [
     "CC-BY-4.0"
    ]
   },
   {
    "name": "zidel",
-   "images": 8,
+   "images": 10,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6856,7 +7598,7 @@
   },
   {
    "name": "Åge Oterhals",
-   "images": 56,
+   "images": 62,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6877,7 +7619,7 @@
   },
   {
    "name": "Åsmund Riiser Kristiansen",
-   "images": 6,
+   "images": 11,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6912,7 +7654,14 @@
   },
   {
    "name": "Øystein Røsok",
-   "images": 34,
+   "images": 69,
+   "licenses": [
+    "CC-BY-4.0"
+   ]
+  },
+  {
+   "name": "Øyvind Bonesrønning",
+   "images": 1,
    "licenses": [
     "CC-BY-4.0"
    ]
@@ -6926,7 +7675,7 @@
   },
   {
    "name": "Žan Rode",
-   "images": 5,
+   "images": 6,
    "licenses": [
     "CC-BY-4.0"
    ]

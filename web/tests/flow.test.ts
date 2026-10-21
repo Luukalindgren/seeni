@@ -25,8 +25,8 @@ import {
 
 const read = (path: string) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'))
 const records: SpeciesRecord[] = read('../../species/species.json')
-const labels: Label[] = read('../public/models/v1/labels.json')
-const calibration: Calibration = read('../public/models/v1/calibration.json')
+const labels: Label[] = read('../public/models/v2/labels.json')
+const calibration: Calibration = read('../public/models/v2/calibration.json')
 const species = speciesMap(records)
 const ids = labels.map((l) => l.id)
 // The same pattern as EDIBLE in training/src/seeni/species.py.

@@ -21,6 +21,8 @@ test('saves a find, lists it after a reload, and deletes it', async ({ page }) =
   const list = page.locator('#finds-list')
   await expect(list.locator('.find')).toHaveCount(1)
   await expect(list.locator('.find strong')).toHaveText('kantarelli?')
+  // Its dangerous lookalikes are named in the list too (hard rule 8).
+  await expect(list.locator('.find-danger')).toContainText('lehtomyrkkyseitikki')
   await list.getByRole('button', { name: 'Poista: kantarelli?' }).click()
   await expect(list).toContainText('Ei tallennettuja löytöjä')
   await page.getByRole('button', { name: 'Sulje' }).click()

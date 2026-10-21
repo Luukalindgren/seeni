@@ -129,6 +129,7 @@ export const fi = {
   findsNote: 'Löydöt tallentuvat vain tälle laitteelle. Ne ovat sovelluksen ehdotuksia, eivät varmistettuja lajeja.',
   findsEmpty: 'Ei tallennettuja löytöjä.',
   findsUnknown: 'Tunnistamaton sieni',
+  findsDanger: (names: string) => `Vaaralliset kaksoisolennot: ${names}`,
   findsMap: 'Kartalla',
   findsDelete: 'Poista',
 

@@ -119,6 +119,7 @@ export const en: Strings = {
   findsNote: 'Finds are kept on this device only. They are the app’s suggestions, not confirmed species.',
   findsEmpty: 'No saved finds.',
   findsUnknown: 'Unidentified mushroom',
+  findsDanger: (names: string) => `Dangerous lookalikes: ${names}`,
   findsMap: 'On the map',
   findsDelete: 'Delete',
 

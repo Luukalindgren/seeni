@@ -1579,3 +1579,8 @@ body.live-on .adding {
 .finds-empty {
   opacity: 0.8;
 }
+.find-danger {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--danger-text);
+}

@@ -102,6 +102,7 @@ svg {
 }
 
 .logo {
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -243,7 +244,6 @@ svg {
   background: var(--moss-soft);
 }
 
-.drop:focus-visible,
 .primary:focus-visible,
 .secondary:focus-visible {
   outline: 3px solid var(--moss);
@@ -458,20 +458,18 @@ dialog h2 {
 
 /* Result */
 
-#result > * {
-  animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+/* Only when a new result appears; answering a check re-renders without hiding anything. */
+#result.enter > *,
+#result.enter .side > * {
+  animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-#result > :nth-child(2) {
+#result.enter .side > :nth-child(1) {
   animation-delay: 0.08s;
 }
 
-#result > :nth-child(3) {
+#result.enter .side > :nth-child(n + 2) {
   animation-delay: 0.16s;
-}
-
-#result > :nth-child(n + 4) {
-  animation-delay: 0.24s;
 }
 
 .hero {
@@ -545,6 +543,9 @@ dialog h2 {
   height: 100%;
   border-radius: 0.3rem;
   background: var(--moss);
+}
+
+#result.enter .meter span {
   animation: fill 1s cubic-bezier(0.2, 0.7, 0.2, 1) both 0.3s;
 }
 
@@ -589,7 +590,7 @@ dialog h2 {
   }
 }
 
-#result > h3 {
+.side > h3 {
   margin-top: 1.5rem;
 }
 
@@ -731,8 +732,8 @@ footer summary {
     padding-bottom: 1rem;
   }
 
-  .intro,
-  .hint {
+  #home .intro,
+  #home .hint {
     display: none;
   }
 
@@ -750,17 +751,6 @@ footer summary {
     margin: 0;
     padding: 1.25rem 2.5rem;
     font-size: 1.25rem;
-  }
-
-  /* A desktop has no camera to open from a file input; the picker is the same thing. */
-  .actions label[for='camera'] {
-    display: none;
-  }
-
-  .actions label[for='gallery'] {
-    background: var(--accent);
-    color: var(--accent-fg);
-    border: 0;
   }
 
   .status,
@@ -811,16 +801,14 @@ footer summary {
     animation-delay: -1.5s;
   }
 
-  /* Result: the photo on the left, everything else beside it. */
+  /* Result: the photo on the left; the species and everything below it on the right. The
+     1fr row takes the photo's extra height, so the species block keeps its natural size. */
   #result:not([hidden]) {
     display: grid;
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
     column-gap: 3.5rem;
     align-content: start;
-  }
-
-  #result > * {
-    grid-column: 2;
   }
 
   .hero {
@@ -829,14 +817,24 @@ footer summary {
 
   .hero-photo {
     grid-column: 1;
-    grid-row: 1 / span 20;
+    grid-row: 1 / span 2;
     align-self: start;
     position: sticky;
     top: 1.5rem;
     border-radius: 2rem;
     overflow: hidden;
     box-shadow: 0 1.9rem 3.75rem var(--shadow);
-    animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .side {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #result.enter .hero-photo {
+    animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   }
 
   .hero-photo img {
@@ -845,8 +843,12 @@ footer summary {
 
   .hero-body {
     grid-column: 2;
+    grid-row: 1;
     padding: 0;
-    animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both 0.08s;
+  }
+
+  #result.enter .hero-body {
+    animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both 0.04s;
   }
 
   .hero-body h2 {
@@ -869,9 +871,9 @@ footer summary {
     grid-column: 1 / -1;
   }
 
-  #result > .primary {
+  .side > .primary {
     width: auto;
-    justify-self: start;
+    align-self: flex-start;
   }
 
   /* The result without a species (or an error) has no photo: one column. */
@@ -879,6 +881,20 @@ footer summary {
     display: block;
     max-width: 40rem;
     margin: 0 auto;
+  }
+}
+
+/* A computer has no camera to open from a file input (#43 handles live cameras); the picker
+   is the same thing, so only "Valitse kuva" stays. Tablets keep both. */
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .actions label[for='camera'] {
+    display: none;
+  }
+
+  .actions label[for='gallery'] {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: 0;
   }
 }
 

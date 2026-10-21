@@ -47,10 +47,10 @@ app.innerHTML = `
   </dialog>
 
   <header class="topbar">
-    <span class="logo">
+    <h1 class="logo">
       <img src="${base}icons/icon-192.png" alt="" width="36" height="36" />
       <span>Seeni</span>
-    </span>
+    </h1>
     <button id="again" class="pill" type="button" hidden>${ICON.plus} Uusi kuva</button>
     <button id="info" class="round" type="button" aria-label="Tietoa ja lähteet">${ICON.info}</button>
   </header>
@@ -58,15 +58,15 @@ app.innerHTML = `
   <section id="home" class="view">
     <div class="spores" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <p class="intro">Kuvaa sieni, niin Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.</p>
-    <label id="drop" class="drop" for="gallery">
+    <label id="drop" class="drop" for="gallery" aria-hidden="true">
       <span class="pulse" aria-hidden="true"></span>
       ${ICON.mushroom}
       <span class="drop-text">Pudota kuva</span>
     </label>
     <div class="actions">
-      <label class="primary big" for="camera">${ICON.camera} Ota kuva</label>
+      <label class="primary big" for="camera" tabindex="0">${ICON.camera} Ota kuva</label>
       <input id="camera" type="file" accept="image/*" capture="environment" hidden />
-      <label class="secondary big" for="gallery">${ICON.image} Valitse kuva</label>
+      <label class="secondary big" for="gallery" tabindex="0">${ICON.image} Valitse kuva</label>
       <input id="gallery" type="file" accept="image/*" multiple hidden />
     </div>
     <p class="hint">Parhaiten onnistuu, kun koko sieni näkyy. Voit valita useita kuvia samasta sienestä.</p>
@@ -104,14 +104,15 @@ const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel)
 const views = { home: $('#home'), loading: $('#loading'), result: $('#result') }
 const status = $<HTMLParagraphElement>('#status')
 const result = views.result
+const again = $<HTMLButtonElement>('#again')
 
 function show(view: keyof typeof views) {
   for (const [name, el] of Object.entries(views)) el.hidden = name !== view
-  $('#again').hidden = view !== 'result'
+  again.hidden = view !== 'result'
   window.scrollTo(0, 0)
 }
 
-$('#again').addEventListener('click', () => show('home'))
+again.addEventListener('click', () => show('home'))
 $('#info').addEventListener('click', () => {
   const about = $<HTMLDetailsElement>('#about')
   about.open = true
@@ -161,6 +162,7 @@ worker.onmessage = (event: MessageEvent<Response>) => {
 
 // A worker that fails to load or crashes would leave every request waiting forever.
 function failAll(message: string) {
+  status.classList.remove('ready')
   status.textContent = `Tunnistin ei toimi: ${message}`
   for (const [id, resolve] of pending) resolve({ id, kind: 'error', message })
   pending.clear()
@@ -278,7 +280,9 @@ function render(state: State | null, raw: Map<string, number>) {
     body.append(ul)
   }
   hero.append(body)
-  result.append(hero)
+  // Everything below the species goes in one column, beside the photo on large screens.
+  const side = el('div', undefined, 'side')
+  result.append(hero, side)
 
   // Lookalikes: every other candidate and open warning, dangerous ones first.
   const others = [
@@ -286,7 +290,7 @@ function render(state: State | null, raw: Map<string, number>) {
     ...state.warnings,
   ].sort((x, y) => Number(isDangerousId(y)) - Number(isDangerousId(x)))
   if (others.length > 0) {
-    result.append(el('h3', 'Kaksoisolennot ja muut vaihtoehdot'))
+    side.append(el('h3', 'Kaksoisolennot ja muut vaihtoehdot'))
     const list = el('ul', undefined, 'lookalikes')
     for (const id of others) {
       const li = el('li')
@@ -299,7 +303,7 @@ function render(state: State | null, raw: Map<string, number>) {
       li.append(text)
       list.append(li)
     }
-    result.append(list)
+    side.append(list)
   }
 
   // How to make sure: the checks, one at a time.
@@ -311,16 +315,22 @@ function render(state: State | null, raw: Map<string, number>) {
     const answers = el('div', undefined, 'answers')
     for (const a of Object.keys(check.vastaukset)) {
       const button = el('button', a, 'answer')
-      button.addEventListener('click', () => render(answer(state, check, a), raw))
+      button.addEventListener('click', () => {
+        result.classList.remove('enter')
+        render(answer(state, check, a), raw)
+      })
       answers.append(button)
     }
     const skipButton = el('button', 'En pysty tarkistamaan tätä', 'answer ghost')
-    skipButton.addEventListener('click', () => render(skip(state, check), raw))
+    skipButton.addEventListener('click', () => {
+      result.classList.remove('enter')
+      render(skip(state, check), raw)
+    })
     answers.append(skipButton)
     box.append(answers)
-    result.append(box)
+    side.append(box)
   } else if (others.some(isDangerousId)) {
-    result.append(
+    side.append(
       el('p', 'Vaarallisia kaksoisolentoja ei voi sulkea pois tällä sovelluksella. Varmista laji sieneuvojalta.', 'reminder'),
     )
   }
@@ -332,10 +342,10 @@ function render(state: State | null, raw: Map<string, number>) {
       const k = [...species.values()].flatMap((r) => r.tarkistukset).find((c) => c.id === a.check)
       ul.append(el('li', `${k?.kysymys ?? a.check} – ${a.answer}`))
     }
-    result.append(el('h3', 'Tarkistamasi asiat'), ul)
+    side.append(el('h3', 'Tarkistamasi asiat'), ul)
   }
 
-  result.append(el('p', REMINDER, 'reminder'), newPhotoButton())
+  side.append(el('p', REMINDER, 'reminder'), newPhotoButton())
   show('result')
 }
 
@@ -362,6 +372,8 @@ async function identify(images: File[]) {
   if (images.length === 0) return
   const request = ++latest
   setPreview(images[0]!)
+  // Results fade in once; re-renders after an answer do not hide anything again.
+  result.classList.add('enter')
   show('loading')
   try {
     files ??= await loadFiles(base)
@@ -380,6 +392,15 @@ async function identify(images: File[]) {
   }
 }
 
+// The buttons are labels for hidden file inputs; Enter and Space open them like a button.
+for (const label of document.querySelectorAll<HTMLLabelElement>('.actions label')) {
+  label.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    e.preventDefault()
+    label.click()
+  })
+}
+
 for (const id of ['#camera', '#gallery']) {
   const input = $<HTMLInputElement>(id)
   input.addEventListener('change', () => {
@@ -389,6 +410,9 @@ for (const id of ['#camera', '#gallery']) {
   })
 }
 
+// Some images (e.g. HEIC on Windows) have no MIME type; let the decoder decide for those.
+const isImage = (f: File) => f.type === '' || f.type.startsWith('image/')
+
 // Drag and drop for large screens: photos dropped anywhere on the page are identified.
 const drop = $('#drop')
 let dragDepth = 0
@@ -397,8 +421,13 @@ window.addEventListener('dragenter', (e) => {
   dragDepth++
   drop.classList.add('dragging')
 })
-window.addEventListener('dragleave', () => {
-  if (dragDepth > 0 && --dragDepth === 0) drop.classList.remove('dragging')
+window.addEventListener('dragleave', (e) => {
+  if (!e.dataTransfer?.types.includes('Files')) return
+  // Leaving the window (no related target) always ends the drag, even if a count was missed.
+  if (e.relatedTarget === null || --dragDepth <= 0) {
+    dragDepth = 0
+    drop.classList.remove('dragging')
+  }
 })
 window.addEventListener('dragover', (e) => {
   if (e.dataTransfer?.types.includes('Files')) e.preventDefault()
@@ -410,14 +439,14 @@ window.addEventListener('drop', (e) => {
   drop.classList.remove('dragging')
   // The warning has to be accepted first.
   if (dialog.open) return
-  const images = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'))
+  const images = Array.from(e.dataTransfer.files).filter(isImage)
   void identify(images)
 })
 
 // Pasting an image from the clipboard identifies it too.
 window.addEventListener('paste', (e) => {
   if (dialog.open) return
-  const images = Array.from(e.clipboardData?.files ?? []).filter((f) => f.type.startsWith('image/'))
+  const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
   if (images.length === 0) return
   e.preventDefault()
   void identify(images)

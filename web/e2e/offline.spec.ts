@@ -5,13 +5,21 @@ import { fileURLToPath } from 'node:url'
 
 const image = fileURLToPath(new URL('../tests/fixtures/images/3345075329_9ae2b10657.jpg', import.meta.url))
 
-test('shows the warning first, then identifies a mushroom offline without sending anything', async ({
+test('asks for consent first, then identifies a mushroom offline without sending anything', async ({
   page,
   context,
 }) => {
   await page.goto('http://localhost:4173/seeni/')
   await expect(page.locator('#warning')).toBeVisible()
-  await page.getByRole('button', { name: 'Ymmärrän' }).click()
+  // The consent cannot be skipped: Escape does nothing and the button waits for the checkbox.
+  await page.keyboard.press('Escape')
+  await expect(page.locator('#warning')).toBeVisible()
+  // Even if a browser closes it without the button, it opens again.
+  await page.evaluate(() => document.querySelector<HTMLDialogElement>('#warning')!.close())
+  await expect(page.locator('#warning')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Hyväksyn' })).toBeDisabled()
+  await page.getByRole('checkbox').check()
+  await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await expect(page.locator('#warning')).toBeHidden()
   await expect(page.locator('#status')).toContainText('Valmis', { timeout: 100_000 })
   // Wait until the service worker controls the page and has precached everything.
@@ -24,7 +32,7 @@ test('shows the warning first, then identifies a mushroom offline without sendin
 
   await context.setOffline(true)
   await page.reload()
-  // The warning was accepted in this visit, so it does not come back on reload.
+  // The consent is stored, so it does not come back on reload.
   await expect(page.locator('#warning')).toBeHidden()
   await expect(page.locator('#status')).toContainText('Valmis', { timeout: 100_000 })
 

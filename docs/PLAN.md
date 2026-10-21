@@ -234,7 +234,7 @@ Playwright-testi ajaa vaiheen 8 kultaiset kuvat sovelluksen oikealla esikäsitte
 
 ## Vaihe 11: Julkaisun tarkistuslista
 
-- [ ] Vastuuvapauslauseke näkyy etusivulla ja jokaisessa tuloksessa: sovellus ei kerro, voiko sientä syödä.
+- [ ] Kertakäyttöinen suostumus ensimmäisellä käynnillä (#44) ja lyhyt muistutus jokaisessa tuloksessa: sovellus ei kerro, voiko sientä syödä.
 - [ ] Turvamittarit (vaihe 7) ovat hyväksytyllä tasolla, ja vaaralliset kaksoisolennot näkyvät aina.
 - [ ] Jokainen julkaistu lajitietue on asiantuntijan tarkistama.
 - [ ] Attribuutiot-sivu: GBIF-latauksen DOI ja kuvaajien nimet lisensseineen (generoidaan manifestista), sekä käytettyjen esikoulutettujen painojen ja kirjastojen lisenssit. Tarkista painojen lisenssi mallikortista.

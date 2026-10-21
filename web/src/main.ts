@@ -1,4 +1,4 @@
-// The app, mobile first: a warning, then take or pick a photo, a short wait, and the
+// The app, mobile first: a one-time consent, then take or pick a photo, a short wait, and the
 // identified species with its photo, group, lookalikes and how to make sure. Everything
 // runs on the device; no image or result is sent anywhere (hard rule 9).
 import speciesRecords from '../../species/species.json'
@@ -35,19 +35,24 @@ const ICON = {
   image: svg('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>'),
   info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>', 20),
   plus: svg('<path d="M12 5v14M5 12h14"/>', 20),
-  warn: svg('<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/>', 18),
   mushroom: `<svg class="mushroom" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 58c0-22 20-38 44-38s44 16 44 38c0 4-3 6-7 6H23c-4 0-7-2-7-6z"/><path d="M48 64c-1 14-4 26-8 36h40c-4-10-7-22-8-36"/><path d="M40 40c4-4 9-7 15-8M76 34h.01M62 44h.01M86 46h.01"/></svg>`,
 }
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 app.innerHTML = `
-  <dialog id="warning" aria-labelledby="warning-title">
-    <h2 id="warning-title">Huomio</h2>
-    <p>Seeni on kehitysvaiheessa oleva apuväline. Sen tuloksiin ei voi luottaa sataprosenttisesti,
-    ja lajitiedot ovat tarkistamattomia luonnoksia.</p>
+  <dialog id="warning" aria-labelledby="warning-title" closedby="none">
+    <h2 id="warning-title">Ennen kuin aloitat</h2>
+    <p>Seeni ehdottaa sienilajeja kuvasta ja näyttää niiden vaaralliset kaksoisolennot. Se ei kerro,
+    voiko sientä syödä, eikä sen tuloksiin voi luottaa sataprosenttisesti. Lajitiedot ovat
+    tarkistamattomia luonnoksia.</p>
     <p><strong>Älä koskaan syö sientä tämän sovelluksen perusteella.</strong>
     Varmista tunnistus aina sieneuvojalta tai luotettavasta lähteestä.</p>
-    <button id="accept" class="primary">Ymmärrän</button>
+    <p class="fine">Kuvat käsitellään vain tällä laitteella, eikä mitään lähetetä minnekään.
+    Koodi on MIT-lisensoitu, malli ja lajitiedot CC BY 4.0. Kuvaajat ja lähteet löydät myöhemmin
+    kohdasta Tietoa ja lähteet.</p>
+    <label class="consent"><input id="consent-check" type="checkbox" />
+    <span>Ymmärrän, että tunnistus voi olla väärä, enkä syö sientä sovelluksen perusteella.</span></label>
+    <button id="accept" class="primary" type="button" disabled>Hyväksyn</button>
   </dialog>
 
   <header class="topbar">
@@ -75,7 +80,6 @@ app.innerHTML = `
     </div>
     <p class="hint">Parhaiten onnistuu, kun koko sieni näkyy. Voit valita useita kuvia samasta sienestä.</p>
     <p id="status" class="status">Ladataan mallia…</p>
-    <p class="caution">${ICON.warn} Älä syö sientä tämän sovelluksen perusteella.</p>
   </section>
 
   <section id="loading" class="view" hidden>
@@ -170,25 +174,47 @@ $('#info').addEventListener('click', () => {
   about.scrollIntoView({ behavior: 'smooth' })
 })
 
-// --- Warning, once per visit -------------------------------------------------------------
+// --- Consent, once ----------------------------------------------------------------------
+// Nothing can be used before the warning is accepted. The acceptance is stored with a
+// version, so a changed warning can ask again by raising CONSENT_VERSION. Without storage
+// (private mode) the warning shows on every visit.
 
+const CONSENT_KEY = 'seeni-consent'
+// Raise when the warning text changes, so that everyone has to accept it again.
+const CONSENT_VERSION = 1
 const dialog = $<HTMLDialogElement>('#warning')
-function seenWarning(): boolean {
+const consentCheck = $<HTMLInputElement>('#consent-check')
+const accept = $<HTMLButtonElement>('#accept')
+
+function hasConsent(): boolean {
   try {
-    return sessionStorage.getItem('seeni-warning') === '1'
+    const stored = JSON.parse(localStorage.getItem(CONSENT_KEY) ?? 'null') as { version?: number } | null
+    return (stored?.version ?? 0) >= CONSENT_VERSION
   } catch {
     return false
   }
 }
-$('#accept').addEventListener('click', () => {
+consentCheck.addEventListener('change', () => {
+  accept.disabled = !consentCheck.checked
+})
+let consented = hasConsent()
+accept.addEventListener('click', () => {
+  if (!consentCheck.checked) return
+  consented = true
   try {
-    sessionStorage.setItem('seeni-warning', '1')
+    localStorage.setItem(CONSENT_KEY, JSON.stringify({ version: CONSENT_VERSION, acceptedAt: new Date().toISOString() }))
   } catch {
-    // Private mode: the warning shows again next time, which is fine.
+    // Private mode: the warning shows again next time.
   }
   dialog.close()
 })
-if (!seenWarning()) dialog.showModal()
+// Escape must not close it; browsers without `closedby` would otherwise allow that. Some
+// browsers close it anyway (a back gesture before any tap), so it opens again until accepted.
+dialog.addEventListener('cancel', (e) => e.preventDefault())
+dialog.addEventListener('close', () => {
+  if (!consented) dialog.showModal()
+})
+if (!consented) dialog.showModal()
 
 // --- Model in a worker -------------------------------------------------------------------
 
@@ -518,7 +544,7 @@ function gust(on: boolean) {
 const drop = $('#drop')
 let dragDepth = 0
 window.addEventListener('dragenter', (e) => {
-  if (!e.dataTransfer?.types.includes('Files') || dialog.open || webcamDialog.open) return
+  if (!e.dataTransfer?.types.includes('Files') || !consented || webcamDialog.open) return
   dragDepth++
   drop.classList.add('dragging')
   gust(true)
@@ -542,7 +568,7 @@ window.addEventListener('drop', (e) => {
   drop.classList.remove('dragging')
   gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (dialog.open || webcamDialog.open) return
+  if (!consented || webcamDialog.open) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)
   void identify(images)
 })
@@ -550,7 +576,7 @@ window.addEventListener('drop', (e) => {
 // Pasting an image from the clipboard identifies it too.
 window.addEventListener('paste', (e) => {
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (dialog.open || webcamDialog.open) return
+  if (!consented || webcamDialog.open) return
   const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
   if (images.length === 0) return
   e.preventDefault()

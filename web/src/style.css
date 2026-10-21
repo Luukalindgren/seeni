@@ -165,18 +165,6 @@ svg {
   vertical-align: 0.1em;
 }
 
-.caution {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: 1rem 0 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--danger-text);
-  text-align: center;
-}
-
 /* The round drop area: shown on large screens, where it is the main target. */
 .drop {
   display: none;
@@ -381,6 +369,38 @@ dialog::backdrop {
 
 dialog h2 {
   color: var(--danger);
+}
+
+#warning .fine {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.consent {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin: 1.25rem 0;
+  font-weight: 600;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.consent input {
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: 0;
+  accent-color: var(--moss);
+}
+
+#accept {
+  width: 100%;
+}
+
+#accept:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* Loading */
@@ -841,8 +861,7 @@ footer summary {
     font-size: 1.25rem;
   }
 
-  .status,
-  .caution {
+  .status {
     margin: 0;
   }
 

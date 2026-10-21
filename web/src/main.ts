@@ -362,8 +362,7 @@ worker.onmessage = (event: MessageEvent<Response>) => {
       setStatus(() => t().ready)
       status.classList.add('ready')
     } else if (r.kind === 'progress') {
-      // Never 100 % before the model is ready: it still has to start after the download.
-      const percent = Math.min(99, Math.floor((100 * r.loaded) / r.total))
+      const percent = r.percent
       setStatus(() => t().loadingModelPercent(percent))
     }
     else if (r.kind === 'error') {

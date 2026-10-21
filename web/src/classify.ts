@@ -86,19 +86,21 @@ export class Classifier {
 
   /** Create the session once and do one warm-up run. */
   static async create(base: string, providers: string[] = ['wasm'], onProgress?: Progress): Promise<Classifier> {
-    // The bundle refers to its .wasm with new URL(..., import.meta.url), so Vite copies it
-    // into the build and the app serves it itself, which offline needs. No wasmPaths: the
-    // default points at that copy, not at a CDN.
     // GitHub Pages sends no cross-origin isolation headers, so threads are not available.
     ort.env.wasm.numThreads = 1
-    // The runtime and the model are downloaded here, not by onnxruntime, to count the bytes.
+    // The runtime (.wasm) and the model are downloaded here, not by onnxruntime, to count the
+    // bytes; the runtime goes in as wasmBinary. Vite copies the .wasm into the build, so the
+    // app serves it itself, which offline needs (never a CDN).
     let loaded = 0
-    const counted = (n: number) => onProgress?.((loaded += n), __LOAD_BYTES__)
+    let settled = false
+    const counted = (n: number) => {
+      if (!settled) onProgress?.((loaded += n), __LOAD_BYTES__)
+    }
     const [files, wasm, model] = await Promise.all([
       loadFiles(base),
       download(wasmUrl, counted),
       download(`${base}models/${MODEL_VERSION}/model.onnx`, counted),
-    ])
+    ]).finally(() => (settled = true))
     ort.env.wasm.wasmBinary = wasm
     let lastError: unknown
     for (const provider of providers) {
@@ -107,6 +109,8 @@ export class Classifier {
         const classifier = new Classifier(files, session, provider)
         const crop = files.preprocess.centerCrop
         await classifier.logits([new Float32Array(3 * crop * crop)])
+        // The runtime is compiled; the bytes need not stay in memory.
+        ort.env.wasm.wasmBinary = undefined
         return classifier
       } catch (e) {
         lastError = e

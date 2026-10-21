@@ -1,4 +1,5 @@
 import { statSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -11,10 +12,10 @@ const base = '/seeni/'
 // What the first visit downloads before it can identify: the model and the WebAssembly
 // runtime, uncompressed. The loading status shows progress against it (the server may send
 // them compressed, so Content-Length does not tell).
-const size = (path: string) => statSync(fileURLToPath(new URL(path, import.meta.url))).size
+// Computed when the config loads: restart the dev server after exporting a new model.
 const loadBytes =
-  size(`public/models/${MODEL_VERSION}/model.onnx`) +
-  size('node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm')
+  statSync(fileURLToPath(new URL(`public/models/${MODEL_VERSION}/model.onnx`, import.meta.url))).size +
+  statSync(createRequire(import.meta.url).resolve('onnxruntime-web/ort-wasm-simd-threaded.wasm')).size
 
 export default defineConfig({
   base,

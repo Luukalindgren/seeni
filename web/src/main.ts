@@ -15,7 +15,9 @@ import {
   type SpeciesRecord,
   type State,
 } from './flow.ts'
+import { startGrass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
+import { hasCamera, setupWebcam } from './webcam.ts'
 import type { Request, Response } from './worker.ts'
 import './style.css'
 
@@ -56,14 +58,14 @@ app.innerHTML = `
   </header>
 
   <section id="home" class="view">
-    <div class="spores" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <p class="intro">Kuvaa sieni, niin Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.</p>
     <label id="drop" class="drop" for="gallery" aria-hidden="true">
-      <span class="pulse" aria-hidden="true"></span>
+      <span class="ripple"></span><span class="ripple"></span>
       ${ICON.mushroom}
       <span class="drop-text">Pudota kuva</span>
     </label>
     <div class="actions">
+      <button id="webcam" class="primary big" type="button" hidden>${ICON.camera} Ota kuva</button>
       <label class="primary big" for="camera" tabindex="0">${ICON.camera} Ota kuva</label>
       <input id="camera" type="file" accept="image/*" capture="environment" hidden />
       <label class="secondary big" for="gallery" tabindex="0">${ICON.image} Valitse kuva</label>
@@ -81,6 +83,17 @@ app.innerHTML = `
   </section>
 
   <section id="result" class="view" hidden aria-live="polite"></section>
+
+  <dialog id="webcam-dialog" aria-label="Kamera">
+    <video autoplay playsinline muted></video>
+    <p class="note" aria-live="polite"></p>
+    <div class="row">
+      <button id="shutter" class="primary big" type="button">${ICON.camera} Ota kuva</button>
+      <button id="webcam-cancel" class="secondary big" type="button">Peruuta</button>
+    </div>
+  </dialog>
+
+  <canvas id="grass" aria-hidden="true"></canvas>
 
   <footer>
     <details id="about">
@@ -106,11 +119,32 @@ const status = $<HTMLParagraphElement>('#status')
 const result = views.result
 const again = $<HTMLButtonElement>('#again')
 
-function show(view: keyof typeof views) {
-  for (const [name, el] of Object.entries(views)) el.hidden = name !== view
-  again.hidden = view !== 'result'
-  window.scrollTo(0, 0)
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const largeScreen = window.matchMedia('(min-width: 900px) and (hover: hover) and (pointer: fine)')
+// The grass starts when the window is (or later becomes) large.
+let grass: ReturnType<typeof startGrass> | null = null
+let currentView: keyof typeof views = 'home'
+function startGrassIfLarge() {
+  if (grass || !largeScreen.matches) return
+  grass = startGrass($<HTMLCanvasElement>('#grass'), reducedMotion)
+  grass.setVisible(currentView === 'home')
 }
+
+function show(view: keyof typeof views) {
+  currentView = view
+  const swap = () => {
+    for (const [name, el] of Object.entries(views)) el.hidden = name !== view
+    again.hidden = view !== 'result'
+    window.scrollTo(0, 0)
+  }
+  // The photo of the last identification is no longer needed once back home.
+  if (view === 'home') setPreview(null)
+  grass?.setVisible(view === 'home')
+  // A soft cross-fade between views where the browser supports it.
+  if (document.startViewTransition && !reducedMotion) document.startViewTransition(swap)
+  else swap()
+}
+startGrassIfLarge()
 
 again.addEventListener('click', () => show('home'))
 $('#info').addEventListener('click', () => {
@@ -368,9 +402,15 @@ function setPreview(image: Blob | null) {
   views.loading.classList.toggle('has-preview', image !== null)
 }
 
+// Identifying takes well under a second, so the loading view stays up for a moment;
+// otherwise the page would flash from the photo to the result.
+const MIN_LOADING_MS = reducedMotion ? 300 : 1400
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 async function identify(images: File[]) {
   if (images.length === 0) return
   const request = ++latest
+  const minimum = wait(MIN_LOADING_MS)
   setPreview(images[0]!)
   // Results fade in once; re-renders after an answer do not hide anything again.
   result.classList.add('enter')
@@ -378,19 +418,42 @@ async function identify(images: File[]) {
   try {
     files ??= await loadFiles(base)
     const r = await classify(images)
+    await minimum
     if (request !== latest) return
     if (r.kind !== 'result') throw new Error(r.kind === 'error' ? r.message : r.kind)
     const raw = new Map(files.labels.map((l, i) => [l.id, r.probabilities[i] ?? 0]))
     const first = start(r.probabilities, files.labels, species, files.calibration)
     render(first.kind === 'flow' ? first.state : null, raw)
   } catch (e) {
+    await minimum
     if (request !== latest) return
     result.replaceChildren(el('h2', 'Tunnistus epäonnistui'), el('p', String(e)), newPhotoButton())
     show('result')
-  } finally {
-    if (request === latest) setPreview(null)
   }
 }
+
+// A webcam on a computer: the button shows only when a camera is connected.
+const webcamDialog = $<HTMLDialogElement>('#webcam-dialog')
+const openWebcam = setupWebcam(
+  webcamDialog,
+  webcamDialog.querySelector('video')!,
+  $<HTMLButtonElement>('#shutter'),
+  webcamDialog.querySelector<HTMLElement>('.note')!,
+  (photo) => void identify([photo]),
+)
+$('#webcam-cancel').addEventListener('click', () => webcamDialog.close())
+$('#webcam').addEventListener('click', () => void openWebcam())
+async function checkCamera() {
+  const found = largeScreen.matches && (await hasCamera())
+  $('#webcam').hidden = !found
+  $('.actions').classList.toggle('has-webcam', found)
+}
+void checkCamera()
+navigator.mediaDevices?.addEventListener?.('devicechange', () => void checkCamera())
+largeScreen.addEventListener('change', () => {
+  startGrassIfLarge()
+  void checkCamera()
+})
 
 // The buttons are labels for hidden file inputs; Enter and Space open them like a button.
 for (const label of document.querySelectorAll<HTMLLabelElement>('.actions label')) {
@@ -437,15 +500,16 @@ window.addEventListener('drop', (e) => {
   e.preventDefault()
   dragDepth = 0
   drop.classList.remove('dragging')
-  // The warning has to be accepted first.
-  if (dialog.open) return
+  // The warning has to be accepted first, and the webcam dialog covers the page.
+  if (dialog.open || webcamDialog.open) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)
   void identify(images)
 })
 
 // Pasting an image from the clipboard identifies it too.
 window.addEventListener('paste', (e) => {
-  if (dialog.open) return
+  // The warning has to be accepted first, and the webcam dialog covers the page.
+  if (dialog.open || webcamDialog.open) return
   const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
   if (images.length === 0) return
   e.preventDefault()

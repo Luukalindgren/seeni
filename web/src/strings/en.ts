@@ -69,6 +69,11 @@ export const en: Strings = {
   tooManyPhotos: (max: number, left: number) =>
     `At most ${max} photos are used for one mushroom. ${left} ${left === 1 ? 'photo was' : 'photos were'} left out.`,
   failed: 'Identification failed',
+  unreadableTitle: 'The photo could not be opened',
+  unreadableText:
+    'The file is not an image, or the browser cannot read its format. Try a JPEG or PNG photo. iPhone HEIC photos open in Safari, but not always in other browsers.',
+  unreadablePhotos: (n: number) =>
+    n === 1 ? 'One photo could not be opened, so it was left out.' : `${n} photos could not be opened, so they were left out.`,
   or: ' or ',
 
   placeTitle: 'Find spot',

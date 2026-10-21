@@ -73,6 +73,11 @@ export const fi = {
   tooManyPhotos: (max: number, left: number) =>
     `Yhdestä sienestä käytetään enintään ${max} kuvaa. ${left} kuvaa jätettiin pois.`,
   failed: 'Tunnistus epäonnistui',
+  unreadableTitle: 'Kuvaa ei voitu avata',
+  unreadableText:
+    'Tiedosto ei ole kuva, tai selain ei osaa lukea sen muotoa. Kokeile JPEG- tai PNG-kuvaa. iPhonen HEIC-kuvat aukeavat Safarissa, mutta eivät aina muissa selaimissa.',
+  unreadablePhotos: (n: number) =>
+    n === 1 ? 'Yhtä kuvaa ei voitu avata, joten se jätettiin pois.' : `${n} kuvaa ei voitu avata, joten ne jätettiin pois.`,
   or: ' tai ',
 
   // Find spot (#51)

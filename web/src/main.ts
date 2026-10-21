@@ -1788,8 +1788,11 @@ window.addEventListener('drop', (e) => {
   gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
   if (!consented || document.querySelector('dialog[open]')) return
-  const images = Array.from(e.dataTransfer.files).filter(isImage)
-  void identify(images)
+  const files = Array.from(e.dataTransfer.files)
+  const images = files.filter(isImage)
+  // Only other files (a PDF, a document): the same explanation as for a file that cannot be
+  // opened, instead of nothing happening.
+  void identify(images.length > 0 ? images : files)
 })
 
 // Pasting an image from the clipboard identifies it too.

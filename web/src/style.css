@@ -190,20 +190,20 @@ svg {
   color: var(--moss);
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  overflow: hidden;
   cursor: pointer;
   box-shadow: 0 1.9rem 3.75rem var(--shadow);
   transition: border-color 0.3s ease, background 0.3s ease;
 }
 
-/* The mushroom sways a little, as if in a light wind: slow, uneven, never a full stop. */
+/* The mushroom stands still in a tuft of grass that moves in the wind (grass.ts). */
 .drop .mushroom {
-  width: 8.25rem;
-  height: 8.25rem;
-  transform-origin: 50% 85%;
-  animation: sway 7s ease-in-out infinite;
-  transition: transform 0.3s ease;
+  width: 9rem;
+  height: 9rem;
+  margin-bottom: 1.2rem;
+  transition: transform 0.4s ease;
 }
 
 .drop-text {
@@ -212,20 +212,13 @@ svg {
   color: var(--fg);
 }
 
-/* Two soft rings that spread out like a ripple on water, one after the other. */
-.drop .ripple {
+.drop .tuft {
   position: absolute;
-  inset: -1px;
-  border-radius: 50%;
-  border: 1.5px solid var(--moss-line);
-  opacity: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 36%;
   pointer-events: none;
-  will-change: transform, opacity;
-  animation: ripple 8s cubic-bezier(0.25, 0.6, 0.3, 1) infinite;
-}
-
-.drop .ripple + .ripple {
-  animation-delay: 4s;
 }
 
 .drop.dragging {
@@ -234,7 +227,6 @@ svg {
 }
 
 .drop.dragging .mushroom {
-  animation-play-state: paused;
   transform: translateY(-0.4rem);
 }
 
@@ -244,37 +236,7 @@ svg {
   outline-offset: 3px;
 }
 
-@keyframes sway {
-  0%,
-  100% {
-    transform: rotate(-1.5deg);
-  }
-  30% {
-    transform: rotate(2deg);
-  }
-  55% {
-    transform: rotate(0.5deg);
-  }
-  75% {
-    transform: rotate(2.5deg);
-  }
-}
-
-@keyframes ripple {
-  0% {
-    transform: scale(1);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1.3);
-    opacity: 0;
-  }
-}
-
-/* The grass along the bottom of the home view on large screens (grass.ts). */
+/* The grass along the bottom of every view on large screens (grass.ts). */
 #grass {
   display: none;
   position: fixed;
@@ -706,6 +668,73 @@ dialog h2 {
     center / contain no-repeat;
 }
 
+/* "En tunnista varmasti": one calm column, one text style, the tips as chips. */
+.unsure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2.5rem 0 1rem;
+}
+
+.unsure-icon {
+  color: var(--moss-line);
+}
+
+.unsure-icon .mushroom {
+  width: 6rem;
+  height: 6rem;
+}
+
+.unsure h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.unsure p {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.unsure .tips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.unsure .tips li {
+  padding: 0.55rem 1rem;
+  border-radius: 1.2rem;
+  background: var(--card);
+  font-weight: 600;
+}
+
+.unsure .primary {
+  width: auto;
+  margin: 1.5rem 0 0;
+}
+
+/* The reminder as the same quiet line as on the home view, not a card. */
+.unsure .reminder {
+  color: var(--danger-text);
+  font-weight: 600;
+  background: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+  align-items: center;
+  text-align: left;
+}
+
 /* Footer */
 
 footer {
@@ -852,6 +881,15 @@ footer summary {
     display: block;
     max-width: 40rem;
     margin: 0 auto;
+  }
+
+  .unsure {
+    padding-top: 4.5rem;
+  }
+
+  /* Room at the end of the page, so the last lines can scroll up out of the grass. */
+  #app {
+    padding-bottom: 6rem;
   }
 }
 

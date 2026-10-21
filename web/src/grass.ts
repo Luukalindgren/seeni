@@ -1,7 +1,7 @@
-// A strip of grass and moss along the bottom of the home view on large screens. It sways in
-// a slow, uneven wind and bends away from the mouse pointer. Purely decorative: drawn on a
-// canvas behind the content, paused when the page is hidden, and drawn once without motion
-// under prefers-reduced-motion.
+// Grass that sways in a slow, uneven wind and bends away from the mouse pointer: a strip
+// along the bottom of the page on large screens, and a small tuft inside the drop area.
+// Purely decorative: drawn on a canvas, paused when the page is hidden or the grass is not
+// shown, and drawn once without motion under prefers-reduced-motion.
 
 interface Blade {
   x: number
@@ -15,11 +15,32 @@ interface Blade {
 // Moss and grass greens, back layer lighter and fainter than the front one.
 const BACK = ['rgb(157 176 159 / 0.3)', 'rgb(176 190 160 / 0.28)', 'rgb(140 165 140 / 0.26)']
 const FRONT = ['rgb(51 81 63 / 0.34)', 'rgb(78 110 80 / 0.32)', 'rgb(96 124 82 / 0.3)', 'rgb(62 125 79 / 0.26)']
+const STRONG_BACK = ['rgb(157 176 159 / 0.7)', 'rgb(176 190 160 / 0.65)', 'rgb(140 165 140 / 0.6)']
+const STRONG_FRONT = ['rgb(51 81 63 / 0.75)', 'rgb(78 110 80 / 0.7)', 'rgb(96 124 82 / 0.65)', 'rgb(62 125 79 / 0.6)']
 
-export function startGrass(canvas: HTMLCanvasElement, still: boolean): { setVisible(visible: boolean): void } {
+export interface GrassOptions {
+  // Blade heights in px: the shortest and how much taller the tallest are.
+  height: [number, number]
+  // Sparser in the middle, so the centre of the page stays calm under the buttons.
+  calmMiddle: boolean
+  // How far the pointer reaches, in px.
+  reach: number
+  // Stronger colours, for grass on a white background.
+  strong?: boolean
+}
+
+export interface Grass {
+  setVisible(visible: boolean): void
+  // A gust: stronger wind, e.g. while a photo is dragged over the drop area.
+  setGust(gust: boolean): void
+}
+
+export function startGrass(canvas: HTMLCanvasElement, still: boolean, options: GrassOptions): Grass {
   const context = canvas.getContext('2d')
-  if (!context) return { setVisible() {} }
+  if (!context) return { setVisible() {}, setGust() {} }
   const ctx = context
+  let gust = 0
+  let gustTarget = 0
   let blades: Blade[] = []
   let width = 0
   let height = 0
@@ -32,10 +53,10 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean): { setVisi
   let rect = canvas.getBoundingClientRect()
 
   function blade(x: number, front: boolean): Blade {
-    const palette = front ? FRONT : BACK
+    const palette = options.strong ? (front ? STRONG_FRONT : STRONG_BACK) : front ? FRONT : BACK
     return {
       x,
-      height: (front ? 24 : 34) + Math.random() * (front ? 56 : 70),
+      height: (options.height[0] + Math.random() * options.height[1]) * (front ? 0.75 : 1),
       width: 2 + Math.random() * (front ? 3 : 2.5),
       color: palette[Math.floor(Math.random() * palette.length)]!,
       phase: Math.random() * Math.PI * 2,
@@ -52,11 +73,10 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean): { setVisi
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
     rect = canvas.getBoundingClientRect()
     blades = []
-    // Denser towards the edges, so the middle of the page stays calm under the buttons.
     for (const front of [false, true]) {
       for (let x = 0; x < width; x += front ? 5 : 4) {
         const edge = Math.abs(x / width - 0.5) * 2
-        if (Math.random() > 0.2 + 0.8 * edge) continue
+        if (options.calmMiddle && Math.random() > 0.2 + 0.8 * edge) continue
         blades.push(blade(x + Math.random() * 4, front))
       }
     }
@@ -68,18 +88,23 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean): { setVisi
     const dt = last ? Math.min((time - last) / 1000, 0.1) : 1 / 60
     last = time
     const ease = still ? 1 : 1 - Math.pow(1 - 0.06, dt * 60)
+    // A canvas that was hidden when measured has no size yet.
+    if (rect.width === 0) rect = canvas.getBoundingClientRect()
+    gust += (gustTarget - gust) * (1 - Math.pow(1 - 0.03, dt * 60))
     ctx.clearRect(0, 0, width, height)
     for (const b of blades) {
       // Wind: two slow waves travelling across the page, so neighbours move together.
       const wind = still
         ? 0
-        : Math.sin(t * 0.7 - b.x * 0.004 + b.phase * 0.2) * 0.07 + Math.sin(t * 1.9 - b.x * 0.013) * 0.025
+        : (Math.sin(t * 0.7 - b.x * 0.004 + b.phase * 0.2) * 0.07 + Math.sin(t * 1.9 - b.x * 0.013) * 0.025) *
+            (1 + gust * 3) +
+          gust * 0.12
       // The pointer pushes nearby blades away; the push fades with distance.
       let push = 0
       const dx = b.x - pointerX
       const dy = height - b.height * 0.7 - pointerY
       const distance = Math.hypot(dx, dy)
-      if (distance < 120) push = Math.sign(dx || 1) * (1 - distance / 120) ** 2 * 0.5
+      if (distance < options.reach) push = Math.sign(dx || 1) * (1 - distance / options.reach) ** 2 * 0.5
       b.bend += (wind + push - b.bend) * ease
       const tipX = b.x + Math.sin(b.bend) * b.height
       const tipY = height - Math.cos(b.bend) * b.height
@@ -119,6 +144,8 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean): { setVisi
     pointerX = pointerY = -1e4
   })
   document.addEventListener('visibilitychange', run)
+  // The canvas moves with the page when it is not fixed.
+  window.addEventListener('scroll', () => (rect = canvas.getBoundingClientRect()), { passive: true })
   // Regrow the grass only once a resize has settled, not on every step of a drag.
   let resizing = 0
   window.addEventListener('resize', () => {
@@ -135,7 +162,11 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean): { setVisi
     setVisible(v: boolean) {
       visible = v
       canvas.classList.toggle('visible', v)
+      if (v) rect = canvas.getBoundingClientRect()
       run()
+    },
+    setGust(g: boolean) {
+      gustTarget = g ? 1 : 0
     },
   }
 }

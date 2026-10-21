@@ -63,3 +63,15 @@ test('the warning has its own language switch, and a switch drops ?lang= from th
   await page.reload()
   await expect(page.locator('#warning h2')).toHaveText('Before you start')
 })
+
+test('a "not sure" reached by the answers stays "not sure" after a switch', async ({ page }) => {
+  await page.goto('http://localhost:4173/seeni/')
+  await identify(page, 'Hyväksyn')
+  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  // A dark spore print fits none of the candidates.
+  await page.locator('.verify .answer', { hasText: 'violetinmusta' }).click()
+  await expect(page.locator('#result h2')).toHaveText('En tunnista varmasti')
+  await page.locator('#lang').click()
+  await expect(page.locator('#result h2')).toHaveText("I cannot identify this reliably")
+  await expect(page.locator('#result .verify')).toHaveCount(0)
+})

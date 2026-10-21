@@ -4,18 +4,18 @@ Offline-capable mushroom identifier for Finnish species. Image classification ru
 
 > **Seeni never tells you whether a mushroom is edible.** It suggests candidate species, always shows their dangerous lookalikes, and walks you through checks that help tell them apart. Never eat a mushroom based on this app.
 
-**Try it:** <https://luukalindgren.github.io/seeni/> (later seeni.fi). Open it on your phone, take or pick a photo, and add it to the home screen to use it offline.
+Status: a working first version for personal use, not a release. A trained EfficientNet-B0 model runs in the browser and recognises 43 Finnish mushroom classes plus an unknown class `muu`. **The species texts, lookalikes and checks are unreviewed drafts**: every species entry needs an expert review before release (hard rule 8 in `CLAUDE.md`), and the release checklist (#11) is still open.
 
-Status: a working first version for personal use. A trained EfficientNet-B0 model runs in the browser and recognises 43 Finnish mushroom classes plus an unknown class `muu`. The species texts are drafts that have not had an expert review (hard rule 8 in `CLAUDE.md`), and the release checklist (#11) is still open. The app is redeployed automatically on every merge to `main`.
+The current build is at <https://luukalindgren.github.io/seeni/> (later seeni.fi) and is redeployed automatically on every merge to `main`. It can be added to the home screen and then works offline.
 
 ## How it works
 
 1. A model is trained on CC0 and CC-BY licensed mushroom photos from [GBIF](https://www.gbif.org/) on a desktop GPU (`training/`).
 2. It is exported to ONNX together with its class list and preprocessing settings (`web/public/models/vN/`).
 3. The web app downloads the model once, caches it as a PWA, and runs it in a Web Worker with onnxruntime-web on WebAssembly. Photos stay on your device, and identification works offline.
-4. Results are shown as candidates with their dangerous lookalikes, an example photo of each species and verification checks from hand-curated species data (`species/`). When the model is not sure enough, the app says it does not recognise the mushroom.
+4. Results are shown as candidates with their dangerous lookalikes, an example photo of each species and verification checks from hand-curated species data (`species/`). When the model is not sure enough, the app says it does not recognise the mushroom. Every species entry must be reviewed by an expert before release.
 
-The first model (v1) gets 86.7 % top-1 and 95.6 % top-3 on the held-out test set, with calibrated probabilities (temperature scaling) and an unknown threshold chosen to keep dangerous confusions rare. Each model version's evaluation is reported in [`docs/reports/`](docs/reports/), and the app loads the version named by `MODEL_VERSION` in `web/src/modelFiles.ts`.
+The first model (v1) gets 86.7 % top-1 and 95.6 % top-3 on the held-out test set, with calibrated probabilities (temperature scaling) and an unknown threshold chosen to keep dangerous confusions rare. The evaluation reports are in [`docs/reports/`](docs/reports/) (v1 in `phase7.md`), and the app loads the version named by `MODEL_VERSION` in `web/src/modelFiles.ts`.
 
 ## The app
 

@@ -2,7 +2,7 @@
 
 Seeni is built on photos, data and software made by others. This file credits them and states the licenses that apply. See [`README.md`](README.md#license) for the license of Seeni's own code, model and species data.
 
-Sections marked *pending* are completed by the issue in brackets. The species list and species data they cover are already used by the published app; their source licenses are checked before release (#11).
+Sections marked *pending* are completed by the issue in brackets. The sources' licenses and required credits are recorded before release (#11).
 
 ## Training images
 

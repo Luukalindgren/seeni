@@ -1,10 +1,18 @@
+import json
+
 from seeni.lajilista import Row, read
-from seeni.species import check, load, sync
+from seeni.species import SPECIES_EN, check, check_translation, load, sync
 
 
 def test_species_json_is_valid():
     """The committed species.json against the committed lajilista.csv (#9, runs in CI)."""
     assert check(load(), read()) == []
+
+
+def test_english_translation_is_complete():
+    """species.en.json covers exactly the records and checks of species.json (#52)."""
+    en = json.loads(SPECIES_EN.read_text(encoding="utf-8"))
+    assert check_translation(load(), en) == []
 
 
 def rows(food_lookalikes=("deadly", "warn")):
@@ -102,3 +110,24 @@ def test_sync_refuses_to_drop_a_record():
     r.append({**r[0], "id": "gone"})
     with pytest.raises(SystemExit):
         sync(r, lajilista)
+
+
+def test_translation_problems_are_caught():
+    r = records(rows())
+    en = {
+        "records": {
+            "food": {"nimi": "food", "tuntomerkit": []},
+            "deadly": {"nimi": "deadly", "tuntomerkit": []},
+            "warn": {"nimi": "a delicious one", "tuntomerkit": []},
+            "gone": {"nimi": "gone", "tuntomerkit": []},
+        },
+        "checks": {"x": {"kysymys": "Is it?", "vastaukset": {"kyllä": "yes"}}},
+    }
+    errors = "\n".join(check_translation(r, en))
+    assert "warn: English text states edibility" in errors
+    assert "gone: in species.en.json but has no record" in errors
+    assert "check x: English answers must have exactly the Finnish answer keys" in errors
+    en["records"]["warn"]["nimi"] = "warn"
+    del en["records"]["gone"]
+    en["checks"]["x"]["vastaukset"]["ei"] = "no"
+    assert check_translation(r, en) == []

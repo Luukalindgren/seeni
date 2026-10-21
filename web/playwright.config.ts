@@ -7,7 +7,8 @@ export default defineConfig({
   timeout: 120_000,
   fullyParallel: false,
   reporter: process.env.CI ? 'list' : 'line',
-  use: { ...devices['Desktop Chrome'] },
+  // Finnish, the default language; e2e/lang.spec.ts tests English.
+  use: { ...devices['Desktop Chrome'], locale: 'fi-FI' },
   webServer: [
     { command: 'npm run dev -- --port 5173 --strictPort', url: 'http://localhost:5173/seeni/', reuseExistingServer: !process.env.CI },
     { command: 'npm run preview -- --port 4173 --strictPort', url: 'http://localhost:4173/seeni/', reuseExistingServer: !process.env.CI },

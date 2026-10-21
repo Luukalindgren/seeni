@@ -2,6 +2,8 @@
 // in a dialog and takes a still from it. The photo stays in memory only, and the camera is
 // switched off as soon as the dialog closes or the page is hidden (hard rule 9).
 
+import { t } from './i18n.ts'
+
 export async function hasCamera(): Promise<boolean> {
   try {
     const devices = await navigator.mediaDevices?.enumerateDevices()
@@ -73,7 +75,7 @@ export function setupWebcam(
       shutter.disabled = false
     } catch {
       if (current !== opening) return
-      note.textContent = 'Kameraa ei saatu käyttöön. Voit valita kuvan laitteelta.'
+      note.textContent = t().webcamFailed
     }
   }
 }

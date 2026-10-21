@@ -88,10 +88,11 @@ function tiffPosition(view: DataView): Position | null {
   }
 }
 
-/** "Löytöpaikka 21.10.2026 (kantarelli?)": the name of the place. The species is the model's
- * guess, so it is marked as one: a saved spot must not read as a confirmed identification. */
-export function placeLabel(nimi: string | null, date: Date): string {
-  const day = `Löytöpaikka ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`
+/** "Löytöpaikka 21.10.2026 (kantarelli?)": the name of the place, after `word` ("Find spot"
+ * in English). The species is the model's guess, so it is marked as one: a saved spot must
+ * not read as a confirmed identification. */
+export function placeLabel(nimi: string | null, date: Date, word = 'Löytöpaikka'): string {
+  const day = `${word} ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`
   return nimi ? `${day} (${nimi}?)` : day
 }
 

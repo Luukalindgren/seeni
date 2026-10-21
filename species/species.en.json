@@ -1,0 +1,539 @@
+{
+  "records": {
+    "boletus-edulis-agg": {
+      "nimi": "porcini",
+      "tuntomerkit": [
+        "Thick, pale stem with a net pattern",
+        "Pores white when young, later yellowish green",
+        "Flesh white and does not change colour when cut"
+      ]
+    },
+    "tylopilus-felleus": {
+      "nimi": "bitter bolete",
+      "tuntomerkit": [
+        "Pores turn pink with age",
+        "Dark brown net pattern on the stem",
+        "Very bitter taste"
+      ]
+    },
+    "leccinum-versipelle-agg": {
+      "nimi": "orange birch boletes",
+      "tuntomerkit": [
+        "Cap orange or reddish brown",
+        "Dark scales on the stem",
+        "Flesh turns grey or black when cut"
+      ]
+    },
+    "leccinum-scabrum": {
+      "nimi": "brown birch bolete",
+      "tuntomerkit": [
+        "Cap greyish or hazel brown",
+        "Dark scales on the stem",
+        "Grows under birch"
+      ]
+    },
+    "suillus-variegatus": {
+      "nimi": "velvet bolete",
+      "tuntomerkit": [
+        "Cap yellowish brown and finely felty",
+        "Pores olive brown and small",
+        "No ring"
+      ]
+    },
+    "suillus-luteus": {
+      "nimi": "slippery jack",
+      "tuntomerkit": [
+        "Cap brown and slimy",
+        "Ring on the stem",
+        "Grows under pine"
+      ]
+    },
+    "suillus-bovinus": {
+      "nimi": "Jersey cow bolete",
+      "tuntomerkit": [
+        "Pores large, angular and in two layers",
+        "Cap yellowish brown",
+        "No ring"
+      ]
+    },
+    "lactarius-trivialis-agg": {
+      "nimi": "Lactarius trivialis group",
+      "tuntomerkit": [
+        "Cap greyish violet and slimy",
+        "White milk",
+        "Large milkcap of moist forests"
+      ]
+    },
+    "lactarius-rufus": {
+      "nimi": "rufous milkcap",
+      "tuntomerkit": [
+        "Cap reddish brown, often with a small bump in the middle",
+        "White, very hot milk",
+        "Grows in dry heath forests"
+      ]
+    },
+    "lactarius-torminosus": {
+      "nimi": "woolly milkcap",
+      "tuntomerkit": [
+        "Cap pink with concentric zones",
+        "Cap edge woolly and rolled inwards",
+        "White milk"
+      ]
+    },
+    "lactarius-pubescens": {
+      "nimi": "bearded milkcap",
+      "tuntomerkit": [
+        "Cap pale, almost white",
+        "Cap edge woolly",
+        "Zones faint or missing"
+      ]
+    },
+    "lactarius-deliciosus-agg": {
+      "nimi": "saffron milkcaps",
+      "tuntomerkit": [
+        "Orange or carrot-red milk",
+        "Flesh and gills turn green when pressed",
+        "Cap orange, often with zones"
+      ]
+    },
+    "lactarius-helvus": {
+      "nimi": "fenugreek milkcap",
+      "tuntomerkit": [
+        "Cap pale yellowish brown and finely felty",
+        "Milk clear as water",
+        "Smells of liquorice, especially when drying"
+      ]
+    },
+    "russula-paludosa": {
+      "nimi": "hintapink brittlegill",
+      "tuntomerkit": [
+        "Large red-capped brittlegill",
+        "Stem often reddish",
+        "Flesh snaps like chalk"
+      ]
+    },
+    "russula-emetica": {
+      "nimi": "the sickener",
+      "tuntomerkit": [
+        "Cap bright red",
+        "Stem pure white",
+        "Often grows in sphagnum moss"
+      ]
+    },
+    "russula-decolorans-agg": {
+      "nimi": "copper brittlegills",
+      "tuntomerkit": [
+        "Cap orange brown",
+        "Flesh turns grey with age",
+        "Grows in pine forests"
+      ]
+    },
+    "russula-claroflava": {
+      "nimi": "yellow swamp brittlegill",
+      "tuntomerkit": [
+        "Cap bright yellow",
+        "Flesh turns grey",
+        "Grows under birch in moist places"
+      ]
+    },
+    "russula-vinosa": {
+      "nimi": "darkening brittlegill",
+      "tuntomerkit": [
+        "Cap wine red or brownish red",
+        "Flesh turns grey",
+        "Grows in spruce forests"
+      ]
+    },
+    "hygrophorus-camarophyllus": {
+      "nimi": "arched woodwax",
+      "tuntomerkit": [
+        "Cap dark greyish brown",
+        "Gills thick, widely spaced and waxy",
+        "Grows in spruce forests late in autumn"
+      ]
+    },
+    "cortinarius-caperatus": {
+      "nimi": "gypsy mushroom",
+      "tuntomerkit": [
+        "Cap yellowish brown, wrinkled and as if frosted",
+        "Clear white membranous ring on the stem",
+        "Spore print rust brown"
+      ]
+    },
+    "cantharellus-cibarius": {
+      "nimi": "chanterelle",
+      "tuntomerkit": [
+        "The whole mushroom is yellow",
+        "Underside has low, forking ridges, not true gills",
+        "Flesh firm and white"
+      ]
+    },
+    "hygrophoropsis-aurantiaca": {
+      "nimi": "false chanterelle",
+      "tuntomerkit": [
+        "Orange, with thin, crowded, forking gills",
+        "Flesh soft and thin",
+        "Often grows on rotting wood or litter"
+      ]
+    },
+    "craterellus-tubaeformis-agg": {
+      "nimi": "winter chanterelles",
+      "tuntomerkit": [
+        "Cap brown and funnel-shaped",
+        "Greyish ridges on the underside",
+        "Stem hollow, yellow or grey"
+      ]
+    },
+    "craterellus-cornucopioides": {
+      "nimi": "horn of plenty",
+      "tuntomerkit": [
+        "A blackish grey trumpet",
+        "Outer surface almost smooth",
+        "Thin, leathery flesh"
+      ]
+    },
+    "albatrellus-ovinus": {
+      "nimi": "sheep polypore",
+      "tuntomerkit": [
+        "Cap pale, often cracking",
+        "Short white pores",
+        "Grows in groups in dry heath forests"
+      ]
+    },
+    "hydnum-repandum-agg": {
+      "nimi": "hedgehog mushrooms",
+      "tuntomerkit": [
+        "Spines on the underside",
+        "Cap pale yellowish brown or orange brown",
+        "Flesh brittle"
+      ]
+    },
+    "morchella": {
+      "nimi": "morels",
+      "tuntomerkit": [
+        "Cap with a regular honeycomb pattern",
+        "One hollow chamber when cut in half",
+        "Cap joined to the stem"
+      ]
+    },
+    "verpa-bohemica": {
+      "nimi": "early false morel",
+      "tuntomerkit": [
+        "Cap attached only at the top of the stem",
+        "Stem filled with a cottony pith",
+        "Grows in spring in deciduous woods"
+      ]
+    },
+    "tricholoma-matsutake": {
+      "nimi": "matsutake",
+      "tuntomerkit": [
+        "Large and stout, with a ring on the stem",
+        "Strong, spicy smell",
+        "Grows in poor, dry pine forests"
+      ]
+    },
+    "armillaria": {
+      "nimi": "honey fungi",
+      "tuntomerkit": [
+        "Grows in dense clusters on wood or roots",
+        "Ring on the stem",
+        "Spore print white"
+      ]
+    },
+    "kuehneromyces-mutabilis": {
+      "nimi": "sheathed woodtuft",
+      "tuntomerkit": [
+        "Cap two-coloured, paler in the middle",
+        "Stem scaly below the ring",
+        "Grows in clusters on broadleaf stumps"
+      ]
+    },
+    "agaricus-campestris-agg": {
+      "nimi": "field mushrooms",
+      "tuntomerkit": [
+        "Gills pink when young, later chocolate brown",
+        "Ring on the stem, no sac at the base",
+        "Spore print dark chocolate brown"
+      ]
+    },
+    "amanita-virosa": {
+      "nimi": "destroying angel",
+      "tuntomerkit": [
+        "The whole mushroom is white",
+        "Sac-like volva at the base of the stem",
+        "Gills always white"
+      ]
+    },
+    "amanita-phalloides": {
+      "nimi": "death cap",
+      "tuntomerkit": [
+        "Cap greenish or yellowish green",
+        "Sac-like volva at the base of the stem",
+        "Gills white"
+      ]
+    },
+    "cortinarius-rubellus": {
+      "nimi": "deadly webcap",
+      "tuntomerkit": [
+        "Cap orange brown and pointed",
+        "Yellow bands on the stem",
+        "Spore print rust brown"
+      ]
+    },
+    "cortinarius-orellanus": {
+      "nimi": "fool's webcap",
+      "tuntomerkit": [
+        "Cap orange or reddish brown",
+        "Gills rust brown",
+        "Spore print rust brown"
+      ]
+    },
+    "gyromitra-esculenta": {
+      "nimi": "false morel",
+      "tuntomerkit": [
+        "Cap folded like a brain",
+        "Several chambers when cut in half",
+        "Grows in spring"
+      ]
+    },
+    "galerina-marginata": {
+      "nimi": "funeral bell",
+      "tuntomerkit": [
+        "Small brown cap",
+        "Stem streaked with fibres, ring often faint",
+        "Grows on rotting wood, sometimes on the ground"
+      ]
+    },
+    "paxillus-involutus": {
+      "nimi": "brown rollrim",
+      "tuntomerkit": [
+        "Cap edge rolled inwards and felty",
+        "Gills turn brown when pressed",
+        "No milk"
+      ]
+    },
+    "amanita-muscaria": {
+      "nimi": "fly agaric",
+      "tuntomerkit": [
+        "Cap red with white warts",
+        "Ring on the stem",
+        "Stem base bulbous, with bands"
+      ]
+    },
+    "amanita-regalis": {
+      "nimi": "royal fly agaric",
+      "tuntomerkit": [
+        "Cap brown with yellowish warts",
+        "Ring on the stem",
+        "Stem base bulbous"
+      ]
+    },
+    "amanita-pantherina": {
+      "nimi": "panther cap",
+      "tuntomerkit": [
+        "Cap brown with white warts",
+        "Bulb at the base with a rim",
+        "Ring without grooves"
+      ]
+    },
+    "hypholoma-fasciculare": {
+      "nimi": "sulphur tuft",
+      "tuntomerkit": [
+        "Grows in dense clusters on stumps",
+        "Gills sulphur yellow or greenish",
+        "Bitter taste"
+      ]
+    },
+    "inocybe": {
+      "nimi": "fibrecaps",
+      "tuntomerkit": [
+        "Cap often pointed and radially fibrous or splitting",
+        "Spore print brown",
+        "Often an earthy or unpleasant smell"
+      ]
+    },
+    "tricholoma-equestre": {
+      "nimi": "yellow knight",
+      "tuntomerkit": [
+        "Cap and gills bright yellow",
+        "No ring",
+        "Grows in sandy pine forests"
+      ]
+    }
+  },
+  "checks": {
+    "alapinta": {
+      "kysymys": "What is on the underside of the cap?",
+      "vastaukset": {
+        "pillistö (sienimäinen, pienet reiät)": "pores (spongy, small holes)",
+        "piikit": "spines",
+        "heltat (ohuet levyt)": "gills (thin plates)",
+        "matalat, haarovat harjut tai poimut": "low, forking ridges or folds",
+        "lähes sileä": "almost smooth",
+        "ei erillistä alapintaa: lakki on kennomainen tai poimuttunut": "no separate underside: the cap is honeycombed or folded"
+      }
+    },
+    "pillisto-vari": {
+      "kysymys": "What colour are the pores on a mature mushroom?",
+      "vastaukset": {
+        "valkoinen tai vaalean harmaa": "white or pale grey",
+        "vaaleanpunainen": "pink",
+        "keltainen, vihertävä tai oliivi": "yellow, greenish or olive"
+      }
+    },
+    "jalan-verkko": {
+      "kysymys": "Is there a net pattern on the upper part of the stem? If so, is it pale or dark?",
+      "vastaukset": {
+        "vaalea verkko": "pale net",
+        "tumma, ruskea verkko": "dark brown net",
+        "ei verkkoa": "no net"
+      }
+    },
+    "jalan-nukka": {
+      "kysymys": "Is the stem covered in dark, rough scales?",
+      "vastaukset": {
+        "kyllä": "yes",
+        "ei": "no"
+      }
+    },
+    "punikki-vai-lehmantatti": {
+      "kysymys": "Is the cap orange or reddish brown, and does the cut flesh darken to bluish grey?",
+      "vastaukset": {
+        "kyllä": "yes",
+        "ei, lakki harmaanruskea": "no, the cap is greyish brown"
+      }
+    },
+    "suillus-rengas": {
+      "kysymys": "Is there a ring on the stem?",
+      "vastaukset": {
+        "kyllä": "yes",
+        "ei": "no"
+      }
+    },
+    "suillus-pillit": {
+      "kysymys": "Are the pores large, angular and in two layers, or small and crowded?",
+      "vastaukset": {
+        "isoja ja kulmikkaita": "large and angular",
+        "pieniä ja tiheitä": "small and crowded"
+      }
+    },
+    "itiopoly": {
+      "kysymys": "Make a spore print: put the cap gills down on white and dark paper for a few hours. What colour is the dust?",
+      "vastaukset": {
+        "valkoinen, kerma tai vaalea okra": "white, cream or pale ochre",
+        "ruosteenruskea tai kellanruskea": "rust brown or yellowish brown",
+        "tumma suklaanruskea tai violetinmusta": "dark chocolate brown or violet black"
+      }
+    },
+    "maitiaisneste": {
+      "kysymys": "Scratch the gills or the cap edge. Does milk come out, and what colour is it?",
+      "vastaukset": {
+        "valkoista": "white",
+        "oranssia tai porkkananpunaista": "orange or carrot red",
+        "vesikirkasta": "clear as water",
+        "ei tule nestettä": "no milk"
+      }
+    },
+    "lakin-reuna-karvainen": {
+      "kysymys": "Is the cap edge woolly or hairy and rolled inwards?",
+      "vastaukset": {
+        "kyllä, selvästi villava": "yes, clearly woolly",
+        "ei": "no"
+      }
+    },
+    "heltat-tummuvat": {
+      "kysymys": "Press the gills with a finger. Do they turn brown and come away easily from the cap flesh?",
+      "vastaukset": {
+        "kyllä": "yes",
+        "ei": "no"
+      }
+    },
+    "tyvi": {
+      "kysymys": "Carefully dig the base of the stem out of the ground. Is there a sac-like volva or a thick bulb at the base?",
+      "vastaukset": {
+        "kyllä": "yes",
+        "ei": "no"
+      }
+    },
+    "liitumainen-jalka": {
+      "kysymys": "Break the stem. Does it snap cleanly like chalk, or tear into fibres?",
+      "vastaukset": {
+        "murtuu kuin liitu": "snaps like chalk",
+        "repeää kuituisena": "tears into fibres"
+      }
+    },
+    "punainen-lakki-valkoiset-tapit": {
+      "kysymys": "Are there white or grey remnants of a veil (warts, patches) on the cap, and a ring on the stem?",
+      "vastaukset": {
+        "kyllä": "yes",
+        "ei": "no"
+      }
+    },
+    "kasvualusta-puu": {
+      "kysymys": "Does the mushroom grow in a dense cluster on a stump, roots or rotting wood?",
+      "vastaukset": {
+        "kyllä": "yes",
+        "ei, maassa": "no, on the ground"
+      }
+    },
+    "kalvorengas-seitikki": {
+      "kysymys": "Is there a clear white membranous ring on the stem, and is the cap wrinkled and as if frosted?",
+      "vastaukset": {
+        "kyllä": "yes",
+        "ei": "no"
+      }
+    },
+    "harjut-vai-heltat": {
+      "kysymys": "Are the folds on the underside thick, low, blunt-edged ridges, or thin, crowded, sharp-edged gills?",
+      "vastaukset": {
+        "paksuja ja matalia harjuja": "thick, low ridges",
+        "ohuita ja tiheitä heltoja": "thin, crowded gills"
+      }
+    },
+    "suppilo-ontto-jalka": {
+      "kysymys": "Is the stem hollow, flattened and grooved?",
+      "vastaukset": {
+        "kyllä": "yes",
+        "ei, umpinainen": "no, solid"
+      }
+    },
+    "halkaisu": {
+      "kysymys": "Cut the mushroom in half lengthwise. What does it look like inside?",
+      "vastaukset": {
+        "yksi yhtenäinen ontelo, lakki kiinni jalassa": "one continuous hollow, cap joined to the stem",
+        "lakki kiinni vain jalan huipusta, jalka täynnä pumpulia": "cap attached only at the top of the stem, stem full of cotton",
+        "poimuinen, monta kammiota": "folded, many chambers"
+      }
+    },
+    "lakin-pinta-kennot": {
+      "kysymys": "Does the cap surface have a regular honeycomb pattern (pits and ridges), or is it folded like a brain?",
+      "vastaukset": {
+        "kennomainen": "honeycomb",
+        "aivomainen": "like a brain"
+      }
+    },
+    "heltojen-vari-vaalea": {
+      "kysymys": "What colour are the gills?",
+      "vastaukset": {
+        "valkoiset tai kermanväriset": "white or cream",
+        "vaaleanpunaiset tai suklaanruskeat": "pink or chocolate brown",
+        "rikinkeltaiset tai vihertävät": "sulphur yellow or greenish",
+        "kellertävät tai ruosteenruskeat": "yellowish or rust brown"
+      }
+    },
+    "puoliksi-kuivunut-lakki": {
+      "kysymys": "Is the cap two-coloured: pale in the middle and darker at the edge, as if it were drying from the middle?",
+      "vastaukset": {
+        "kyllä": "yes",
+        "ei": "no"
+      }
+    },
+    "jalka-suomuinen": {
+      "kysymys": "Below the ring, is the stem densely scaly and dark, or fairly smooth with silvery fibres?",
+      "vastaukset": {
+        "suomuinen ja tumma": "scaly and dark",
+        "hopeisen kuitujuovainen": "silvery fibres"
+      }
+    }
+  }
+}

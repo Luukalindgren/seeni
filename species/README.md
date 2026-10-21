@@ -16,3 +16,11 @@ Checks (`tarkistukset`) with the same `id` in several records must be identical,
 The flow that uses these records is `web/src/flow.ts`.
 
 Every check has a picture in `web/src/checkArt.ts`: a drawing, made for this project (no image license to track), that shows where to look and what the answers look like. A new check needs a picture there too; `web/tests/checkArt.test.ts` fails otherwise.
+
+## English (#52)
+
+`species.en.json` has the English texts by the same ids:
+- per record, `nimi` (a common English name, or the scientific name where there is none) and `tuntomerkit`, in the same order as the Finnish;
+- per check, `kysymys`, and under each Finnish answer key, the English answer text.
+
+The Finnish answer text is the answer's id, and the flow uses only ids, so a translation never changes what a check rules out. `python -m seeni.species check` (CI) requires the translation to cover exactly the records, checks and answers, with no edibility wording. The English texts are drafts like the Finnish ones.

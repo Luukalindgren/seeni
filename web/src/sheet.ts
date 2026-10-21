@@ -5,21 +5,29 @@
 // no group label, and opening a sheet changes nothing in the flow.
 
 import { mentioned, type Check, type Group, type Species } from './flow.ts'
+import { t } from './i18n.ts'
 
-export const GROUP_LABEL: Partial<Record<Group, string>> = {
-  tappava: 'Tappavan myrkyllinen',
-  myrkyllinen: 'Myrkyllinen',
-  esikäsiteltävä: 'Myrkyllinen raakana',
+/** The danger label of a group in the current language; none for a group that is not
+ * dangerous, and never an edibility label. */
+export function groupLabel(g: Group): string | null {
+  const s = t()
+  if (g === 'tappava') return s.groupTappava
+  if (g === 'myrkyllinen') return s.groupMyrkyllinen
+  if (g === 'esikäsiteltävä') return s.groupEsikasiteltava
+  return null
 }
 
-// The fixed texts of a sheet, here so that the edibility test sees them too.
-export const SHEET_TEXT = {
-  warningOnly: 'Seeni ei tunnista tätä lajia kuvasta. Sen voi sulkea pois vain tarkistamalla tuntomerkit.',
-  features: 'Tuntomerkit',
-  compare: (nimi: string) => `Näin erotat lajista ${nimi}`,
-  noDifference: 'Tarkistuksista ei löydy eroa näiden välillä. Varmista laji sieneuvojalta.',
-  lookalikes: 'Sen kaksoisolennot',
-  sources: 'Lähteet',
+// The fixed texts of a sheet in the current language, here so that the edibility test sees them too.
+export const sheetText = () => {
+  const s = t()
+  return {
+    warningOnly: s.sheetWarningOnly,
+    features: s.sheetFeatures,
+    compare: s.sheetCompare,
+    noDifference: s.sheetNoDifference,
+    lookalikes: s.sheetLookalikes,
+    sources: s.sheetSources,
+  }
 }
 
 /** One check that tells two classes apart: the answers that fit each of them. */
@@ -73,30 +81,32 @@ export function sheet(id: string, compareTo: string | null, species: Species, mo
     id,
     nimi: r.nimi,
     tieteellinen: r.tieteellinen,
-    label: GROUP_LABEL[r.ryhma] ?? null,
+    label: groupLabel(r.ryhma),
     warningOnly: !modelClasses.has(id),
     tuntomerkit: r.tuntomerkit,
     compareTo: other ? { id: other.id, nimi: other.nimi, differences: differences(id, other.id, species) } : null,
     lookalikes: r.kaksoisolennot.map((x) => {
       const l = species.get(x)
-      return { id: x, nimi: l?.nimi ?? x, label: l ? (GROUP_LABEL[l.ryhma] ?? null) : null }
+      return { id: x, nimi: l?.nimi ?? x, label: l ? groupLabel(l.ryhma) : null }
     }),
     lahteet: r.lahteet,
   }
 }
 
-/** Every string of a sheet that the user sees, for the edibility test. */
-export function sheetTexts(s: Sheet): string[] {
+/** Every string of a sheet that the user sees, for the edibility test; `answer` gives an
+ * answer's shown text. */
+export function sheetTexts(s: Sheet, answer: (check: Check, key: string) => string = (_, k) => k): string[] {
+  const text = sheetText()
   const out = [s.nimi, s.tieteellinen, ...s.tuntomerkit, ...s.lahteet]
-  out.push(SHEET_TEXT.features, SHEET_TEXT.lookalikes, SHEET_TEXT.sources)
-  if (s.warningOnly) out.push(SHEET_TEXT.warningOnly)
-  if (s.compareTo) out.push(SHEET_TEXT.compare(s.compareTo.nimi))
-  if (s.compareTo?.differences.length === 0) out.push(SHEET_TEXT.noDifference)
+  out.push(text.features, text.lookalikes, text.sources)
+  if (s.warningOnly) out.push(text.warningOnly)
+  if (s.compareTo) out.push(text.compare(s.compareTo.nimi))
+  if (s.compareTo?.differences.length === 0) out.push(text.noDifference)
   if (s.label) out.push(s.label)
   for (const l of s.lookalikes) out.push(l.nimi, ...(l.label ? [l.label] : []))
   if (s.compareTo) {
     out.push(s.compareTo.nimi)
-    for (const d of s.compareTo.differences) out.push(d.check.kysymys, ...d.self, ...d.other)
+    for (const d of s.compareTo.differences) out.push(d.check.kysymys, ...[...d.self, ...d.other].map((k) => answer(d.check, k)))
   }
   return out
 }

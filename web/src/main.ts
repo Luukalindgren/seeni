@@ -103,6 +103,7 @@ app.innerHTML = `
         <button id="live-info" class="live-link" type="button" data-t="info"></button>
         <button id="live-finds" class="live-link" type="button" hidden></button>
         <button id="live-guide" class="live-link" type="button" data-t="guideTitle"></button>
+        <button id="live-install" class="live-link" type="button" hidden data-t="installOpen"></button>
       </div>
       <div class="live-bar">
         <button id="live-back" class="round" type="button" data-t-aria="back">${ICON.close}</button>
@@ -130,6 +131,7 @@ app.innerHTML = `
     <div class="home-links">
       <button id="guide-open" class="live-link" type="button" data-t="guideTitle"></button>
       <button id="finds-open" class="live-link" type="button" hidden></button>
+      <button id="install-open" class="live-link" type="button" hidden data-t="installOpen"></button>
     </div>
   </section>
 
@@ -177,6 +179,20 @@ app.innerHTML = `
       <input id="finds-import-file" type="file" accept="application/json,.json" hidden />
       <p id="finds-backup-status" class="fine" role="status"></p>
     </div>
+  </dialog>
+
+  <dialog id="install" aria-labelledby="install-title">
+    <div class="sheet-top">
+      <button id="install-close" class="round" type="button" data-t-aria="close">${ICON.close}</button>
+    </div>
+    <h2 id="install-title" data-t="installTitle"></h2>
+    <p class="fine" data-t="installWhy"></p>
+    <p id="install-finds" class="fine" hidden data-t="installFinds"></p>
+    <ol class="install-steps">
+      <li data-t="installStep1"></li>
+      <li data-t="installStep2"></li>
+      <li data-t="installStep3"></li>
+    </ol>
   </dialog>
 
   <dialog id="guide" aria-labelledby="guide-title">
@@ -1163,6 +1179,59 @@ $('#guide-close').addEventListener('click', () => guideDialog.close())
 guideDialog.addEventListener('close', backToLive)
 guideSearch.addEventListener('input', renderGuide)
 
+// --- Install as an app -------------------------------------------------------------------
+// Opened from the home screen, Seeni gets the whole screen, and Safari does not clear its
+// storage (the finds) after a week without visits. Chrome and Edge offer their own install
+// prompt; on iPhones and iPads the dialog tells how to add Seeni from the Share menu.
+const installDialog = $<HTMLDialogElement>('#install')
+const installOpeners = [$<HTMLButtonElement>('#install-open'), $<HTMLButtonElement>('#live-install')]
+// Safari and the other iOS browsers have Add to Home Screen in the Share menu; in-app
+// browsers (Facebook, Instagram, …) do not, and their user agents lack "Safari/".
+const ua = navigator.userAgent
+const isIos =
+  (/iPhone|iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) &&
+  /Safari\//.test(ua) &&
+  !/FBAN|FBAV|Instagram|Line\//.test(ua)
+const installed = () =>
+  matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true
+let installPrompt: (Event & { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> }) | null = null
+
+function showInstall() {
+  const offer = !installed() && (installPrompt !== null || isIos)
+  for (const b of installOpeners) b.hidden = !offer
+}
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault()
+  installPrompt = e as typeof installPrompt
+  showInstall()
+})
+window.addEventListener('appinstalled', () => {
+  installPrompt = null
+  for (const b of installOpeners) b.hidden = true
+})
+async function openInstall() {
+  if (installPrompt) {
+    const prompt = installPrompt
+    installPrompt = null // a prompt can be shown only once
+    showInstall()
+    try {
+      await prompt.prompt()
+      await prompt.userChoice
+    } catch {
+      // Refused, e.g. already used: the link stays hidden until the browser offers it again.
+    }
+    return
+  }
+  // An installed app on an iPhone has storage of its own: the finds move only by a backup.
+  $('#install-finds').hidden = (await countFinds().catch(() => 0)) === 0
+  if (!installDialog.open) installDialog.showModal()
+}
+$('#install-open').addEventListener('click', () => void openInstall())
+$('#live-install').addEventListener('click', () => (installPrompt ? void openInstall() : openFromLive(openInstall)))
+$('#install-close').addEventListener('click', () => installDialog.close())
+installDialog.addEventListener('close', backToLive)
+showInstall()
+
 // --- Species sheet (#47) -----------------------------------------------------------------
 // A lookalike in the result opens its identification info in a modal: features, how it
 // differs from the species of the result, its own lookalikes (which open in the same modal,
@@ -1654,7 +1723,7 @@ function gust(on: boolean) {
 const drop = $('#drop')
 let dragDepth = 0
 window.addEventListener('dragenter', (e) => {
-  if (!e.dataTransfer?.types.includes('Files') || !consented || webcamDialog.open || sheetDialog.open || guideDialog.open || findsDialog.open) return
+  if (!e.dataTransfer?.types.includes('Files') || !consented || document.querySelector('dialog[open]')) return
   dragDepth++
   drop.classList.add('dragging')
   gust(true)
@@ -1678,7 +1747,7 @@ window.addEventListener('drop', (e) => {
   drop.classList.remove('dragging')
   gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (!consented || webcamDialog.open || sheetDialog.open || guideDialog.open || findsDialog.open) return
+  if (!consented || document.querySelector('dialog[open]')) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)
   void identify(images)
 })
@@ -1686,7 +1755,7 @@ window.addEventListener('drop', (e) => {
 // Pasting an image from the clipboard identifies it too.
 window.addEventListener('paste', (e) => {
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (!consented || webcamDialog.open || sheetDialog.open || guideDialog.open || findsDialog.open) return
+  if (!consented || document.querySelector('dialog[open]')) return
   const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
   if (images.length === 0) return
   e.preventDefault()

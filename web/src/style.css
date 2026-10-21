@@ -11,7 +11,6 @@
   --moss: #33513f;
   --moss-soft: #e9efe6;
   --moss-line: #9db09f;
-  --spore: #d9c9a8;
   --danger: #b3261e;
   --danger-text: #8e2019;
   --pre: #a15c00;
@@ -23,27 +22,8 @@
   color: var(--fg);
   background: var(--bg);
   -webkit-text-size-adjust: 100%;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1b1a15;
-    --fg: #eee6da;
-    --muted: #b1a796;
-    --accent: #d39a5e;
-    --accent-fg: #1b1a15;
-    --moss: #9cc5a6;
-    --moss-soft: #26302a;
-    --moss-line: #4f6656;
-    --spore: #3b362b;
-    --danger: #ff8a80;
-    --danger-text: #ff9e95;
-    --pre: #ffb74d;
-    --ok: #8fd19e;
-    --card: #272520;
-    --line: #3a362d;
-    --shadow: rgb(0 0 0 / 0.35);
-  }
+  /* One light theme on purpose, the one chosen in the design (no dark variant). */
+  color-scheme: light;
 }
 
 * {
@@ -56,6 +36,10 @@ body {
 }
 
 #app {
+  /* Its own stacking context, so the grass canvas (z-index -1) sits behind the content but
+     above the page background. */
+  position: relative;
+  z-index: 0;
   max-width: 34rem;
   margin: 0 auto;
   padding: 0.75rem 1rem calc(1rem + env(safe-area-inset-bottom));
@@ -66,10 +50,6 @@ body {
 
 .view {
   flex: 1;
-}
-
-.view:not([hidden]) {
-  animation: appear 0.25s ease-out;
 }
 
 @keyframes appear {
@@ -206,7 +186,7 @@ svg {
   margin: 0 auto;
   border-radius: 50%;
   background: var(--card);
-  border: 2.5px dashed var(--moss-line);
+  border: 1.5px solid var(--line);
   color: var(--moss);
   flex-direction: column;
   align-items: center;
@@ -214,13 +194,16 @@ svg {
   gap: 1rem;
   cursor: pointer;
   box-shadow: 0 1.9rem 3.75rem var(--shadow);
-  animation: breathe 5s ease-in-out infinite;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition: border-color 0.3s ease, background 0.3s ease;
 }
 
+/* The mushroom sways a little, as if in a light wind: slow, uneven, never a full stop. */
 .drop .mushroom {
   width: 8.25rem;
   height: 8.25rem;
+  transform-origin: 50% 85%;
+  animation: sway 7s ease-in-out infinite;
+  transition: transform 0.3s ease;
 }
 
 .drop-text {
@@ -229,19 +212,30 @@ svg {
   color: var(--fg);
 }
 
-.drop .pulse {
+/* Two soft rings that spread out like a ripple on water, one after the other. */
+.drop .ripple {
   position: absolute;
-  inset: -2px;
+  inset: -1px;
   border-radius: 50%;
-  border: 2px solid var(--moss);
-  animation: ring 3.2s ease-out infinite;
+  border: 1.5px solid var(--moss-line);
+  opacity: 0;
   pointer-events: none;
+  will-change: transform, opacity;
+  animation: ripple 8s cubic-bezier(0.25, 0.6, 0.3, 1) infinite;
+}
+
+.drop .ripple + .ripple {
+  animation-delay: 4s;
 }
 
 .drop.dragging {
-  border-style: solid;
   border-color: var(--moss);
   background: var(--moss-soft);
+}
+
+.drop.dragging .mushroom {
+  animation-play-state: paused;
+  transform: translateY(-0.4rem);
 }
 
 .primary:focus-visible,
@@ -250,31 +244,57 @@ svg {
   outline-offset: 3px;
 }
 
-.spores {
-  display: none;
-}
-
-@keyframes breathe {
-  50% {
-    transform: scale(1.025);
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-1.5deg);
+  }
+  30% {
+    transform: rotate(2deg);
+  }
+  55% {
+    transform: rotate(0.5deg);
+  }
+  75% {
+    transform: rotate(2.5deg);
   }
 }
 
-@keyframes ring {
-  from {
-    transform: scale(0.92);
-    opacity: 0.55;
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0;
   }
-  to {
-    transform: scale(1.25);
+  10% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.3);
     opacity: 0;
   }
 }
 
-@keyframes drift {
-  50% {
-    transform: translateY(-0.9rem);
-  }
+/* The grass along the bottom of the home view on large screens (grass.ts). */
+#grass {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 7.5rem;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+#grass.on {
+  display: block;
+}
+
+#grass.on.visible {
+  opacity: 1;
 }
 
 @keyframes rise {
@@ -584,12 +604,6 @@ dialog h2 {
   background: var(--pre);
 }
 
-@media (prefers-color-scheme: dark) {
-  .badge {
-    color: #1b1a15;
-  }
-}
-
 .side > h3 {
   margin-top: 1.5rem;
 }
@@ -758,49 +772,6 @@ footer summary {
     margin: 0;
   }
 
-  .spores {
-    display: block;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  .spores i {
-    position: absolute;
-    width: 0.7rem;
-    height: 0.7rem;
-    border-radius: 50%;
-    background: var(--spore);
-    animation: drift 9s ease-in-out infinite;
-  }
-
-  .spores i:nth-child(1) {
-    left: 8%;
-    top: 18%;
-  }
-
-  .spores i:nth-child(2) {
-    right: 10%;
-    top: 26%;
-    width: 0.9rem;
-    height: 0.9rem;
-    animation-delay: -3s;
-  }
-
-  .spores i:nth-child(3) {
-    right: 20%;
-    bottom: 20%;
-    width: 0.5rem;
-    height: 0.5rem;
-    animation-delay: -6s;
-  }
-
-  .spores i:nth-child(4) {
-    left: 18%;
-    bottom: 16%;
-    animation-delay: -1.5s;
-  }
-
   /* Result: the photo on the left; the species and everything below it on the right. The
      1fr row takes the photo's extra height, so the species block keeps its natural size. */
   #result:not([hidden]) {
@@ -884,17 +855,74 @@ footer summary {
   }
 }
 
-/* A computer has no camera to open from a file input (#43 handles live cameras); the picker
-   is the same thing, so only "Valitse kuva" stays. Tablets keep both. */
+/* The webcam button is for computers; phones and tablets open the camera via the file input. */
+#webcam {
+  display: none;
+}
+
+/* On a computer a file input cannot open a camera, so "Ota kuva" there is the webcam button,
+   shown only when a camera is connected (webcam.ts). Tablets keep the file input. */
 @media (min-width: 900px) and (hover: hover) and (pointer: fine) {
   .actions label[for='camera'] {
     display: none;
   }
 
-  .actions label[for='gallery'] {
+  #webcam:not([hidden]) {
+    display: flex;
+  }
+
+  .actions:not(.has-webcam) label[for='gallery'] {
     background: var(--accent);
     color: var(--accent-fg);
     border: 0;
+  }
+}
+
+/* Webcam dialog */
+
+#webcam-dialog {
+  width: min(52rem, calc(100vw - 2rem));
+  max-width: none;
+  padding: 1rem;
+}
+
+#webcam-dialog video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 1rem;
+  background: var(--moss-soft);
+}
+
+#webcam-dialog .row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+#webcam-dialog .row > * {
+  width: auto;
+  margin: 0;
+}
+
+#webcam-dialog .note {
+  text-align: center;
+  color: var(--muted);
+  margin: 0.75rem 0 0;
+}
+
+/* Views cross-fade when the browser supports view transitions; otherwise they fade in. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: ease;
+}
+
+@supports not (view-transition-name: none) {
+  .view:not([hidden]) {
+    animation: appear 0.3s ease-out;
   }
 }
 

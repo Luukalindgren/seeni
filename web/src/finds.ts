@@ -47,6 +47,21 @@ export async function addFind(find: NewFind): Promise<number> {
   return Number(await run('readwrite', (s) => s.add(find)))
 }
 
+/** Adds every find in one transaction: all of them or none. */
+export async function addFinds(finds: NewFind[]): Promise<void> {
+  if (finds.length === 0) return
+  await run('readwrite', (s) => {
+    let last!: IDBRequest
+    for (const f of finds) last = s.add(f)
+    return last
+  })
+}
+
+/** Asks the browser to keep the finds when it runs low on space (a no-op where unsupported). */
+export function keepStorage() {
+  void navigator.storage?.persist?.().catch(() => false)
+}
+
 export async function updateFind(find: Find): Promise<void> {
   await run('readwrite', (s) => s.put(find))
 }

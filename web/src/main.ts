@@ -29,8 +29,8 @@ import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
 import { createLiveCamera } from './liveCamera.ts'
-import { addFind, countFinds, deleteFind, listFinds, thumbnail, updateFind, type Find } from './finds.ts'
-import { backupName, makeBackup, newFinds, readBackup } from './backup.ts'
+import { addFind, addFinds, countFinds, deleteFind, keepStorage, listFinds, thumbnail, updateFind, type Find } from './finds.ts'
+import { MAX_BACKUP_BYTES, backupName, makeBackup, newFinds, readBackup } from './backup.ts'
 import { EXIF_BYTES, appleMapsUrl, exifDate, exifPosition, googleMapsUrl, placeLabel, type Position } from './place.ts'
 import { REGIONS, isRare, isRecent, monthOf, regionOf, type Occurrence, type RegionId } from './season.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
@@ -880,8 +880,7 @@ async function saveFind() {
       fromPhoto: place?.fromPhoto ?? false,
     }
     const id = await addFind(find)
-    // Ask the browser to keep the finds when it runs low on space (a no-op where unsupported).
-    void navigator.storage?.persist?.().catch(() => false)
+    keepStorage()
     if (session === findSession) {
       savedFind = { ...find, id }
       savedThumbOf = file
@@ -1017,10 +1016,11 @@ async function exportFinds() {
   if (/iPhone|iPad/.test(navigator.userAgent) && navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({ files: [file] })
-    } catch {
-      // Cancelled.
+      return
+    } catch (e) {
+      if ((e as Error).name === 'AbortError') return // the user closed the share sheet
+      // Otherwise, e.g. the tap no longer counts after a long export: try a download.
     }
-    return
   }
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
@@ -1031,15 +1031,22 @@ async function exportFinds() {
   setTimeout(() => URL.revokeObjectURL(a.href), 60_000)
 }
 
+let importing = false
 async function importFinds(file: File) {
+  if (importing) return
+  importing = true
   const s = t()
   try {
+    if (file.size > MAX_BACKUP_BYTES) throw new Error('too large')
     const incoming = readBackup(await file.text())
     const fresh = newFinds(incoming, await listFinds())
-    for (const f of fresh) await addFind(f)
+    await addFinds(fresh)
+    if (fresh.length) keepStorage()
     backupStatus.textContent = s.findsImported(fresh.length)
   } catch {
     backupStatus.textContent = s.findsImportFailed
+  } finally {
+    importing = false
   }
   void refreshFindsCount()
   void renderFinds()

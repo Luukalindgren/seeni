@@ -7,9 +7,10 @@ import type { Position } from './place.ts'
 
 export const BACKUP_FORMAT = 'seeni-finds'
 export const BACKUP_VERSION = 1
-// A thumbnail is about 10 KB; this keeps a broken or wrong file from filling the storage.
-const MAX_THUMB_BYTES = 2 * 1024 * 1024
-const MAX_FINDS = 10_000
+// A thumbnail is about 10 KB; these keep a broken or wrong file from filling the storage.
+const MAX_THUMB_BYTES = 256 * 1024
+const MAX_FINDS = 5_000
+export const MAX_BACKUP_BYTES = 50 * 1024 * 1024
 
 interface BackupFind {
   at: string
@@ -36,7 +37,12 @@ async function toDataUrl(blob: Blob): Promise<string> {
 function fromDataUrl(url: string): Blob | null {
   const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]*={0,2})$/.exec(url)
   if (!m || (m[2]!.length * 3) / 4 > MAX_THUMB_BYTES) return null
-  const binary = atob(m[2]!)
+  let binary: string
+  try {
+    binary = atob(m[2]!)
+  } catch {
+    return null // a truncated string
+  }
   const bytes = new Uint8Array(binary.length)
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
   return new Blob([bytes], { type: m[1] })
@@ -95,7 +101,7 @@ export function readBackup(text: string): NewFind[] {
     const thumb = typeof r.thumb === 'string' ? fromDataUrl(r.thumb) : null
     if (!thumb) continue
     out.push({
-      at: r.at,
+      at: new Date(r.at).toISOString(),
       speciesId,
       position: position && { lat: position.lat, lon: position.lon },
       fromPhoto: r.fromPhoto === true,
@@ -105,12 +111,14 @@ export function readBackup(text: string): NewFind[] {
   return out
 }
 
-/** The finds in `incoming` that are not already in `existing` (same time and species). */
-export function newFinds(incoming: NewFind[], existing: Pick<Find, 'at' | 'speciesId'>[]): NewFind[] {
-  const key = (f: Pick<Find, 'at' | 'speciesId'>) => `${f.at}|${f.speciesId ?? ''}`
-  const seen = new Set(existing.map(key))
+/**
+ * The finds in `incoming` that are not already in `existing`. A find is known by its saving
+ * time alone, since its species can change after saving (a later answer changes the result).
+ */
+export function newFinds(incoming: NewFind[], existing: Pick<Find, 'at'>[]): NewFind[] {
+  const seen = new Set(existing.map((f) => f.at))
   return incoming.filter((f) => {
-    const k = key(f)
+    const k = f.at
     if (seen.has(k)) return false
     seen.add(k)
     return true

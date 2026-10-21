@@ -50,21 +50,27 @@ describe('finds backup', () => {
         { ...ok, position: { lat: 200, lon: 0 } },
         { ...ok, thumb: 'data:text/html;base64,PGI+' },
         { ...ok, thumb: 'https://example.com/a.jpg' },
+        { ...ok, thumb: 'data:image/jpeg;base64,/9j/4' },
         null,
       ],
     })
-    assert.equal(readBackup(text).length, 1)
+    const back = readBackup(text)
+    assert.equal(back.length, 1)
+    assert.equal(back[0]!.at, '2026-09-01T10:00:00.000Z')
   })
 
-  it('skips finds that are already on the device', () => {
-    const existing = [{ at: 'a', speciesId: 'x' }]
+  it('skips finds that are already on the device, even if their species changed', () => {
+    const existing = [{ at: 'a' }]
     const thumb = new Blob([])
     const incoming = [
       { at: 'a', speciesId: 'x', thumb, position: null, fromPhoto: false },
-      { at: 'a', speciesId: null, thumb, position: null, fromPhoto: false },
-      { at: 'a', speciesId: null, thumb, position: null, fromPhoto: false },
+      { at: 'b', speciesId: null, thumb, position: null, fromPhoto: false },
+      { at: 'b', speciesId: null, thumb, position: null, fromPhoto: false },
     ]
-    assert.equal(newFinds(incoming, existing).length, 1)
+    assert.deepEqual(
+      newFinds(incoming, existing).map((f) => f.at),
+      ['b'],
+    )
   })
 
   it('names the file by the local date', () => {

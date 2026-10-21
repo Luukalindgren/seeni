@@ -9,6 +9,10 @@ The model is trained on photos shared through [GBIF](https://www.gbif.org/) unde
 - GBIF occurrence downloads: species images GBIF.org (20 October 2026) https://doi.org/10.15468/dl.fadmpu; unknown class `muu` GBIF.org (20 October 2026) https://doi.org/10.15468/dl.3x49qy (both recorded in `data-meta/gbif_download.json`)
 - Photographers and licenses: 29 858 images by 988 rights holders (28 178 CC-BY-4.0, 1 680 CC0-1.0). `seeni.attributions` generates the list from the image manifests: per rights holder in `web/public/attributions.json`, shown in the app under "Tietoa ja lähteet", and per image (with its GBIF record and source URL) in `data-meta/attributions.parquet`.
 
+## Observation counts
+
+`web/public/occurrence.json` (#48) holds monthly counts of occurrences in Finland per class and region, from the GBIF.org occurrence search API (accessed 21 October 2026), using only occurrences licensed CC0 or CC BY 4.0. It contains counts only, no occurrence records. `seeni.occurrence` makes it. The app uses it to note that a suggested species is rarely found at that time of year. The counts aggregate records from many datasets published through GBIF; GBIF.org is the source to cite.
+
 ## Images committed to this repository
 
 Any image in this repository that is not Seeni's own work must be CC0 or CC-BY and is listed here. This covers test fixtures (any `tests/fixtures/` folder) and images under `web/`, `species/` and `docs/`, such as verification check pictures.

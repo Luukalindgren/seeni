@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { appleMapsUrl, exifPosition, googleMapsUrl, placeLabel } from '../src/place.ts'
+import { appleMapsUrl, exifDate, exifPosition, googleMapsUrl, placeLabel } from '../src/place.ts'
 
 /** A minimal JPEG with an EXIF GPS block, as a camera writes it. */
 function jpegWithGps(lat: [number, number, number], latRef: string, lon: [number, number, number], lonRef: string, little = false) {
@@ -95,5 +95,51 @@ describe('links', () => {
   it('opens Apple Maps at a pin with the name, and Google Maps at the place', () => {
     assert.equal(appleMapsUrl(p, 'Löytöpaikka 21.10.2026'), 'https://maps.apple.com/?ll=60.170123,24.941235&q=L%C3%B6yt%C3%B6paikka%2021.10.2026')
     assert.equal(googleMapsUrl(p), 'https://www.google.com/maps/search/?api=1&query=60.170123,24.941235')
+  })
+})
+
+/** A minimal JPEG whose EXIF has DateTimeOriginal, behind the ExifIFD pointer. */
+function jpegWithDate(text: string, little = false) {
+  const tiff = new DataView(new ArrayBuffer(80))
+  const u16 = (at: number, v: number) => tiff.setUint16(at, v, little)
+  const u32 = (at: number, v: number) => tiff.setUint32(at, v, little)
+  tiff.setUint16(0, little ? 0x4949 : 0x4d4d)
+  u16(2, 42)
+  u32(4, 8)
+  // IFD0: the pointer to the ExifIFD at 26.
+  u16(8, 1)
+  u16(10, 0x8769), u16(12, 4), u32(14, 1), u32(18, 26)
+  u32(22, 0)
+  // ExifIFD: DateTimeOriginal, 20 ASCII bytes at 44.
+  u16(26, 1)
+  u16(28, 0x9003), u16(30, 2), u32(32, 20), u32(36, 44)
+  u32(40, 0)
+  for (let i = 0; i < text.length; i++) tiff.setUint8(44 + i, text.charCodeAt(i))
+
+  const out = new Uint8Array(12 + 80 + 2)
+  const view = new DataView(out.buffer)
+  view.setUint16(0, 0xffd8)
+  view.setUint16(2, 0xffe1)
+  view.setUint16(4, 2 + 6 + 80)
+  out.set([0x45, 0x78, 0x69, 0x66, 0, 0], 6)
+  out.set(new Uint8Array(tiff.buffer), 12)
+  view.setUint16(92, 0xffd9)
+  return out.buffer
+}
+
+describe('exifDate', () => {
+  it('reads when the photo was taken, in either byte order', () => {
+    for (const little of [false, true]) {
+      const d = exifDate(jpegWithDate('2026:09:14 16:05:30', little))!
+      assert.deepEqual([d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getHours()], [2026, 9, 14, 16])
+    }
+  })
+
+  it('gives no date for a blank, impossible or missing one', () => {
+    assert.equal(exifDate(jpegWithDate('0000:00:00 00:00:00')), null)
+    assert.equal(exifDate(jpegWithDate('2026:02:30 12:00:00')), null)
+    assert.equal(exifDate(jpegWithDate('garbage')), null)
+    assert.equal(exifDate(jpegWithGps([60, 0, 0], 'N', [24, 0, 0], 'E')), null)
+    assert.equal(exifDate(new Uint8Array([0x89, 0x50, 0x4e, 0x47]).buffer), null)
   })
 })

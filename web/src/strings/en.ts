@@ -99,6 +99,18 @@ export const en: Strings = {
 
   pictureLabel: (captions: string) => `Picture: ${captions}`,
 
+  seasonRare: (month: string, region: string | null) =>
+    `A rare find ${region ? `${region} ` : ''}${month}: there are few observations then. Check the species with extra care.`,
+  months: ['in January', 'in February', 'in March', 'in April', 'in May', 'in June', 'in July', 'in August', 'in September', 'in October', 'in November', 'in December'],
+  regions: { etela: 'southern Finland', keski: 'central Finland', pohjoinen: 'northern Finland' },
+  regionsIn: { etela: 'in southern Finland', keski: 'in central Finland', pohjoinen: 'in northern Finland' },
+  seasonTitle: 'Time of year and region',
+  seasonText:
+    'Seeni compares the suggested species with GBIF observations from Finland and tells you if it is rarely found at that time of year. The month is read from the photo or taken from today, the region from the photo’s location or chosen below. Nothing leaves the device.',
+  seasonToggle: 'Compare with the time of year and region',
+  seasonRegion: 'Region when the photo has no location',
+  seasonRegionAuto: 'Not chosen',
+
   aboutText:
     'Seeni does not tell whether a mushroom can be eaten. It suggests species, shows their dangerous lookalikes and guides you to check their features. Photos are processed only on this device, and nothing is sent anywhere. The species information is an unreviewed draft.',
   aboutSourcesHtml: `The model was trained on photos shared through <a href="https://www.gbif.org/">GBIF</a>

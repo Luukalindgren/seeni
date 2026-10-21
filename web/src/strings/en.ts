@@ -126,6 +126,12 @@ export const en: Strings = {
   findsDanger: (names: string) => `Dangerous lookalikes: ${names}`,
   findsMap: 'On the map',
   findsDelete: 'Delete',
+  findsExport: 'Save a backup',
+  findsImport: 'Restore from a backup',
+  findsBackupNote: 'The browser may sometimes clear a website’s data. A backup is a file you keep yourself.',
+  findsImported: (n: number) =>
+    n === 0 ? 'The backup had no new finds.' : n === 1 ? '1 find was restored.' : `${n} finds were restored.`,
+  findsImportFailed: 'The file could not be read. Choose a backup saved by Seeni.',
 
   aboutText:
     'Seeni does not tell whether a mushroom can be eaten. It suggests species, shows their dangerous lookalikes and guides you to check their features. Photos are processed only on this device, and nothing is sent anywhere. The species information is an unreviewed draft.',

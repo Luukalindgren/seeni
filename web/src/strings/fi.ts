@@ -138,6 +138,12 @@ export const fi = {
   findsDanger: (names: string) => `Vaaralliset kaksoisolennot: ${names}`,
   findsMap: 'Kartalla',
   findsDelete: 'Poista',
+  findsExport: 'Tallenna varmuuskopio',
+  findsImport: 'Palauta varmuuskopiosta',
+  findsBackupNote: 'Selain voi joskus poistaa sivuston tiedot. Varmuuskopio on tiedosto, jonka säilytät itse.',
+  findsImported: (n: number) =>
+    n === 0 ? 'Varmuuskopiossa ei ollut uusia löytöjä.' : n === 1 ? '1 löytö palautettiin.' : `${n} löytöä palautettiin.`,
+  findsImportFailed: 'Tiedostoa ei voitu lukea. Valitse Seenin tallentama varmuuskopio.',
 
   // About
   aboutText:

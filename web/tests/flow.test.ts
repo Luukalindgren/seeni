@@ -15,6 +15,7 @@ import {
   outcome,
   outcomeText,
   replay,
+  skip,
   ruledOut,
   softmax,
   speciesMap,
@@ -242,28 +243,30 @@ describe('probabilities', () => {
 })
 
 describe('listed lookalikes', () => {
+  const checks = checkById(species)
+
   it('names the false chanterelle beside a chanterelle, until an answer rules it out', () => {
     const r = start(probs('cantharellus-cibarius', 0.99), labels, species, calibration)
     assert.equal(r.kind, 'flow')
     const state = (r as { state: State }).state
-    assert.deepEqual(listedLookalikes(state, 'cantharellus-cibarius', species), ['hygrophoropsis-aurantiaca'])
-    const ruling = [...checkById(species).values()].find((c) =>
-      Object.keys(c.vastaukset).some((a) => ruledOut(c, a).has('hygrophoropsis-aurantiaca')),
-    )
-    if (ruling) {
-      const a = Object.keys(ruling.vastaukset).find((x) => ruledOut(ruling, x).has('hygrophoropsis-aurantiaca'))!
-      const after = { ...state, asked: [{ check: ruling.id, answer: a }] }
-      assert.deepEqual(listedLookalikes(after, 'cantharellus-cibarius', species), [])
-    }
+    assert.deepEqual(listedLookalikes(state, 'cantharellus-cibarius', species, checks), ['hygrophoropsis-aurantiaca'])
+    const ridges = checks.get('harjut-vai-heltat')!
+    const after = answer(state, ridges, 'paksuja ja matalia harjuja')!
+    assert.ok(after.candidates.some((c) => c.id === 'cantharellus-cibarius'))
+    assert.deepEqual(listedLookalikes(after, 'cantharellus-cibarius', species, checks), [])
+    // Skipping the check rules nothing out.
+    assert.deepEqual(listedLookalikes(skip(state, ridges), 'cantharellus-cibarius', species, checks), ['hygrophoropsis-aurantiaca'])
   })
 
-  it('lists nothing extra beside a dangerous species, and never a dangerous one', () => {
-    const r = start(probs('gyromitra-esculenta', 0.99), labels, species, calibration) as { state: State }
-    assert.deepEqual(listedLookalikes(r.state, 'gyromitra-esculenta', species), [])
+  it('adds only species nobody should eat: never a food mushroom or a dangerous one', () => {
     for (const rec of records) {
-      for (const id of listedLookalikes({ candidates: [{ id: rec.id, probability: 1, source: 'model' }], warnings: [], asked: [] }, rec.id, species)) {
-        assert.ok(!DANGEROUS.has(species.get(id)!.ryhma), `${rec.id} → ${id}`)
+      const state: State = { candidates: [{ id: rec.id, probability: 1, source: 'model' }], warnings: [], asked: [] }
+      for (const id of listedLookalikes(state, rec.id, species, checks)) {
+        assert.equal(species.get(id)!.ryhma, 'ei ruokasieni', `${rec.id} → ${id}`)
       }
     }
+    // The false chanterelle does not name the chanterelle, which would come without its deadly lookalikes.
+    const state: State = { candidates: [{ id: 'hygrophoropsis-aurantiaca', probability: 1, source: 'model' }], warnings: [], asked: [] }
+    assert.deepEqual(listedLookalikes(state, 'hygrophoropsis-aurantiaca', species, checks), [])
   })
 })

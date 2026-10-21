@@ -255,22 +255,20 @@ export function replay(state: State, asked: State['asked'], species: Species): S
 }
 
 /** The listed lookalikes of the top species that the flow does not carry: those that are not
- * dangerous (a dangerous one is always a candidate or a warning already) and that the answers
- * so far have not ruled out. Shown with the other options so that, for example, a chanterelle
- * still names the false chanterelle. Only for a species that is not dangerous itself: a
- * deadly result does not list a food mushroom beside it as an alternative. Display only; it
- * never changes the candidates or the checks. */
-export function listedLookalikes(state: State, topId: string, species: Species): string[] {
-  if (isDangerous(topId, species)) return []
-  const checks = checkById(species)
+ * food mushrooms (group "ei ruokasieni"), not shown already and not ruled out by an answer so
+ * far. Shown after the other options so that, for example, a chanterelle still names the
+ * false chanterelle. Only a species nobody should eat is added: a food mushroom would be a
+ * new alternative without the dangerous lookalikes of its own, and a dangerous one is either
+ * shown already or ruled out. Display only; it never changes the candidates or the checks. */
+export function listedLookalikes(state: State, topId: string, species: Species, checks: Map<string, Check>): string[] {
   const out = new Set<string>()
   for (const a of state.asked) {
     const check = checks.get(a.check)
-    if (check && a.answer !== '' && a.answer in check.vastaukset) for (const id of ruledOut(check, a.answer)) out.add(id)
+    if (check && a.answer in check.vastaukset) for (const id of ruledOut(check, a.answer)) out.add(id)
   }
   const shown = new Set([...state.candidates.map((c) => c.id), ...state.warnings])
   return (species.get(topId)?.kaksoisolennot ?? []).filter(
-    (id) => !isDangerous(id, species) && !shown.has(id) && !out.has(id) && species.has(id),
+    (id) => species.get(id)?.ryhma === 'ei ruokasieni' && !shown.has(id) && !out.has(id),
   )
 }
 

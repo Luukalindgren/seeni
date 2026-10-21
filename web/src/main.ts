@@ -473,7 +473,7 @@ function render(state: State | null, raw: Map<string, number>) {
     ...[...state.candidates.filter((c) => c.id !== top.id).map((c) => c.id), ...state.warnings].sort(
       (x, y) => Number(isDangerousId(y)) - Number(isDangerousId(x)),
     ),
-    ...listedLookalikes(state, top.id, species),
+    ...listedLookalikes(state, top.id, species, checks),
   ]
   if (others.length > 0) {
     side.append(el('h3', t().lookalikesTitle))

@@ -35,7 +35,8 @@ def month_counts(taxon_keys: list[int], region: dict, fetch: Fetch) -> list[int]
         *[("taxonKey", k) for k in taxon_keys],
         *[("license", x) for x in LICENSES],
         ("country", "FI"),
-        ("decimalLatitude", f"{region['minLat']},{region['maxLat']}"),
+        # GBIF's range includes both ends; the bands are half-open like regionOf in the app.
+        ("decimalLatitude", f"{region['minLat']},{region['maxLat'] - 0.000001}"),
         ("occurrenceStatus", "PRESENT"),
         ("limit", 0),
         ("facet", "month"),

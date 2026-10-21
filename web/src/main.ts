@@ -29,7 +29,7 @@ import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
 import { createLiveCamera } from './liveCamera.ts'
 import { EXIF_BYTES, appleMapsUrl, exifDate, exifPosition, googleMapsUrl, placeLabel, type Position } from './place.ts'
-import { isRare, monthOf, regionOf, type Occurrence, type RegionId } from './season.ts'
+import { REGIONS, isRare, isRecent, monthOf, regionOf, type Occurrence, type RegionId } from './season.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
 import type { Request, Response } from './worker.ts'
 import './style.css'
@@ -701,14 +701,19 @@ function saveSeason() {
 let occurrence: Occurrence | null = null
 fetch(`${base}occurrence.json`)
   .then((r) => (r.ok ? r.json() : null))
-  .then((o: Occurrence | null) => (occurrence = o))
+  .then((o: Occurrence | null) => {
+    occurrence = o
+    // A result shown before the table arrived gets its note now.
+    renderSeasonSettings()
+    rerenderResult()
+  })
   .catch(() => undefined)
 
 async function photoSeason(file: File): Promise<{ taken: Date | null; region: RegionId | null }> {
   try {
     const head = await file.slice(0, EXIF_BYTES).arrayBuffer()
     const p = exifPosition(head)
-    return { taken: exifDate(head), region: p ? regionOf(p.lat, p.lon) : null }
+    return { taken: exifDate(head), region: p ? regionOf(p.lat, p.lon, occurrence?.regions) : null }
   } catch {
     return { taken: null, region: null }
   }
@@ -716,8 +721,8 @@ async function photoSeason(file: File): Promise<{ taken: Date | null; region: Re
 
 function seasonNote(id: string): HTMLElement | null {
   if (!season.on || !occurrence || isDangerousId(id)) return null
-  const taken = photos.find((p) => p.taken)?.taken ?? null
-  const month = monthOf(taken, new Date())
+  const now = new Date()
+  const month = monthOf(photos.map((p) => p.taken).find((d) => d && isRecent(d, now)) ?? null, now)
   const region = photos.find((p) => p.region)?.region ?? season.region
   if (!isRare(occurrence, id, month, region)) return null
   const s = t()
@@ -742,7 +747,7 @@ function seasonSettings(): HTMLElement {
     return o
   }
   select.append(option('', s.seasonRegionAuto))
-  for (const id of ['etela', 'keski', 'pohjoinen'] as const) select.append(option(id, s.regions[id]))
+  for (const { id } of occurrence?.regions ?? REGIONS) select.append(option(id, s.regions[id]))
   select.disabled = !season.on
   regionLabel.append(select)
   check.addEventListener('change', () => {
@@ -955,7 +960,8 @@ async function identify(images: File[]) {
   try {
     files ??= await loadFiles(base)
     modelClasses ??= new Set(files.labels.map((l) => l.id))
-    const r = await classify(chosen)
+    // The photos' dates and regions are read while the model runs.
+    const [r, meta] = await Promise.all([classify(chosen), Promise.all(chosen.map(photoSeason))])
     await minimum
     if (request !== latest) return
     if (r.kind !== 'result') throw new Error(r.kind === 'error' ? r.message : r.kind)
@@ -963,7 +969,6 @@ async function identify(images: File[]) {
       clearPhotos()
       asked = []
     }
-    const meta = await Promise.all(chosen.map(photoSeason))
     chosen.forEach((file, i) =>
       photos.push({ file, url: URL.createObjectURL(file), probabilities: r.perImage[i]!, ...meta[i]! }),
     )

@@ -29,13 +29,30 @@ export const REGIONS: Region[] = [
   { id: 'pohjoinen', minLat: 65.0, maxLat: 71.0 },
 ]
 
-// Finland, roughly: a position outside it gives no region, so a photo from abroad is not
-// compared with Finnish observations.
-const FINLAND = { minLat: 59.4, maxLat: 70.2, minLon: 19.0, maxLon: 31.6 }
+// Finland's outline, coarse (within some kilometres of the border; [lat, lon], clockwise
+// from Åland), with its coastal waters: a position outside it gives no region, so a photo
+// from Estonia, Russia, Sweden or Norway is not compared with Finnish observations.
+const FINLAND: [number, number][] = [
+  [59.7, 19.3], [60.3, 19.0], [63.0, 20.3], [64.2, 21.0], [65.8, 24.1], [66.5, 23.8],
+  [67.2, 23.6], [67.9, 23.6], [68.15, 23.1], [68.45, 22.0], [68.75, 21.0], [69.05, 20.5],
+  [69.3, 21.3], [68.75, 22.4], [68.7, 23.9], [68.9, 24.9], [69.4, 25.8], [69.85, 26.6],
+  [70.15, 27.7], [70.05, 28.4], [69.8, 29.1], [69.1, 28.9], [68.9, 28.4], [68.1, 30.0], [67.6, 30.0],
+  [66.9, 29.1], [66.0, 30.1], [65.2, 29.6], [64.0, 30.6], [62.9, 31.6], [61.3, 29.3],
+  [60.45, 27.8], [59.75, 22.8],
+]
+
+function inFinland(lat: number, lon: number): boolean {
+  let inside = false
+  for (let i = 0, j = FINLAND.length - 1; i < FINLAND.length; j = i++) {
+    const [ai, oi] = FINLAND[i]!
+    const [aj, oj] = FINLAND[j]!
+    if (ai > lat !== aj > lat && lon < ((oj - oi) * (lat - ai)) / (aj - ai) + oi) inside = !inside
+  }
+  return inside
+}
 
 export function regionOf(lat: number, lon: number, regions: Region[] = REGIONS): RegionId | null {
-  const f = FINLAND
-  if (lat < f.minLat || lat > f.maxLat || lon < f.minLon || lon > f.maxLon) return null
+  if (!inFinland(lat, lon)) return null
   return regions.find((r) => lat >= r.minLat && lat < r.maxLat)?.id ?? null
 }
 
@@ -46,14 +63,30 @@ const MAX_AGE_DAYS = 400
 /** The month (1–12) to compare with: the photo's, or today's when the photo has none or
  * its date is not trusted. */
 export function monthOf(taken: Date | null, now: Date): number {
-  if (taken && Math.abs(now.getTime() - taken.getTime()) < MAX_AGE_DAYS * 86_400_000) return taken.getMonth() + 1
-  return now.getMonth() + 1
+  return taken && isRecent(taken, now) ? taken.getMonth() + 1 : now.getMonth() + 1
+}
+
+export function isRecent(taken: Date, now: Date): boolean {
+  return Math.abs(now.getTime() - taken.getTime()) < MAX_AGE_DAYS * 86_400_000
 }
 
 // Too few observations say nothing about a season.
 export const MIN_OBSERVATIONS = 50
 // Rare: under this share of the expected count (see isRare).
 export const RARE_SHARE = 0.2
+
+// All observations per region, of every class: how much is observed there.
+const efforts = new WeakMap<Occurrence, number[]>()
+function regionEffort(table: Occurrence): number[] {
+  let effort = efforts.get(table)
+  if (!effort) {
+    const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0)
+    const all = Object.values(table.classes)
+    effort = table.regions.map((_, i) => sum(all.map((r) => sum(r[i] ?? []))))
+    efforts.set(table, effort)
+  }
+  return effort
+}
 
 /** True when the class is rarely observed in the month (and the region, when known). The
  * count there, smoothed, is compared with what the class's observations in all of Finland
@@ -69,11 +102,10 @@ export function isRare(table: Occurrence, classId: string, month: number, region
   let count: number
   let share = 1
   if (index >= 0) {
-    count = rows[index]![month - 1] ?? 0
-    const all = Object.values(table.classes)
-    const effort = (i: number) => sum(all.map((r) => sum(r[i] ?? [])))
-    const everything = sum(table.regions.map((_, i) => effort(i)))
-    share = everything > 0 ? effort(index) / everything : 0
+    count = rows[index]?.[month - 1] ?? 0
+    const effort = regionEffort(table)
+    const everything = sum(effort)
+    share = everything > 0 ? effort[index]! / everything : 0
   } else {
     count = sum(rows.map((r) => r[month - 1] ?? 0))
   }

@@ -42,8 +42,16 @@ describe('regionOf and monthOf', () => {
     assert.equal(regionOf(60.17, 24.94), 'etela')
     assert.equal(regionOf(62.6, 29.76), 'keski')
     assert.equal(regionOf(68.66, 27.55), 'pohjoinen')
+    assert.equal(regionOf(60.1, 19.94), 'etela') // Åland
+    assert.equal(regionOf(70.08, 27.87), 'pohjoinen') // Nuorgam
+    assert.equal(regionOf(69.05, 20.79), 'pohjoinen') // Kilpisjärvi
     assert.equal(regionOf(59.33, 18.07), null)
     assert.equal(regionOf(48.85, 2.35), null)
+    // Neighbours inside Finland's latitudes: Tallinn, St Petersburg, Vyborg, Luleå, Kiruna,
+    // Haparanda, Kautokeino, Murmansk.
+    for (const [lat, lon] of [[59.44, 24.75], [59.93, 30.3], [60.71, 28.75], [65.58, 22.15], [67.85, 20.22], [65.83, 23.9], [69.0, 23.04], [68.97, 33.07]] as const) {
+      assert.equal(regionOf(lat, lon), null, `${lat}, ${lon}`)
+    }
   })
 
   it('takes the photo month when it is recent, today otherwise', () => {

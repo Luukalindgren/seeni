@@ -14,7 +14,7 @@ The full step-by-step plan is in `docs/PLAN.md` (in Finnish). Each phase is also
 | `web/` | Vite + TypeScript PWA, onnxruntime-web | User's browser, deployed to GitHub Pages via Actions |
 | `web/public/models/vN/` | `model.onnx`, `labels.json`, `preprocess.json`, `calibration.json` | Produced by `training/`, read by `web/` |
 
-Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base` is `'/seeni/'`. Later moving to the custom domain seeni.fi.
+Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base` is `'/seeni/'`. `.github/workflows/pages.yml` deploys every push to `main`, so a merge goes live. Later moving to the custom domain seeni.fi.
 
 ## Hard rules
 
@@ -53,7 +53,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - Verify against PyTorch on test images before publishing.
 
 **Web app**
-- onnxruntime-web with execution providers `['webgpu', 'wasm']`, running in a Web Worker.
+- onnxruntime-web on WASM only (`onnxruntime-web/wasm`), running in a Web Worker. The WebGPU bundle was dropped in #41: its runtime is about twice the size, and EfficientNet-B0 runs well under a second on WASM.
 - Serve the wasm files from the app's own origin so offline works.
 - Read images with `createImageBitmap(file, { imageOrientation: 'from-image' })`.
 

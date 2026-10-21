@@ -12,7 +12,8 @@ test('back goes from a sheet to the result, from adding a photo to the result, a
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   const start = await page.evaluate(() => history.length)
   await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  // On the whole result, so a failure shows the error message too.
+  await expect(page.locator('#result')).toContainText('kantarelli', { timeout: 60_000 })
 
   // A sheet is closed first, the result stays.
   await page.locator('.lookalike', { hasText: 'lehtomyrkkyseitikki' }).click()

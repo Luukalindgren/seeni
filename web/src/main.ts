@@ -23,6 +23,18 @@ const species = speciesMap(speciesRecords as unknown as SpeciesRecord[])
 const base = import.meta.env.BASE_URL
 const REMINDER = 'Tunnistus ei ole koskaan varma. Älä syö sientä tämän sovelluksen perusteella.'
 
+// Stroke icons, inline so they work offline and follow the text colour.
+const svg = (body: string, size = 24) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`
+const ICON = {
+  camera: svg('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'),
+  image: svg('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>'),
+  info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>', 20),
+  plus: svg('<path d="M12 5v14M5 12h14"/>', 20),
+  warn: svg('<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/>', 18),
+  mushroom: `<svg class="mushroom" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 58c0-22 20-38 44-38s44 16 44 38c0 4-3 6-7 6H23c-4 0-7-2-7-6z"/><path d="M48 64c-1 14-4 26-8 36h40c-4-10-7-22-8-36"/><path d="M40 40c4-4 9-7 15-8M76 34h.01M62 44h.01M86 46h.01"/></svg>`,
+}
+
 const app = document.querySelector<HTMLDivElement>('#app')!
 app.innerHTML = `
   <dialog id="warning" aria-labelledby="warning-title">
@@ -34,22 +46,37 @@ app.innerHTML = `
     <button id="accept" class="primary">Ymmärrän</button>
   </dialog>
 
+  <header class="topbar">
+    <h1 class="logo">
+      <img src="${base}icons/icon-192.png" alt="" width="36" height="36" />
+      <span>Seeni</span>
+    </h1>
+    <button id="again" class="pill" type="button" hidden>${ICON.plus} Uusi kuva</button>
+    <button id="info" class="round" type="button" aria-label="Tietoa ja lähteet">${ICON.info}</button>
+  </header>
+
   <section id="home" class="view">
-    <header class="brand">
-      <img src="${base}icons/icon-192.png" alt="" width="72" height="72" />
-      <h1>Seeni</h1>
-      <p>Kuvaa sieni, niin Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.</p>
-    </header>
-    <label class="primary big" for="camera">Ota kuva</label>
-    <input id="camera" type="file" accept="image/*" capture="environment" hidden />
-    <label class="secondary big" for="gallery">Valitse kuva laitteelta</label>
-    <input id="gallery" type="file" accept="image/*" multiple hidden />
+    <div class="spores" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <p class="intro">Kuvaa sieni, niin Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.</p>
+    <label id="drop" class="drop" for="gallery" aria-hidden="true">
+      <span class="pulse" aria-hidden="true"></span>
+      ${ICON.mushroom}
+      <span class="drop-text">Pudota kuva</span>
+    </label>
+    <div class="actions">
+      <label class="primary big" for="camera" tabindex="0">${ICON.camera} Ota kuva</label>
+      <input id="camera" type="file" accept="image/*" capture="environment" hidden />
+      <label class="secondary big" for="gallery" tabindex="0">${ICON.image} Valitse kuva</label>
+      <input id="gallery" type="file" accept="image/*" multiple hidden />
+    </div>
     <p class="hint">Parhaiten onnistuu, kun koko sieni näkyy. Voit valita useita kuvia samasta sienestä.</p>
     <p id="status" class="status">Ladataan mallia…</p>
+    <p class="caution">${ICON.warn} Älä syö sientä tämän sovelluksen perusteella.</p>
   </section>
 
   <section id="loading" class="view" hidden>
-    <div class="spinner" aria-hidden="true"></div>
+    <figure class="scan" aria-hidden="true"><img id="preview" alt="" /></figure>
+    <span class="loader" aria-hidden="true">${ICON.mushroom}</span>
     <p>Tunnistetaan…</p>
   </section>
 
@@ -77,11 +104,20 @@ const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel)
 const views = { home: $('#home'), loading: $('#loading'), result: $('#result') }
 const status = $<HTMLParagraphElement>('#status')
 const result = views.result
+const again = $<HTMLButtonElement>('#again')
 
 function show(view: keyof typeof views) {
   for (const [name, el] of Object.entries(views)) el.hidden = name !== view
+  again.hidden = view !== 'result'
   window.scrollTo(0, 0)
 }
+
+again.addEventListener('click', () => show('home'))
+$('#info').addEventListener('click', () => {
+  const about = $<HTMLDetailsElement>('#about')
+  about.open = true
+  about.scrollIntoView({ behavior: 'smooth' })
+})
 
 // --- Warning, once per visit -------------------------------------------------------------
 
@@ -113,7 +149,10 @@ const pending = new Map<number, (r: Response) => void>()
 worker.onmessage = (event: MessageEvent<Response>) => {
   const r = event.data
   if (r.id === 0) {
-    if (r.kind === 'ready') status.textContent = 'Valmis. Toimii myös ilman verkkoyhteyttä.'
+    if (r.kind === 'ready') {
+      status.textContent = 'Valmis · toimii ilman verkkoa'
+      status.classList.add('ready')
+    }
     else if (r.kind === 'error') status.textContent = `Mallin lataus epäonnistui: ${r.message}`
     return
   }
@@ -123,6 +162,7 @@ worker.onmessage = (event: MessageEvent<Response>) => {
 
 // A worker that fails to load or crashes would leave every request waiting forever.
 function failAll(message: string) {
+  status.classList.remove('ready')
   status.textContent = `Tunnistin ei toimi: ${message}`
   for (const [id, resolve] of pending) resolve({ id, kind: 'error', message })
   pending.clear()
@@ -221,23 +261,28 @@ function render(state: State | null, raw: Map<string, number>) {
   const b = badge(top.id)
   if (b) body.append(b)
   const answered = state.asked.some((a) => a.answer !== '')
-  body.append(
-    el(
-      'p',
-      answered
-        ? `Vastauksesi sopivat tähän lajiin.`
-        : // Never "100 %": the model is never certain.
-          `Mallin arvio: ${Math.min(99, Math.round((raw.get(top.id) ?? top.probability) * 100))} %`,
-      'confidence',
-    ),
-  )
+  if (answered) {
+    body.append(el('p', 'Vastauksesi sopivat tähän lajiin.', 'confidence'))
+  } else {
+    // Never "100 %": the model is never certain.
+    const percent = Math.min(99, Math.round((raw.get(top.id) ?? top.probability) * 100))
+    const meter = el('div', undefined, 'meter')
+    const bar = el('span')
+    bar.style.width = `${percent}%`
+    meter.append(bar)
+    const confidence = el('p', undefined, 'confidence')
+    confidence.append(meter, el('span', `Mallin arvio: ${percent} %`))
+    body.append(confidence)
+  }
   if (record?.tuntomerkit.length) {
     const ul = el('ul', undefined, 'features')
     for (const t of record.tuntomerkit) ul.append(el('li', t))
     body.append(ul)
   }
   hero.append(body)
-  result.append(hero)
+  // Everything below the species goes in one column, beside the photo on large screens.
+  const side = el('div', undefined, 'side')
+  result.append(hero, side)
 
   // Lookalikes: every other candidate and open warning, dangerous ones first.
   const others = [
@@ -245,7 +290,7 @@ function render(state: State | null, raw: Map<string, number>) {
     ...state.warnings,
   ].sort((x, y) => Number(isDangerousId(y)) - Number(isDangerousId(x)))
   if (others.length > 0) {
-    result.append(el('h3', 'Kaksoisolennot ja muut vaihtoehdot'))
+    side.append(el('h3', 'Kaksoisolennot ja muut vaihtoehdot'))
     const list = el('ul', undefined, 'lookalikes')
     for (const id of others) {
       const li = el('li')
@@ -258,7 +303,7 @@ function render(state: State | null, raw: Map<string, number>) {
       li.append(text)
       list.append(li)
     }
-    result.append(list)
+    side.append(list)
   }
 
   // How to make sure: the checks, one at a time.
@@ -270,16 +315,22 @@ function render(state: State | null, raw: Map<string, number>) {
     const answers = el('div', undefined, 'answers')
     for (const a of Object.keys(check.vastaukset)) {
       const button = el('button', a, 'answer')
-      button.addEventListener('click', () => render(answer(state, check, a), raw))
+      button.addEventListener('click', () => {
+        result.classList.remove('enter')
+        render(answer(state, check, a), raw)
+      })
       answers.append(button)
     }
     const skipButton = el('button', 'En pysty tarkistamaan tätä', 'answer ghost')
-    skipButton.addEventListener('click', () => render(skip(state, check), raw))
+    skipButton.addEventListener('click', () => {
+      result.classList.remove('enter')
+      render(skip(state, check), raw)
+    })
     answers.append(skipButton)
     box.append(answers)
-    result.append(box)
+    side.append(box)
   } else if (others.some(isDangerousId)) {
-    result.append(
+    side.append(
       el('p', 'Vaarallisia kaksoisolentoja ei voi sulkea pois tällä sovelluksella. Varmista laji sieneuvojalta.', 'reminder'),
     )
   }
@@ -291,10 +342,10 @@ function render(state: State | null, raw: Map<string, number>) {
       const k = [...species.values()].flatMap((r) => r.tarkistukset).find((c) => c.id === a.check)
       ul.append(el('li', `${k?.kysymys ?? a.check} – ${a.answer}`))
     }
-    result.append(el('h3', 'Tarkistamasi asiat'), ul)
+    side.append(el('h3', 'Tarkistamasi asiat'), ul)
   }
 
-  result.append(el('p', REMINDER, 'reminder'), newPhotoButton())
+  side.append(el('p', REMINDER, 'reminder'), newPhotoButton())
   show('result')
 }
 
@@ -308,9 +359,21 @@ function isDangerousId(id: string): boolean {
 // Only the latest set of photos may show a result.
 let latest = 0
 
+// The chosen photo, shown while it is identified. The object URL only lives in memory.
+const preview = $<HTMLImageElement>('#preview')
+function setPreview(image: Blob | null) {
+  if (preview.src) URL.revokeObjectURL(preview.src)
+  if (image) preview.src = URL.createObjectURL(image)
+  else preview.removeAttribute('src')
+  views.loading.classList.toggle('has-preview', image !== null)
+}
+
 async function identify(images: File[]) {
   if (images.length === 0) return
   const request = ++latest
+  setPreview(images[0]!)
+  // Results fade in once; re-renders after an answer do not hide anything again.
+  result.classList.add('enter')
   show('loading')
   try {
     files ??= await loadFiles(base)
@@ -324,7 +387,18 @@ async function identify(images: File[]) {
     if (request !== latest) return
     result.replaceChildren(el('h2', 'Tunnistus epäonnistui'), el('p', String(e)), newPhotoButton())
     show('result')
+  } finally {
+    if (request === latest) setPreview(null)
   }
+}
+
+// The buttons are labels for hidden file inputs; Enter and Space open them like a button.
+for (const label of document.querySelectorAll<HTMLLabelElement>('.actions label')) {
+  label.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    e.preventDefault()
+    label.click()
+  })
 }
 
 for (const id of ['#camera', '#gallery']) {
@@ -335,6 +409,48 @@ for (const id of ['#camera', '#gallery']) {
     void identify(images)
   })
 }
+
+// Some images (e.g. HEIC on Windows) have no MIME type; let the decoder decide for those.
+const isImage = (f: File) => f.type === '' || f.type.startsWith('image/')
+
+// Drag and drop for large screens: photos dropped anywhere on the page are identified.
+const drop = $('#drop')
+let dragDepth = 0
+window.addEventListener('dragenter', (e) => {
+  if (!e.dataTransfer?.types.includes('Files')) return
+  dragDepth++
+  drop.classList.add('dragging')
+})
+window.addEventListener('dragleave', (e) => {
+  if (!e.dataTransfer?.types.includes('Files')) return
+  // Leaving the window (no related target) always ends the drag, even if a count was missed.
+  if (e.relatedTarget === null || --dragDepth <= 0) {
+    dragDepth = 0
+    drop.classList.remove('dragging')
+  }
+})
+window.addEventListener('dragover', (e) => {
+  if (e.dataTransfer?.types.includes('Files')) e.preventDefault()
+})
+window.addEventListener('drop', (e) => {
+  if (!e.dataTransfer?.types.includes('Files')) return
+  e.preventDefault()
+  dragDepth = 0
+  drop.classList.remove('dragging')
+  // The warning has to be accepted first.
+  if (dialog.open) return
+  const images = Array.from(e.dataTransfer.files).filter(isImage)
+  void identify(images)
+})
+
+// Pasting an image from the clipboard identifies it too.
+window.addEventListener('paste', (e) => {
+  if (dialog.open) return
+  const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
+  if (images.length === 0) return
+  e.preventDefault()
+  void identify(images)
+})
 
 // --- Photographer credits, loaded when opened --------------------------------------------
 

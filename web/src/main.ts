@@ -291,8 +291,8 @@ function renderNotSure() {
     el('p', 'Sieni voi olla laji, jota Seeni ei tunne, tai kuva voi olla epäselvä.'),
     el('p', 'Kuvaa koko sieni läheltä ja hyvässä valossa:'),
     tips,
-    newPhotoButton(),
     el('p', REMINDER, 'reminder'),
+    newPhotoButton(),
   )
   result.replaceChildren(box)
   show('result')
@@ -498,15 +498,20 @@ for (const id of ['#camera', '#gallery']) {
 // Some images (e.g. HEIC on Windows) have no MIME type; let the decoder decide for those.
 const isImage = (f: File) => f.type === '' || f.type.startsWith('image/')
 
+// A photo dragged over the page brings a gust of wind to the grass.
+function gust(on: boolean) {
+  grass?.setGust(on)
+  tuft?.setGust(on)
+}
+
 // Drag and drop for large screens: photos dropped anywhere on the page are identified.
 const drop = $('#drop')
 let dragDepth = 0
 window.addEventListener('dragenter', (e) => {
-  if (!e.dataTransfer?.types.includes('Files')) return
+  if (!e.dataTransfer?.types.includes('Files') || dialog.open || webcamDialog.open) return
   dragDepth++
   drop.classList.add('dragging')
-  grass?.setGust(true)
-  tuft?.setGust(true)
+  gust(true)
 })
 window.addEventListener('dragleave', (e) => {
   if (!e.dataTransfer?.types.includes('Files')) return
@@ -514,8 +519,7 @@ window.addEventListener('dragleave', (e) => {
   if (e.relatedTarget === null || --dragDepth <= 0) {
     dragDepth = 0
     drop.classList.remove('dragging')
-    grass?.setGust(false)
-    tuft?.setGust(false)
+    gust(false)
   }
 })
 window.addEventListener('dragover', (e) => {
@@ -526,8 +530,7 @@ window.addEventListener('drop', (e) => {
   e.preventDefault()
   dragDepth = 0
   drop.classList.remove('dragging')
-  grass?.setGust(false)
-  tuft?.setGust(false)
+  gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
   if (dialog.open || webcamDialog.open) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)

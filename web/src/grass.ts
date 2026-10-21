@@ -88,8 +88,8 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, options: G
     const dt = last ? Math.min((time - last) / 1000, 0.1) : 1 / 60
     last = time
     const ease = still ? 1 : 1 - Math.pow(1 - 0.06, dt * 60)
-    // A canvas that was hidden when measured has no size yet.
-    if (rect.width === 0) rect = canvas.getBoundingClientRect()
+    // A canvas measured while hidden had no size; grow the grass once it has one.
+    if (canvas.clientWidth !== width || canvas.clientHeight !== height) resize()
     gust += (gustTarget - gust) * (1 - Math.pow(1 - 0.03, dt * 60))
     ctx.clearRect(0, 0, width, height)
     for (const b of blades) {
@@ -144,8 +144,16 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, options: G
     pointerX = pointerY = -1e4
   })
   document.addEventListener('visibilitychange', run)
-  // The canvas moves with the page when it is not fixed.
-  window.addEventListener('scroll', () => (rect = canvas.getBoundingClientRect()), { passive: true })
+  // A canvas that is not fixed moves with the page.
+  if (getComputedStyle(canvas).position !== 'fixed') {
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (visible) rect = canvas.getBoundingClientRect()
+      },
+      { passive: true },
+    )
+  }
   // Regrow the grass only once a resize has settled, not on every step of a drag.
   let resizing = 0
   window.addEventListener('resize', () => {
@@ -162,7 +170,8 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, options: G
     setVisible(v: boolean) {
       visible = v
       canvas.classList.toggle('visible', v)
-      if (v) rect = canvas.getBoundingClientRect()
+      if (v && (canvas.clientWidth !== width || canvas.clientHeight !== height)) resize()
+      else if (v) rect = canvas.getBoundingClientRect()
       run()
     },
     setGust(g: boolean) {

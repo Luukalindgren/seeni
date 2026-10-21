@@ -190,7 +190,7 @@ svg {
   color: var(--moss);
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1.25rem;
   overflow: hidden;
   cursor: pointer;
@@ -198,12 +198,22 @@ svg {
   transition: border-color 0.3s ease, background 0.3s ease;
 }
 
-/* The mushroom stands still in a tuft of grass that moves in the wind (grass.ts). */
+/* The mushroom stands still in a tuft of grass that moves in the wind (grass.ts). The tuft
+   only grows where there is a mouse; on tablets the mushroom sits in the middle. */
 .drop .mushroom {
   width: 9rem;
   height: 9rem;
-  margin-bottom: 1.2rem;
   transition: transform 0.4s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .drop {
+    justify-content: flex-end;
+  }
+
+  .drop .mushroom {
+    margin-bottom: 1.2rem;
+  }
 }
 
 .drop-text {
@@ -720,7 +730,7 @@ dialog h2 {
 
 .unsure .primary {
   width: auto;
-  margin: 1.5rem 0 0;
+  margin: 1rem 0 0;
 }
 
 /* The reminder as the same quiet line as on the home view, not a card. */
@@ -729,7 +739,7 @@ dialog h2 {
   font-weight: 600;
   background: none;
   padding: 0;
-  margin: 0.5rem 0 0;
+  margin: 0.75rem 0 0;
   font-size: 0.95rem;
   align-items: center;
   text-align: left;

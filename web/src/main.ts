@@ -19,6 +19,7 @@ import { checkPicture } from './checkArt.ts'
 import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
+import { createLiveCamera } from './liveCamera.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
 import type { Request, Response } from './worker.ts'
 import './style.css'
@@ -35,6 +36,7 @@ const ICON = {
   image: svg('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>'),
   info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>', 20),
   plus: svg('<path d="M12 5v14M5 12h14"/>', 20),
+  close: svg('<path d="M6 6l12 12M18 6L6 18"/>', 22),
   mushroom: `<svg class="mushroom" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 58c0-22 20-38 44-38s44 16 44 38c0 4-3 6-7 6H23c-4 0-7-2-7-6z"/><path d="M48 64c-1 14-4 26-8 36h40c-4-10-7-22-8-36"/><path d="M40 40c4-4 9-7 15-8M76 34h.01M62 44h.01M86 46h.01"/></svg>`,
 }
 
@@ -65,6 +67,22 @@ app.innerHTML = `
   </header>
 
   <section id="home" class="view">
+    <div id="live" class="live" hidden>
+      <video playsinline muted autoplay aria-hidden="true"></video>
+      <div class="live-card">
+        <p class="live-title">Kuvaa sieni</p>
+        <p class="live-text">Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.</p>
+        <button id="live-take" class="primary big" type="button">${ICON.camera} Ota kuva</button>
+        <label class="secondary big" for="gallery" tabindex="0">${ICON.image} Valitse kuva</label>
+        <div class="live-status"></div>
+        <button id="live-info" class="live-link" type="button">Tietoa ja lähteet</button>
+      </div>
+      <div class="live-bar">
+        <button id="live-back" class="round" type="button" aria-label="Takaisin">${ICON.close}</button>
+        <button id="live-shutter" class="shutter" type="button" aria-label="Ota kuva"></button>
+        <label class="round" for="gallery" tabindex="0" aria-label="Valitse kuva">${ICON.image}</label>
+      </div>
+    </div>
     <p class="intro">Kuvaa sieni, niin Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.</p>
     <label id="drop" class="drop" for="gallery" aria-hidden="true">
       <span class="drop-text">Pudota kuva</span>
@@ -152,6 +170,8 @@ function startGrassIfLarge() {
 
 function show(view: keyof typeof views) {
   currentView = view
+  if (view === 'home') void startLive()
+  else stopLive()
   const swap = () => {
     for (const [name, el] of Object.entries(views)) el.hidden = name !== view
     again.hidden = view !== 'result'
@@ -168,11 +188,12 @@ function show(view: keyof typeof views) {
 startGrassIfLarge()
 
 again.addEventListener('click', () => show('home'))
-$('#info').addEventListener('click', () => {
+function openAbout() {
   const about = $<HTMLDetailsElement>('#about')
   about.open = true
   about.scrollIntoView({ behavior: 'smooth' })
-})
+}
+$('#info').addEventListener('click', openAbout)
 
 // --- Consent, once ----------------------------------------------------------------------
 // Nothing can be used before the warning is accepted. The acceptance is stored with a
@@ -201,6 +222,7 @@ let consented = hasConsent()
 accept.addEventListener('click', () => {
   if (!consentCheck.checked) return
   consented = true
+  void startLive()
   try {
     localStorage.setItem(CONSENT_KEY, JSON.stringify({ version: CONSENT_VERSION, acceptedAt: new Date().toISOString() }))
   } catch {
@@ -467,6 +489,7 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function identify(images: File[]) {
   if (images.length === 0) return
+  stopLive()
   const request = ++latest
   const minimum = wait(MIN_LOADING_MS)
   setPreview(images[0]!)
@@ -489,6 +512,65 @@ async function identify(images: File[]) {
     show('result')
   }
 }
+
+// --- Live camera on phones (#43) ---------------------------------------------------------
+// On a phone the start screen is the back camera, blurred behind a card with "Ota kuva" and
+// "Valitse kuva". "Ota kuva" clears the blur and shows a shutter. Without a camera, with
+// permission denied, or on a large screen, the start screen is the plain home view. The
+// camera runs only while this screen is visible, and never before the consent.
+
+const live = $('#live')
+const liveCamera = createLiveCamera(live.querySelector('video')!)
+const statusAnchor = status.previousElementSibling!
+// Set once the camera has failed (denied or broken), so the user is not asked again.
+let liveFailed = false
+
+function setLive(on: boolean) {
+  live.hidden = !on
+  document.body.classList.toggle('live-on', on)
+  if (on) live.querySelector('.live-status')!.append(status)
+  else statusAnchor.after(status)
+}
+
+function liveAllowed(): boolean {
+  return consented && !liveFailed && !largeScreen.matches && currentView === 'home' && !document.hidden
+}
+
+async function startLive() {
+  if (!liveAllowed() || liveCamera.running || !(await hasCamera()) || !liveAllowed()) return
+  live.classList.remove('shooting')
+  setLive(true)
+  const ok = await liveCamera.start()
+  if (!ok && liveAllowed()) {
+    liveFailed = true
+    setLive(false)
+  } else if (ok && !liveAllowed()) stopLive()
+}
+
+function stopLive() {
+  liveCamera.stop()
+  setLive(false)
+}
+
+$('#live-take').addEventListener('click', () => live.classList.add('shooting'))
+$('#live-back').addEventListener('click', () => live.classList.remove('shooting'))
+$('#live-shutter').addEventListener('click', async () => {
+  const photo = await liveCamera.capture()
+  if (photo) void identify([photo])
+})
+$('#live-info').addEventListener('click', () => {
+  stopLive()
+  openAbout()
+})
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopLive()
+  else void startLive()
+})
+largeScreen.addEventListener('change', () => {
+  if (largeScreen.matches) stopLive()
+  else void startLive()
+})
+void startLive()
 
 // A webcam on a computer: the button shows only when a camera is connected.
 const webcamDialog = $<HTMLDialogElement>('#webcam-dialog')
@@ -514,7 +596,7 @@ largeScreen.addEventListener('change', () => {
 })
 
 // The buttons are labels for hidden file inputs; Enter and Space open them like a button.
-for (const label of document.querySelectorAll<HTMLLabelElement>('.actions label')) {
+for (const label of document.querySelectorAll<HTMLLabelElement>('.actions label, .live label')) {
   label.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' && e.key !== ' ') return
     e.preventDefault()

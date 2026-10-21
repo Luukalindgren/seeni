@@ -1036,3 +1036,140 @@ footer summary {
     transition: none !important;
   }
 }
+
+/* Live camera start screen on phones (#43): the camera fills the screen, blurred and dimmed
+   behind a card until "Ota kuva" is chosen; then it is sharp and a shutter shows. */
+
+body.live-on {
+  overflow: hidden;
+}
+
+.live {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: #11140f;
+  color: #fff;
+  overflow: hidden;
+}
+
+.live[hidden] {
+  display: none;
+}
+
+.live video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(14px) brightness(0.55);
+  transform: scale(1.08);
+  transition:
+    filter 250ms ease,
+    transform 250ms ease;
+}
+
+.live.shooting video {
+  filter: none;
+  transform: none;
+}
+
+.live-card {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 24rem;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.5rem 1.25rem 1rem;
+  border-radius: 1.75rem;
+  background: var(--card);
+  color: var(--fg);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.35);
+  transition: opacity 200ms ease;
+}
+
+.live-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.live-text {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.live-status .status {
+  margin: 0.25rem 0 0;
+}
+
+.live-link {
+  justify-self: center;
+  border: 0;
+  background: none;
+  padding: 0.5rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.live-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 1.25rem 1rem calc(1.5rem + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);
+}
+
+.live.shooting .live-card {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.live.shooting .live-bar {
+  display: flex;
+}
+
+.live-bar .round {
+  width: 3.25rem;
+  min-height: 3.25rem;
+  border-radius: 50%;
+  border: 0;
+  background: rgb(255 255 255 / 0.85);
+  cursor: pointer;
+}
+
+.shutter {
+  width: 4.75rem;
+  height: 4.75rem;
+  border-radius: 50%;
+  border: 0.3rem solid #fff;
+  background: rgb(255 255 255 / 0.35);
+  box-shadow: inset 0 0 0 0.3rem rgb(0 0 0 / 0.25);
+  cursor: pointer;
+}
+
+.shutter:active {
+  background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live video,
+  .live-card {
+    transition: none;
+  }
+}

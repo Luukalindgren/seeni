@@ -5,13 +5,12 @@ import { describe, it } from 'node:test'
 
 import { CHECK_PICTURE_CAPTIONS, CHECK_PICTURE_IDS, checkPicture } from '../src/checkArt.ts'
 import type { SpeciesRecord } from '../src/flow.ts'
+import { EDIBLE } from './edible.ts'
 
 const records: SpeciesRecord[] = JSON.parse(
   readFileSync(new URL('../../species/species.json', import.meta.url), 'utf8'),
 )
 const checks = new Map(records.flatMap((r) => r.tarkistukset.map((c) => [c.id, c] as const)))
-// The same pattern as training/src/seeni/species.py and flow.test.ts.
-const EDIBLE = /syötäv|syödä|syöd|ruokasien|herkullinen|maukas/i
 
 describe('check pictures', () => {
   it('every check has a picture of exactly its answers', () => {

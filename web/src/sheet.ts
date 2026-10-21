@@ -4,12 +4,22 @@
 // Safety (hard rule 8): nothing here states that a species is edible, a syötävä class gets
 // no group label, and opening a sheet changes nothing in the flow.
 
-import { DANGEROUS, mentioned, type Check, type Group, type Species } from './flow.ts'
+import { mentioned, type Check, type Group, type Species } from './flow.ts'
 
 export const GROUP_LABEL: Partial<Record<Group, string>> = {
   tappava: 'Tappavan myrkyllinen',
   myrkyllinen: 'Myrkyllinen',
   esikäsiteltävä: 'Myrkyllinen raakana',
+}
+
+// The fixed texts of a sheet, here so that the edibility test sees them too.
+export const SHEET_TEXT = {
+  warningOnly: 'Seeni ei tunnista tätä lajia kuvasta. Sen voi sulkea pois vain tarkistamalla tuntomerkit.',
+  features: 'Tuntomerkit',
+  compare: (nimi: string) => `Näin erotat lajista ${nimi}`,
+  noDifference: 'Tarkistuksista ei löydy eroa näiden välillä. Varmista laji sieneuvojalta.',
+  lookalikes: 'Sen kaksoisolennot',
+  sources: 'Lähteet',
 }
 
 /** One check that tells two classes apart: the answers that fit each of them. */
@@ -46,7 +56,6 @@ export interface Sheet {
   tieteellinen: string
   // The danger label, or null for a class that is not dangerous (never an edibility label).
   label: string | null
-  dangerous: boolean
   // True for a warning-only record: the model cannot recognize it from a photo.
   warningOnly: boolean
   tuntomerkit: string[]
@@ -65,7 +74,6 @@ export function sheet(id: string, compareTo: string | null, species: Species, mo
     nimi: r.nimi,
     tieteellinen: r.tieteellinen,
     label: GROUP_LABEL[r.ryhma] ?? null,
-    dangerous: DANGEROUS.has(r.ryhma),
     warningOnly: !modelClasses.has(id),
     tuntomerkit: r.tuntomerkit,
     compareTo: other ? { id: other.id, nimi: other.nimi, differences: differences(id, other.id, species) } : null,
@@ -80,6 +88,10 @@ export function sheet(id: string, compareTo: string | null, species: Species, mo
 /** Every string of a sheet that the user sees, for the edibility test. */
 export function sheetTexts(s: Sheet): string[] {
   const out = [s.nimi, s.tieteellinen, ...s.tuntomerkit, ...s.lahteet]
+  out.push(SHEET_TEXT.features, SHEET_TEXT.lookalikes, SHEET_TEXT.sources)
+  if (s.warningOnly) out.push(SHEET_TEXT.warningOnly)
+  if (s.compareTo) out.push(SHEET_TEXT.compare(s.compareTo.nimi))
+  if (s.compareTo?.differences.length === 0) out.push(SHEET_TEXT.noDifference)
   if (s.label) out.push(s.label)
   for (const l of s.lookalikes) out.push(l.nimi, ...(l.label ? [l.label] : []))
   if (s.compareTo) {

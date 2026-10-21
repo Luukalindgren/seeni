@@ -18,7 +18,7 @@ import {
   type State,
 } from './flow.ts'
 import { checkPicture } from './checkArt.ts'
-import { GROUP_LABEL, sheet } from './sheet.ts'
+import { GROUP_LABEL, SHEET_TEXT, sheet } from './sheet.ts'
 import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
@@ -270,6 +270,8 @@ if (!consented) dialog.showModal()
 
 const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })
 let files: ModelFiles | null = null
+// The ids of the model's classes, known once the model files are loaded.
+let modelClasses: ReadonlySet<string> | null = null
 let nextId = 1
 const pending = new Map<number, (r: Response) => void>()
 
@@ -435,13 +437,19 @@ function render(state: State | null, raw: Map<string, number>) {
       const open = el('button', undefined, 'lookalike')
       open.type = 'button'
       open.setAttribute('aria-haspopup', 'dialog')
-      open.append(photo(id, 'thumb'))
-      const text = el('div')
-      text.append(el('strong', species.get(id)?.nimi ?? id))
-      text.append(el('span', species.get(id)?.tieteellinen ?? '', 'latin'))
+      const r = species.get(id)
+      const thumb = el('span', undefined, 'thumb')
+      const img = el('img')
+      img.src = `${base}species/${id}.jpg`
+      img.alt = ''
+      img.loading = 'lazy'
+      thumb.append(img)
+      const text = el('span', undefined, 'lookalike-text')
+      text.append(el('strong', r?.nimi ?? id))
+      text.append(el('span', r?.tieteellinen ?? '', 'latin'))
       const ob = badge(id)
       if (ob) text.append(ob)
-      open.append(text)
+      open.append(thumb, text)
       open.addEventListener('click', () => openSheet(id, top.id))
       li.append(open)
       list.append(li)
@@ -523,8 +531,8 @@ let sheetStack: { id: string; compareTo: string }[] = []
 
 function renderSheet() {
   const current = sheetStack[sheetStack.length - 1]
-  if (!current) return
-  const s = sheet(current.id, current.compareTo, species, new Set(files?.labels.map((l) => l.id) ?? []))
+  if (!current || !modelClasses) return
+  const s = sheet(current.id, current.compareTo, species, modelClasses)
   sheetBack.hidden = sheetStack.length < 2
   sheetBody.replaceChildren()
   sheetBody.append(photo(s.id, 'sheet-photo'))
@@ -535,19 +543,19 @@ function renderSheet() {
   if (b) sheetBody.append(b)
   if (s.warningOnly) {
     sheetBody.append(
-      el('p', 'Seeni ei tunnista tätä lajia kuvasta. Sen voi sulkea pois vain tarkistamalla tuntomerkit.', 'sheet-note'),
+      el('p', SHEET_TEXT.warningOnly, 'sheet-note'),
     )
   }
   if (s.tuntomerkit.length) {
-    sheetBody.append(el('h3', 'Tuntomerkit'))
+    sheetBody.append(el('h3', SHEET_TEXT.features))
     const ul = el('ul', undefined, 'features')
     for (const t of s.tuntomerkit) ul.append(el('li', t))
     sheetBody.append(ul)
   }
   if (s.compareTo) {
-    sheetBody.append(el('h3', `Näin erotat lajista ${s.compareTo.nimi}`))
+    sheetBody.append(el('h3', SHEET_TEXT.compare(s.compareTo.nimi)))
     if (s.compareTo.differences.length === 0) {
-      sheetBody.append(el('p', 'Tarkistuksista ei löydy eroa näiden välillä. Varmista laji sieneuvojalta.', 'sheet-note'))
+      sheetBody.append(el('p', SHEET_TEXT.noDifference, 'sheet-note'))
     } else {
       const ul = el('ul', undefined, 'differences')
       for (const d of s.compareTo.differences) {
@@ -563,7 +571,7 @@ function renderSheet() {
     }
   }
   if (s.lookalikes.length) {
-    sheetBody.append(el('h3', 'Sen kaksoisolennot'))
+    sheetBody.append(el('h3', SHEET_TEXT.lookalikes))
     const ul = el('ul', undefined, 'sheet-lookalikes')
     for (const l of s.lookalikes) {
       const li = el('li')
@@ -571,13 +579,14 @@ function renderSheet() {
       open.type = 'button'
       open.addEventListener('click', () => openSheet(l.id, current.compareTo))
       li.append(open)
-      if (l.label) li.append(el('span', l.label, `badge ${species.get(l.id)?.ryhma === 'esikäsiteltävä' ? 'pre' : 'danger'}`))
+      const lb = badge(l.id)
+      if (lb) li.append(lb)
       ul.append(li)
     }
     sheetBody.append(ul)
   }
   if (s.lahteet.length) {
-    sheetBody.append(el('h3', 'Lähteet'))
+    sheetBody.append(el('h3', SHEET_TEXT.sources))
     const ul = el('ul', undefined, 'sources')
     for (const t of s.lahteet) ul.append(el('li', t))
     sheetBody.append(ul)
@@ -587,13 +596,15 @@ function renderSheet() {
 }
 
 function openSheet(id: string, compareTo: string) {
+  if (!species.has(id) || !modelClasses) return
   sheetStack.push({ id, compareTo })
   history.pushState({ sheet: sheetStack.length }, '')
   renderSheet()
   if (!sheetDialog.open) sheetDialog.showModal()
 }
 
-// Back, close, Escape and the backdrop all go through history, so it stays in step.
+// Every sheet has a history entry: back (the phone's, the arrow, or Escape) goes one sheet
+// back, and closing goes back over all of them.
 window.addEventListener('popstate', () => {
   if (sheetStack.length === 0) return
   sheetStack.pop()
@@ -601,17 +612,28 @@ window.addEventListener('popstate', () => {
   else renderSheet()
 })
 function closeSheet() {
-  if (sheetStack.length > 0) history.go(-sheetStack.length)
+  const n = sheetStack.length
+  sheetStack = []
+  if (sheetDialog.open) sheetDialog.close()
+  if (n > 0) history.go(-n)
 }
 sheetBack.addEventListener('click', () => history.back())
 $('#sheet-close').addEventListener('click', closeSheet)
+// Android's back button reaches a modal dialog as `cancel`: one sheet back, like popstate.
 sheetDialog.addEventListener('cancel', (e) => {
   e.preventDefault()
-  closeSheet()
+  history.back()
 })
+// A browser may still close it on its own (a second quick Escape); drop the leftover entries.
+sheetDialog.addEventListener('close', () => {
+  if (sheetStack.length > 0) closeSheet()
+})
+// The backdrop: a press and release both on the dialog element itself, outside its content.
+let pressOnBackdrop = false
+sheetDialog.addEventListener('pointerdown', (e) => (pressOnBackdrop = e.target === sheetDialog))
 sheetDialog.addEventListener('click', (e) => {
-  // A click on the backdrop lands on the dialog element itself.
-  if (e.target === sheetDialog) closeSheet()
+  if (pressOnBackdrop && e.target === sheetDialog) closeSheet()
+  pressOnBackdrop = false
 })
 
 // --- Photos in ---------------------------------------------------------------------------
@@ -676,6 +698,7 @@ async function identify(images: File[]) {
   show('loading')
   try {
     files ??= await loadFiles(base)
+    modelClasses ??= new Set(files.labels.map((l) => l.id))
     const r = await classify(chosen)
     await minimum
     if (request !== latest) return
@@ -899,7 +922,7 @@ function gust(on: boolean) {
 const drop = $('#drop')
 let dragDepth = 0
 window.addEventListener('dragenter', (e) => {
-  if (!e.dataTransfer?.types.includes('Files') || !consented || webcamDialog.open) return
+  if (!e.dataTransfer?.types.includes('Files') || !consented || webcamDialog.open || sheetDialog.open) return
   dragDepth++
   drop.classList.add('dragging')
   gust(true)
@@ -923,7 +946,7 @@ window.addEventListener('drop', (e) => {
   drop.classList.remove('dragging')
   gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (!consented || webcamDialog.open) return
+  if (!consented || webcamDialog.open || sheetDialog.open) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)
   void identify(images)
 })
@@ -931,7 +954,7 @@ window.addEventListener('drop', (e) => {
 // Pasting an image from the clipboard identifies it too.
 window.addEventListener('paste', (e) => {
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (!consented || webcamDialog.open) return
+  if (!consented || webcamDialog.open || sheetDialog.open) return
   const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
   if (images.length === 0) return
   e.preventDefault()

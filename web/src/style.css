@@ -647,6 +647,7 @@ dialog h2 {
 }
 
 .thumb {
+  display: block;
   margin: 0;
   flex: none;
 }
@@ -1286,7 +1287,7 @@ body.live-on .adding {
   cursor: pointer;
 }
 
-.lookalike > div {
+.lookalike-text {
   display: flex;
   flex-direction: column;
   align-items: flex-start;

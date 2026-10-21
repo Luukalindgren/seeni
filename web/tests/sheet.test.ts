@@ -5,14 +5,13 @@ import { describe, it } from 'node:test'
 
 import { speciesMap, type Label, type SpeciesRecord } from '../src/flow.ts'
 import { differences, sheet, sheetTexts } from '../src/sheet.ts'
+import { EDIBLE } from './edible.ts'
 
 const read = (path: string) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'))
 const records: SpeciesRecord[] = read('../../species/species.json')
 const labels: Label[] = read('../public/models/v1/labels.json')
 const species = speciesMap(records)
 const model = new Set(labels.map((l) => l.id))
-// The same pattern as EDIBLE in training/src/seeni/species.py.
-const EDIBLE = /syötäv|syödä|syöd|ruokasien|herkullinen|maukas/i
 
 describe('differences', () => {
   it('lists the checks that tell a chanterelle from a false chanterelle', () => {

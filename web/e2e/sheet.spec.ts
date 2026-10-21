@@ -25,7 +25,23 @@ test('opens a lookalike, steps into its own lookalike and back, and closes with 
   await page.locator('#sheet-back').click()
   await expect(sheet.locator('h2')).toHaveText('lehtomyrkkyseitikki')
 
+  // Escape (and Android's back button, which reaches the dialog the same way) goes one back.
+  await sheet.locator('.sheet-lookalikes button', { hasText: 'suippumyrkkyseitikki' }).click()
+  await expect(sheet.locator('h2')).toHaveText('suippumyrkkyseitikki')
+  await page.keyboard.press('Escape')
+  await expect(sheet.locator('h2')).toHaveText('lehtomyrkkyseitikki')
+
   await page.goBack()
+  await expect(sheet).toBeHidden()
+
+  // Closing from a nested sheet closes all of them, and back then leaves the sheet alone.
+  await page.locator('.lookalike', { hasText: 'lehtomyrkkyseitikki' }).click()
+  await sheet.locator('.sheet-lookalikes button', { hasText: 'suippumyrkkyseitikki' }).click()
+  await page.locator('#sheet-close').click()
+  await expect(sheet).toBeHidden()
+  await page.locator('.lookalike', { hasText: 'lehtomyrkkyseitikki' }).click()
+  await expect(page.locator('#sheet-back')).toBeHidden()
+  await page.locator('#sheet-close').click()
   await expect(sheet).toBeHidden()
   await expect(page.locator('#result')).toBeVisible()
 })

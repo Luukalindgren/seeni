@@ -1,5 +1,5 @@
 // "Not sure" still names the dangerous species the photo resembles: here a brown roll-rim
-// (deadly) that the model puts second (28 %) behind an edible bovine bolete (65 %).
+// (deadly) that the model puts second (28 %) behind an edible bovine bolete, nummitatti (65 %).
 import { expect, test } from '@playwright/test'
 import { fileURLToPath } from 'node:url'
 
@@ -12,12 +12,14 @@ test('"not sure" names a deadly species the photo resembles, and it opens its sh
   await page.locator('#gallery').setInputFiles(rollRim)
   await expect(page.locator('#result h2')).toHaveText('En tunnista varmasti', { timeout: 60_000 })
   await expect(page.locator('.unsure-danger')).toBeVisible()
+  // The most likely dangerous species first.
   const rows = page.locator('.unsure .lookalike')
-  await expect(rows).toHaveCount(1)
   await expect(rows.first()).toContainText('pulkkosieni')
   await expect(rows.first()).toContainText('Tappavan myrkyllinen')
-  // Nothing edible is offered as an alternative.
-  await expect(page.locator('#result')).not.toContainText('kangastatti')
+  // Only dangerous species are listed: every row has its danger label.
+  await expect(page.locator('.unsure .lookalike .badge')).toHaveCount(await rows.count())
   await rows.first().click()
   await expect(page.locator('#sheet-title')).toHaveText('pulkkosieni')
+  // Compared with the species the model leaned to.
+  await expect(page.locator('#sheet')).toContainText('Näin erotat lajista nummitatti')
 })

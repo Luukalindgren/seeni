@@ -159,19 +159,36 @@ export function start(
 // On "not sure", a dangerous class with at least this probability is still named.
 export const RESEMBLES_MIN = 0.1
 
-/** On "not sure" from the model: the dangerous classes the photo still resembles somewhat,
- * most likely first. A deadly species that loses to an edible one below the "not sure"
- * threshold (e.g. 65 % / 28 %) would otherwise go unmentioned. Display only: they are not
- * candidates and no check is asked about them. */
+/** On "not sure": the dangerous species the photos still resemble somewhat, most likely
+ * first. A deadly species that loses to an edible one below the "not sure" threshold (e.g.
+ * 65 % / 28 %) would otherwise go unmentioned. A class counts with its highest probability in
+ * any photo (#46: averaging can hide what one photo shows). Every class at the minimum also
+ * brings its dangerous lookalikes, warning-only records too, as start() does. A species that
+ * an answer has ruled out is left out (hard rule 8: only the classes the check lists).
+ * Display only: they are not candidates and no check is asked about them. */
 export function dangerousResemblances(
-  probabilities: ReadonlyMap<string, number>,
+  labels: readonly Label[],
+  perImage: readonly (readonly number[])[],
   species: Species,
+  asked: State['asked'] = [],
   min = RESEMBLES_MIN,
 ): string[] {
-  return [...probabilities]
-    .filter(([id, p]) => p >= min && isDangerous(id, species))
-    .sort((a, b) => b[1] - a[1])
-    .map(([id]) => id)
+  const checks = checkById(species)
+  const out = new Set(
+    asked.flatMap((a) => {
+      const check = checks.get(a.check)
+      return check && a.answer in check.vastaukset ? [...ruledOut(check, a.answer)] : []
+    }),
+  )
+  const best = new Map(labels.map((l, i) => [l.id, Math.max(0, ...perImage.map((p) => p[i] ?? 0))]))
+  const found = new Map<string, number>()
+  for (const [id, p] of best) {
+    if (id === UNKNOWN || p < min) continue
+    for (const x of [id, ...(species.get(id)?.kaksoisolennot ?? [])]) {
+      if (isDangerous(x, species) && !out.has(x)) found.set(x, Math.max(found.get(x) ?? 0, best.get(x) ?? 0))
+    }
+  }
+  return [...found].sort((a, b) => b[1] - a[1]).map(([id]) => id)
 }
 
 function checksFor(state: State, species: Species): Check[] {

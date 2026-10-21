@@ -1595,6 +1595,18 @@ body.live-on .adding {
   font-weight: 600;
   color: var(--danger-text);
 }
+.finds-backup {
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+.finds-backup .find-actions {
+  flex-wrap: wrap;
+  column-gap: 1rem;
+}
+#finds-backup-status:empty {
+  display: none;
+}
 
 /* Species guide. */
 .home-links {

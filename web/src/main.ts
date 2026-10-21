@@ -29,7 +29,8 @@ import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
 import { createLiveCamera } from './liveCamera.ts'
-import { addFind, countFinds, deleteFind, listFinds, thumbnail, updateFind, type Find } from './finds.ts'
+import { addFind, addFinds, countFinds, deleteFind, keepStorage, listFinds, thumbnail, updateFind, type Find } from './finds.ts'
+import { MAX_BACKUP_BYTES, backupName, makeBackup, newFinds, readBackup } from './backup.ts'
 import { EXIF_BYTES, appleMapsUrl, exifDate, exifPosition, googleMapsUrl, placeLabel, type Position } from './place.ts'
 import { REGIONS, isRare, isRecent, monthOf, regionOf, type Occurrence, type RegionId } from './season.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
@@ -167,6 +168,15 @@ app.innerHTML = `
     <h2 id="finds-title" data-t="findsTitle"></h2>
     <p class="fine" data-t="findsNote"></p>
     <ul id="finds-list" class="finds-list"></ul>
+    <div class="finds-backup">
+      <p class="fine" data-t="findsBackupNote"></p>
+      <div class="find-actions">
+        <button id="finds-export" class="live-link" type="button" data-t="findsExport"></button>
+        <button id="finds-import" class="live-link" type="button" data-t="findsImport"></button>
+      </div>
+      <input id="finds-import-file" type="file" accept="application/json,.json" hidden />
+      <p id="finds-backup-status" class="fine" role="status"></p>
+    </div>
   </dialog>
 
   <dialog id="guide" aria-labelledby="guide-title">
@@ -893,6 +903,7 @@ async function saveFind() {
       fromPhoto: place?.fromPhoto ?? false,
     }
     const id = await addFind(find)
+    keepStorage()
     if (session === findSession) {
       savedFind = { ...find, id }
       savedThumbOf = file
@@ -963,6 +974,7 @@ async function renderFinds() {
   revokeFindUrls()
   list.replaceChildren()
   if (finds.length === 0) list.append(el('li', s.findsEmpty, 'finds-empty'))
+  $('#finds-export').hidden = finds.length === 0
   for (const f of finds) {
     const li = el('li', undefined, 'find')
     const img = el('img')
@@ -1013,7 +1025,67 @@ async function renderFinds() {
   }
 }
 
+// --- Backup of the finds (backup.ts): a file the user saves and reads back ---------------
+const backupStatus = $('#finds-backup-status')
+
+async function exportFinds() {
+  backupStatus.textContent = ''
+  const finds = await listFinds().catch(() => null)
+  if (!finds?.length) return
+  const blob = new Blob([JSON.stringify(await makeBackup(finds))], { type: 'application/json' })
+  // On iPhones a download does not reliably reach Files from the home-screen app, so the
+  // share sheet offers "Save to Files" there.
+  const file = new File([blob], backupName(), { type: 'application/json' })
+  if (/iPhone|iPad/.test(navigator.userAgent) && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file] })
+      return
+    } catch (e) {
+      if ((e as Error).name === 'AbortError') return // the user closed the share sheet
+      // Otherwise, e.g. the tap no longer counts after a long export: try a download.
+    }
+  }
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = backupName()
+  document.body.append(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(a.href), 60_000)
+}
+
+let importing = false
+async function importFinds(file: File) {
+  if (importing) return
+  importing = true
+  const s = t()
+  try {
+    if (file.size > MAX_BACKUP_BYTES) throw new Error('too large')
+    const incoming = readBackup(await file.text())
+    const fresh = newFinds(incoming, await listFinds())
+    await addFinds(fresh)
+    if (fresh.length) keepStorage()
+    backupStatus.textContent = s.findsImported(fresh.length)
+  } catch {
+    backupStatus.textContent = s.findsImportFailed
+  } finally {
+    importing = false
+  }
+  void refreshFindsCount()
+  void renderFinds()
+}
+
+$('#finds-export').addEventListener('click', () => void exportFinds())
+$('#finds-import').addEventListener('click', () => $<HTMLInputElement>('#finds-import-file').click())
+$<HTMLInputElement>('#finds-import-file').addEventListener('change', (e) => {
+  const input = e.currentTarget as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (file) void importFinds(file)
+})
+
 async function openFinds() {
+  backupStatus.textContent = ''
   await renderFinds()
   if (!findsDialog.open) findsDialog.showModal()
 }

@@ -1192,8 +1192,9 @@ window.addEventListener('popstate', () => {
     return
   }
   if (onViewEntry()) {
-    // Forward onto an entry that nothing on screen matches: step back over it.
-    if (depth > sheetStack.length || (currentView === 'home' && !adding)) history.back()
+    // Forward onto an entry that nothing on screen matches: step back over it. (A sheet
+    // opened from the species guide is on the start screen too.)
+    if (depth > sheetStack.length || (currentView === 'home' && !adding && sheetStack.length === 0)) history.back()
     return
   }
   // Back to the start screen. The webcam dialog may be open on a computer.

@@ -51,3 +51,10 @@ jobs:
       # Parity (golden fixtures in Chromium) and offline tests; test:e2e builds first.
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      # The failed tests' page snapshots (with any error text on the page) for a flaky run.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: web/test-results
+          retention-days: 7

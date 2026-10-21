@@ -1263,3 +1263,9 @@ body.live-on .adding {
 .unsure .photo-strip {
   justify-content: center;
 }
+
+.photo-notice {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}

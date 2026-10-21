@@ -1,11 +1,11 @@
 // The model in the browser (PLAN.md phase 10): decode → preprocess (preprocess.json) →
-// onnxruntime-web → logits / T → softmax → mean over images. Used by the Web Worker and by
+// onnxruntime-web → logits / T → softmax, per image (the app averages them). Used by the Web Worker and by
 // the parity page. Images never leave the device (hard rule 9).
 // The WASM-only bundle: its runtime is 14 MB against 27 MB for the WebGPU one, so the first
 // load is about a third lighter, and EfficientNet-B0 runs well under a second on WASM.
 import * as ort from 'onnxruntime-web/wasm'
 
-import { averageProbabilities, softmax } from './flow.ts'
+import { softmax } from './flow.ts'
 import { loadFiles, MODEL_VERSION, type ModelFiles } from './modelFiles.ts'
 import { preprocess, type Pixels } from './preprocess.ts'
 
@@ -98,10 +98,5 @@ export class Classifier {
     const logits = await this.logits(inputs)
     const t = this.files.calibration.temperature
     return logits.map((row) => softmax(row, t))
-  }
-
-  /** Calibrated probabilities averaged over the images of one mushroom. */
-  async classify(images: Pixels[]): Promise<number[]> {
-    return averageProbabilities(await this.classifyEach(images))
   }
 }

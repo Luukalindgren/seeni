@@ -6,6 +6,7 @@ import {
   DANGEROUS,
   answer,
   averageProbabilities,
+  checkById,
   isDone,
   nextCheck,
   outcome,
@@ -27,6 +28,7 @@ import type { Request, Response } from './worker.ts'
 import './style.css'
 
 const species = speciesMap(speciesRecords as unknown as SpeciesRecord[])
+const checks = checkById(species)
 const base = import.meta.env.BASE_URL
 const REMINDER = 'Tunnistus ei ole koskaan varma. Älä syö sientä tämän sovelluksen perusteella.'
 
@@ -374,7 +376,7 @@ function renderNotSure() {
 }
 
 function render(state: State | null, raw: Map<string, number>) {
-  currentState = state
+  if (state) asked = state.asked
   if (state === null) {
     renderNotSure()
     return
@@ -455,7 +457,9 @@ function render(state: State | null, raw: Map<string, number>) {
       const button = el('button', a, 'answer')
       button.addEventListener('click', () => {
         result.classList.remove('enter')
-        render(answer(state, check, a), raw)
+        const next = answer(state, check, a)
+        if (!next) asked = [...state.asked, { check: check.id, answer: a }]
+        render(next, raw)
       })
       answers.append(button)
     }
@@ -477,7 +481,7 @@ function render(state: State | null, raw: Map<string, number>) {
   if (checked.kind === 'fits' && checked.checked.length > 0) {
     const ul = el('ul', undefined, 'checked')
     for (const a of checked.checked) {
-      const k = [...species.values()].flatMap((r) => r.tarkistukset).find((c) => c.id === a.check)
+      const k = checks.get(a.check)
       ul.append(el('li', `${k?.kysymys ?? a.check} – ${a.answer}`))
     }
     side.append(el('h3', 'Tarkistamasi asiat'), ul)
@@ -520,12 +524,14 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 // Everything stays in memory on the device (hard rule 9).
 const MAX_PHOTOS = 5
 interface Photo {
-  file: File
   url: string
   probabilities: number[]
 }
 let photos: Photo[] = []
-let currentState: State | null = null
+// The answers given for the current mushroom, also when the last one led to "not sure".
+let asked: State['asked'] = []
+// Shown once in the next result, e.g. when photos over the limit were left out.
+let photoNotice = ''
 // True while the user takes or picks another photo of the same mushroom.
 let adding = false
 
@@ -540,6 +546,9 @@ async function identify(images: File[]) {
   setAdding(false)
   const room = add ? MAX_PHOTOS - photos.length : MAX_PHOTOS
   const chosen = images.slice(0, Math.max(0, room))
+  if (chosen.length < images.length) {
+    photoNotice = `Yhdestä sienestä käytetään enintään ${MAX_PHOTOS} kuvaa. ${images.length - chosen.length} kuvaa jätettiin pois.`
+  }
   if (chosen.length === 0) {
     show('result')
     return
@@ -557,34 +566,43 @@ async function identify(images: File[]) {
     await minimum
     if (request !== latest) return
     if (r.kind !== 'result') throw new Error(r.kind === 'error' ? r.message : r.kind)
-    const before = add ? currentState : null
-    if (!add) clearPhotos()
-    chosen.forEach((file, i) => photos.push({ file, url: URL.createObjectURL(file), probabilities: r.perImage[i]! }))
-    identifyPhotos(before)
+    if (!add) {
+      clearPhotos()
+      asked = []
+    }
+    chosen.forEach((file, i) => photos.push({ url: URL.createObjectURL(file), probabilities: r.perImage[i]! }))
+    identifyPhotos()
   } catch (e) {
     await minimum
     if (request !== latest) return
-    result.replaceChildren(el('h2', 'Tunnistus epäonnistui'), el('p', String(e)), newPhotoButton())
+    result.replaceChildren(el('h2', 'Tunnistus epäonnistui'), el('p', String(e)))
+    // An added photo that fails leaves the earlier photos and answers as they were.
+    if (add) {
+      const back = el('button', 'Takaisin tulokseen', 'secondary big')
+      back.addEventListener('click', () => identifyPhotos())
+      result.append(back)
+    }
+    result.append(newPhotoButton())
     show('result')
   }
 }
 
-// The result for the current photos; the answers of `before` are kept when they still fit.
-function identifyPhotos(before: State | null) {
+// The result for the current photos; the answers given so far are kept when they still fit.
+function identifyPhotos() {
   if (!files || photos.length === 0) return
   const perImage = photos.map((p) => p.probabilities)
   const mean = averageProbabilities(perImage)
   const raw = new Map(files.labels.map((l, i) => [l.id, mean[i] ?? 0]))
   const first = start(mean, files.labels, species, files.calibration, perImage)
   let state = first.kind === 'flow' ? first.state : null
-  if (state && before) state = replay(state, before.asked, species)
+  if (state) state = replay(state, asked, species)
   render(state, raw)
 }
 
 function removePhoto(index: number) {
   const [gone] = photos.splice(index, 1)
   if (gone) URL.revokeObjectURL(gone.url)
-  identifyPhotos(currentState)
+  identifyPhotos()
 }
 
 // "Lisää kuva": back to the start screen to take or pick one more photo of the same mushroom.
@@ -610,6 +628,18 @@ function addPhotoButton(): HTMLElement | null {
 function photoStrip(): HTMLElement | null {
   if (photos.length === 0) return null
   const strip = el('div', undefined, 'photo-strip')
+  if (photoNotice) {
+    const wrap = el('div')
+    wrap.append(el('p', photoNotice, 'photo-notice'), strip)
+    photoNotice = ''
+    fillStrip(strip)
+    return wrap
+  }
+  fillStrip(strip)
+  return strip
+}
+
+function fillStrip(strip: HTMLElement) {
   photos.forEach((p, i) => {
     const item = el('figure', undefined, 'shot')
     const img = el('img')
@@ -626,7 +656,6 @@ function photoStrip(): HTMLElement | null {
     }
     strip.append(item)
   })
-  return strip
 }
 
 // --- Live camera on phones (#43) ---------------------------------------------------------

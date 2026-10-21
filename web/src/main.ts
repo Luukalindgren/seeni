@@ -84,6 +84,7 @@ app.innerHTML = `
     <button id="info" class="round" type="button" data-t-aria="info">${ICON.info}</button>
   </header>
 
+  <main>
   <section id="home" class="view">
     <div id="adding" class="adding" hidden>
       <p><strong><span data-t="addingTitle"></span> <span id="adding-count"></span></strong>
@@ -138,6 +139,7 @@ app.innerHTML = `
   </section>
 
   <section id="result" class="view" hidden aria-live="polite"></section>
+  </main>
 
   <dialog id="webcam-dialog" data-t-aria="camera">
     <video autoplay playsinline muted></video>
@@ -1285,6 +1287,9 @@ function clearPhotos() {
   forgetFind()
 }
 
+// None of the chosen files could be decoded as an image.
+class Unreadable extends Error {}
+
 async function identify(images: File[]) {
   if (images.length === 0) return
   const add = adding && photos.length > 0
@@ -1314,19 +1319,27 @@ async function identify(images: File[]) {
     await minimum
     if (request !== latest) return
     if (r.kind !== 'result') throw new Error(r.kind === 'error' ? r.message : r.kind)
+    const readable = chosen.flatMap((file, i) => {
+      const probabilities = r.perImage[i]
+      return probabilities ? [{ file, probabilities, ...meta[i]! }] : []
+    })
+    if (readable.length === 0) throw new Unreadable()
+    if (readable.length < chosen.length) {
+      photoNotice = [photoNotice, t().unreadablePhotos(chosen.length - readable.length)].filter(Boolean).join(' ')
+    }
     if (!add) {
       clearPhotos()
       asked = []
     }
-    chosen.forEach((file, i) =>
-      photos.push({ file, url: URL.createObjectURL(file), probabilities: r.perImage[i]!, ...meta[i]! }),
-    )
+    for (const p of readable) photos.push({ ...p, url: URL.createObjectURL(p.file) })
     identifyPhotos()
   } catch (e) {
     await minimum
     if (request !== latest) return
     resultOfPhotos = false
-    result.replaceChildren(el('h2', t().failed), el('p', String(e)))
+    photoNotice = ''
+    if (e instanceof Unreadable) result.replaceChildren(el('h2', t().unreadableTitle), el('p', t().unreadableText))
+    else result.replaceChildren(el('h2', t().failed), el('p', String(e)))
     // An added photo that fails leaves the earlier photos and answers as they were.
     if (add) {
       const back = el('button', t().backToResult, 'secondary big')

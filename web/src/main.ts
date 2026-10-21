@@ -29,6 +29,7 @@ import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
 import { createLiveCamera } from './liveCamera.ts'
+import { addFind, countFinds, deleteFind, listFinds, thumbnail, updateFind, type Find } from './finds.ts'
 import { EXIF_BYTES, appleMapsUrl, exifDate, exifPosition, googleMapsUrl, placeLabel, type Position } from './place.ts'
 import { REGIONS, isRare, isRecent, monthOf, regionOf, type Occurrence, type RegionId } from './season.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
@@ -98,6 +99,7 @@ app.innerHTML = `
         <label class="secondary big" for="gallery" tabindex="0">${ICON.image} <span data-t="pickPhoto"></span></label>
         <div class="live-status"></div>
         <button id="live-info" class="live-link" type="button" data-t="info"></button>
+        <button id="live-finds" class="live-link" type="button" hidden></button>
       </div>
       <div class="live-bar">
         <button id="live-back" class="round" type="button" data-t-aria="back">${ICON.close}</button>
@@ -122,6 +124,7 @@ app.innerHTML = `
     <button id="live-retry" class="live-link" type="button" hidden data-t="liveRetry"></button>
     <p id="live-help" class="hint" role="status" hidden data-t="liveHelp"></p>
     <p id="status" class="status"></p>
+    <button id="finds-open" class="live-link" type="button" hidden></button>
   </section>
 
   <section id="loading" class="view" hidden>
@@ -149,6 +152,15 @@ app.innerHTML = `
       <button id="sheet-close" class="round" type="button" data-t-aria="close">${ICON.close}</button>
     </div>
     <div id="sheet-body"></div>
+  </dialog>
+
+  <dialog id="finds" aria-labelledby="finds-title">
+    <div class="sheet-top">
+      <button id="finds-close" class="round" type="button" data-t-aria="close">${ICON.close}</button>
+    </div>
+    <h2 id="finds-title" data-t="findsTitle"></h2>
+    <p class="fine" data-t="findsNote"></p>
+    <ul id="finds-list" class="finds-list"></ul>
   </dialog>
 
   <canvas id="grass" aria-hidden="true"></canvas>
@@ -412,6 +424,8 @@ function renderNotSure() {
   if (strip) box.append(strip)
   const addButton = addPhotoButton()
   if (addButton) box.append(addButton)
+  findSpecies = null
+  if (savedFind && savedFind.speciesId !== null) void syncFind()
   if (photos.length > 0) box.append(placeSection(null))
   box.append(newPhotoButton())
   result.replaceChildren(box)
@@ -554,6 +568,8 @@ function render(state: State | null, raw: Map<string, number>) {
   if (strip) side.append(el('h3', t().yourPhotos), strip)
   const addButton = addPhotoButton()
   if (addButton) side.append(addButton)
+  findSpecies = top.id
+  if (savedFind && savedFind.speciesId !== findSpecies) void syncFind()
   side.append(placeSection(record?.nimi ?? null))
   side.append(el('p', t().reminder, 'reminder'), newPhotoButton())
   show('result')
@@ -607,6 +623,7 @@ async function findPlace() {
     if (request !== placeRequest) return
     place = found
     fillPlace()
+    void syncFind()
   } catch {
     if (request === placeRequest) fillPlace('failed')
   }
@@ -635,6 +652,7 @@ function fillPlace(status: 'loading' | 'failed' | null = null) {
       box.append(el('p', s.placeFailed, 'place-error'))
     }
     box.append(el('p', s.placeNote, 'place-note'))
+    box.append(findButton())
     return
   }
   const label = placeLabel(placeName, new Date(), s.placeLabel)
@@ -663,8 +681,10 @@ function fillPlace(status: 'loading' | 'failed' | null = null) {
   forget.addEventListener('click', () => {
     forgetPlace()
     fillPlace()
+    void syncFind()
   })
   box.append(links, forget)
+  box.append(findButton())
 }
 
 function isDangerousId(id: string): boolean {
@@ -772,6 +792,129 @@ function renderSeasonSettings() {
   $('#season-settings').replaceChildren(seasonSettings())
 }
 renderSeasonSettings()
+
+// --- My finds ---------------------------------------------------------------------------
+// "Tallenna omiin löytöihin" keeps this mushroom in a list on the device (finds.ts): a
+// thumbnail of the first photo, the suggested species, the date and the find spot if one is
+// saved. The entry follows the find spot while the result is open. The list says "?" after
+// the species and shows its danger label: it records a suggestion, not a confirmed species.
+
+let savedFind: Find | null = null
+// The species of the result on screen (null on "not sure"), for a find saved from it.
+let findSpecies: string | null = null
+const findsDialog = $<HTMLDialogElement>('#finds')
+// On the home screen, and on the live camera's card that covers it.
+const findsOpeners = [$<HTMLButtonElement>('#finds-open'), $<HTMLButtonElement>('#live-finds')]
+
+function findButton(): HTMLElement {
+  const s = t()
+  if (savedFind) {
+    const done = el('p', s.findsSaved, 'find-saved')
+    const open = el('button', s.findsTitle, 'live-link')
+    open.type = 'button'
+    open.addEventListener('click', () => void openFinds())
+    done.append(' ', open)
+    return done
+  }
+  const save = el('button', s.findsSave, 'answer ghost')
+  save.type = 'button'
+  save.addEventListener('click', async () => {
+    save.disabled = true
+    try {
+      const find = {
+        at: new Date().toISOString(),
+        speciesId: findSpecies,
+        thumb: await thumbnail(photos[0]!.file),
+        position: place?.position ?? null,
+        fromPhoto: place?.fromPhoto ?? false,
+      }
+      savedFind = { ...find, id: await addFind(find) }
+      fillPlace()
+      void refreshFindsCount()
+    } catch {
+      save.disabled = false
+      save.textContent = s.findsFailed
+    }
+  })
+  return save
+}
+
+// A saved find follows the find spot saved or forgotten after it, and the species when
+// later answers change the result.
+async function syncFind() {
+  if (!savedFind) return
+  savedFind = {
+    ...savedFind,
+    speciesId: findSpecies,
+    position: place?.position ?? null,
+    fromPhoto: place?.fromPhoto ?? false,
+  }
+  await updateFind(savedFind).catch(() => undefined)
+}
+
+async function refreshFindsCount() {
+  const n = await countFinds().catch(() => 0)
+  for (const b of findsOpeners) {
+    b.textContent = t().findsOpen(n)
+    b.hidden = n === 0
+  }
+}
+
+const findUrls: string[] = []
+async function renderFinds() {
+  const s = t()
+  const list = $('#finds-list')
+  for (const u of findUrls.splice(0)) URL.revokeObjectURL(u)
+  const finds = await listFinds().catch(() => [] as Find[])
+  list.replaceChildren()
+  if (finds.length === 0) list.append(el('li', s.findsEmpty, 'finds-empty'))
+  for (const f of finds) {
+    const li = el('li', undefined, 'find')
+    const img = el('img')
+    img.src = URL.createObjectURL(f.thumb)
+    findUrls.push(img.src)
+    img.alt = ''
+    const text = el('div', undefined, 'find-text')
+    const name = f.speciesId ? `${species.get(f.speciesId)?.nimi ?? f.speciesId}?` : s.findsUnknown
+    text.append(el('strong', name))
+    const b = f.speciesId ? badge(f.speciesId) : null
+    if (b) text.append(b)
+    text.append(el('span', new Date(f.at).toLocaleDateString(lang() === 'fi' ? 'fi-FI' : 'en-GB'), 'find-date'))
+    const row = el('div', undefined, 'find-actions')
+    if (f.position) {
+      const label = placeLabel(f.speciesId ? (species.get(f.speciesId)?.nimi ?? null) : null, new Date(f.at), s.placeLabel)
+      const a = el('a', s.findsMap, 'live-link')
+      a.href = /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? appleMapsUrl(f.position, label) : googleMapsUrl(f.position)
+      a.target = '_blank'
+      a.rel = 'noopener noreferrer'
+      row.append(a)
+    }
+    const del = el('button', s.findsDelete, 'live-link')
+    del.type = 'button'
+    del.setAttribute('aria-label', `${s.findsDelete}: ${name}`)
+    del.addEventListener('click', async () => {
+      await deleteFind(f.id).catch(() => undefined)
+      if (savedFind?.id === f.id) {
+        savedFind = null
+        fillPlace()
+      }
+      void refreshFindsCount()
+      void renderFinds()
+    })
+    row.append(del)
+    text.append(row)
+    li.append(img, text)
+    list.append(li)
+  }
+}
+
+async function openFinds() {
+  await renderFinds()
+  if (!findsDialog.open) findsDialog.showModal()
+}
+for (const b of findsOpeners) b.addEventListener('click', () => void openFinds())
+$('#finds-close').addEventListener('click', () => findsDialog.close())
+if ('indexedDB' in window) void refreshFindsCount()
 
 // --- Species sheet (#47) -----------------------------------------------------------------
 // A lookalike in the result opens its identification info in a modal: features, how it
@@ -939,6 +1082,7 @@ function clearPhotos() {
   for (const p of photos) URL.revokeObjectURL(p.url)
   photos = []
   forgetPlace()
+  savedFind = null
 }
 
 async function identify(images: File[]) {
@@ -1317,6 +1461,8 @@ function switchLang(l: Lang) {
   status.textContent = statusText()
   rerenderResult()
   renderSeasonSettings()
+  void refreshFindsCount()
+  if (findsDialog.open) void renderFinds()
   // A link with ?lang= would otherwise override the choice on the next load.
   const url = new URL(location.href)
   if (url.searchParams.has('lang')) {

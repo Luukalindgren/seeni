@@ -1507,3 +1507,75 @@ body.live-on .adding {
   padding: 0.35rem 0.5rem;
   border-radius: 0.5rem;
 }
+
+/* My finds. */
+#finds-open:not([hidden]) {
+  display: block;
+  margin: 0 auto;
+}
+.find-saved {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+#finds {
+  width: min(34rem, calc(100vw - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
+  overflow-y: auto;
+  padding-top: 0.75rem;
+}
+#finds .sheet-top {
+  padding: 0;
+  justify-content: flex-end;
+}
+#finds h2 {
+  color: var(--fg);
+  margin: -2rem 0 0;
+}
+#finds .fine {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.finds-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.find {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  padding: 0.6rem;
+  border-radius: 1rem;
+  background: var(--bg);
+}
+.find img {
+  width: 4.5rem;
+  height: 4.5rem;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+.find-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.find-date {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+.find-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.find-actions .live-link {
+  padding: 0.25rem 0;
+}
+.finds-empty {
+  opacity: 0.8;
+}

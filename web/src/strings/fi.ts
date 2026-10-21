@@ -120,6 +120,18 @@ export const fi = {
   seasonRegion: 'Alue, kun kuvassa ei ole sijaintia',
   seasonRegionAuto: 'Ei valittu',
 
+  // My finds
+  findsTitle: 'Omat löydöt',
+  findsOpen: (n: number) => `Omat löydöt (${n})`,
+  findsSave: 'Tallenna omiin löytöihin',
+  findsSaved: 'Tallennettu omiin löytöihin.',
+  findsFailed: 'Tallennus ei onnistunut. Yritä uudelleen.',
+  findsNote: 'Löydöt tallentuvat vain tälle laitteelle. Ne ovat sovelluksen ehdotuksia, eivät varmistettuja lajeja.',
+  findsEmpty: 'Ei tallennettuja löytöjä.',
+  findsUnknown: 'Tunnistamaton sieni',
+  findsMap: 'Kartalla',
+  findsDelete: 'Poista',
+
   // About
   aboutText:
     'Seeni ei kerro, voiko sientä syödä. Se ehdottaa lajeja, näyttää niiden vaaralliset kaksoisolennot ja ohjaa tarkistamaan tuntomerkit. Kuvat käsitellään vain tällä laitteella, eikä mitään lähetetä minnekään. Lajitiedot ovat tarkistamattomia luonnoksia.',

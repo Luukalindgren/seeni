@@ -421,8 +421,14 @@ function renderNotSure() {
 // True while the result view shows the result of the current photos, not an error.
 let resultOfPhotos = false
 
+// The state and probabilities on screen, so a change of language or setting shows the same
+// result again instead of starting the flow over (which would turn a "not sure" reached by
+// the answers back into a species).
+let shown: { state: State | null; raw: Map<string, number> } | null = null
+
 function render(state: State | null, raw: Map<string, number>) {
   resultOfPhotos = true
+  shown = { state, raw }
   if (state) asked = state.asked
   if (state === null) {
     renderNotSure()
@@ -1303,7 +1309,8 @@ function rerenderResult() {
   result.classList.remove('enter')
   inPlace = true
   try {
-    identifyPhotos()
+    if (shown) render(shown.state, shown.raw)
+    else identifyPhotos()
   } finally {
     inPlace = false
   }

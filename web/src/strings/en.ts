@@ -56,6 +56,7 @@ export const en: Strings = {
   notSureText: 'The mushroom may be a species Seeni does not know, or the photo may be unclear.',
   notSureHow: 'Photograph the whole mushroom close up and in good light:',
   notSureTips: ['The cap from above', 'The underside of the cap', 'The base of the stem'],
+  notSureDanger: 'The photo somewhat resembles these dangerous species:',
   answersFit: 'Your answers fit this species.',
   modelEstimate: (percent: number) => `Model estimate: ${percent} %`,
   lookalikesTitle: 'Lookalikes and other options',

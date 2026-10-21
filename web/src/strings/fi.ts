@@ -60,6 +60,7 @@ export const fi = {
   notSureText: 'Sieni voi olla laji, jota Seeni ei tunne, tai kuva voi olla epäselvä.',
   notSureHow: 'Kuvaa koko sieni läheltä ja hyvässä valossa:',
   notSureTips: ['Lakki ylhäältä', 'Lakin alapinta', 'Jalan tyvi'],
+  notSureDanger: 'Kuva muistuttaa jonkin verran näitä vaarallisia lajeja:',
   answersFit: 'Vastauksesi sopivat tähän lajiin.',
   modelEstimate: (percent: number) => `Mallin arvio: ${percent} %`,
   lookalikesTitle: 'Kaksoisolennot ja muut vaihtoehdot',

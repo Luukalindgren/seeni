@@ -1649,3 +1649,14 @@ body.live-on .adding {
   background: var(--bg);
   color: var(--fg);
 }
+
+/* "Not sure", with dangerous species the photo still resembles. */
+.unsure-danger {
+  margin: 0.5rem 0 0;
+  color: var(--danger-text);
+}
+
+.unsure .lookalikes {
+  align-self: stretch;
+  text-align: left;
+}

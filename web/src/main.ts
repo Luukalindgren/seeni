@@ -8,6 +8,8 @@ import {
   answer,
   averageProbabilities,
   checkById,
+  UNKNOWN,
+  dangerousResemblances,
   isDone,
   listedLookalikes,
   nextCheck,
@@ -493,7 +495,7 @@ function newPhotoButton(): HTMLElement {
   return b
 }
 
-function renderNotSure() {
+function renderNotSure(raw: ReadonlyMap<string, number>) {
   resultOfPhotos = true
   const box = el('div', undefined, 'unsure')
   const icon = el('span', undefined, 'unsure-icon')
@@ -508,8 +510,19 @@ function renderNotSure() {
     el('p', s.notSureText),
     el('p', s.notSureHow),
     tips,
-    el('p', s.reminder, 'reminder'),
   )
+  // Dangerous species the photos still resemble, except those the answers ruled out. Each
+  // sheet compares with the class the model leaned to most.
+  const resembles = files
+    ? dangerousResemblances(files.labels, photos.map((p) => p.probabilities), species, asked)
+    : []
+  const leaning = [...raw].filter(([id]) => id !== UNKNOWN).sort((a, b) => b[1] - a[1])[0]?.[0]
+  if (resembles.length > 0) {
+    const list = el('ul', undefined, 'lookalikes')
+    for (const id of resembles) list.append(speciesRow(id, () => openSheet(id, leaning ?? id)))
+    box.append(el('h3', s.notSureDanger, 'unsure-danger'), list)
+  }
+  box.append(el('p', s.reminder, 'reminder'))
   const strip = photoStrip()
   if (strip) box.append(strip)
   const addButton = addPhotoButton()
@@ -534,7 +547,7 @@ function render(state: State | null, raw: Map<string, number>) {
   shown = { state, raw }
   if (state) asked = state.asked
   if (state === null) {
-    renderNotSure()
+    renderNotSure(raw)
     return
   }
   const done = isDone(state, species)

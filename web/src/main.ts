@@ -100,6 +100,7 @@ app.innerHTML = `
         <div class="live-status"></div>
         <button id="live-info" class="live-link" type="button" data-t="info"></button>
         <button id="live-finds" class="live-link" type="button" hidden></button>
+        <button id="live-guide" class="live-link" type="button" data-t="guideTitle"></button>
       </div>
       <div class="live-bar">
         <button id="live-back" class="round" type="button" data-t-aria="back">${ICON.close}</button>
@@ -124,7 +125,10 @@ app.innerHTML = `
     <button id="live-retry" class="live-link" type="button" hidden data-t="liveRetry"></button>
     <p id="live-help" class="hint" role="status" hidden data-t="liveHelp"></p>
     <p id="status" class="status"></p>
-    <button id="finds-open" class="live-link" type="button" hidden></button>
+    <div class="home-links">
+      <button id="guide-open" class="live-link" type="button" data-t="guideTitle"></button>
+      <button id="finds-open" class="live-link" type="button" hidden></button>
+    </div>
   </section>
 
   <section id="loading" class="view" hidden>
@@ -161,6 +165,16 @@ app.innerHTML = `
     <h2 id="finds-title" data-t="findsTitle"></h2>
     <p class="fine" data-t="findsNote"></p>
     <ul id="finds-list" class="finds-list"></ul>
+  </dialog>
+
+  <dialog id="guide" aria-labelledby="guide-title">
+    <div class="sheet-top">
+      <button id="guide-close" class="round" type="button" data-t-aria="close">${ICON.close}</button>
+    </div>
+    <h2 id="guide-title" data-t="guideTitle"></h2>
+    <p class="fine" data-t="guideNote"></p>
+    <input id="guide-search" type="search" autocomplete="off" data-t-aria="guideSearch" />
+    <ul id="guide-list" class="lookalikes guide-list"></ul>
   </dialog>
 
   <canvas id="grass" aria-hidden="true"></canvas>
@@ -379,6 +393,30 @@ function badge(id: string): HTMLElement | null {
   return label ? el('span', label, `badge ${g === 'esikäsiteltävä' ? 'pre' : 'danger'}`) : null
 }
 
+/** A species as a row that opens its sheet: photo, name, scientific name and danger label. */
+function speciesRow(id: string, onOpen: () => void): HTMLElement {
+  const li = el('li')
+  const open = el('button', undefined, 'lookalike')
+  open.type = 'button'
+  open.setAttribute('aria-haspopup', 'dialog')
+  const r = species.get(id)
+  const thumb = el('span', undefined, 'thumb')
+  const img = el('img')
+  img.src = `${base}species/${id}.jpg`
+  img.alt = ''
+  img.loading = 'lazy'
+  thumb.append(img)
+  const text = el('span', undefined, 'lookalike-text')
+  text.append(el('strong', r?.nimi ?? id))
+  text.append(el('span', r?.tieteellinen ?? '', 'latin'))
+  const b = badge(id)
+  if (b) text.append(b)
+  open.append(thumb, text)
+  open.addEventListener('click', onOpen)
+  li.append(open)
+  return li
+}
+
 function photo(id: string, cls: string): HTMLElement {
   const figure = el('figure', undefined, cls)
   const img = el('img')
@@ -497,28 +535,7 @@ function render(state: State | null, raw: Map<string, number>) {
   if (others.length > 0) {
     side.append(el('h3', t().lookalikesTitle))
     const list = el('ul', undefined, 'lookalikes')
-    for (const id of others) {
-      const li = el('li')
-      const open = el('button', undefined, 'lookalike')
-      open.type = 'button'
-      open.setAttribute('aria-haspopup', 'dialog')
-      const r = species.get(id)
-      const thumb = el('span', undefined, 'thumb')
-      const img = el('img')
-      img.src = `${base}species/${id}.jpg`
-      img.alt = ''
-      img.loading = 'lazy'
-      thumb.append(img)
-      const text = el('span', undefined, 'lookalike-text')
-      text.append(el('strong', r?.nimi ?? id))
-      text.append(el('span', r?.tieteellinen ?? '', 'latin'))
-      const ob = badge(id)
-      if (ob) text.append(ob)
-      open.append(thumb, text)
-      open.addEventListener('click', () => openSheet(id, top.id))
-      li.append(open)
-      list.append(li)
-    }
+    for (const id of others) list.append(speciesRow(id, () => openSheet(id, top.id)))
     side.append(list)
   }
 
@@ -977,10 +994,76 @@ async function openFinds() {
   await renderFinds()
   if (!findsDialog.open) findsDialog.showModal()
 }
-for (const b of findsOpeners) b.addEventListener('click', () => void openFinds())
+$('#finds-open').addEventListener('click', () => void openFinds())
+$('#live-finds').addEventListener('click', () => openFromLive(openFinds))
 $('#finds-close').addEventListener('click', () => findsDialog.close())
-findsDialog.addEventListener('close', revokeFindUrls)
+findsDialog.addEventListener('close', () => {
+  revokeFindUrls()
+  backToLive()
+})
 if ('indexedDB' in window) void refreshFindsCount()
+
+// --- Species guide ------------------------------------------------------------------------
+// Every species Seeni knows, and the dangerous ones it only warns about, in one searchable
+// list; each opens its species sheet, so the features and lookalikes can be read before
+// going to the forest, offline. The list names no edibility (hard rule 8): the danger
+// label is the only group shown.
+
+const guideDialog = $<HTMLDialogElement>('#guide')
+const guideSearch = $<HTMLInputElement>('#guide-search')
+
+// The Finnish names, searchable in either language.
+const finnishNames = new Map(records.map((r) => [r.id, r.nimi.toLocaleLowerCase()]))
+
+function renderGuide() {
+  const list = $('#guide-list')
+  const query = guideSearch.value.trim().toLocaleLowerCase()
+  const matches = (r: SpeciesRecord) =>
+    !query ||
+    [r.nimi.toLocaleLowerCase(), r.tieteellinen.toLocaleLowerCase(), finnishNames.get(r.id) ?? ''].some((n) => n.includes(query))
+  const all = [...species.values()].filter(matches).sort((a, b) => a.nimi.localeCompare(b.nimi, lang()))
+  list.replaceChildren()
+  if (all.length === 0) list.append(el('li', t().guideNone, 'finds-empty'))
+  for (const r of all) list.append(speciesRow(r.id, () => openSheet(r.id, r.id)))
+}
+
+async function openGuide() {
+  // The model's class list tells the sheet which species are warnings only; the list
+  // itself needs none of it, so it opens even if the files cannot be read.
+  try {
+    files ??= await loadFiles(base)
+    modelClasses ??= new Set(files.labels.map((l) => l.id))
+  } catch {
+    // The sheets open once the files are read.
+  }
+  guideSearch.value = ''
+  guideSearch.placeholder = t().guideSearch
+  renderGuide()
+  if (!guideDialog.open) guideDialog.showModal()
+}
+
+// A list opened from the live camera's card stops the camera while it is open, and the
+// camera starts again when the list closes.
+let listFromLive = false
+function openFromLive(open: () => Promise<void>) {
+  liveDismissed = true
+  stopLive()
+  listFromLive = true
+  void open()
+}
+function backToLive() {
+  if (!listFromLive) return
+  listFromLive = false
+  if (currentView === 'home') {
+    liveDismissed = false
+    void startLive()
+  }
+}
+$('#guide-open').addEventListener('click', () => void openGuide())
+$('#live-guide').addEventListener('click', () => openFromLive(openGuide))
+$('#guide-close').addEventListener('click', () => guideDialog.close())
+guideDialog.addEventListener('close', backToLive)
+guideSearch.addEventListener('input', renderGuide)
 
 // --- Species sheet (#47) -----------------------------------------------------------------
 // A lookalike in the result opens its identification info in a modal: features, how it
@@ -1431,7 +1514,7 @@ function gust(on: boolean) {
 const drop = $('#drop')
 let dragDepth = 0
 window.addEventListener('dragenter', (e) => {
-  if (!e.dataTransfer?.types.includes('Files') || !consented || webcamDialog.open || sheetDialog.open) return
+  if (!e.dataTransfer?.types.includes('Files') || !consented || webcamDialog.open || sheetDialog.open || guideDialog.open || findsDialog.open) return
   dragDepth++
   drop.classList.add('dragging')
   gust(true)
@@ -1455,7 +1538,7 @@ window.addEventListener('drop', (e) => {
   drop.classList.remove('dragging')
   gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (!consented || webcamDialog.open || sheetDialog.open) return
+  if (!consented || webcamDialog.open || sheetDialog.open || guideDialog.open || findsDialog.open) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)
   void identify(images)
 })
@@ -1463,7 +1546,7 @@ window.addEventListener('drop', (e) => {
 // Pasting an image from the clipboard identifies it too.
 window.addEventListener('paste', (e) => {
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (!consented || webcamDialog.open || sheetDialog.open) return
+  if (!consented || webcamDialog.open || sheetDialog.open || guideDialog.open || findsDialog.open) return
   const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
   if (images.length === 0) return
   e.preventDefault()
@@ -1531,6 +1614,8 @@ function switchLang(l: Lang) {
   renderSeasonSettings()
   void refreshFindsCount()
   if (findsDialog.open) void renderFinds()
+  guideSearch.placeholder = t().guideSearch
+  if (guideDialog.open) renderGuide()
   // A link with ?lang= would otherwise override the choice on the next load.
   const url = new URL(location.href)
   if (url.searchParams.has('lang')) {

@@ -111,6 +111,10 @@ export const en: Strings = {
   seasonRegion: 'Region when the photo has no location',
   seasonRegionAuto: 'Not chosen',
 
+  guideTitle: 'Species guide',
+  guideNote: 'Every species Seeni recognizes, and the dangerous species it warns about. Open a species to see its features and lookalikes.',
+  guideSearch: 'Search for a species',
+  guideNone: 'No species found.',
   findsTitle: 'My finds',
   findsOpen: (n: number) => `My finds (${n})`,
   findsSave: 'Save to my finds',

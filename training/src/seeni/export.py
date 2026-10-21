@@ -251,7 +251,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--lajilista", type=Path, default=LAJILISTA)
     parser.add_argument("--run", required=True, help="run directory under <data dir>/runs")
-    parser.add_argument("--version", default="v2", help="folder under web/public/models")
+    parser.add_argument(
+        "--version", required=True, help="new folder under web/public/models, e.g. v3"
+    )
     parser.add_argument("--fixtures", type=Path, default=FIXTURES)
     args = parser.parse_args(argv)
     return cmd_export(args)

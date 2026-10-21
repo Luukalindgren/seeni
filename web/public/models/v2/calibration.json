@@ -1,6 +1,6 @@
 {
   "temperature": 0.7657,
-  "unknownThreshold": 0.67,
+  "unknownThreshold": 0.7,
   "candidateMass": 0.95,
   "maxCandidates": 5,
   "run": "b0-224-muu2"

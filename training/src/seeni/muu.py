@@ -69,8 +69,8 @@ OTHER_TAXA = {
 FUNGI_IMAGES = 12000
 OTHER_IMAGES = 2000
 PER_SPECIES = 4
-# The most observed fungi in the archive are what people photograph, so they get many images
-# each; one image per rare species did not teach the model that e.g. Amanita fulva is muu.
+# The fungi with the most usable observations in the archive are roughly what people
+# photograph, so they get many images each; one image per rare species did not teach the model that e.g. Amanita fulva is muu.
 COMMON_SPECIES = 200
 PER_COMMON_SPECIES = 40
 SPECIES_RANKS = {"SPECIES", "SUBSPECIES", "VARIETY", "FORM"}
@@ -138,12 +138,16 @@ def order(value: str) -> str:
     return hashlib.sha1(f"muu:{value}".encode()).hexdigest()
 
 
-def common(by_species: dict[int, list[dict]], n: int, per_species: int) -> list[dict]:
-    """Up to per_species observations of each of the n species with the most observations."""
+def common(by_species: dict[int, list[dict]], n: int, per_species: int, total: int) -> list[dict]:
+    """Up to per_species observations of each of the n species with the most usable
+    observations (licensed, not excluded) in the archive, whole species only, at most total."""
     species = sorted(by_species, key=lambda s: (-len(by_species[s]), order(str(s))))[:n]
     out = []
     for s in species:
-        out += sorted(by_species[s], key=lambda c: order(str(c["gbifID"])))[:per_species]
+        picked = sorted(by_species[s], key=lambda c: order(str(c["gbifID"])))[:per_species]
+        if len(out) + len(picked) > total:
+            break
+        out += picked
     return out
 
 
@@ -239,7 +243,7 @@ def index(
                 by_species[c["taxonKey"]].append(c)
         picked = []
         if kind == "fungi":
-            picked = common(by_species, common_species, per_common_species)[:total]
+            picked = common(by_species, common_species, per_common_species, total)
             for s in {c["taxonKey"] for c in picked}:
                 del by_species[s]
             stats["fungi_common_selected"] = len(picked)

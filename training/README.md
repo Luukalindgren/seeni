@@ -98,7 +98,7 @@ The run goes to `<data dir>/runs/<name>/`: `best.pt` (best val macro-F1), `label
 
 ## Unknown class and evaluation (phase 7)
 
-`muu` images come from their own GBIF download: fungi that are not on the species list (identified to species, so a genus-level "Russula sp." cannot be a listed species) and forest-floor non-mushrooms (mosses, conifers, heather, ferns, leaves, grasses, slime moulds). `index` takes up to 40 images of each of the 200 most observed fungi in the archive, since those are what people photograph, then one each from the rest (`--common-species`, `--per-common-species`, `--fungi`). From `training/`:
+`muu` images come from their own GBIF download: fungi that are not on the species list (identified to species, so a genus-level "Russula sp." cannot be a listed species) and forest-floor non-mushrooms (mosses, conifers, heather, ferns, leaves, grasses, slime moulds). `index` takes up to 40 images of each of the 200 fungi with the most usable observations in the archive, roughly what people photograph, then one each from the rest (`--common-species`, `--per-common-species`, `--fungi`). From `training/`:
 
 ```sh
 uv run python -m seeni.muu request          # then: fetch --wait, index, download, dedup, sheets
@@ -109,7 +109,7 @@ uv run python -m seeni.evaluate errors --run b0-224-muu2   # contact sheets of t
 uv run python -m seeni.evaluate test --run b0-224-muu2     # once, at the end
 ```
 
-`muu` images live under `<data dir>/muu/` with their own manifest; `exclude.csv` is shared. `evaluate` writes `<run>/eval/`: `calibration.json` (T and the threshold, for `web/public/models/vN/calibration.json`), `threshold-val.csv`, and `report-<set>.md/.json` with the standard metrics and dangerous confusion per taxon, raw, after the threshold and after the threshold and lookalike warnings. The `outside` rows are the dangerous species that are not in the model. The report of the released model is in `docs/reports/` (`v2.md`; v1 in `phase7.md`).
+`muu` images live under `<data dir>/muu/` with their own manifest; `exclude.csv` is shared. `evaluate` writes `<run>/eval/`: `calibration.json` (T and the threshold, for `web/public/models/vN/calibration.json`), `threshold-val.csv`, and `report-<set>.md/.json` with the standard metrics and dangerous confusion per taxon, raw, after the threshold and after the threshold and lookalike warnings. The `outside` rows are the dangerous species that are not in the model. The unknown-fungi limit of the threshold rule counts only muu fungi of species with no muu image in train, since the common unlisted species are in every set. The report of the released model is in `docs/reports/` (`v2.md`; v1 in `phase7.md`).
 
 ## ONNX export (phase 8)
 

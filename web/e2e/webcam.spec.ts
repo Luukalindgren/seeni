@@ -29,7 +29,7 @@ test('takes a photo with the webcam and identifies it, then the camera is off', 
   await expect(dialog).toBeHidden()
   // The fake camera's test pattern is no mushroom: any result will do, the flow is the point.
   await expect(page.locator('#result h2').first()).toBeVisible({ timeout: 60_000 })
-  expect(await cameraOn(page)).toBe(false)
+  await expect.poll(() => cameraOn(page)).toBe(false)
   await expect(page.locator('#result .shots img, #result img').first()).toBeVisible()
 })
 
@@ -41,6 +41,6 @@ test('cancel closes the dialog and switches the camera off', async ({ page }) =>
   await expect(page.locator('#shutter')).toBeEnabled()
   await page.locator('#webcam-cancel').click()
   await expect(page.locator('#webcam-dialog')).toBeHidden()
-  expect(await cameraOn(page)).toBe(false)
+  await expect.poll(() => cameraOn(page)).toBe(false)
   await expect(page.locator('#home')).toBeVisible()
 })

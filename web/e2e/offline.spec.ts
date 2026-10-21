@@ -29,6 +29,7 @@ test('asks for consent first, then identifies a mushroom offline without sending
       await new Promise((resolve) => navigator.serviceWorker.addEventListener('controllerchange', resolve))
     }
   })
+  await expect(page.locator('#status')).toHaveText('Valmis · toimii ilman verkkoa')
 
   await context.setOffline(true)
   await page.reload()
@@ -46,4 +47,15 @@ test('asks for consent first, then identifies a mushroom offline without sending
   await expect(page.locator('#result')).toContainText(/Mallin arvio|En tunnista varmasti/)
   expect(requests.filter((r) => !r.startsWith('GET '))).toEqual([])
   expect(requests.filter((r) => !r.includes('/seeni/'))).toEqual([])
+})
+
+test.describe('without a service worker', () => {
+  test.use({ serviceWorkers: 'block' })
+
+  test('the status does not claim that the app works offline', async ({ page }) => {
+    await page.goto('http://localhost:4173/seeni/')
+    await page.getByRole('checkbox').check()
+    await page.getByRole('button', { name: 'Hyväksyn' }).click()
+    await expect(page.locator('#status')).toHaveText('Valmis', { timeout: 100_000 })
+  })
 })

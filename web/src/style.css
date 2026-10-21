@@ -104,6 +104,24 @@ svg {
   border-radius: 0.6rem;
 }
 
+/* On a phone the "Uusi kuva" button leaves no room for the name next to the icon: the name
+   stays for screen readers only, and the gaps get smaller on the narrowest screens. */
+@media (max-width: 420px) {
+  .topbar:has(#again:not([hidden])) .logo span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 340px) {
+  .topbar {
+    gap: 0.5rem;
+  }
+}
+
 .pill,
 .round {
   display: inline-flex;
@@ -659,6 +677,23 @@ dialog h2 {
 .lookalikes .latin {
   margin: 0;
   font-size: 0.85rem;
+}
+
+/* Narrow phones: less padding and a smaller picture and name leave room for the long names. */
+@media (max-width: 360px) {
+  dialog {
+    padding-inline: 1rem;
+  }
+  .lookalikes li {
+    gap: 0.65rem;
+  }
+  .lookalikes .thumb img {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  .lookalikes strong {
+    font-size: 1rem;
+  }
 }
 
 .thumb {
@@ -1310,6 +1345,13 @@ body.live-on .adding {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
+}
+
+/* Long compound names (suippumyrkkyseitikki) break instead of running past a narrow card. */
+.lookalike-text strong {
+  hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
 .lookalikes li:has(.lookalike:hover) {

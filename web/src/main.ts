@@ -15,6 +15,7 @@ import {
   type SpeciesRecord,
   type State,
 } from './flow.ts'
+import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
@@ -62,7 +63,7 @@ app.innerHTML = `
     <label id="drop" class="drop" for="gallery" aria-hidden="true">
       <span class="drop-text">Pudota kuva</span>
       ${ICON.mushroom}
-      <canvas class="tuft"></canvas>
+      <canvas class="art"></canvas>
     </label>
     <div class="actions">
       <button id="webcam" class="primary big" type="button" hidden>${ICON.camera} Ota kuva</button>
@@ -122,9 +123,9 @@ const again = $<HTMLButtonElement>('#again')
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const largeScreen = window.matchMedia('(min-width: 900px) and (hover: hover) and (pointer: fine)')
 // The grass starts when the window is (or later becomes) large: a strip along the bottom
-// of every view, and a tuft the mushroom stands in inside the drop area.
+// of every view. The drop area is then drawn too: a wavy edge and a mushroom in the wind.
 let grass: Grass | null = null
-let tuft: Grass | null = null
+let dropArt: DropArt | null = null
 let currentView: keyof typeof views = 'home'
 function startGrassIfLarge() {
   if (grass || !largeScreen.matches) return
@@ -134,13 +135,9 @@ function startGrassIfLarge() {
     reach: 120,
   })
   grass.setVisible(true)
-  tuft = startGrass($<HTMLCanvasElement>('.tuft'), reducedMotion, {
-    height: [22, 44],
-    calmMiddle: false,
-    reach: 80,
-    strong: true,
-  })
-  tuft.setVisible(currentView === 'home')
+  $('#drop').classList.add('live')
+  dropArt = startDropArt($<HTMLCanvasElement>('#drop .art'), reducedMotion)
+  dropArt.setVisible(currentView === 'home')
 }
 
 function show(view: keyof typeof views) {
@@ -152,7 +149,7 @@ function show(view: keyof typeof views) {
   }
   // The photo of the last identification is no longer needed once back home.
   if (view === 'home') setPreview(null)
-  tuft?.setVisible(view === 'home')
+  dropArt?.setVisible(view === 'home')
   // A soft cross-fade between views where the browser supports it.
   if (document.startViewTransition && !reducedMotion) document.startViewTransition(swap)
   else swap()
@@ -498,10 +495,10 @@ for (const id of ['#camera', '#gallery']) {
 // Some images (e.g. HEIC on Windows) have no MIME type; let the decoder decide for those.
 const isImage = (f: File) => f.type === '' || f.type.startsWith('image/')
 
-// A photo dragged over the page brings a gust of wind to the grass.
+// A photo dragged over the page brings a gust of wind to the grass and the drop area.
 function gust(on: boolean) {
   grass?.setGust(on)
-  tuft?.setGust(on)
+  dropArt?.setGust(on)
 }
 
 // Drag and drop for large screens: photos dropped anywhere on the page are identified.

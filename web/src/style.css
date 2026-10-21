@@ -198,22 +198,10 @@ svg {
   transition: border-color 0.3s ease, background 0.3s ease;
 }
 
-/* The mushroom stands still in a tuft of grass that moves in the wind (grass.ts). The tuft
-   only grows where there is a mouse; on tablets the mushroom sits in the middle. */
 .drop .mushroom {
   width: 9rem;
   height: 9rem;
   transition: transform 0.4s ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .drop {
-    justify-content: flex-end;
-  }
-
-  .drop .mushroom {
-    margin-bottom: 1.2rem;
-  }
 }
 
 .drop-text {
@@ -222,13 +210,39 @@ svg {
   color: var(--fg);
 }
 
-.drop .tuft {
+/* Where there is a mouse, the area is drawn on a canvas (dropArt.ts): a wavy edge and a
+   mushroom that sway in the wind. The canvas reaches past the circle for the waves and the
+   shadow; the plain circle and icon above stay for tablets. */
+.drop .art {
+  display: none;
   position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: 36%;
+  inset: -1.75rem;
+  width: calc(100% + 3.5rem);
+  height: calc(100% + 3.5rem);
   pointer-events: none;
+}
+
+.drop.live,
+.drop.live.dragging {
+  justify-content: flex-start;
+  padding-top: 4.75rem;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.drop.live .art {
+  display: block;
+}
+
+.drop.live .mushroom {
+  display: none;
+}
+
+.drop.live .drop-text {
+  position: relative;
+  z-index: 1;
 }
 
 .drop.dragging {

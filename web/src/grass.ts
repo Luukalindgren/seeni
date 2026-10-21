@@ -1,5 +1,5 @@
 // Grass that sways in a slow, uneven wind and bends away from the mouse pointer: a strip
-// along the bottom of the page on large screens, and a small tuft inside the drop area.
+// along the bottom of the page on large screens.
 // Purely decorative: drawn on a canvas, paused when the page is hidden or the grass is not
 // shown, and drawn once without motion under prefers-reduced-motion.
 
@@ -17,6 +17,12 @@ const BACK = ['rgb(157 176 159 / 0.3)', 'rgb(176 190 160 / 0.28)', 'rgb(140 165 
 const FRONT = ['rgb(51 81 63 / 0.34)', 'rgb(78 110 80 / 0.32)', 'rgb(96 124 82 / 0.3)', 'rgb(62 125 79 / 0.26)']
 const STRONG_BACK = ['rgb(157 176 159 / 0.7)', 'rgb(176 190 160 / 0.65)', 'rgb(140 165 140 / 0.6)']
 const STRONG_FRONT = ['rgb(51 81 63 / 0.75)', 'rgb(78 110 80 / 0.7)', 'rgb(96 124 82 / 0.65)', 'rgb(62 125 79 / 0.6)']
+
+// The wind at time `t` (s) and page position `x` (px), as a lean in radians: two slow waves
+// travelling across the page, so neighbours move together. Shared with the drop area.
+export function windAt(t: number, x: number, phase = 0): number {
+  return Math.sin(t * 0.7 - x * 0.004 + phase * 0.2) * 0.07 + Math.sin(t * 1.9 - x * 0.013) * 0.025
+}
 
 export interface GrassOptions {
   // Blade heights in px: the shortest and how much taller the tallest are.
@@ -94,11 +100,7 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, options: G
     ctx.clearRect(0, 0, width, height)
     for (const b of blades) {
       // Wind: two slow waves travelling across the page, so neighbours move together.
-      const wind = still
-        ? 0
-        : (Math.sin(t * 0.7 - b.x * 0.004 + b.phase * 0.2) * 0.07 + Math.sin(t * 1.9 - b.x * 0.013) * 0.025) *
-            (1 + gust * 3) +
-          gust * 0.12
+      const wind = still ? 0 : windAt(t, b.x, b.phase) * (1 + gust * 3) + gust * 0.12
       // The pointer pushes nearby blades away; the push fades with distance.
       let push = 0
       const dx = b.x - pointerX

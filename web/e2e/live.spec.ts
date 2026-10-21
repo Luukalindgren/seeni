@@ -16,6 +16,13 @@ async function consent(page: Page) {
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
 }
 
+// Hides or shows the page as far as the app can tell.
+const setHidden = (page: Page, hidden: boolean) =>
+  page.evaluate((h) => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => h })
+    document.dispatchEvent(new Event('visibilitychange'))
+  }, hidden)
+
 const cameraOn = (page: Page) =>
   page.evaluate(() => {
     const stream = document.querySelector<HTMLVideoElement>('#live video')?.srcObject as MediaStream | null
@@ -38,9 +45,27 @@ test.describe('with a camera', () => {
     await expect(live).toBeHidden()
     expect(await cameraOn(page)).toBe(false)
 
-    // A new photo brings the camera back.
+    // A new photo brings the camera back, with its shutter off until there is a picture.
     await page.locator('#again').click()
     await expect(live).toBeVisible()
+    await expect.poll(() => cameraOn(page)).toBe(true)
+
+    // Reading "Tietoa ja lähteet" turns the camera off, and hiding the page does not bring
+    // it back over the text.
+    await page.locator('#live-info').click()
+    await expect(live).toBeHidden()
+    await expect(page.locator('#about')).toHaveAttribute('open', '')
+    await setHidden(page, true)
+    await setHidden(page, false)
+    await expect(live).toBeHidden()
+    expect(await cameraOn(page)).toBe(false)
+  })
+
+  test('a quick hide and show while the camera starts still ends with the camera on', async ({ page }) => {
+    await consent(page)
+    await setHidden(page, true)
+    await setHidden(page, false)
+    await expect(page.locator('#live')).toBeVisible()
     await expect.poll(() => cameraOn(page)).toBe(true)
   })
 })

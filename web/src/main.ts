@@ -170,8 +170,10 @@ function startGrassIfLarge() {
 
 function show(view: keyof typeof views) {
   currentView = view
-  if (view === 'home') void startLive()
-  else stopLive()
+  if (view === 'home') {
+    liveDismissed = false
+    void startLive()
+  } else stopLive()
   const swap = () => {
     for (const [name, el] of Object.entries(views)) el.hidden = name !== view
     again.hidden = view !== 'result'
@@ -522,8 +524,11 @@ async function identify(images: File[]) {
 const live = $('#live')
 const liveCamera = createLiveCamera(live.querySelector('video')!)
 const statusAnchor = status.previousElementSibling!
+const shutter = $<HTMLButtonElement>('#live-shutter')
 // Set once the camera has failed (denied or broken), so the user is not asked again.
 let liveFailed = false
+// Set while "Tietoa ja lähteet" is read from the live card; cleared when home is shown again.
+let liveDismissed = false
 
 function setLive(on: boolean) {
   live.hidden = !on
@@ -533,18 +538,23 @@ function setLive(on: boolean) {
 }
 
 function liveAllowed(): boolean {
-  return consented && !liveFailed && !largeScreen.matches && currentView === 'home' && !document.hidden
+  return (
+    consented && !liveFailed && !liveDismissed && !largeScreen.matches && currentView === 'home' && !document.hidden
+  )
 }
 
 async function startLive() {
   if (!liveAllowed() || liveCamera.running || !(await hasCamera()) || !liveAllowed()) return
-  live.classList.remove('shooting')
-  setLive(true)
-  const ok = await liveCamera.start()
-  if (!ok && liveAllowed()) {
+  if (live.hidden) {
+    live.classList.remove('shooting')
+    shutter.disabled = true
+    setLive(true)
+  }
+  const result = await liveCamera.start()
+  if (result === 'failed') {
     liveFailed = true
     setLive(false)
-  } else if (ok && !liveAllowed()) stopLive()
+  } else if (!liveAllowed()) stopLive()
 }
 
 function stopLive() {
@@ -552,13 +562,19 @@ function stopLive() {
   setLive(false)
 }
 
+// The shutter works once the camera shows a picture.
+live.querySelector('video')!.addEventListener('playing', () => (shutter.disabled = false))
 $('#live-take').addEventListener('click', () => live.classList.add('shooting'))
 $('#live-back').addEventListener('click', () => live.classList.remove('shooting'))
-$('#live-shutter').addEventListener('click', async () => {
+shutter.addEventListener('click', async () => {
+  if (shutter.disabled) return
+  shutter.disabled = true
   const photo = await liveCamera.capture()
   if (photo) void identify([photo])
+  else shutter.disabled = false
 })
 $('#live-info').addEventListener('click', () => {
+  liveDismissed = true
   stopLive()
   openAbout()
 })

@@ -660,6 +660,26 @@ dialog h2 {
   line-height: 1.35;
 }
 
+.check-figure {
+  margin: 0 0 0.9rem;
+  background: var(--card);
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+
+.check-art {
+  display: block;
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+  margin: 0 auto;
+}
+
+.check-art text {
+  fill: var(--muted);
+  stroke: none;
+}
+
 .answers {
   display: grid;
   gap: 0.6rem;

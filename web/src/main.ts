@@ -299,6 +299,7 @@ if (entry()) history.replaceState(null, '')
 
 function show(view: keyof typeof views) {
   if (inPlace && view === currentView) return
+  const from = currentView
   currentView = view
   if (view !== 'home' && !onViewEntry()) pushEntry()
   // Home from a button: drop the entry, so back from home leaves the app as expected.
@@ -314,8 +315,10 @@ function show(view: keyof typeof views) {
     for (const [name, el] of Object.entries(views)) el.hidden = name !== view
     again.hidden = view !== 'result'
     window.scrollTo(0, 0)
-    if (view === 'result' && focusAfterRender) focusAfterAnswer(focusAfterRender === 'scroll')
+    // Only for a re-render after an answer; any other swap drops a request left over.
+    const focus = focusAfterRender
     focusAfterRender = null
+    if (view === 'result' && from === 'result' && focus) focusAfterAnswer(focus === 'scroll')
     // Only now, with home shown, does the drop area have a size to draw at.
     dropArt?.setVisible(view === 'home')
   }
@@ -629,20 +632,14 @@ function render(state: State | null, raw: Map<string, number>) {
     for (const a of Object.keys(check.vastaukset)) {
       const button = el('button', answerLabel(check, a), 'answer')
       button.addEventListener('click', (e) => {
-        result.classList.remove('enter')
         const next = answer(state, check, a)
         if (!next) asked = [...state.asked, { check: check.id, answer: a }]
-        focusAfterRender = e.detail === 0 ? 'scroll' : 'stay'
-        render(next, raw)
+        rerenderAfterAnswer(e, next, raw)
       })
       answers.append(button)
     }
     const skipButton = el('button', t().cannotCheck, 'answer ghost')
-    skipButton.addEventListener('click', (e) => {
-      result.classList.remove('enter')
-      focusAfterRender = e.detail === 0 ? 'scroll' : 'stay'
-      render(skip(state, check), raw)
-    })
+    skipButton.addEventListener('click', (e) => rerenderAfterAnswer(e, skip(state, check), raw))
     answers.append(skipButton)
     box.append(answers)
     side.append(box)
@@ -677,6 +674,12 @@ function render(state: State | null, raw: Map<string, number>) {
 // there instead of from the top of the page. Done by show() once the result is swapped in.
 // From the keyboard (a click with no pointer) the page scrolls to it; after a tap or click
 // the view stays at the top as before (focusAfterRender is declared next to show()).
+function rerenderAfterAnswer(e: MouseEvent, next: State | null, raw: Map<string, number>) {
+  result.classList.remove('enter')
+  focusAfterRender = e.detail === 0 ? 'scroll' : 'stay'
+  render(next, raw)
+}
+
 function focusAfterAnswer(scroll: boolean) {
   const target = result.querySelector<HTMLElement>('.verify .question') ?? result.querySelector<HTMLElement>('h2')
   if (!target) return

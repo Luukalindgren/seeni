@@ -108,7 +108,7 @@ app.innerHTML = `
     </div>
     <p class="hint">Parhaiten onnistuu, kun koko sieni näkyy. Voit valita useita kuvia samasta sienestä.</p>
     <button id="live-retry" class="live-link" type="button" hidden>Käytä live-kameraa</button>
-    <p id="live-help" class="hint" hidden>Kameran käyttö on estetty. Safarissa salli se osoiterivin aA-valikosta: Verkkosivuston asetukset → Kamera → Salli. Kotinäytön sovelluksessa sulje sovellus ja avaa se uudelleen. Androidissa salli kamera osoiterivin lukkokuvakkeesta.</p>
+    <p id="live-help" class="hint" role="status" hidden>Kamera ei käynnistynyt. Jos sen käyttö on estetty, salli se Safarissa osoiterivin aA-valikosta: Verkkosivuston asetukset → Kamera → Salli. Kotinäytön sovelluksessa sulje sovellus ja avaa se uudelleen. Androidissa salli kamera osoiterivin lukkokuvakkeesta. Jos kamera on toisen sovelluksen käytössä, sulje se.</p>
     <p id="status" class="status">Ladataan mallia…</p>
   </section>
 
@@ -923,8 +923,18 @@ const live = $('#live')
 const liveCamera = createLiveCamera(live.querySelector('video')!)
 const statusAnchor = status.previousElementSibling!
 const shutter = $<HTMLButtonElement>('#live-shutter')
-// Set once the camera has failed (denied or broken), so the user is not asked again.
+const liveRetry = $<HTMLButtonElement>('#live-retry')
+const liveHelp = $('#live-help')
+// Set once the camera has failed (denied or broken), so the user is not asked again
+// automatically; only "Käytä live-kameraa" asks again.
 let liveFailed = false
+// Set when that request failed too, to show how to allow the camera.
+let retryFailed = false
+
+function updateRetry() {
+  liveRetry.hidden = !liveFailed || largeScreen.matches
+  liveHelp.hidden = liveRetry.hidden || !retryFailed
+}
 // Set while "Tietoa ja lähteet" is read from the live card; cleared when home is shown again.
 let liveDismissed = false
 
@@ -953,16 +963,20 @@ async function startLive() {
     liveFailed = true
     setLive(false)
   } else if (!liveAllowed()) stopLive()
-  liveRetry.hidden = !liveFailed
+  updateRetry()
 }
 
 // After a denied permission, the plain start screen offers to ask again (#69). The browser
 // may reject the new request without asking, so the help tells how to allow the camera.
-const liveRetry = $<HTMLButtonElement>('#live-retry')
 liveRetry.addEventListener('click', async () => {
-  liveFailed = false
-  await startLive()
-  $('#live-help').hidden = !liveFailed
+  if (await hasCamera()) {
+    liveFailed = false
+    await startLive()
+  }
+  // Still failed, or no attempt could be made: the flag stays set and the help shows.
+  if (!liveCamera.running) liveFailed = true
+  retryFailed = liveFailed
+  updateRetry()
 })
 
 function stopLive() {
@@ -991,6 +1005,7 @@ document.addEventListener('visibilitychange', () => {
   else void startLive()
 })
 largeScreen.addEventListener('change', () => {
+  updateRetry()
   if (largeScreen.matches) stopLive()
   else void startLive()
 })

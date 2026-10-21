@@ -23,6 +23,7 @@ import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
 import { createLiveCamera } from './liveCamera.ts'
+import { EXIF_BYTES, appleMapsUrl, exifPosition, googleMapsUrl, placeLabel, type Position } from './place.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
 import type { Request, Response } from './worker.ts'
 import './style.css'
@@ -376,6 +377,7 @@ function renderNotSure() {
   if (strip) box.append(strip)
   const addButton = addPhotoButton()
   if (addButton) box.append(addButton)
+  if (photos.length > 0) box.append(placeSection(null))
   box.append(newPhotoButton())
   result.replaceChildren(box)
   show('result')
@@ -508,8 +510,116 @@ function render(state: State | null, raw: Map<string, number>) {
   if (strip) side.append(el('h3', 'Kuvasi'), strip)
   const addButton = addPhotoButton()
   if (addButton) side.append(addButton)
+  side.append(placeSection(record?.nimi ?? null))
   side.append(el('p', REMINDER, 'reminder'), newPhotoButton())
   show('result')
+}
+
+// --- Find spot (#51) ---------------------------------------------------------------------
+// "Tallenna löytöpaikka" reads the position only on tap: from a photo's EXIF, or else the
+// current location. It is kept in memory for this mushroom only, and leaves the device only
+// in a Maps link or share that the user opens (hard rule 9).
+
+let place: { position: Position; fromPhoto: boolean } | null = null
+// Raised when the photos change, so a position that arrives late for older photos is dropped.
+let placeRequest = 0
+// The section on screen and the species it is named after; a re-render replaces both.
+let placeBox: HTMLElement | null = null
+let placeName: string | null = null
+
+function forgetPlace() {
+  place = null
+  placeRequest++
+}
+
+async function photoPosition(): Promise<Position | null> {
+  for (const p of photos) {
+    const position = exifPosition(await p.file.slice(0, EXIF_BYTES).arrayBuffer())
+    if (position) return position
+  }
+  return null
+}
+
+function currentPosition(): Promise<Position> {
+  return new Promise((resolve, reject) => {
+    if (!('geolocation' in navigator)) {
+      reject(new Error('no geolocation'))
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (p) => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }),
+      reject,
+      { enableHighAccuracy: true, timeout: 20_000, maximumAge: 60_000 },
+    )
+  })
+}
+
+async function findPlace() {
+  const request = ++placeRequest
+  fillPlace('loading')
+  try {
+    const fromPhoto = await photoPosition().catch(() => null)
+    const found = fromPhoto ? { position: fromPhoto, fromPhoto: true } : { position: await currentPosition(), fromPhoto: false }
+    if (request !== placeRequest) return
+    place = found
+    fillPlace()
+  } catch {
+    if (request === placeRequest) fillPlace('failed')
+  }
+}
+
+// The species is null on the "not sure" screen.
+function placeSection(nimi: string | null): HTMLElement {
+  placeBox = el('section', undefined, 'place')
+  placeName = nimi
+  fillPlace()
+  return placeBox
+}
+
+function fillPlace(status: 'loading' | 'failed' | null = null) {
+  const box = placeBox
+  if (!box) return
+  box.replaceChildren(el('h3', 'Löytöpaikka'))
+  if (!place) {
+    const save = el('button', status === 'loading' ? 'Haetaan sijaintia…' : 'Tallenna löytöpaikka', 'secondary big')
+    save.type = 'button'
+    save.disabled = status === 'loading'
+    save.addEventListener('click', () => void findPlace())
+    box.append(save)
+    if (status === 'failed') {
+      box.append(el('p', 'Sijaintia ei saatu. Kuvassa ei ole sijaintia, ja sijainnin käyttö on estetty tai ei onnistunut.', 'place-error'))
+    }
+    box.append(el('p', 'Sijainti luetaan kuvasta tai puhelimesta vain, kun painat. Se ei lähde laitteelta, ellet avaa karttaa tai jaa sitä.', 'place-note'))
+    return
+  }
+  const label = placeLabel(placeName, new Date())
+  const apple = appleMapsUrl(place.position, label)
+  const google = googleMapsUrl(place.position)
+  box.append(el('p', place.fromPhoto ? 'Sijainti kuvasta.' : 'Nykyinen sijaintisi.', 'place-note'))
+  const links = el('div', undefined, 'place-links')
+  const link = (text: string, href: string) => {
+    const a = el('a', text, 'secondary big')
+    a.href = href
+    a.target = '_blank'
+    a.rel = 'noopener noreferrer'
+    return a
+  }
+  links.append(link('Avaa Apple Mapsissa', apple), link('Avaa Google Mapsissa', google))
+  if ('share' in navigator) {
+    const share = el('button', 'Jaa', 'secondary big')
+    share.type = 'button'
+    // Apple devices open the Apple Maps link in Maps; others the Google one.
+    const url = /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? apple : google
+    share.addEventListener('click', () => navigator.share({ title: label, url }).catch(() => undefined))
+    links.append(share)
+  }
+  const forget = el('button', 'Unohda sijainti', 'answer ghost')
+  forget.type = 'button'
+  forget.addEventListener('click', () => {
+    forgetPlace()
+    fillPlace()
+  })
+  box.append(links, forget)
 }
 
 function isDangerousId(id: string): boolean {
@@ -660,6 +770,8 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 // Everything stays in memory on the device (hard rule 9).
 const MAX_PHOTOS = 5
 interface Photo {
+  // Kept for its EXIF position (#51), read only when the user asks for it.
+  file: File
   url: string
   probabilities: number[]
 }
@@ -674,6 +786,7 @@ let adding = false
 function clearPhotos() {
   for (const p of photos) URL.revokeObjectURL(p.url)
   photos = []
+  forgetPlace()
 }
 
 async function identify(images: File[]) {
@@ -707,7 +820,7 @@ async function identify(images: File[]) {
       clearPhotos()
       asked = []
     }
-    chosen.forEach((file, i) => photos.push({ url: URL.createObjectURL(file), probabilities: r.perImage[i]! }))
+    chosen.forEach((file, i) => photos.push({ file, url: URL.createObjectURL(file), probabilities: r.perImage[i]! }))
     identifyPhotos()
   } catch (e) {
     await minimum
@@ -739,6 +852,9 @@ function identifyPhotos() {
 function removePhoto(index: number) {
   const [gone] = photos.splice(index, 1)
   if (gone) URL.revokeObjectURL(gone.url)
+  // The position may have come from the removed photo, or be on its way from it.
+  if (place?.fromPhoto) place = null
+  placeRequest++
   identifyPhotos()
 }
 

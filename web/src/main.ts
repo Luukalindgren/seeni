@@ -629,6 +629,7 @@ function render(state: State | null, raw: Map<string, number>) {
         const next = answer(state, check, a)
         if (!next) asked = [...state.asked, { check: check.id, answer: a }]
         render(next, raw)
+        focusAfterAnswer()
       })
       answers.append(button)
     }
@@ -636,6 +637,7 @@ function render(state: State | null, raw: Map<string, number>) {
     skipButton.addEventListener('click', () => {
       result.classList.remove('enter')
       render(skip(state, check), raw)
+      focusAfterAnswer()
     })
     answers.append(skipButton)
     box.append(answers)
@@ -664,6 +666,16 @@ function render(state: State | null, raw: Map<string, number>) {
   side.append(placeSection(record?.nimi ?? null))
   side.append(el('p', t().reminder, 'reminder'), newPhotoButton())
   show('result')
+}
+
+// The pressed answer is gone after the re-render: focus moves to the next question, or to
+// the result when no question is left, so a keyboard or screen reader user goes on from
+// there instead of from the top of the page. No scroll, so the view stays where it was.
+function focusAfterAnswer() {
+  const target = result.querySelector<HTMLElement>('.verify .question') ?? result.querySelector<HTMLElement>('h2')
+  if (!target) return
+  target.tabIndex = -1
+  target.focus({ preventScroll: true })
 }
 
 // --- Find spot (#51) ---------------------------------------------------------------------

@@ -107,6 +107,19 @@ export const fi = {
   // Check pictures
   pictureLabel: (captions: string) => `Kuva: ${captions}`,
 
+  // Time of year and region (#48)
+  seasonRare: (month: string, region: string | null) =>
+    `Harvinainen löytö ${month}${region ? ` ${region}` : ''}: havaintoja on silloin vähän. Tarkista laji erityisen huolellisesti.`,
+  months: ['tammikuussa', 'helmikuussa', 'maaliskuussa', 'huhtikuussa', 'toukokuussa', 'kesäkuussa', 'heinäkuussa', 'elokuussa', 'syyskuussa', 'lokakuussa', 'marraskuussa', 'joulukuussa'],
+  regions: { etela: 'Etelä-Suomi', keski: 'Keski-Suomi', pohjoinen: 'Pohjois-Suomi' } as Record<'etela' | 'keski' | 'pohjoinen', string>,
+  regionsIn: { etela: 'Etelä-Suomessa', keski: 'Keski-Suomessa', pohjoinen: 'Pohjois-Suomessa' } as Record<'etela' | 'keski' | 'pohjoinen', string>,
+  seasonTitle: 'Ajankohta ja alue',
+  seasonText:
+    'Seeni vertaa ehdotettua lajia GBIFin havaintoihin Suomesta ja kertoo, jos lajia löytyy harvoin siihen aikaan vuodesta. Kuukausi luetaan kuvasta tai otetaan tästä päivästä, alue kuvan sijainnista tai alta. Tieto ei lähde laitteelta.',
+  seasonToggle: 'Vertaa ajankohtaan ja alueeseen',
+  seasonRegion: 'Alue, kun kuvassa ei ole sijaintia',
+  seasonRegionAuto: 'Ei valittu',
+
   // About
   aboutText:
     'Seeni ei kerro, voiko sientä syödä. Se ehdottaa lajeja, näyttää niiden vaaralliset kaksoisolennot ja ohjaa tarkistamaan tuntomerkit. Kuvat käsitellään vain tällä laitteella, eikä mitään lähetetä minnekään. Lajitiedot ovat tarkistamattomia luonnoksia.',

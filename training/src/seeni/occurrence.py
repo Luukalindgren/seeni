@@ -1,6 +1,6 @@
 """How often each class is observed in Finland, per region and month (#48).
 
-    uv run python -m seeni.occurrence --out ../web/public/models/v1/occurrence.json
+    uv run python -m seeni.occurrence --out ../web/public/occurrence.json
 
 Asks the GBIF occurrence search for counts only: one request per class and region, faceted
 by month, from occurrences in Finland licensed CC0 or CC BY. No occurrence record is

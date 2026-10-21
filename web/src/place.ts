@@ -14,6 +14,18 @@ export const EXIF_BYTES = 256 * 1024
 /** The GPS position in a JPEG's EXIF, or null when there is none (or the file is not a
  * JPEG: HEIC, PNG and camera frames have no position this can read). */
 export function exifPosition(buffer: ArrayBuffer): Position | null {
+  const tiff = exifSegment(buffer)
+  return tiff ? tiffPosition(tiff) : null
+}
+
+/** When the photo was taken (EXIF DateTimeOriginal, the camera's local time), or null. */
+export function exifDate(buffer: ArrayBuffer): Date | null {
+  const tiff = exifSegment(buffer)
+  return tiff ? tiffDate(tiff) : null
+}
+
+// The TIFF data of a JPEG's EXIF segment, limited to that segment.
+function exifSegment(buffer: ArrayBuffer): DataView | null {
   const view = new DataView(buffer)
   if (view.byteLength < 4 || view.getUint16(0) !== 0xffd8) return null
   let offset = 2
@@ -35,29 +47,64 @@ export function exifPosition(buffer: ArrayBuffer): Position | null {
     // APP1 with "Exif\0\0". The TIFF data is read only within this segment.
     if (marker === 0xe1 && length >= 8 && offset + 10 <= view.byteLength && view.getUint32(offset + 4) === 0x45786966 && view.getUint16(offset + 8) === 0) {
       const end = Math.min(view.byteLength, offset + 2 + length)
-      return tiffPosition(new DataView(buffer, offset + 10, end - offset - 10))
+      return new DataView(buffer, offset + 10, end - offset - 10)
     }
     offset += 2 + length
   }
   return null
 }
 
+interface Tiff {
+  u16(at: number): number
+  u32(at: number): number
+  entries(ifd: number): Map<number, { type: number; count: number; value: number }>
+}
+
+function tiffReader(view: DataView): Tiff | null {
+  const little = view.getUint16(0) === 0x4949
+  const u16 = (at: number) => view.getUint16(at, little)
+  const u32 = (at: number) => view.getUint32(at, little)
+  if (u16(2) !== 42) return null
+  const entries = (ifd: number) => {
+    const out = new Map<number, { type: number; count: number; value: number }>()
+    const n = u16(ifd)
+    for (let i = 0; i < n; i++) {
+      const e = ifd + 2 + i * 12
+      out.set(u16(e), { type: u16(e + 2), count: u32(e + 4), value: e + 8 })
+    }
+    return out
+  }
+  return { u16, u32, entries }
+}
+
+function tiffDate(view: DataView): Date | null {
+  try {
+    const t = tiffReader(view)
+    if (!t) return null
+    const exifPointer = t.entries(t.u32(4)).get(0x8769)
+    if (!exifPointer) return null
+    const e = t.entries(t.u32(exifPointer.value)).get(0x9003)
+    if (!e || e.type !== 2 || e.count < 19) return null
+    const at = t.u32(e.value)
+    let text = ''
+    for (let i = 0; i < 19; i++) text += String.fromCharCode(view.getUint8(at + i))
+    const m = /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(text)
+    if (!m) return null
+    const [y, mo, d, h, mi, s] = m.slice(1).map(Number) as [number, number, number, number, number, number]
+    const date = new Date(y, mo - 1, d, h, mi, s)
+    // A blank date ("0000:00:00 …") or an impossible one is no date.
+    return y < 1990 || date.getMonth() !== mo - 1 || date.getDate() !== d ? null : date
+  } catch {
+    return null
+  }
+}
+
 function tiffPosition(view: DataView): Position | null {
   const tiff = 0
   try {
-    const little = view.getUint16(tiff) === 0x4949
-    const u16 = (at: number) => view.getUint16(tiff + at, little)
-    const u32 = (at: number) => view.getUint32(tiff + at, little)
-    if (u16(2) !== 42) return null
-    const entries = (ifd: number) => {
-      const out = new Map<number, { type: number; count: number; value: number }>()
-      const n = u16(ifd)
-      for (let i = 0; i < n; i++) {
-        const e = ifd + 2 + i * 12
-        out.set(u16(e), { type: u16(e + 2), count: u32(e + 4), value: e + 8 })
-      }
-      return out
-    }
+    const t = tiffReader(view)
+    if (!t) return null
+    const { u32, entries } = t
     const gpsPointer = entries(u32(4)).get(0x8825)
     if (!gpsPointer) return null
     const gps = entries(u32(gpsPointer.value))

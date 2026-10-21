@@ -1481,3 +1481,25 @@ body.live-on .adding {
 #warning h2 {
   padding-right: 3.5rem;
 }
+
+/* Time of year and region (#48). */
+.season-note {
+  margin: 0.75rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.8rem;
+  background: var(--card);
+  border-left: 4px solid var(--accent);
+  font-size: 0.95rem;
+}
+.season-settings .season-region {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.season-settings select {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+}

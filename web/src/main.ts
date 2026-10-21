@@ -28,7 +28,8 @@ import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
 import { createLiveCamera } from './liveCamera.ts'
-import { EXIF_BYTES, appleMapsUrl, exifPosition, googleMapsUrl, placeLabel, type Position } from './place.ts'
+import { EXIF_BYTES, appleMapsUrl, exifDate, exifPosition, googleMapsUrl, placeLabel, type Position } from './place.ts'
+import { isRare, monthOf, regionOf, type Occurrence, type RegionId } from './season.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
 import type { Request, Response } from './worker.ts'
 import './style.css'
@@ -157,6 +158,7 @@ app.innerHTML = `
       <p data-t="aboutText"></p>
       <p data-t-html="aboutSourcesHtml"></p>
       <p data-t="aboutTranslation"></p>
+      <div id="season-settings"></div>
       <h3 data-t="photographers"></h3>
       <div id="photographers"><p data-t="loading"></p></div>
     </details>
@@ -457,6 +459,8 @@ function render(state: State | null, raw: Map<string, number>) {
     for (const t of record.tuntomerkit) ul.append(el('li', t))
     body.append(ul)
   }
+  const rare = seasonNote(top.id)
+  if (rare) body.append(rare)
   hero.append(body)
   // Everything below the species goes in one column, beside the photo on large screens.
   const side = el('div', undefined, 'side')
@@ -664,6 +668,102 @@ function isDangerousId(id: string): boolean {
   return g !== undefined && DANGEROUS.has(g)
 }
 
+// --- Time of year and region (#48) ------------------------------------------------------
+// A species that is rarely found in Finland in that month (and region) gets a note in the
+// result, from GBIF observation counts. Only a species that is not dangerous gets one: the
+// note never changes the candidates, the lookalikes or the checks (hard rule 8). The month
+// comes from the photo's EXIF date or today, the region from the photo's EXIF position or
+// the region chosen in the settings. A position is reduced to its region at once, nothing
+// else is kept, and nothing leaves the device (hard rule 9). The setting turns it all off.
+
+const SEASON_KEY = 'seeni-season'
+interface SeasonSettings {
+  on: boolean
+  region: RegionId | null
+}
+function loadSeason(): SeasonSettings {
+  try {
+    const s = JSON.parse(localStorage.getItem(SEASON_KEY) ?? 'null') as Partial<SeasonSettings> | null
+    return { on: s?.on ?? true, region: s?.region ?? null }
+  } catch {
+    return { on: true, region: null }
+  }
+}
+let season = loadSeason()
+function saveSeason() {
+  try {
+    localStorage.setItem(SEASON_KEY, JSON.stringify(season))
+  } catch {
+    // Private mode: the setting lasts for this visit.
+  }
+}
+
+let occurrence: Occurrence | null = null
+fetch(`${base}occurrence.json`)
+  .then((r) => (r.ok ? r.json() : null))
+  .then((o: Occurrence | null) => (occurrence = o))
+  .catch(() => undefined)
+
+async function photoSeason(file: File): Promise<{ taken: Date | null; region: RegionId | null }> {
+  try {
+    const head = await file.slice(0, EXIF_BYTES).arrayBuffer()
+    const p = exifPosition(head)
+    return { taken: exifDate(head), region: p ? regionOf(p.lat, p.lon) : null }
+  } catch {
+    return { taken: null, region: null }
+  }
+}
+
+function seasonNote(id: string): HTMLElement | null {
+  if (!season.on || !occurrence || isDangerousId(id)) return null
+  const taken = photos.find((p) => p.taken)?.taken ?? null
+  const month = monthOf(taken, new Date())
+  const region = photos.find((p) => p.region)?.region ?? season.region
+  if (!isRare(occurrence, id, month, region)) return null
+  const s = t()
+  return el('p', s.seasonRare(s.months[month - 1]!, region ? s.regionsIn[region] : null), 'season-note')
+}
+
+function seasonSettings(): HTMLElement {
+  const s = t()
+  const box = el('div', undefined, 'season-settings')
+  const label = el('label', undefined, 'consent')
+  const check = el('input')
+  check.type = 'checkbox'
+  check.checked = season.on
+  label.append(check, el('span', s.seasonToggle))
+  const regionLabel = el('label', undefined, 'season-region')
+  regionLabel.append(el('span', s.seasonRegion))
+  const select = el('select')
+  const option = (value: string, text: string) => {
+    const o = el('option', text)
+    o.value = value
+    o.selected = (season.region ?? '') === value
+    return o
+  }
+  select.append(option('', s.seasonRegionAuto))
+  for (const id of ['etela', 'keski', 'pohjoinen'] as const) select.append(option(id, s.regions[id]))
+  select.disabled = !season.on
+  regionLabel.append(select)
+  check.addEventListener('change', () => {
+    season = { ...season, on: check.checked }
+    select.disabled = !season.on
+    saveSeason()
+    rerenderResult()
+  })
+  select.addEventListener('change', () => {
+    season = { ...season, region: (select.value || null) as RegionId | null }
+    saveSeason()
+    rerenderResult()
+  })
+  box.append(el('h3', s.seasonTitle), el('p', s.seasonText, 'fine'), label, regionLabel)
+  return box
+}
+function renderSeasonSettings() {
+  $('#season-settings').replaceChildren(seasonSettings())
+}
+renderSeasonSettings()
+
 // --- Species sheet (#47) -----------------------------------------------------------------
 // A lookalike in the result opens its identification info in a modal: features, how it
 // differs from the species of the result, its own lookalikes (which open in the same modal,
@@ -813,6 +913,10 @@ interface Photo {
   file: File
   url: string
   probabilities: number[]
+  // For the season note (#48): when the photo was taken and its coarse region; the precise
+  // position is not kept.
+  taken: Date | null
+  region: RegionId | null
 }
 let photos: Photo[] = []
 // The answers given for the current mushroom, also when the last one led to "not sure".
@@ -859,7 +963,10 @@ async function identify(images: File[]) {
       clearPhotos()
       asked = []
     }
-    chosen.forEach((file, i) => photos.push({ file, url: URL.createObjectURL(file), probabilities: r.perImage[i]! }))
+    const meta = await Promise.all(chosen.map(photoSeason))
+    chosen.forEach((file, i) =>
+      photos.push({ file, url: URL.createObjectURL(file), probabilities: r.perImage[i]!, ...meta[i]! }),
+    )
     identifyPhotos()
   } catch (e) {
     await minimum
@@ -1181,21 +1288,26 @@ $<HTMLDetailsElement>('#about').addEventListener('toggle', () => void loadPhotog
 // The header button switches between Finnish and English at once: the page texts, the
 // species texts and the open result and sheet, keeping the photos and the answers.
 
+// The result again, in place: after a change of language or setting.
+function rerenderResult() {
+  if (currentView !== 'result' || !resultOfPhotos || photos.length === 0) return
+  result.classList.remove('enter')
+  inPlace = true
+  try {
+    identifyPhotos()
+  } finally {
+    inPlace = false
+  }
+}
+
 function switchLang(l: Lang) {
   setLang(l, true)
   species = speciesMap(localizeRecords(records, l, english))
   checks = checkById(species)
   applyStatic()
   status.textContent = statusText()
-  if (currentView === 'result' && resultOfPhotos && photos.length > 0) {
-    result.classList.remove('enter')
-    inPlace = true
-    try {
-      identifyPhotos()
-    } finally {
-      inPlace = false
-    }
-  }
+  rerenderResult()
+  renderSeasonSettings()
   // A link with ?lang= would otherwise override the choice on the next load.
   const url = new URL(location.href)
   if (url.searchParams.has('lang')) {

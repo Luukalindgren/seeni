@@ -104,7 +104,12 @@ app.innerHTML = `
       kaksoisolennot ja ohjaa tarkistamaan tuntomerkit. Kuvat käsitellään vain tällä laitteella,
       eikä mitään lähetetä minnekään. Lajitiedot ovat tarkistamattomia luonnoksia.</p>
       <p>Malli on opetettu valokuvilla, jotka on jaettu <a href="https://www.gbif.org/">GBIF</a>in
-      kautta CC0- tai CC BY -lisenssillä. Malli perustuu EfficientNet-B0-painoihin
+      kautta CC0- tai CC BY -lisenssillä (GBIF.org, lataukset
+      <a href="https://doi.org/10.15468/dl.fadmpu">10.15468/dl.fadmpu</a> ja
+      <a href="https://doi.org/10.15468/dl.3x49qy">10.15468/dl.3x49qy</a>). Lajien nimet ovat
+      <a href="https://doi.org/10.15468/39omei">GBIFin taksonomiasta</a> ja
+      <a href="https://laji.fi/">Laji.fi:stä</a> (CC BY 4.0), lajivalinta Ruokaviraston
+      kauppasienilistasta. Malli perustuu EfficientNet-B0-painoihin
       (<a href="https://huggingface.co/timm/efficientnet_b0.ra_in1k">timm</a>, Apache-2.0) ja
       toimii selaimessa <a href="https://github.com/microsoft/onnxruntime">onnxruntime-webillä</a> (MIT).
       Lisenssit: koodi MIT, malli ja lajitiedot CC BY 4.0.

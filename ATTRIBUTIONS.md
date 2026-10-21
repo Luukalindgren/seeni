@@ -2,8 +2,6 @@
 
 Seeni is built on photos, data and software made by others. This file credits them and states the licenses that apply. See [`README.md`](README.md#license) for the license of Seeni's own code, model and species data.
 
-Sections marked *pending* are completed by the issue in brackets. The sources' licenses and required credits are recorded before release (#11).
-
 ## Training images
 
 The model is trained on photos shared through [GBIF](https://www.gbif.org/) under CC0 or CC-BY licenses: mushrooms, and for the unknown class `muu` also other fungi and non-fungi such as moss, cones, leaves and plants (#7). Every photographer is credited, whatever the class. Each photo's license is taken from GBIF `multimedia.txt`, not from the occurrence record. The photos are not distributed in this repository or with the app, but the model is derived from them.
@@ -92,13 +90,13 @@ Example photos of each species, shown in the app's result view and chosen by `sp
 
 ## Species data sources
 
-*Pending (#3).* `data-meta/lajilista.csv` and `species/species.json` are compiled from the sources below. Each source's license and required credit is recorded here before release.
+`data-meta/lajilista.csv` and `species/species.json` are compiled from the sources below. They take facts from them (which species, their names and taxon ids); no text is copied. The descriptions and checks in `species.json` are written for Seeni, and the check pictures in `web/src/checkArt.ts` are drawn for Seeni.
 
 | Source | Used for | License |
 | --- | --- | --- |
-| [GBIF Backbone Taxonomy](https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) | taxonKeys | To be checked |
-| [Laji.fi (FinBIF) taxonomy](https://laji.fi/) | Finnish names | To be checked |
-| [Ruokavirasto](https://www.ruokavirasto.fi/) list of commercial mushrooms | Species selection | To be checked |
+| [GBIF Backbone Taxonomy](https://doi.org/10.15468/39omei), GBIF Secretariat | taxonKeys, scientific names | CC BY 4.0 |
+| [Laji.fi (FinBIF) taxonomy](https://laji.fi/), Finnish Biodiversity Information Facility | Finnish names | CC BY 4.0 (FinBIF's default for its own data) |
+| [Ruokavirasto](https://www.ruokavirasto.fi/) list of commercial mushrooms (*kauppasienet*) | Which species are on the list | Facts only, credited as the source |
 
 ## Pretrained weights
 

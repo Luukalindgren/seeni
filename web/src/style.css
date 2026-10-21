@@ -1708,8 +1708,3 @@ body.live-on .adding {
   align-self: stretch;
   text-align: left;
 }
-
-/* Focus moved by the app after an answer (focusAfterAnswer) needs no ring on a heading. */
-#result [tabindex='-1']:focus {
-  outline: none;
-}

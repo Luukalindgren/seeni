@@ -279,6 +279,8 @@ function startGrassIfLarge() {
 
 // Set while the language switch re-renders the result in place: no scroll, no fade.
 let inPlace = false
+// Set by an answer for show() to move focus once the result is swapped in (focusAfterAnswer).
+let focusAfterRender: 'scroll' | 'stay' | null = null
 
 // The views other than home have one history entry, so the phone's back button returns to
 // the start screen instead of leaving the app. The species sheets are entries on top of it.
@@ -312,6 +314,8 @@ function show(view: keyof typeof views) {
     for (const [name, el] of Object.entries(views)) el.hidden = name !== view
     again.hidden = view !== 'result'
     window.scrollTo(0, 0)
+    if (view === 'result' && focusAfterRender) focusAfterAnswer(focusAfterRender === 'scroll')
+    focusAfterRender = null
     // Only now, with home shown, does the drop area have a size to draw at.
     dropArt?.setVisible(view === 'home')
   }
@@ -624,20 +628,20 @@ function render(state: State | null, raw: Map<string, number>) {
     const answers = el('div', undefined, 'answers')
     for (const a of Object.keys(check.vastaukset)) {
       const button = el('button', answerLabel(check, a), 'answer')
-      button.addEventListener('click', () => {
+      button.addEventListener('click', (e) => {
         result.classList.remove('enter')
         const next = answer(state, check, a)
         if (!next) asked = [...state.asked, { check: check.id, answer: a }]
+        focusAfterRender = e.detail === 0 ? 'scroll' : 'stay'
         render(next, raw)
-        focusAfterAnswer()
       })
       answers.append(button)
     }
     const skipButton = el('button', t().cannotCheck, 'answer ghost')
-    skipButton.addEventListener('click', () => {
+    skipButton.addEventListener('click', (e) => {
       result.classList.remove('enter')
+      focusAfterRender = e.detail === 0 ? 'scroll' : 'stay'
       render(skip(state, check), raw)
-      focusAfterAnswer()
     })
     answers.append(skipButton)
     box.append(answers)
@@ -670,12 +674,14 @@ function render(state: State | null, raw: Map<string, number>) {
 
 // The pressed answer is gone after the re-render: focus moves to the next question, or to
 // the result when no question is left, so a keyboard or screen reader user goes on from
-// there instead of from the top of the page. No scroll, so the view stays where it was.
-function focusAfterAnswer() {
+// there instead of from the top of the page. Done by show() once the result is swapped in.
+// From the keyboard (a click with no pointer) the page scrolls to it; after a tap or click
+// the view stays at the top as before (focusAfterRender is declared next to show()).
+function focusAfterAnswer(scroll: boolean) {
   const target = result.querySelector<HTMLElement>('.verify .question') ?? result.querySelector<HTMLElement>('h2')
   if (!target) return
   target.tabIndex = -1
-  target.focus({ preventScroll: true })
+  target.focus({ preventScroll: !scroll })
 }
 
 // --- Find spot (#51) ---------------------------------------------------------------------

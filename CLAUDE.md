@@ -81,4 +81,4 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - [x] 8. ONNX export + golden fixtures (#8)
 - [x] 9. Species database + verification flow (#9)
 - [x] 10. Web app, PWA, GitHub Pages (#10)
-- [ ] 11. Release checklist (#11)
+- [x] 11. Release checklist (#11)

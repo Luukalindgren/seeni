@@ -96,12 +96,16 @@ function normalize(candidates: Candidate[]): Candidate[] {
   return candidates.map((c) => ({ ...c, probability: sum > 0 ? c.probability / sum : 1 / candidates.length }))
 }
 
-/** The first step: "not sure", or the candidates with their dangerous lookalikes. */
+/** The first step: "not sure", or the candidates with their dangerous lookalikes.
+ * `perImage` are the probabilities of each photo when there are several (#46): averaging can
+ * hide a dangerous class that one photo shows clearly, so a dangerous class that is top-1 in
+ * a single photo above the "not sure" threshold is a candidate too. */
 export function start(
   probabilities: readonly number[],
   labels: readonly Label[],
   species: Species,
   calibration: Calibration,
+  perImage: readonly (readonly number[])[] = [],
 ): { kind: 'not-sure' } | { kind: 'flow'; state: State } {
   if (probabilities.length !== labels.length) throw new Error('probabilities do not match labels.json')
   const order = probabilities
@@ -120,8 +124,16 @@ export function start(
     if (mass >= calibration.candidateMass || candidates.length >= calibration.maxCandidates) break
   }
 
-  // Dangerous lookalikes of every candidate, also of the ones added here (hard rule 8).
   const modelProbability = new Map(order.map(({ id, p }) => [id, p]))
+  for (const p of perImage) {
+    if (p.length !== labels.length) throw new Error('per-image probabilities do not match labels.json')
+    const best = p.reduce((b, x, i) => (x > p[b]! ? i : b), 0)
+    const id = labels[best]!.id
+    if (id === UNKNOWN || p[best]! < calibration.unknownThreshold || !isDangerous(id, species)) continue
+    if (!candidates.some((c) => c.id === id)) candidates.push({ id, probability: modelProbability.get(id)!, source: 'model' })
+  }
+
+  // Dangerous lookalikes of every candidate, also of the ones added here (hard rule 8).
   const warnings: string[] = []
   const queue = candidates.map((c) => c.id)
   for (let id = queue.shift(); id !== undefined; id = queue.shift()) {
@@ -210,6 +222,20 @@ export function answer(state: State, check: Check, chosen: string): State | null
     warnings: state.warnings.filter((w) => !out.has(w)),
     asked: [...state.asked, { check: check.id, answer: chosen }],
   }
+}
+
+/** The answers given before applied to a new start, e.g. after another photo is added (#46).
+ * The answers describe the mushroom, so they still hold; if together they rule out every
+ * candidate, the flow starts over without them. */
+export function replay(state: State, asked: State['asked'], species: Species): State {
+  const checks = new Map([...species.values()].flatMap((r) => r.tarkistukset.map((c) => [c.id, c] as const)))
+  let next: State | null = state
+  for (const a of asked) {
+    const check = checks.get(a.check)
+    if (!check || !next) break
+    next = a.answer === '' ? skip(next, check) : a.answer in check.vastaukset ? answer(next, check, a.answer) : next
+  }
+  return next ?? state
 }
 
 /** The user could not check this: it is not asked again and rules nothing out. */

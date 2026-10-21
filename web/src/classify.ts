@@ -92,11 +92,16 @@ export class Classifier {
     return inputs.map((_, i) => values.slice(i * n, (i + 1) * n))
   }
 
-  /** Calibrated probabilities averaged over the images of one mushroom. */
-  async classify(images: Pixels[]): Promise<number[]> {
+  /** Calibrated probabilities of each image. */
+  async classifyEach(images: Pixels[]): Promise<number[][]> {
     const inputs = images.map((p) => preprocess(p, this.files.preprocess))
     const logits = await this.logits(inputs)
     const t = this.files.calibration.temperature
-    return averageProbabilities(logits.map((row) => softmax(row, t)))
+    return logits.map((row) => softmax(row, t))
+  }
+
+  /** Calibrated probabilities averaged over the images of one mushroom. */
+  async classify(images: Pixels[]): Promise<number[]> {
+    return averageProbabilities(await this.classifyEach(images))
   }
 }

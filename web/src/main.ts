@@ -23,6 +23,7 @@ import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
 import { createLiveCamera } from './liveCamera.ts'
+import { EXIF_BYTES, appleMapsUrl, exifPosition, googleMapsUrl, placeLabel, type Position } from './place.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
 import type { Request, Response } from './worker.ts'
 import './style.css'
@@ -508,8 +509,92 @@ function render(state: State | null, raw: Map<string, number>) {
   if (strip) side.append(el('h3', 'Kuvasi'), strip)
   const addButton = addPhotoButton()
   if (addButton) side.append(addButton)
+  side.append(placeSection(record?.nimi ?? top.id))
   side.append(el('p', REMINDER, 'reminder'), newPhotoButton())
   show('result')
+}
+
+// --- Find spot (#51) ---------------------------------------------------------------------
+// "Tallenna löytöpaikka" reads the position only on tap: from a photo's EXIF, or else the
+// current location. It is kept in memory for this mushroom only, and leaves the device only
+// in a Maps link or share that the user opens (hard rule 9).
+
+let place: { position: Position; fromPhoto: boolean } | null = null
+
+async function photoPosition(): Promise<Position | null> {
+  for (const p of photos) {
+    const position = exifPosition(await p.file.slice(0, EXIF_BYTES).arrayBuffer())
+    if (position) return position
+  }
+  return null
+}
+
+function currentPosition(): Promise<Position> {
+  return new Promise((resolve, reject) => {
+    if (!('geolocation' in navigator)) {
+      reject(new Error('no geolocation'))
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (p) => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }),
+      reject,
+      { enableHighAccuracy: true, timeout: 20_000, maximumAge: 60_000 },
+    )
+  })
+}
+
+function placeSection(nimi: string): HTMLElement {
+  const box = el('section', undefined, 'place')
+  const fill = () => {
+    box.replaceChildren(el('h3', 'Löytöpaikka'))
+    if (!place) {
+      const save = el('button', 'Tallenna löytöpaikka', 'secondary big')
+      save.type = 'button'
+      save.addEventListener('click', async () => {
+        save.disabled = true
+        save.textContent = 'Haetaan sijaintia…'
+        const fromPhoto = await photoPosition().catch(() => null)
+        try {
+          place = fromPhoto ? { position: fromPhoto, fromPhoto: true } : { position: await currentPosition(), fromPhoto: false }
+          fill()
+        } catch {
+          save.disabled = false
+          save.textContent = 'Tallenna löytöpaikka'
+          box.querySelector('.place-error')?.remove()
+          box.append(el('p', 'Sijaintia ei saatu. Kuvassa ei ole sijaintia, ja sijainnin käyttö on estetty tai ei onnistunut.', 'place-error'))
+        }
+      })
+      box.append(save, el('p', 'Sijainti luetaan kuvasta tai puhelimesta vain, kun painat. Se ei lähde laitteelta, ellet avaa karttaa tai jaa sitä.', 'place-note'))
+      return
+    }
+    const label = placeLabel(nimi, new Date())
+    box.append(el('p', place.fromPhoto ? 'Sijainti kuvasta.' : 'Nykyinen sijaintisi.', 'place-note'))
+    const links = el('div', undefined, 'place-links')
+    const link = (text: string, href: string) => {
+      const a = el('a', text, 'secondary big')
+      a.href = href
+      a.target = '_blank'
+      a.rel = 'noopener noreferrer'
+      return a
+    }
+    links.append(link('Avaa Apple Mapsissa', appleMapsUrl(place.position, label)), link('Avaa Google Mapsissa', googleMapsUrl(place.position)))
+    if ('share' in navigator) {
+      const share = el('button', 'Jaa', 'secondary big')
+      share.type = 'button'
+      const url = appleMapsUrl(place.position, label)
+      share.addEventListener('click', () => navigator.share({ title: label, url }).catch(() => undefined))
+      links.append(share)
+    }
+    const forget = el('button', 'Unohda sijainti', 'answer ghost')
+    forget.type = 'button'
+    forget.addEventListener('click', () => {
+      place = null
+      fill()
+    })
+    box.append(links, forget)
+  }
+  fill()
+  return box
 }
 
 function isDangerousId(id: string): boolean {
@@ -660,6 +745,8 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 // Everything stays in memory on the device (hard rule 9).
 const MAX_PHOTOS = 5
 interface Photo {
+  // Kept for its EXIF position (#51), read only when the user asks for it.
+  file: File
   url: string
   probabilities: number[]
 }
@@ -674,6 +761,7 @@ let adding = false
 function clearPhotos() {
   for (const p of photos) URL.revokeObjectURL(p.url)
   photos = []
+  place = null
 }
 
 async function identify(images: File[]) {
@@ -707,7 +795,7 @@ async function identify(images: File[]) {
       clearPhotos()
       asked = []
     }
-    chosen.forEach((file, i) => photos.push({ url: URL.createObjectURL(file), probabilities: r.perImage[i]! }))
+    chosen.forEach((file, i) => photos.push({ file, url: URL.createObjectURL(file), probabilities: r.perImage[i]! }))
     identifyPhotos()
   } catch (e) {
     await minimum

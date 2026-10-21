@@ -1435,3 +1435,18 @@ body.live-on .adding {
 .sheet-top .round[hidden] {
   display: none;
 }
+
+/* Find spot (#51). */
+.place .place-links {
+  display: flex;
+  flex-direction: column;
+}
+.place a.secondary {
+  text-align: center;
+  text-decoration: none;
+}
+.place-note,
+.place-error {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}

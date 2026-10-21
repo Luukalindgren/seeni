@@ -1625,7 +1625,8 @@ function liveAllowed(): boolean {
 async function startLive() {
   if (!liveAllowed() || liveCamera.running || !(await hasCamera()) || !liveAllowed()) return
   if (live.hidden) {
-    live.classList.remove('shooting')
+    // Another photo of the same mushroom: straight to the shutter, the card was seen already.
+    live.classList.toggle('shooting', adding)
     shutter.disabled = true
     setLive(true)
   }

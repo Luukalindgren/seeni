@@ -8,7 +8,7 @@ import * as ort from 'onnxruntime-web/wasm'
 import wasmUrl from 'onnxruntime-web/ort-wasm-simd-threaded.wasm?url'
 
 import { softmax } from './flow.ts'
-import { loadFiles, MODEL_VERSION, type ModelFiles } from './modelFiles.ts'
+import { DownloadError, loadFiles, MODEL_VERSION, type ModelFiles } from './modelFiles.ts'
 import { preprocess, type Pixels } from './preprocess.ts'
 
 const MAX_SHORT_SIDE = 1024
@@ -16,9 +16,7 @@ const MAX_SHORT_SIDE = 1024
 /** Bytes downloaded so far, of about `total`. */
 export type Progress = (loaded: number, total: number) => void
 
-/** A file that could not be downloaded because of the connection or the server (a network
- * error or HTTP 5xx), not because it is missing: worth trying again. */
-export class DownloadError extends Error {}
+export { DownloadError }
 
 /** A network error (fetch and stream reads reject with a TypeError) as a DownloadError. */
 function retryable(e: unknown, what: string): unknown {

@@ -68,6 +68,16 @@ body {
   flex: 1;
 }
 
+.view:not([hidden]) {
+  animation: appear 0.25s ease-out;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
+
 h1,
 h2,
 h3 {
@@ -380,6 +390,53 @@ dialog h2 {
 }
 
 #loading[hidden] {
+  display: none;
+}
+
+.scan {
+  display: none;
+  position: relative;
+  margin: 0;
+  width: min(20rem, 80vw);
+  aspect-ratio: 1;
+  border-radius: 2rem;
+  overflow: hidden;
+  box-shadow: 0 1.9rem 3.75rem var(--shadow);
+}
+
+.scan img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A soft light line that sweeps over the photo while the model runs. */
+.scan::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 30%;
+  background: linear-gradient(to bottom, transparent, rgb(255 255 255 / 0.45), transparent);
+  animation: sweep 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes sweep {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(333%);
+  }
+}
+
+.has-preview .scan {
+  display: block;
+}
+
+.has-preview .loader {
   display: none;
 }
 

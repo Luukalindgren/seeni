@@ -75,6 +75,7 @@ app.innerHTML = `
   </section>
 
   <section id="loading" class="view" hidden>
+    <figure class="scan" aria-hidden="true"><img id="preview" alt="" /></figure>
     <span class="loader" aria-hidden="true">${ICON.mushroom}</span>
     <p>Tunnistetaan…</p>
   </section>
@@ -348,9 +349,19 @@ function isDangerousId(id: string): boolean {
 // Only the latest set of photos may show a result.
 let latest = 0
 
+// The chosen photo, shown while it is identified. The object URL only lives in memory.
+const preview = $<HTMLImageElement>('#preview')
+function setPreview(image: Blob | null) {
+  if (preview.src) URL.revokeObjectURL(preview.src)
+  if (image) preview.src = URL.createObjectURL(image)
+  else preview.removeAttribute('src')
+  views.loading.classList.toggle('has-preview', image !== null)
+}
+
 async function identify(images: File[]) {
   if (images.length === 0) return
   const request = ++latest
+  setPreview(images[0]!)
   show('loading')
   try {
     files ??= await loadFiles(base)
@@ -364,6 +375,8 @@ async function identify(images: File[]) {
     if (request !== latest) return
     result.replaceChildren(el('h2', 'Tunnistus epäonnistui'), el('p', String(e)), newPhotoButton())
     show('result')
+  } finally {
+    if (request === latest) setPreview(null)
   }
 }
 
@@ -398,6 +411,15 @@ window.addEventListener('drop', (e) => {
   // The warning has to be accepted first.
   if (dialog.open) return
   const images = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'))
+  void identify(images)
+})
+
+// Pasting an image from the clipboard identifies it too.
+window.addEventListener('paste', (e) => {
+  if (dialog.open) return
+  const images = Array.from(e.clipboardData?.files ?? []).filter((f) => f.type.startsWith('image/'))
+  if (images.length === 0) return
+  e.preventDefault()
   void identify(images)
 })
 

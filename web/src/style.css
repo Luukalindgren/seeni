@@ -429,6 +429,12 @@ dialog h2 {
   display: none;
 }
 
+.loading-model {
+  margin: 0;
+  font-weight: 400;
+  font-size: 0.95rem;
+}
+
 .scan {
   display: none;
   position: relative;

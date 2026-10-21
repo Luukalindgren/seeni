@@ -141,6 +141,7 @@ app.innerHTML = `
     <figure class="scan" aria-hidden="true"><img id="preview" alt="" /></figure>
     <span class="loader" aria-hidden="true">${ICON.mushroom}</span>
     <p data-t="identifying"></p>
+    <p id="loading-model" class="loading-model" hidden></p>
   </section>
 
   <section id="result" class="view" hidden aria-live="polite"></section>
@@ -242,9 +243,15 @@ const views = { home: $('#home'), loading: $('#loading'), result: $('#result') }
 const status = $<HTMLParagraphElement>('#status')
 // The status line as a function of the language, so a switch can show it again.
 let statusText: () => string = () => t().loadingModel
-function setStatus(text: () => string) {
+// A photo chosen before the model is ready waits for it: the wait shows the model's status
+// too, e.g. its download on the first visit.
+const loadingModel = $<HTMLParagraphElement>('#loading-model')
+function setStatus(text: () => string, ready = false) {
   statusText = text
   status.textContent = text()
+  status.classList.toggle('ready', ready)
+  loadingModel.textContent = text()
+  loadingModel.hidden = ready
 }
 setStatus(statusText)
 const result = views.result
@@ -387,8 +394,7 @@ worker.onmessage = (event: MessageEvent<Response>) => {
   const r = event.data
   if (r.id === 0) {
     if (r.kind === 'ready') {
-      setStatus(() => t().ready)
-      status.classList.add('ready')
+      setStatus(() => t().ready, true)
     } else if (r.kind === 'progress') {
       const percent = r.percent
       setStatus(() => t().loadingModelPercent(percent))
@@ -405,7 +411,6 @@ worker.onmessage = (event: MessageEvent<Response>) => {
 
 // A worker that fails to load or crashes would leave every request waiting forever.
 function failAll(message: string) {
-  status.classList.remove('ready')
   setStatus(() => t().workerFailed(message))
   for (const [id, resolve] of pending) resolve({ id, kind: 'error', message })
   pending.clear()
@@ -1832,7 +1837,7 @@ function switchLang(l: Lang) {
   species = speciesMap(localizeRecords(records, l, english))
   checks = checkById(species)
   applyStatic()
-  status.textContent = statusText()
+  setStatus(statusText, status.classList.contains('ready'))
   rerenderResult()
   renderSeasonSettings()
   void refreshFindsCount()

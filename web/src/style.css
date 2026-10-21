@@ -104,6 +104,24 @@ svg {
   border-radius: 0.6rem;
 }
 
+/* On a phone the "Uusi kuva" button leaves no room for the name next to the icon: the name
+   stays for screen readers only, and the gaps get smaller on the narrowest screens. */
+@media (max-width: 420px) {
+  .topbar:has(#again:not([hidden])) .logo span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 340px) {
+  .topbar {
+    gap: 0.5rem;
+  }
+}
+
 .pill,
 .round {
   display: inline-flex;

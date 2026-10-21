@@ -21,7 +21,7 @@ export const fi = {
   // Header
   newPhoto: 'Uusi kuva',
   info: 'Tietoa ja lähteet',
-  language: 'EN, in English', // starts with the button's visible text (WCAG 2.5.3)
+  language: 'In English',
   languageShort: 'EN',
 
   // Home

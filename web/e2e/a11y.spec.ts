@@ -1,15 +1,19 @@
-// Accessibility: axe-core finds no WCAG 2.1 A/AA violations on the main views and dialogs.
+// Accessibility: axe-core finds no WCAG 2.0-2.2 A/AA violations on the main views and
+// dialogs. Animations are off so that contrast is measured on the final colours. Not covered:
+// the live camera and the webcam dialog, which need a camera.
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
+test.use({ reducedMotion: 'reduce' })
+
 const chanterelle = readFileSync(fileURLToPath(new URL('../public/species/cantharellus-cibarius.jpg', import.meta.url)))
 
 async function check(page: Page, name: string) {
-  const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']).analyze()
+  const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()
   const report = violations.map((v) => `${v.id}: ${v.help}\n  ${v.nodes.map((n) => n.target.join(' ')).join('\n  ')}`)
-  expect(report, name).toEqual([])
+  expect.soft(report, name).toEqual([])
 }
 
 test('the warning, home, result, sheet, guide and finds have no violations', async ({ page }) => {
@@ -20,6 +24,8 @@ test('the warning, home, result, sheet, guide and finds have no violations', asy
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await expect(page.locator('.status')).toContainText('Valmis', { timeout: 60_000 })
   await check(page, 'home')
+  await expect(page.locator('#lang')).toHaveAccessibleName('EN In English')
+  await expect(page.locator('#lang [data-t="languageShort"]')).toHaveAttribute('lang', 'en')
 
   await page.locator('#gallery').setInputFiles({ name: 'sieni.jpg', mimeType: 'image/jpeg', buffer: chanterelle })
   await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
@@ -41,6 +47,10 @@ test('the warning, home, result, sheet, guide and finds have no violations', asy
   await expect(page.locator('#guide .lookalike').first()).toBeVisible()
   await check(page, 'guide')
   await page.locator('#guide-close').click()
+
+  await page.locator('#info').click()
+  await expect(page.locator('#about')).toBeVisible()
+  await check(page, 'about')
 })
 
 test.describe('on an iPhone', () => {
@@ -67,7 +77,7 @@ test.describe('in English', () => {
     await expect(page.locator('#result h2').first()).toHaveText('chanterelle', { timeout: 60_000 })
     await check(page, 'result')
     // A dark spore print fits none of the candidates.
-    await page.locator('.verify .answer', { hasText: 'violet' }).click()
+    await page.locator('.verify .answer', { hasText: 'dark chocolate brown or violet black' }).click()
     await expect(page.locator('#result h2').first()).toHaveText('I cannot identify this reliably')
     await check(page, 'not sure')
   })

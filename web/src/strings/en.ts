@@ -20,7 +20,7 @@ export const en: Strings = {
 
   newPhoto: 'New photo',
   info: 'About and sources',
-  language: 'FI, suomeksi', // starts with the button's visible text (WCAG 2.5.3)
+  language: 'Suomeksi',
   languageShort: 'FI',
 
   addingTitle: 'Add a photo of the same mushroom',

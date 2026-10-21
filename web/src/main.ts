@@ -244,15 +244,29 @@ function startGrassIfLarge() {
 let inPlace = false
 
 // The views other than home have one history entry, so the phone's back button returns to
-// the start screen instead of leaving the app. Sheets of the species sheet are on top of it.
-const onViewEntry = () => (history.state as { view?: string } | null)?.view === 'result'
+// the start screen instead of leaving the app. The species sheets are entries on top of it.
+interface Entry {
+  view: 'result'
+  // The number of sheets open at this entry.
+  sheet?: number
+}
+const entry = () => history.state as Entry | null
+const onViewEntry = () => entry()?.view === 'result'
+const pushEntry = (sheet?: number) => history.pushState({ view: 'result', sheet } satisfies Entry, '')
+// Set while the back step of a button that went home is on its way; see popstate.
+let leavingEntry = false
+// The app always starts at home: an entry left over from before a reload says otherwise.
+if (entry()) history.replaceState(null, '')
 
 function show(view: keyof typeof views) {
   if (inPlace && view === currentView) return
   currentView = view
-  if (view !== 'home' && !onViewEntry()) history.pushState({ view: 'result' }, '')
+  if (view !== 'home' && !onViewEntry()) pushEntry()
   // Home from a button: drop the entry, so back from home leaves the app as expected.
-  else if (view === 'home' && !adding && onViewEntry()) history.back()
+  else if (view === 'home' && !adding && onViewEntry() && !leavingEntry) {
+    leavingEntry = true
+    history.back()
+  }
   if (view === 'home') {
     liveDismissed = false
     void startLive()
@@ -1155,7 +1169,7 @@ function renderSheet() {
 function openSheet(id: string, compareTo: string) {
   if (!species.has(id) || !modelClasses) return
   sheetStack.push({ id, compareTo })
-  history.pushState({ view: 'result', sheet: sheetStack.length }, '')
+  pushEntry(sheetStack.length)
   renderSheet()
   if (!sheetDialog.open) sheetDialog.showModal()
 }
@@ -1164,18 +1178,31 @@ function openSheet(id: string, compareTo: string) {
 // back, and closing goes back over all of them. Back from the result (or the wait) goes to
 // the start screen, and back while adding a photo returns to the result.
 window.addEventListener('popstate', () => {
-  const state = history.state as { view?: string; sheet?: number } | null
-  const depth = state?.sheet ?? 0
+  const depth = entry()?.sheet ?? 0
   if (sheetStack.length > depth) {
     sheetStack.length = depth
     if (depth === 0) sheetDialog.close()
     else renderSheet()
   }
-  if (onViewEntry()) return
-  if (adding) {
-    history.pushState({ view: 'result' }, '')
+  if (leavingEntry) {
+    // The back step of a button that went home. A photo picked in between has started
+    // loading without an entry of its own.
+    leavingEntry = false
+    if (currentView !== 'home') pushEntry()
+    return
+  }
+  if (onViewEntry()) {
+    // Forward onto an entry that nothing on screen matches: step back over it.
+    if (depth > sheetStack.length || (currentView === 'home' && !adding)) history.back()
+    return
+  }
+  // Back to the start screen. The webcam dialog may be open on a computer.
+  if (webcamDialog.open) webcamDialog.close()
+  if (adding || (currentView === 'loading' && loadingAdded)) {
+    // Back while adding a photo (or waiting for the added one): the result as it was.
+    latest++
     setAdding(false)
-    show('result')
+    if (shown) render(shown.state, shown.raw)
   } else if (currentView !== 'home') {
     // A photo still being identified is not shown.
     latest++
@@ -1247,6 +1274,8 @@ let asked: State['asked'] = []
 let photoNotice = ''
 // True while the user takes or picks another photo of the same mushroom.
 let adding = false
+// True while the photo being identified is added to the earlier ones.
+let loadingAdded = false
 
 function clearPhotos() {
   for (const p of photos) URL.revokeObjectURL(p.url)
@@ -1258,6 +1287,7 @@ function clearPhotos() {
 async function identify(images: File[]) {
   if (images.length === 0) return
   const add = adding && photos.length > 0
+  loadingAdded = add
   setAdding(false)
   const room = add ? MAX_PHOTOS - photos.length : MAX_PHOTOS
   const chosen = images.slice(0, Math.max(0, room))

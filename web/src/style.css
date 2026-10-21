@@ -237,8 +237,8 @@ svg {
   pointer-events: none;
 }
 
-.drop.live,
-.drop.live.dragging {
+.drop.drawn,
+.drop.drawn.dragging {
   justify-content: flex-start;
   padding-top: 4.75rem;
   background: none;
@@ -247,16 +247,16 @@ svg {
   overflow: visible;
 }
 
-.drop.live .art {
+.drop.drawn .art {
   display: block;
   filter: drop-shadow(0 1.1rem 1.4rem var(--shadow));
 }
 
-.drop.live .mushroom {
+.drop.drawn .mushroom {
   display: none;
 }
 
-.drop.live .drop-text {
+.drop.drawn .drop-text {
   position: relative;
   z-index: 1;
 }

@@ -111,6 +111,18 @@ export const en: Strings = {
   seasonRegion: 'Region when the photo has no location',
   seasonRegionAuto: 'Not chosen',
 
+  findsTitle: 'My finds',
+  findsOpen: (n: number) => `My finds (${n})`,
+  findsSave: 'Save to my finds',
+  findsSaved: 'Saved to my finds.',
+  findsFailed: 'Saving failed. Try again.',
+  findsNote: 'Finds are kept on this device only. They are the app’s suggestions, not confirmed species.',
+  findsEmpty: 'No saved finds.',
+  findsUnknown: 'Unidentified mushroom',
+  findsDanger: (names: string) => `Dangerous lookalikes: ${names}`,
+  findsMap: 'On the map',
+  findsDelete: 'Delete',
+
   aboutText:
     'Seeni does not tell whether a mushroom can be eaten. It suggests species, shows their dangerous lookalikes and guides you to check their features. Photos are processed only on this device, and nothing is sent anywhere. The species information is an unreviewed draft.',
   aboutSourcesHtml: `The model was trained on photos shared through <a href="https://www.gbif.org/">GBIF</a>

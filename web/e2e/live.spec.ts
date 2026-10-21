@@ -45,6 +45,13 @@ test.describe('with a camera', () => {
     await expect(live).toBeHidden()
     expect(await cameraOn(page)).toBe(false)
 
+    // Another photo of the same mushroom goes straight to the shutter.
+    await page.getByRole('button', { name: 'Lisää kuva samasta sienestä' }).click()
+    await expect(page.locator('#live-shutter')).toBeVisible()
+    await expect(page.locator('#live-shutter')).toBeEnabled()
+    await page.locator('#live-shutter').click()
+    await expect(page.locator('#result .shot')).toHaveCount(2, { timeout: 60_000 })
+
     // A new photo brings the camera back, with its shutter off until there is a picture.
     await page.locator('#again').click()
     await expect(live).toBeVisible()

@@ -1,5 +1,5 @@
-// Answering the checks from the keyboard: the pressed answer disappears in the re-render, so
-// focus moves to the next question, or to the result when none is left (not to the page top).
+// Keyboard and screen reader focus in the result: a new result starts from its heading, and a
+// pressed button that a re-render removes hands focus on (not to the page top).
 import { expect, test } from '@playwright/test'
 import { fileURLToPath } from 'node:url'
 
@@ -11,6 +11,8 @@ test('focus follows the checks when answering from the keyboard', async ({ page 
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
   await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  // A new result starts from its heading.
+  await expect(page.locator('#result h2').first()).toBeFocused()
 
   // "Cannot check this" brings the next question, which gets the focus.
   const first = await page.locator('.verify .question').textContent()
@@ -29,4 +31,10 @@ test('focus follows the checks when answering from the keyboard', async ({ page 
     await page.keyboard.press('Enter')
   }
   await expect(page.locator('#result h2').first()).toBeFocused()
+
+  // Saving the find replaces its button: focus goes to the section's heading.
+  await page.getByRole('button', { name: 'Tallenna omiin löytöihin' }).focus()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('.find-saved')).toBeVisible()
+  await expect(page.locator('#result .place h3')).toBeFocused()
 })

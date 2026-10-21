@@ -144,7 +144,7 @@ app.innerHTML = `
     <p id="loading-model" class="loading-model" hidden></p>
   </section>
 
-  <section id="result" class="view" hidden aria-live="polite"></section>
+  <section id="result" class="view" hidden></section>
   </main>
 
   <dialog id="webcam-dialog" data-t-aria="camera">
@@ -297,6 +297,7 @@ if (entry()) history.replaceState(null, '')
 
 function show(view: keyof typeof views) {
   if (inPlace && view === currentView) return
+  const from = currentView
   currentView = view
   if (view !== 'home' && !onViewEntry()) pushEntry()
   // Home from a button: drop the entry, so back from home leaves the app as expected.
@@ -314,6 +315,9 @@ function show(view: keyof typeof views) {
     window.scrollTo(0, 0)
     // Only now, with home shown, does the drop area have a size to draw at.
     dropArt?.setVisible(view === 'home')
+    // A new result starts from its heading for keyboard and screen reader users, who would
+    // otherwise be left on the page top; re-renders of a shown result move focus themselves.
+    if (view === 'result' && from !== 'result') focusResult(result.querySelector('h2'))
   }
   // The photo of the last identification is no longer needed once back home.
   if (view === 'home') setPreview(null)
@@ -672,7 +676,10 @@ function render(state: State | null, raw: Map<string, number>) {
 // the result when no question is left, so a keyboard or screen reader user goes on from
 // there instead of from the top of the page. No scroll, so the view stays where it was.
 function focusAfterAnswer() {
-  const target = result.querySelector<HTMLElement>('.verify .question') ?? result.querySelector<HTMLElement>('h2')
+  focusResult(result.querySelector('.verify .question') ?? result.querySelector('h2'))
+}
+
+function focusResult(target: HTMLElement | null) {
   if (!target) return
   target.tabIndex = -1
   target.focus({ preventScroll: true })
@@ -735,6 +742,8 @@ async function findPlace() {
 // The species is null on the "not sure" screen.
 function placeSection(nimi: string | null): HTMLElement {
   placeBox = el('section', undefined, 'place')
+  // Its buttons replace themselves with a status (saved, failed, the map links): announced.
+  placeBox.setAttribute('aria-live', 'polite')
   placeName = nimi
   fillPlace()
   return placeBox
@@ -744,7 +753,10 @@ function fillPlace(status: 'loading' | 'failed' | null = null) {
   const box = placeBox
   if (!box) return
   const s = t()
+  // The pressed button is replaced: focus goes to the box's heading instead of the page top.
+  const hadFocus = box.contains(document.activeElement)
   box.replaceChildren(el('h3', s.placeTitle))
+  if (hadFocus) focusResult(box.querySelector('h3'))
   if (!place) {
     const save = el('button', status === 'loading' ? s.placeLoading : s.placeSave, 'secondary big')
     save.type = 'button'

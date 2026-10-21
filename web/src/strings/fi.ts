@@ -125,14 +125,18 @@ export const fi = {
   seasonRegion: 'Alue, kun kuvassa ei ole sijaintia',
   seasonRegionAuto: 'Ei valittu',
 
-  // Species guide
+  // Install as an app
   installOpen: 'Asenna sovellukseksi',
   installTitle: 'Asenna Seeni',
   installWhy:
-    'Kotivalikosta avattuna Seeni täyttää koko näytön ja toimii ilman verkkoa, eikä selain poista omia löytöjäsi, vaikka et käyttäisi sitä viikkoon.',
+    'Kotivalikosta avattuna Seeni täyttää koko näytön ja toimii ilman verkkoa, eikä selain poista siihen tallennettuja löytöjä, vaikka et käyttäisi sitä viikkoon.',
+  installFinds:
+    'Kotivalikon Seenillä on omat tietonsa. Siirrä omat löytösi tallentamalla ensin varmuuskopio Omista löydöistä ja palauttamalla se sovelluksessa.',
   installStep1: 'Napauta selaimen Jaa-painiketta (neliö, josta nuoli osoittaa ylös).',
   installStep2: 'Valitse Lisää Koti-valikkoon. Jos sitä ei näy, vieritä valikkoa alaspäin.',
   installStep3: 'Napauta Lisää. Seeni aukeaa jatkossa Koti-valikon kuvakkeesta.',
+
+  // Species guide
   guideTitle: 'Lajiopas',
   guideNote: 'Kaikki lajit, jotka Seeni tunnistaa, ja vaaralliset lajit, joista se varoittaa. Avaa laji, niin näet sen tuntomerkit ja kaksoisolennot.',
   guideSearch: 'Hae lajia',

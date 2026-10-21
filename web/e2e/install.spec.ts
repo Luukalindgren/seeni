@@ -20,12 +20,24 @@ test.describe('on an iPhone', () => {
     await expect(dialog.getByRole('heading')).toHaveText('Asenna Seeni')
     await expect(dialog.locator('li')).toHaveCount(3)
     await expect(dialog).toContainText('Lisää Koti-valikkoon')
+    // With no saved finds, there is nothing to move to the installed app.
+    await expect(page.locator('#install-finds')).toBeHidden()
     await page.locator('#install-close').click()
     await expect(dialog).toBeHidden()
   })
 
   test('offers nothing when opened from the home screen', async ({ page }) => {
     await page.addInitScript(() => Object.defineProperty(navigator, 'standalone', { value: true }))
+    await start(page)
+    await expect(page.locator('#guide-open')).toBeVisible()
+    await expect(page.locator('#install-open')).toBeHidden()
+  })
+})
+
+test.describe('in an in-app browser on an iPhone', () => {
+  test.use({ userAgent: iphone.replace(' Safari/604.1', ' Instagram 300.0') })
+
+  test('offers no steps it cannot follow', async ({ page }) => {
     await start(page)
     await expect(page.locator('#guide-open')).toBeVisible()
     await expect(page.locator('#install-open')).toBeHidden()

@@ -187,6 +187,7 @@ app.innerHTML = `
     </div>
     <h2 id="install-title" data-t="installTitle"></h2>
     <p class="fine" data-t="installWhy"></p>
+    <p id="install-finds" class="fine" hidden data-t="installFinds"></p>
     <ol class="install-steps">
       <li data-t="installStep1"></li>
       <li data-t="installStep2"></li>
@@ -1181,7 +1182,13 @@ guideSearch.addEventListener('input', renderGuide)
 // prompt; on iPhones and iPads the dialog tells how to add Seeni from the Share menu.
 const installDialog = $<HTMLDialogElement>('#install')
 const installOpeners = [$<HTMLButtonElement>('#install-open'), $<HTMLButtonElement>('#live-install')]
-const isIos = /iPhone|iPad/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)
+// Safari and the other iOS browsers have Add to Home Screen in the Share menu; in-app
+// browsers (Facebook, Instagram, …) do not, and their user agents lack "Safari/".
+const ua = navigator.userAgent
+const isIos =
+  (/iPhone|iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) &&
+  /Safari\//.test(ua) &&
+  !/FBAN|FBAV|Instagram|Line\//.test(ua)
 const installed = () =>
   matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true
 let installPrompt: (Event & { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> }) | null = null
@@ -1203,11 +1210,17 @@ async function openInstall() {
   if (installPrompt) {
     const prompt = installPrompt
     installPrompt = null // a prompt can be shown only once
-    await prompt.prompt()
-    await prompt.userChoice.catch(() => undefined)
     showInstall()
+    try {
+      await prompt.prompt()
+      await prompt.userChoice
+    } catch {
+      // Refused, e.g. already used: the link stays hidden until the browser offers it again.
+    }
     return
   }
+  // An installed app on an iPhone has storage of its own: the finds move only by a backup.
+  $('#install-finds').hidden = (await countFinds().catch(() => 0)) === 0
   if (!installDialog.open) installDialog.showModal()
 }
 $('#install-open').addEventListener('click', () => void openInstall())
@@ -1707,7 +1720,7 @@ function gust(on: boolean) {
 const drop = $('#drop')
 let dragDepth = 0
 window.addEventListener('dragenter', (e) => {
-  if (!e.dataTransfer?.types.includes('Files') || !consented || webcamDialog.open || sheetDialog.open || guideDialog.open || findsDialog.open || installDialog.open) return
+  if (!e.dataTransfer?.types.includes('Files') || !consented || document.querySelector('dialog[open]')) return
   dragDepth++
   drop.classList.add('dragging')
   gust(true)
@@ -1731,7 +1744,7 @@ window.addEventListener('drop', (e) => {
   drop.classList.remove('dragging')
   gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (!consented || webcamDialog.open || sheetDialog.open || guideDialog.open || findsDialog.open || installDialog.open) return
+  if (!consented || document.querySelector('dialog[open]')) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)
   void identify(images)
 })
@@ -1739,7 +1752,7 @@ window.addEventListener('drop', (e) => {
 // Pasting an image from the clipboard identifies it too.
 window.addEventListener('paste', (e) => {
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (!consented || webcamDialog.open || sheetDialog.open || guideDialog.open || findsDialog.open || installDialog.open) return
+  if (!consented || document.querySelector('dialog[open]')) return
   const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
   if (images.length === 0) return
   e.preventDefault()

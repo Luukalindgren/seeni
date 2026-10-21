@@ -8,7 +8,7 @@ import * as ort from 'onnxruntime-web/wasm'
 import wasmUrl from 'onnxruntime-web/ort-wasm-simd-threaded.wasm?url'
 
 import { softmax } from './flow.ts'
-import { loadFiles, MODEL_VERSION, type ModelFiles } from './modelFiles.ts'
+import { DownloadError, loadFiles, MODEL_VERSION, type ModelFiles } from './modelFiles.ts'
 import { preprocess, type Pixels } from './preprocess.ts'
 
 const MAX_SHORT_SIDE = 1024
@@ -16,9 +16,25 @@ const MAX_SHORT_SIDE = 1024
 /** Bytes downloaded so far, of about `total`. */
 export type Progress = (loaded: number, total: number) => void
 
+export { DownloadError }
+
+/** A network error (fetch and stream reads reject with a TypeError) as a DownloadError. */
+function retryable(e: unknown, what: string): unknown {
+  return e instanceof TypeError ? new DownloadError(`${what}: ${String(e)}`) : e
+}
+
 /** The whole file, counting the bytes as they arrive. */
-async function download(url: string, onBytes: (n: number) => void): Promise<Uint8Array> {
-  const response = await fetch(url)
+async function download(url: string, onBytes: (n: number) => void, signal: AbortSignal): Promise<Uint8Array> {
+  try {
+    return await fetchAll(url, onBytes, signal)
+  } catch (e) {
+    throw retryable(e, url)
+  }
+}
+
+async function fetchAll(url: string, onBytes: (n: number) => void, signal: AbortSignal): Promise<Uint8Array> {
+  const response = await fetch(url, { signal })
+  if (response.status >= 500) throw new DownloadError(`${url}: HTTP ${response.status}`)
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`)
   if (!response.body) {
     const bytes = new Uint8Array(await response.arrayBuffer())
@@ -96,11 +112,21 @@ export class Classifier {
     const counted = (n: number) => {
       if (!settled) onProgress?.((loaded += n), __LOAD_BYTES__)
     }
+    // When one download fails, the other one stops too, so that a new try does not compete
+    // with it for the connection.
+    const abort = new AbortController()
     const [files, wasm, model] = await Promise.all([
-      loadFiles(base),
-      download(wasmUrl, counted),
-      download(`${base}models/${MODEL_VERSION}/model.onnx`, counted),
-    ]).finally(() => (settled = true))
+      loadFiles(base).catch((e: unknown) => {
+        throw retryable(e, 'labels.json, preprocess.json, calibration.json')
+      }),
+      download(wasmUrl, counted, abort.signal),
+      download(`${base}models/${MODEL_VERSION}/model.onnx`, counted, abort.signal),
+    ])
+      .catch((e: unknown) => {
+        abort.abort()
+        throw e
+      })
+      .finally(() => (settled = true))
     ort.env.wasm.wasmBinary = wasm
     let lastError: unknown
     for (const provider of providers) {
@@ -116,6 +142,7 @@ export class Classifier {
         lastError = e
       }
     }
+    ort.env.wasm.wasmBinary = undefined
     throw lastError
   }
 

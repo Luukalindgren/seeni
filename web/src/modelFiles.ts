@@ -11,9 +11,14 @@ export interface ModelFiles {
   calibration: Calibration
 }
 
+/** A file that could not be downloaded because of the connection or the server (a network
+ * error or HTTP 5xx), not because it is missing: worth trying again. */
+export class DownloadError extends Error {}
+
 export async function loadFiles(base: string): Promise<ModelFiles> {
   const get = async (name: string) => {
     const response = await fetch(`${base}models/${MODEL_VERSION}/${name}`)
+    if (response.status >= 500) throw new DownloadError(`${name}: HTTP ${response.status}`)
     if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`)
     return response.json()
   }

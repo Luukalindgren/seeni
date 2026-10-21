@@ -180,6 +180,7 @@ $('#info').addEventListener('click', () => {
 // (private mode) the warning shows on every visit.
 
 const CONSENT_KEY = 'seeni-consent'
+// Raise when the warning text changes, so that everyone has to accept it again.
 const CONSENT_VERSION = 1
 const dialog = $<HTMLDialogElement>('#warning')
 const consentCheck = $<HTMLInputElement>('#consent-check')
@@ -196,8 +197,10 @@ function hasConsent(): boolean {
 consentCheck.addEventListener('change', () => {
   accept.disabled = !consentCheck.checked
 })
+let consented = hasConsent()
 accept.addEventListener('click', () => {
   if (!consentCheck.checked) return
+  consented = true
   try {
     localStorage.setItem(CONSENT_KEY, JSON.stringify({ version: CONSENT_VERSION, acceptedAt: new Date().toISOString() }))
   } catch {
@@ -205,9 +208,13 @@ accept.addEventListener('click', () => {
   }
   dialog.close()
 })
-// Escape must not close it; browsers without `closedby` would otherwise allow that.
+// Escape must not close it; browsers without `closedby` would otherwise allow that. Some
+// browsers close it anyway (a back gesture before any tap), so it opens again until accepted.
 dialog.addEventListener('cancel', (e) => e.preventDefault())
-if (!hasConsent()) dialog.showModal()
+dialog.addEventListener('close', () => {
+  if (!consented) dialog.showModal()
+})
+if (!consented) dialog.showModal()
 
 // --- Model in a worker -------------------------------------------------------------------
 
@@ -537,7 +544,7 @@ function gust(on: boolean) {
 const drop = $('#drop')
 let dragDepth = 0
 window.addEventListener('dragenter', (e) => {
-  if (!e.dataTransfer?.types.includes('Files') || dialog.open || webcamDialog.open) return
+  if (!e.dataTransfer?.types.includes('Files') || !consented || webcamDialog.open) return
   dragDepth++
   drop.classList.add('dragging')
   gust(true)
@@ -561,7 +568,7 @@ window.addEventListener('drop', (e) => {
   drop.classList.remove('dragging')
   gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (dialog.open || webcamDialog.open) return
+  if (!consented || webcamDialog.open) return
   const images = Array.from(e.dataTransfer.files).filter(isImage)
   void identify(images)
 })
@@ -569,7 +576,7 @@ window.addEventListener('drop', (e) => {
 // Pasting an image from the clipboard identifies it too.
 window.addEventListener('paste', (e) => {
   // The warning has to be accepted first, and the webcam dialog covers the page.
-  if (dialog.open || webcamDialog.open) return
+  if (!consented || webcamDialog.open) return
   const images = Array.from(e.clipboardData?.files ?? []).filter(isImage)
   if (images.length === 0) return
   e.preventDefault()

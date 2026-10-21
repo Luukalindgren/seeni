@@ -14,6 +14,9 @@ test('asks for consent first, then identifies a mushroom offline without sending
   // The consent cannot be skipped: Escape does nothing and the button waits for the checkbox.
   await page.keyboard.press('Escape')
   await expect(page.locator('#warning')).toBeVisible()
+  // Even if a browser closes it without the button, it opens again.
+  await page.evaluate(() => document.querySelector<HTMLDialogElement>('#warning')!.close())
+  await expect(page.locator('#warning')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Hyväksyn' })).toBeDisabled()
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()

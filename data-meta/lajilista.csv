@@ -29,7 +29,7 @@ russula-claroflava,Russula claroflava,keltahapero,2551299,syötävä,tricholoma-
 russula-vinosa,Russula vinosa,viinihapero,2551182,syötävä,,true,
 hygrophorus-camarophyllus,Hygrophorus camarophyllus,mustavahakas,2538720,syötävä,,true,
 cortinarius-caperatus,Cortinarius caperatus,kehnäsieni,2529415,syötävä,cortinarius-rubellus;cortinarius-orellanus,true,"Ruokaviraston nimeämät näköislajit ovat myrkyttömiä seitikkejä. Suippumyrkkyseitikki lisätty varmuuden vuoksi. Muut seitikit kuuluvat muu-luokkaan. Lehtomyrkkyseitikki lisätty varoitukseksi (vaihe 7), koska se on ruosteitiöinen seitikki; tarkista."
-cantharellus-cibarius,Cantharellus cibarius,kantarelli,5249504,syötävä,hygrophoropsis-aurantiaca,true,Ruokavirasto: keltavahvero eli kantarelli. GBIF ja laji.fi käyttävät nimeä keltavahvero.
+cantharellus-cibarius,Cantharellus cibarius,kantarelli,5249504,syötävä,hygrophoropsis-aurantiaca;cortinarius-orellanus,true,Ruokavirasto: keltavahvero eli kantarelli. GBIF ja laji.fi käyttävät nimeä keltavahvero. Lehtomyrkkyseitikki lisätty varoitukseksi (vaihe 7): malli sekoitti sen kantarelliin.
 hygrophoropsis-aurantiaca,Hygrophoropsis aurantiaca,valevahvero,2525710,ei ruokasieni,cantharellus-cibarius,true,
 craterellus-tubaeformis-agg,Craterellus tubaeformis,suppilovahvero,2554536,syötävä,cortinarius-rubellus,true,Ruokavirasto: kosteikkovahvero saa kuulua joukkoon. Ruokavirasto käyttää vanhaa nimeä Cantharellus tubaeformis.
 craterellus-tubaeformis-agg,Craterellus lutescens,kosteikkovahvero,8871787,syötävä,,true,

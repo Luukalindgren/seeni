@@ -39,11 +39,26 @@ class Spec:
     decurrent: float = 0.0  # how far the lines run down the stem (fraction of its length)
     cap_fibres: float = 0.0  # radial fibres on the cap top
     stem_fibres: str | None = None  # colour of fibres on the stem
+    # Veil remnants on the cap: {"colour", "count", "size" (radius), "relief" (0..1)}.
+    spots: dict | None = None
+    # Stripes across a region, e.g. the warty rings on a bulb: {"region", "count", "colour"}.
+    bands: dict | None = None
+    volva_lobes: float = 0.0  # waviness of a sac volva's free rim (radius)
+    rings: int = 120  # mesh resolution along the profile
 
 
 def rgb(h: str) -> np.ndarray:
     return np.array([int(h[i : i + 2], 16) for i in (1, 3, 5)], np.float64) / 255
 
+
+AMANITA_LINES = {
+    "count": 110,
+    "width": 0.3,
+    "depth": 0.003,
+    "fork": False,
+    "colour": "#e2ded2",
+    "highlight": "#ffffff",
+}
 
 SPECS = {
     # Kantarelli: the whole mushroom egg-yolk yellow; a funnel cap with a wavy, rounded
@@ -179,6 +194,252 @@ SPECS = {
         cap_fibres=0.10,
         stem_fibres="#a4512b",
     ),
+    # Punakärpässieni: a bright red cap, flat to convex, with white warts; white free gills;
+    # a white stem with a hanging white ring; a rounded bulb ringed with white warts.
+    "amanita-muscaria": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.09, 0.006, "volva"),
+            (0.135, 0.05, "volva"),
+            (0.125, 0.11, "volva"),
+            (0.085, 0.15, "stem"),
+            (0.07, 0.24, "stem"),
+            (0.064, 0.50, "ring"),
+            (0.068, 0.555, "ring"),
+            (0.095, 0.53, "ring"),
+            (0.118, 0.47, "ring"),
+            (0.11, 0.465, "ring"),
+            (0.085, 0.53, "stem"),
+            (0.064, 0.56, "stem"),
+            (0.06, 0.66, "gills"),
+            (0.07, 0.675, "gills"),
+            (0.20, 0.69, "gills"),
+            (0.34, 0.705, "gills"),
+            (0.41, 0.72, "margin"),
+            (0.425, 0.75, "margin"),
+            (0.41, 0.79, "top"),
+            (0.33, 0.85, "top"),
+            (0.20, 0.885, "top"),
+            (0.0, 0.90, "top"),
+        ],
+        colours={
+            "base": ("#e9e4d6", "#f2eee2"),
+            "volva": ("#e9dfc4", "#efe6cf"),
+            "stem": ("#f4f1e6", "#fbf9f2"),
+            "ring": ("#fbf9f1", "#efeadc"),
+            "gills": ("#f6f2e6", "#fbf8ee"),
+            "margin": ("#f0d79a", "#e3402a"),
+            "top": ("#dc2a1c", "#c41e14"),
+        },
+        lines=AMANITA_LINES,
+        lobes=0.025,
+        lift=0.015,
+        lobe_count=(4, 7, 11),
+        bend=0.03,
+        seed=11,
+        tilt=0.05,
+        spots={"colour": "#fbf7ea", "count": 70, "size": 0.026, "relief": 0.7},
+        bands={"region": "volva", "count": 3, "colour": "#fffdf5"},
+        rings=160,
+    ),
+    # Pantterikärpässieni: a brown cap with small, pure white warts; white free gills; a white
+    # stem with a ring that does not hang much; a bulb with a sharp collar-like rim.
+    "amanita-pantherina": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.08, 0.006, "volva"),
+            (0.115, 0.045, "volva"),
+            (0.11, 0.09, "volva"),
+            (0.12, 0.105, "volva"),
+            (0.085, 0.11, "stem"),
+            (0.065, 0.16, "stem"),
+            (0.058, 0.45, "ring"),
+            (0.062, 0.50, "ring"),
+            (0.09, 0.48, "ring"),
+            (0.098, 0.465, "ring"),
+            (0.075, 0.48, "stem"),
+            (0.058, 0.51, "stem"),
+            (0.055, 0.60, "gills"),
+            (0.065, 0.615, "gills"),
+            (0.19, 0.63, "gills"),
+            (0.32, 0.645, "gills"),
+            (0.38, 0.66, "margin"),
+            (0.39, 0.685, "margin"),
+            (0.375, 0.72, "top"),
+            (0.30, 0.775, "top"),
+            (0.18, 0.80, "top"),
+            (0.0, 0.81, "top"),
+        ],
+        colours={
+            "base": ("#e6e0d0", "#efe9da"),
+            "volva": ("#f1ece0", "#fbf8f0"),
+            "stem": ("#f3f0e6", "#faf8f1"),
+            "ring": ("#faf8f1", "#ece6d6"),
+            "gills": ("#f6f3ea", "#fbf9f2"),
+            "margin": ("#c9b08a", "#8a6a45"),
+            "top": ("#7f5e3c", "#5e4128"),
+        },
+        lines=AMANITA_LINES,
+        lobes=0.02,
+        lift=0.012,
+        lobe_count=(4, 7, 11),
+        bend=0.03,
+        seed=13,
+        tilt=0.04,
+        spots={"colour": "#fdfcf6", "count": 110, "size": 0.014, "relief": 0.6},
+        rings=160,
+    ),
+    # Kuningaskärpässieni: a liver-brown cap with yellowish-grey warts; white gills; a pale
+    # stem with a ring; a bulb ringed with yellowish-brown warts.
+    "amanita-regalis": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.09, 0.006, "volva"),
+            (0.14, 0.05, "volva"),
+            (0.13, 0.115, "volva"),
+            (0.09, 0.16, "stem"),
+            (0.075, 0.25, "stem"),
+            (0.068, 0.52, "ring"),
+            (0.072, 0.575, "ring"),
+            (0.10, 0.55, "ring"),
+            (0.122, 0.49, "ring"),
+            (0.114, 0.485, "ring"),
+            (0.09, 0.55, "stem"),
+            (0.068, 0.58, "stem"),
+            (0.064, 0.68, "gills"),
+            (0.075, 0.695, "gills"),
+            (0.21, 0.71, "gills"),
+            (0.35, 0.725, "gills"),
+            (0.43, 0.74, "margin"),
+            (0.445, 0.77, "margin"),
+            (0.43, 0.81, "top"),
+            (0.34, 0.87, "top"),
+            (0.20, 0.905, "top"),
+            (0.0, 0.92, "top"),
+        ],
+        colours={
+            "base": ("#d8c9a2", "#e2d4ae"),
+            "volva": ("#e6d9b6", "#efe6cc"),
+            "stem": ("#efe8d4", "#f6f1e4"),
+            "ring": ("#f4efe0", "#e6dcc2"),
+            "gills": ("#f6f2e6", "#fbf8ee"),
+            "margin": ("#a77a48", "#7c5330"),
+            "top": ("#76502c", "#5a3a1e"),
+        },
+        lines=AMANITA_LINES,
+        lobes=0.025,
+        lift=0.015,
+        lobe_count=(4, 7, 11),
+        bend=0.03,
+        seed=17,
+        tilt=0.05,
+        spots={"colour": "#d9cf9a", "count": 80, "size": 0.024, "relief": 0.7},
+        bands={"region": "volva", "count": 3, "colour": "#c9b277"},
+        rings=160,
+    ),
+    # Kavalakärpässieni: an olive-green to yellowish-green cap with dark radial fibres and no
+    # warts; white free gills; a white stem with a ring; a large white sac-like volva.
+    "amanita-phalloides": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.10, 0.008, "volva"),
+            (0.14, 0.06, "volva"),
+            (0.145, 0.13, "volva"),
+            (0.155, 0.175, "volva"),
+            (0.135, 0.18, "volva"),
+            (0.10, 0.12, "volva"),
+            (0.08, 0.08, "stem"),
+            (0.072, 0.12, "stem"),
+            (0.064, 0.50, "ring"),
+            (0.068, 0.555, "ring"),
+            (0.095, 0.53, "ring"),
+            (0.116, 0.47, "ring"),
+            (0.108, 0.465, "ring"),
+            (0.085, 0.53, "stem"),
+            (0.064, 0.56, "stem"),
+            (0.06, 0.66, "gills"),
+            (0.07, 0.675, "gills"),
+            (0.20, 0.69, "gills"),
+            (0.33, 0.705, "gills"),
+            (0.395, 0.72, "margin"),
+            (0.41, 0.75, "margin"),
+            (0.395, 0.795, "top"),
+            (0.31, 0.86, "top"),
+            (0.18, 0.895, "top"),
+            (0.0, 0.91, "top"),
+        ],
+        colours={
+            "base": ("#e8e4d8", "#efebe0"),
+            "volva": ("#f2efe6", "#e8e3d4"),
+            "stem": ("#efeee2", "#f7f6ee"),
+            "ring": ("#f8f7ef", "#e9e7da"),
+            "gills": ("#f6f5ec", "#fbfaf3"),
+            "margin": ("#c9c98a", "#a7a85a"),
+            "top": ("#9a9c4c", "#6f7234"),
+        },
+        lines=AMANITA_LINES,
+        lobes=0.02,
+        lift=0.012,
+        lobe_count=(4, 7, 11),
+        bend=0.03,
+        seed=19,
+        tilt=0.05,
+        cap_fibres=0.12,
+        volva_lobes=0.05,
+        rings=170,
+    ),
+    # Valkokärpässieni: pure white all over; a bell-shaped to conical cap; a ragged ring; a
+    # shaggy stem; a white sac-like volva.
+    "amanita-virosa": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.09, 0.008, "volva"),
+            (0.125, 0.06, "volva"),
+            (0.13, 0.12, "volva"),
+            (0.14, 0.16, "volva"),
+            (0.12, 0.165, "volva"),
+            (0.09, 0.11, "volva"),
+            (0.072, 0.075, "stem"),
+            (0.064, 0.12, "stem"),
+            (0.056, 0.56, "ring"),
+            (0.06, 0.61, "ring"),
+            (0.082, 0.59, "ring"),
+            (0.104, 0.525, "ring"),
+            (0.097, 0.52, "ring"),
+            (0.075, 0.585, "stem"),
+            (0.056, 0.615, "stem"),
+            (0.054, 0.70, "gills"),
+            (0.064, 0.715, "gills"),
+            (0.17, 0.725, "gills"),
+            (0.28, 0.735, "gills"),
+            (0.335, 0.745, "margin"),
+            (0.345, 0.775, "margin"),
+            (0.31, 0.85, "top"),
+            (0.23, 0.95, "top"),
+            (0.12, 1.02, "top"),
+            (0.04, 1.045, "top"),
+            (0.0, 1.05, "top"),
+        ],
+        colours={
+            "base": ("#e9e7e0", "#f0eee8"),
+            "volva": ("#f4f3ee", "#e8e6de"),
+            "stem": ("#f3f2ec", "#fbfbf7"),
+            "ring": ("#fbfbf6", "#e8e6dc"),
+            "gills": ("#f8f8f2", "#fdfdf9"),
+            "margin": ("#f6f5ee", "#fbfbf6"),
+            "top": ("#fcfcf7", "#f1efe4"),
+        },
+        lines=AMANITA_LINES,
+        lobes=0.03,
+        lift=0.02,
+        lobe_count=(3, 5, 9),
+        bend=0.04,
+        seed=23,
+        tilt=0.06,
+        stem_fibres="#dcd9cc",
+        volva_lobes=0.045,
+        rings=170,
+    ),
 }
 
 
@@ -256,7 +517,7 @@ def noise(shape, cells, rng, stretch=(1, 1)) -> np.ndarray:
     return a / 127.5 - 1
 
 
-def paint(spec: Spec, region_rows: np.ndarray, gill_t: np.ndarray):
+def paint(spec: Spec, region_rows: np.ndarray, gill_t: np.ndarray, r_rows=None, length=1.0):
     rng = np.random.default_rng(spec.seed)
     h = w = TEX
     tex = np.zeros((h, w, 3))
@@ -317,7 +578,63 @@ def paint(spec: Spec, region_rows: np.ndarray, gill_t: np.ndarray):
     fib = noise((h, w), 260, rng, stretch=(1, 40))
     stem = region_rows == "stem"
     tex[stem] *= (1 + 0.04 * fib[stem])[..., None]
+    if spec.bands:
+        paint_bands(tex, spec.bands, region_rows, rng)
+    if spec.spots:
+        paint_spots(tex, spec.spots, region_rows, r_rows, length, rng)
     return np.clip(tex, 0, 1)
+
+
+def paint_bands(tex, bands: dict, region_rows, rng) -> None:
+    idx = np.where(region_rows == bands["region"])[0]
+    if not len(idx):
+        return
+    w = tex.shape[1]
+    f = (idx - idx[0]) / max(len(idx) - 1, 1)
+    edge = noise((len(idx), w), 40, rng, stretch=(1, 4)) * 0.25
+    stripe = np.sin(f[:, None] * np.pi * 2 * bands["count"] + edge * 3)
+    a = np.clip((stripe - 0.35) / 0.4, 0, 1)[..., None] * 0.8
+    tex[idx] = tex[idx] * (1 - a) + rgb(bands["colour"]) * a
+
+
+def paint_spots(tex, spots: dict, region_rows, r_rows, length, rng) -> None:
+    """Irregular flat patches on the cap top, sized in model units so they keep their size
+    towards the cap centre; each casts a faint shadow below it, like a drawn wart."""
+    h, w = tex.shape[:2]
+    top = np.where(region_rows == "top")[0]
+    if not len(top):
+        return
+    weight = r_rows[top] / r_rows[top].sum()
+    u = (np.arange(w) + 0.5) / w
+    colour = rgb(spots["colour"])
+    shadow = np.zeros((h, w))
+    cover = np.zeros((h, w))
+    for _ in range(spots["count"]):
+        row0 = rng.choice(top, p=weight)
+        u0 = rng.uniform(0, 1)
+        rad = spots["size"] * rng.uniform(0.6, 1.4)
+        stretch = rng.uniform(0.7, 1.3)
+        span = int(np.ceil(rad * 1.6 / length * h)) + 1
+        rows = np.arange(max(row0 - span, top[0]), min(row0 + span, top[-1]) + 1)
+        du = (u[None] - u0 + 0.5) % 1.0 - 0.5
+        dx = du * 2 * np.pi * np.maximum(r_rows[rows], 1e-3)[:, None]
+        dy = ((rows - row0) / h * length)[:, None]
+        d = np.sqrt((dx * stretch) ** 2 + (dy / stretch) ** 2)
+        ang = np.arctan2(dy, dx)
+        wob = (
+            1
+            + 0.1 * np.sin(ang * 2 + rng.uniform(0, 6))
+            + 0.06 * np.sin(ang * 3 + rng.uniform(0, 6))
+        )
+        cover[rows] = np.maximum(cover[rows], np.clip((rad * wob - d) / (rad * 0.25), 0, 1))
+        ds = np.sqrt((dx * stretch) ** 2 + ((dy + rad * 0.35) / stretch) ** 2)
+        shadow[rows] = np.maximum(
+            shadow[rows], np.clip((rad * 1.15 * wob - ds) / (rad * 0.4), 0, 1)
+        )
+    relief = spots.get("relief", 0.5)
+    tex *= (1 - 0.25 * relief * shadow * (1 - cover))[..., None]
+    grain = 1 + 0.06 * noise((h, w), 200, rng)
+    tex[:] = tex * (1 - cover[..., None]) + (colour * grain[..., None]) * cover[..., None]
 
 
 # --- Mesh --------------------------------------------------------------------------------
@@ -328,7 +645,8 @@ def ring_of_rows(rings: int) -> np.ndarray:
     return np.clip((np.arange(TEX) + 0.5) / TEX * (rings - 1), 0, rings - 1).round().astype(int)
 
 
-def build(spec: Spec, rings: int = 120, segments: int = 150):
+def build(spec: Spec, rings: int | None = None, segments: int = 150):
+    rings = rings or spec.rings
     rng = np.random.default_rng(spec.seed)
     r, y, region, s = resample(spec, rings)
     # t along the underside: 0 at the stem, 1 at the margin.
@@ -347,7 +665,8 @@ def build(spec: Spec, rings: int = 120, segments: int = 150):
     tang = np.gradient(np.stack([r, y], 1), axis=0)
     tang /= np.linalg.norm(tang, axis=1, keepdims=True).clip(1e-9)
     n2 = np.stack([tang[:, 1], -tang[:, 0]], 1)
-    if n2[len(r) // 5, 0] < 0:
+    # Outward is up on the cap top (the profile folds back on itself at a ring or volva).
+    if n2[region == "top", 1].sum() < 0:
         n2 = -n2
 
     theta = np.linspace(0, 2 * np.pi, segments + 1)
@@ -360,6 +679,13 @@ def build(spec: Spec, rings: int = 120, segments: int = 150):
     rmax = r.max()
     cap = np.isin(region, ["gills", "margin", "top"])
     wcap = np.where(cap, (r / rmax) ** 2.5, 0.0)
+    # A sac volva's free rim is torn into lobes, more towards its top.
+    volva = region == "volva"
+    if spec.volva_lobes and volva.any():
+        ytop = y[volva].max()
+        wcap = wcap + np.where(
+            volva, spec.volva_lobes / max(spec.lobes, 1e-6) * (y / ytop) ** 3, 0.0
+        )
     stem_top = y[gill_idx[0]] if len(gill_idx) else y.max()
 
     R = r[:, None] * (1 + spec.lobes * wcap[:, None] * wave_r[None])
@@ -407,7 +733,8 @@ def build(spec: Spec, rings: int = 120, segments: int = 150):
     uv = np.stack(np.meshgrid(u, s), -1).reshape(-1, 2)
     # Each texture row takes its nearest ring, so regions and line t never blend across a border.
     ring = ring_of_rows(rings)
-    tex = paint(spec, region[ring], t[ring])
+    total = float(np.sum(np.linalg.norm(np.diff(np.stack([r, y], 1), axis=0), axis=1)))
+    tex = paint(spec, region[ring], t[ring], r[ring], total)
     return pos.astype(np.float32), nrm.astype(np.float32), uv.astype(np.float32), faces, tex
 
 

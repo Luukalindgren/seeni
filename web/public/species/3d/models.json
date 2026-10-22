@@ -10,5 +10,25 @@
  "cortinarius-orellanus": {
   "file": "cortinarius-orellanus-drawn.glb",
   "drawn": true
+ },
+ "amanita-muscaria": {
+  "file": "amanita-muscaria-drawn.glb",
+  "drawn": true
+ },
+ "amanita-pantherina": {
+  "file": "amanita-pantherina-drawn.glb",
+  "drawn": true
+ },
+ "amanita-regalis": {
+  "file": "amanita-regalis-drawn.glb",
+  "drawn": true
+ },
+ "amanita-phalloides": {
+  "file": "amanita-phalloides-drawn.glb",
+  "drawn": true
+ },
+ "amanita-virosa": {
+  "file": "amanita-virosa-drawn.glb",
+  "drawn": true
  }
 }

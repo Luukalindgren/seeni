@@ -95,13 +95,13 @@ svg {
   gap: 0.6rem;
   font-size: 1.4rem;
   font-weight: 800;
-  color: var(--moss);
+  color: var(--fg);
   letter-spacing: -0.01em;
   margin-right: auto;
 }
 
 .logo img {
-  border-radius: 0.6rem;
+  display: block;
 }
 
 /* On a phone the "Uusi kuva" button leaves no room for the name next to the icon: the name
@@ -153,6 +153,13 @@ svg {
   border: 1.5px solid var(--line);
   background: var(--card);
   color: var(--fg);
+}
+
+/* Keyboard focus in the theme's moss green, not the browser's blue. */
+.round:focus-visible,
+.pill:focus-visible {
+  outline: 3px solid var(--moss);
+  outline-offset: 2px;
 }
 
 /* Home */
@@ -411,6 +418,13 @@ dialog {
   max-width: min(30rem, calc(100vw - 2rem));
   background: var(--card);
   color: var(--fg);
+}
+
+/* The list dialogs and the species sheet take focus themselves when they open (autofocus),
+   so no button gets the browser's blue focus ring on a tap or click (#118). */
+dialog:focus,
+dialog:focus-visible {
+  outline: none;
 }
 
 dialog::backdrop {
@@ -1733,6 +1747,11 @@ figure:not(.has-model) .model3d-badge {
   overflow-y: auto;
   padding-top: 0.75rem;
 }
+/* The guide keeps its top edge in place while a search shortens the list: only the bottom
+   moves up (#119). A centred dialog would jump up and down with every letter. */
+#guide {
+  margin-top: 0.75rem;
+}
 #finds .sheet-top,
 #guide .sheet-top,
 #install .sheet-top {
@@ -1849,6 +1868,21 @@ figure:not(.has-model) .model3d-badge {
   border-radius: 999px;
   background: var(--bg);
   color: var(--fg);
+}
+/* The theme's moss instead of the browser's blue focus ring and clear button (#118). */
+#guide-search:focus-visible {
+  outline: none;
+  border-color: var(--moss);
+  box-shadow: 0 0 0 1px var(--moss);
+}
+#guide-search::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  background: var(--muted);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center / contain no-repeat;
+  cursor: pointer;
 }
 
 /* "Not sure", with dangerous species the photo still resembles. */

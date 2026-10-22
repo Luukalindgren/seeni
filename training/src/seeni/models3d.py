@@ -47,6 +47,8 @@ class Spec:
     rings: int = 120  # mesh resolution along the profile
     # Brain-like folds over the cap: {"depth", "cells"}; grooves follow the noise's zero lines.
     wrinkles: dict | None = None
+    # A net over the top of the stem: {"colour", "cells", "reach", "stretch", "strength"}.
+    stem_net: dict | None = None
 
 
 def rgb(h: str) -> np.ndarray:
@@ -1547,6 +1549,496 @@ SPECS = {
         tilt=0.04,
         rings=150,
     ),
+    # Herkkutatit: a brown, bun-shaped cap; white pores turning yellowish-green; a thick,
+    # pale, club-shaped stem with a fine white net at the top.
+    "boletus-edulis-agg": Spec(
+        profile=[
+            (0.000, 0.000, "base"),
+            (0.102, 0.006, "base"),
+            (0.170, 0.060, "stem"),
+            (0.162, 0.160, "stem"),
+            (0.137, 0.320, "stem"),
+            (0.127, 0.470, "stem"),
+            (0.133, 0.520, "gills"),
+            (0.275, 0.530, "gills"),
+            (0.380, 0.545, "gills"),
+            (0.420, 0.565, "margin"),
+            (0.432, 0.600, "margin"),
+            (0.420, 0.660, "top"),
+            (0.344, 0.730, "top"),
+            (0.210, 0.775, "top"),
+            (0.000, 0.790, "top"),
+        ],
+        colours={
+            "base": ("#c8b28a", "#d8c6a2"),
+            "stem": ("#d8c6a2", "#efe6d0"),
+            "gills": ("#ece6c4", "#dcd8a0"),
+            "margin": ("#c4a072", "#9a6a3e"),
+            "top": ("#9a6a3e", "#7a4e2a"),
+        },
+        lines={
+            "kind": "pores",
+            "count": 150,
+            "rows": 26,
+            "width": 0.55,
+            "depth": -0.004,
+            "fork": False,
+            "colour": "#b4ae7a",
+            "highlight": "#dcd8a0",
+        },
+        lobes=0.025,
+        lift=0.02,
+        lobe_count=(3, 5, 8),
+        bend=0.03,
+        seed=151,
+        tilt=0.05,
+        stem_net={"colour": "#fbf7ee", "cells": 500, "reach": 0.45, "stretch": 2.5},
+    ),
+    # Sappitatti: a tan to olive-brown cap; pores white at first, then pink; a stem with a
+    # coarse dark brown net.
+    "tylopilus-felleus": Spec(
+        profile=[
+            (0.000, 0.000, "base"),
+            (0.102, 0.006, "base"),
+            (0.170, 0.060, "stem"),
+            (0.162, 0.160, "stem"),
+            (0.137, 0.320, "stem"),
+            (0.127, 0.470, "stem"),
+            (0.133, 0.520, "gills"),
+            (0.275, 0.530, "gills"),
+            (0.380, 0.545, "gills"),
+            (0.420, 0.565, "margin"),
+            (0.432, 0.600, "margin"),
+            (0.420, 0.660, "top"),
+            (0.344, 0.730, "top"),
+            (0.210, 0.775, "top"),
+            (0.000, 0.790, "top"),
+        ],
+        colours={
+            "base": ("#a88a5a", "#c8ac7c"),
+            "stem": ("#c8ac7c", "#d8c08e"),
+            "gills": ("#e8d6cc", "#e2c4bc"),
+            "margin": ("#c4a47a", "#a8875e"),
+            "top": ("#a8875e", "#8a6a44"),
+        },
+        lines={
+            "kind": "pores",
+            "count": 150,
+            "rows": 26,
+            "width": 0.55,
+            "depth": -0.004,
+            "fork": False,
+            "colour": "#c09a92",
+            "highlight": "#e2c4bc",
+        },
+        lobes=0.025,
+        lift=0.02,
+        lobe_count=(3, 5, 8),
+        bend=0.03,
+        seed=157,
+        tilt=0.05,
+        stem_net={"colour": "#5e4228", "cells": 380, "reach": 0.7, "stretch": 2.5, "strength": 0.8},
+    ),
+    # Punikkitatit: an orange to red-brown cap with an overhanging margin; greyish pores; a
+    # tall whitish stem covered in dark, blackish scales.
+    "leccinum-versipelle-agg": Spec(
+        profile=[
+            (0.000, 0.000, "base"),
+            (0.069, 0.007, "base"),
+            (0.115, 0.071, "stem"),
+            (0.109, 0.189, "stem"),
+            (0.089, 0.378, "stem"),
+            (0.083, 0.555, "stem"),
+            (0.087, 0.614, "gills"),
+            (0.223, 0.625, "gills"),
+            (0.320, 0.643, "gills"),
+            (0.360, 0.667, "margin"),
+            (0.372, 0.708, "margin"),
+            (0.360, 0.779, "top"),
+            (0.295, 0.861, "top"),
+            (0.180, 0.914, "top"),
+            (0.000, 0.932, "top"),
+        ],
+        colours={
+            "base": ("#d0c8bc", "#e6e0d6"),
+            "stem": ("#e6e0d6", "#f0ece4"),
+            "gills": ("#d6d0c4", "#c8c2b6"),
+            "margin": ("#e89a5a", "#e07a34"),
+            "top": ("#e07a34", "#c45e22"),
+        },
+        lines={
+            "kind": "pores",
+            "count": 150,
+            "rows": 26,
+            "width": 0.55,
+            "depth": -0.004,
+            "fork": False,
+            "colour": "#9a948a",
+            "highlight": "#c8c2b6",
+        },
+        lobes=0.025,
+        lift=0.02,
+        lobe_count=(3, 5, 8),
+        bend=0.03,
+        seed=163,
+        tilt=0.05,
+        spots={"region": "stem", "colour": "#2a2420", "count": 260, "size": 0.007, "relief": 0.0},
+    ),
+    # Lehmäntatti: a grey- to hazel-brown cap; whitish to buff pores; a tall whitish stem
+    # with grey-black scales.
+    "leccinum-scabrum": Spec(
+        profile=[
+            (0.000, 0.000, "base"),
+            (0.060, 0.007, "base"),
+            (0.100, 0.071, "stem"),
+            (0.095, 0.189, "stem"),
+            (0.079, 0.378, "stem"),
+            (0.073, 0.555, "stem"),
+            (0.076, 0.614, "gills"),
+            (0.208, 0.625, "gills"),
+            (0.300, 0.643, "gills"),
+            (0.340, 0.667, "margin"),
+            (0.352, 0.708, "margin"),
+            (0.340, 0.779, "top"),
+            (0.279, 0.861, "top"),
+            (0.170, 0.914, "top"),
+            (0.000, 0.932, "top"),
+        ],
+        colours={
+            "base": ("#d0c8bc", "#e6e0d6"),
+            "stem": ("#e6e0d6", "#efebe4"),
+            "gills": ("#e2dace", "#d8cebe"),
+            "margin": ("#b89a7a", "#a08466"),
+            "top": ("#a08466", "#7e6448"),
+        },
+        lines={
+            "kind": "pores",
+            "count": 150,
+            "rows": 26,
+            "width": 0.55,
+            "depth": -0.004,
+            "fork": False,
+            "colour": "#a8a090",
+            "highlight": "#d8cebe",
+        },
+        lobes=0.025,
+        lift=0.02,
+        lobe_count=(3, 5, 8),
+        bend=0.03,
+        seed=167,
+        tilt=0.05,
+        spots={"region": "stem", "colour": "#3a342e", "count": 240, "size": 0.007, "relief": 0.0},
+    ),
+    # Kangastatti: a yellowish-brown, finely felty, speckled cap; small olive-brown pores; a
+    # yellowish stem with no ring.
+    "suillus-variegatus": Spec(
+        profile=[
+            (0.000, 0.000, "base"),
+            (0.072, 0.006, "base"),
+            (0.120, 0.060, "stem"),
+            (0.114, 0.160, "stem"),
+            (0.100, 0.320, "stem"),
+            (0.093, 0.470, "stem"),
+            (0.097, 0.520, "gills"),
+            (0.247, 0.530, "gills"),
+            (0.360, 0.545, "gills"),
+            (0.400, 0.565, "margin"),
+            (0.412, 0.600, "margin"),
+            (0.400, 0.660, "top"),
+            (0.328, 0.730, "top"),
+            (0.200, 0.775, "top"),
+            (0.000, 0.790, "top"),
+        ],
+        colours={
+            "base": ("#c49e5a", "#d6b46e"),
+            "stem": ("#d6b46e", "#e0c27e"),
+            "gills": ("#8a7a3e", "#7a6c34"),
+            "margin": ("#c8a060", "#b88c4a"),
+            "top": ("#b88c4a", "#9e7438"),
+        },
+        lines={
+            "kind": "pores",
+            "count": 190,
+            "rows": 32,
+            "width": 0.55,
+            "depth": -0.004,
+            "fork": False,
+            "colour": "#5a4e22",
+            "highlight": "#7a6c34",
+        },
+        lobes=0.025,
+        lift=0.02,
+        lobe_count=(3, 5, 8),
+        bend=0.03,
+        seed=173,
+        tilt=0.05,
+        spots={"colour": "#8a6630", "count": 160, "size": 0.006, "relief": 0.0},
+    ),
+    # Voitatti: a chestnut-brown, slimy, glossy cap; yellow pores; a pale yellow stem with a
+    # ring, purplish-brown below it, and glandular dots above.
+    "suillus-luteus": Spec(
+        profile=[
+            (0.000, 0.000, "base"),
+            (0.057, 0.006, "base"),
+            (0.095, 0.060, "stem"),
+            (0.090, 0.160, "stem"),
+            (0.079, 0.320, "stem"),
+            (0.075, 0.400, "ring"),
+            (0.077, 0.440, "ring"),
+            (0.105, 0.425, "ring"),
+            (0.120, 0.400, "ring"),
+            (0.113, 0.395, "ring"),
+            (0.090, 0.420, "stem"),
+            (0.075, 0.445, "stem"),
+            (0.073, 0.470, "stem"),
+            (0.076, 0.520, "gills"),
+            (0.228, 0.530, "gills"),
+            (0.340, 0.545, "gills"),
+            (0.380, 0.565, "margin"),
+            (0.392, 0.600, "margin"),
+            (0.380, 0.660, "top"),
+            (0.312, 0.730, "top"),
+            (0.190, 0.775, "top"),
+            (0.000, 0.790, "top"),
+        ],
+        colours={
+            "base": ("#b49a6a", "#e8dca0"),
+            "stem": ("#e8dca0", "#efe4b0"),
+            "ring": ("#efe4b0", "#e8dca0"),
+            "gills": ("#e8d46a", "#dcc65a"),
+            "margin": ("#9a6a42", "#7a4a2a"),
+            "top": ("#7a4a2a", "#5e361c"),
+        },
+        lines={
+            "kind": "pores",
+            "count": 150,
+            "rows": 26,
+            "width": 0.55,
+            "depth": -0.004,
+            "fork": False,
+            "colour": "#b49a3a",
+            "highlight": "#dcc65a",
+        },
+        lobes=0.025,
+        lift=0.02,
+        lobe_count=(3, 5, 8),
+        bend=0.03,
+        seed=179,
+        tilt=0.05,
+        rings=150,
+    ),
+    # Nummitatti: a yellowish- to orange-brown cap; large, angular, olive-ochre pores in two
+    # layers; a short stem the colour of the cap; no ring.
+    "suillus-bovinus": Spec(
+        profile=[
+            (0.000, 0.000, "base"),
+            (0.048, 0.006, "base"),
+            (0.080, 0.060, "stem"),
+            (0.076, 0.160, "stem"),
+            (0.068, 0.320, "stem"),
+            (0.064, 0.470, "stem"),
+            (0.066, 0.520, "gills"),
+            (0.233, 0.530, "gills"),
+            (0.360, 0.545, "gills"),
+            (0.400, 0.565, "margin"),
+            (0.412, 0.600, "margin"),
+            (0.400, 0.660, "top"),
+            (0.328, 0.730, "top"),
+            (0.200, 0.775, "top"),
+            (0.000, 0.790, "top"),
+        ],
+        colours={
+            "base": ("#b08e58", "#c8a26a"),
+            "stem": ("#c8a26a", "#d2ae76"),
+            "gills": ("#a8904e", "#9a8444"),
+            "margin": ("#d4aa70", "#c89a5e"),
+            "top": ("#c89a5e", "#b0844a"),
+        },
+        lines={
+            "kind": "pores",
+            "count": 70,
+            "rows": 12,
+            "width": 0.7,
+            "depth": -0.004,
+            "fork": False,
+            "colour": "#5e4e24",
+            "highlight": "#9a8444",
+        },
+        lobes=0.025,
+        lift=0.02,
+        lobe_count=(3, 5, 8),
+        bend=0.03,
+        seed=181,
+        tilt=0.05,
+    ),
+    # Lampaankääpä: a whitish to cream, often cracked, lobed cap; short white pores running
+    # down the short white stem.
+    "albatrellus-ovinus": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.08, 0.005, "base"),
+            (0.1, 0.039, "stem"),
+            (0.095, 0.208, "stem"),
+            (0.095, 0.338, "stem"),
+            (0.11, 0.403, "gills"),
+            (0.22, 0.481, "gills"),
+            (0.34, 0.533, "gills"),
+            (0.40, 0.552, "margin"),
+            (0.415, 0.592, "margin"),
+            (0.40, 0.637, "top"),
+            (0.30, 0.663, "top"),
+            (0.15, 0.65, "top"),
+            (0.0, 0.65, "top"),
+        ],
+        colours={
+            "base": ("#e2dccc", "#ebe6da"),
+            "stem": ("#efebe2", "#f5f2ec"),
+            "gills": ("#f4f1e8", "#f6f3ea"),
+            "margin": ("#f2ecdc", "#ece2c8"),
+            "top": ("#e8dcc0", "#d8c8a4"),
+        },
+        lines={
+            "kind": "pores",
+            "count": 200,
+            "rows": 30,
+            "width": 0.5,
+            "depth": -0.002,
+            "fork": False,
+            "colour": "#c8c0ac",
+            "highlight": "#ffffff",
+        },
+        lobes=0.09,
+        lift=0.04,
+        lobe_count=(2, 3, 5),
+        bend=0.04,
+        seed=191,
+        tilt=0.06,
+        decurrent=0.25,
+    ),
+    # Orakkaat: a pale buff to orange-tan, irregular cap; crowded pale spines underneath in
+    # place of gills; a short whitish stem.
+    "hydnum-repandum-agg": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.075, 0.005, "base"),
+            (0.09, 0.036, "stem"),
+            (0.085, 0.216, "stem"),
+            (0.085, 0.36, "stem"),
+            (0.10, 0.432, "gills"),
+            (0.22, 0.492, "gills"),
+            (0.34, 0.534, "gills"),
+            (0.40, 0.552, "margin"),
+            (0.415, 0.588, "margin"),
+            (0.40, 0.636, "top"),
+            (0.30, 0.666, "top"),
+            (0.15, 0.66, "top"),
+            (0.0, 0.66, "top"),
+        ],
+        colours={
+            "base": ("#e0d0b4", "#e8dac0"),
+            "stem": ("#ece0c8", "#f0e6d2"),
+            "gills": ("#ecd6ae", "#f0dcb6"),
+            "margin": ("#e6c690", "#dcb47a"),
+            "top": ("#e0b67c", "#cfa066"),
+        },
+        lines={
+            "kind": "pores",
+            "count": 120,
+            "rows": 20,
+            "width": 0.45,
+            "depth": 0.012,
+            "fork": False,
+            "colour": "#b8925e",
+            "highlight": "#fff0d0",
+        },
+        lobes=0.08,
+        lift=0.04,
+        lobe_count=(2, 3, 5),
+        bend=0.04,
+        seed=193,
+        tilt=0.06,
+        decurrent=0.1,
+        rings=150,
+    ),
+    # Suppilovahverot: a brown, funnel-shaped cap pierced through the centre, with a wavy
+    # margin; greyish, forked ridges running down; a hollow yellow stem.
+    "craterellus-tubaeformis-agg": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.035, 0.004, "base"),
+            (0.045, 0.03, "stem"),
+            (0.04, 0.30, "stem"),
+            (0.045, 0.52, "stem"),
+            (0.06, 0.62, "gills"),
+            (0.13, 0.70, "gills"),
+            (0.22, 0.765, "gills"),
+            (0.28, 0.79, "margin"),
+            (0.30, 0.815, "margin"),
+            (0.285, 0.835, "top"),
+            (0.20, 0.80, "top"),
+            (0.10, 0.73, "top"),
+            (0.035, 0.66, "top"),
+            (0.0, 0.64, "top"),
+        ],
+        colours={
+            "base": ("#c89a2e", "#d8aa3a"),
+            "stem": ("#e0b440", "#d8a836"),
+            "gills": ("#a89a86", "#b4a690"),
+            "margin": ("#9a7a52", "#7a5a38"),
+            "top": ("#7a5a3a", "#3e2c1c"),
+        },
+        lines={
+            "count": 22,
+            "width": 0.4,
+            "depth": 0.008,
+            "fork": True,
+            "colour": "#6e6252",
+            "highlight": "#d6ccbc",
+            "wiggle": 0.14,
+        },
+        lobes=0.1,
+        lift=0.05,
+        lobe_count=(3, 5, 8),
+        bend=0.07,
+        seed=197,
+        tilt=0.1,
+        decurrent=0.5,
+    ),
+    # Mustatorvisieni: a deep, black-brown trumpet with a flared, wavy margin; the outside
+    # almost smooth and ash-grey; thin, leathery flesh.
+    "craterellus-cornucopioides": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.03, 0.004, "base"),
+            (0.04, 0.03, "stem"),
+            (0.045, 0.20, "stem"),
+            (0.07, 0.40, "under"),
+            (0.13, 0.60, "under"),
+            (0.21, 0.78, "under"),
+            (0.27, 0.86, "margin"),
+            (0.295, 0.875, "margin"),
+            (0.28, 0.895, "top"),
+            (0.20, 0.82, "top"),
+            (0.12, 0.65, "top"),
+            (0.055, 0.42, "top"),
+            (0.0, 0.30, "top"),
+        ],
+        colours={
+            "base": ("#4a4644", "#5a5654"),
+            "stem": ("#5e5a58", "#6e6a68"),
+            "under": ("#7a7674", "#8a8684"),
+            "margin": ("#4e4440", "#2e2624"),
+            "top": ("#2a221e", "#14100e"),
+        },
+        lines={"count": 1, "width": 0.1, "depth": 0.0, "fork": False},
+        lobes=0.12,
+        lift=0.06,
+        lobe_count=(3, 5, 7),
+        bend=0.05,
+        seed=199,
+        tilt=0.08,
+        wrinkles={"depth": 0.01, "cells": 12, "stretch": 3, "under": 0.6},
+    ),
 }
 
 
@@ -1593,9 +2085,22 @@ def resample(spec: Spec, n: int):
 # --- Underside lines (ridges or gills), shared by geometry and texture -------------------
 
 
+def pore_field(u: np.ndarray, t: np.ndarray, lines: dict) -> np.ndarray:
+    """0..1 dots in staggered rows: the pore mouths of a bolete or polypore, or the spines
+    of a hedgehog mushroom. `count` around the cap, `rows` from the stem to the margin."""
+    tt = np.clip(t, 0, 1) * lines["rows"]
+    pu = u * lines["count"] + 0.5 * (np.floor(tt) % 2)
+    du = pu % 1.0 - 0.5
+    dt = tt % 1.0 - 0.5
+    d = np.sqrt(du**2 + dt**2)
+    return np.exp(-((d / (lines["width"] / 2)) ** 2))
+
+
 def line_field(u: np.ndarray, t: np.ndarray, lines: dict) -> np.ndarray:
     """0..1 ridge profile at angle u (0..1) and position t (0 at the stem, 1 at the margin).
     With `fork`, every other line splits off a neighbour halfway out, as in a Y."""
+    if lines.get("kind") == "pores":
+        return pore_field(u, t, lines)
     n = lines["count"]
     width = lines["width"]
     wiggle = lines.get("wiggle", 0.0)
@@ -1690,7 +2195,21 @@ def paint(spec: Spec, region_rows: np.ndarray, gill_t: np.ndarray, r_rows=None, 
         paint_bands(tex, spec.bands, region_rows, rng)
     if spec.spots:
         paint_spots(tex, spec.spots, region_rows, r_rows, length, rng)
+    if spec.stem_net:
+        paint_net(tex, spec.stem_net, region_rows, spec.seed)
     return np.clip(tex, 0, 1)
+
+
+def paint_net(tex, net: dict, region_rows, seed: int) -> None:
+    """A raised net over the top part of the stem, as on a cep or a bitter bolete."""
+    stem = np.where(region_rows == "stem")[0]
+    if not len(stem):
+        return
+    rows = stem[int(len(stem) * (1 - net.get("reach", 0.6))) :]
+    field = pit_field(net["cells"], net.get("stretch", 2.0), np.random.default_rng(seed + 2000))
+    a = (field[rows] * net.get("strength", 0.7))[..., None]
+    fade = np.linspace(0, 1, len(rows))[:, None, None] ** 0.5
+    tex[rows] = tex[rows] * (1 - a * fade) + rgb(net["colour"]) * a * fade
 
 
 def wrinkle_field(spec: Spec) -> np.ndarray:
@@ -1740,7 +2259,7 @@ def paint_spots(tex, spots: dict, region_rows, r_rows, length, rng) -> None:
     """Irregular flat patches on the cap top, sized in model units so they keep their size
     towards the cap centre; each casts a faint shadow below it, like a drawn wart."""
     h, w = tex.shape[:2]
-    top = np.where(region_rows == "top")[0]
+    top = np.where(region_rows == spots.get("region", "top"))[0]
     if not len(top):
         return
     weight = r_rows[top] / r_rows[top].sum()

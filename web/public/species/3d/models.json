@@ -134,5 +134,49 @@
  "agaricus-campestris-agg": {
   "file": "agaricus-campestris-agg-drawn.glb",
   "drawn": true
+ },
+ "boletus-edulis-agg": {
+  "file": "boletus-edulis-agg-drawn.glb",
+  "drawn": true
+ },
+ "tylopilus-felleus": {
+  "file": "tylopilus-felleus-drawn.glb",
+  "drawn": true
+ },
+ "leccinum-versipelle-agg": {
+  "file": "leccinum-versipelle-agg-drawn.glb",
+  "drawn": true
+ },
+ "leccinum-scabrum": {
+  "file": "leccinum-scabrum-drawn.glb",
+  "drawn": true
+ },
+ "suillus-variegatus": {
+  "file": "suillus-variegatus-drawn.glb",
+  "drawn": true
+ },
+ "suillus-luteus": {
+  "file": "suillus-luteus-drawn.glb",
+  "drawn": true
+ },
+ "suillus-bovinus": {
+  "file": "suillus-bovinus-drawn.glb",
+  "drawn": true
+ },
+ "albatrellus-ovinus": {
+  "file": "albatrellus-ovinus-drawn.glb",
+  "drawn": true
+ },
+ "hydnum-repandum-agg": {
+  "file": "hydnum-repandum-agg-drawn.glb",
+  "drawn": true
+ },
+ "craterellus-tubaeformis-agg": {
+  "file": "craterellus-tubaeformis-agg-drawn.glb",
+  "drawn": true
+ },
+ "craterellus-cornucopioides": {
+  "file": "craterellus-cornucopioides-drawn.glb",
+  "drawn": true
  }
 }

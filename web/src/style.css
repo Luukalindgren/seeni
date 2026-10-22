@@ -175,9 +175,9 @@ svg {
   display: none;
 }
 
-/* Home has the round drop area and big buttons, little text, as on a large screen (#129). */
-#home .intro,
-#home .hint:not(#live-help) {
+/* Home has the round drop area and big buttons, little text, as on a large screen (#129).
+   Phones keep the hint on taking the photo. */
+#home .intro {
   display: none;
 }
 
@@ -950,16 +950,19 @@ footer summary {
   overflow-wrap: anywhere;
 }
 
+/* Nothing to drop on a phone; the mushroom says it all. */
+@media (max-width: 899.98px) and (pointer: coarse) {
+  .drop-text {
+    display: none;
+  }
+}
+
 /* Phones and narrow windows: the large-screen look in one column (#129). */
 @media (max-width: 899.98px) {
   .drop {
+    width: min(17rem, 66vw, 34vh);
     width: min(17rem, 66vw, 34svh);
     margin: 1.75rem auto 2.25rem;
-  }
-
-  /* Nothing to drop on a phone; the mushroom says it all. */
-  .drop-text {
-    display: none;
   }
 
   /* The result: the photo on its own, rounded and lifted, and the species below it on the
@@ -1007,6 +1010,10 @@ footer summary {
     align-items: center;
     gap: 2.25rem;
     padding-bottom: 1rem;
+  }
+
+  #home .hint {
+    display: none;
   }
 
   .actions {

@@ -408,12 +408,13 @@ function startScenery() {
     sky.setVisible(true);
   }
   // The drop area is drawn on every screen (#129); on a phone at a lower frame rate.
-  if (!dropArt) {
-    $("#drop").classList.add("drawn");
+  const dropFps = large ? undefined : 30;
+  if (dropArt) dropArt.setFps(dropFps);
+  else {
     dropArt = startDropArt(
       $<HTMLCanvasElement>("#drop .art"),
       reducedMotion,
-      large ? undefined : 30,
+      dropFps,
     );
     dropArt.setVisible(currentView === "home");
   }
@@ -464,7 +465,9 @@ function show(view: keyof typeof views) {
     if (view === "result" && from === "result" && focus)
       focusAfterAnswer(focus === "scroll");
     // Only now, with home shown, does the drop area have a size to draw at.
-    dropArt?.setVisible(view === "home");
+    dropArt?.setVisible(
+      view === "home" && !document.body.classList.contains("live-on"),
+    );
   };
   // The photo of the last identification is no longer needed once back home.
   if (view === "home") setPreview(null);
@@ -2185,9 +2188,11 @@ let liveDismissed = false;
 function setLive(on: boolean) {
   live.hidden = !on;
   document.body.classList.toggle("live-on", on);
-  // The camera covers the page: the grass and the sky behind it rest, to save the battery.
+  // The camera covers the page: the grass, the sky and the drop area behind it rest, to save
+  // the battery.
   grass?.setVisible(!on);
   sky?.setVisible(!on);
+  dropArt?.setVisible(!on && currentView === "home");
   if (on) live.querySelector(".live-status")!.append(status);
   else statusAnchor.after(status);
 }

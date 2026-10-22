@@ -16,6 +16,8 @@ const STEM = '#fbf8f1'
 
 export interface DropArt {
   setVisible(visible: boolean): void
+  // A new frame-rate cap, e.g. when the window becomes large; none when not set.
+  setFps(fps?: number): void
   // While a photo is dragged over the page: a gust, and the shape turns moss green.
   setGust(gust: boolean): void
 }
@@ -24,7 +26,9 @@ export interface DropArt {
 // display's rate when not set.
 export function startDropArt(canvas: HTMLCanvasElement, still: boolean, fps?: number): DropArt {
   const context = canvas.getContext('2d')
-  if (!context) return { setVisible() {}, setGust() {} }
+  if (!context) return { setVisible() {}, setFps() {}, setGust() {} }
+  // Drawn: the plain circle and icon in CSS give way to the canvas.
+  canvas.parentElement?.classList.add('drawn')
   const ctx = context
   let width = 0
   let height = 0
@@ -204,9 +208,14 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean, fps?: nu
   }
 
   window.addEventListener('pointermove', (e) => {
-    // A finger lifts without a mouseleave, so its push would stay: only a mouse pushes.
-    if (visible && !still && e.pointerType === 'mouse') pointer = { x: e.clientX, y: e.clientY }
+    if (visible && !still) pointer = { x: e.clientX, y: e.clientY }
   })
+  // A finger or a pen lifts without a mouseleave: its push ends with it.
+  const lift = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') pointer = null
+  }
+  window.addEventListener('pointerup', lift)
+  window.addEventListener('pointercancel', lift)
   // The mouse left the window: nothing pushes the shape any more.
   document.documentElement.addEventListener('mouseleave', () => {
     pointer = null
@@ -221,6 +230,9 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean, fps?: nu
     setVisible(v: boolean) {
       visible = v
       run()
+    },
+    setFps(f?: number) {
+      fps = f
     },
     setGust(g: boolean) {
       gustTarget = g ? 1 : 0

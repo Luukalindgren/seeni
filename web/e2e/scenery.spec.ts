@@ -87,9 +87,9 @@ test.describe('home on a phone (#129)', () => {
         }),
       )
       .toBeGreaterThan(1000)
-    // Little text: no intro or hint, and nothing to drop on a phone.
+    // Little text: no intro, only the hint on taking the photo, and nothing to drop.
     await expect(page.locator('#home .intro')).toBeHidden()
-    await expect(page.locator('#home > .hint:not(#live-help)')).toBeHidden()
+    await expect(page.locator('#home > .hint:not(#live-help)')).toBeVisible()
     await expect(drop.locator('.drop-text')).toBeHidden()
     // It fits beside the buttons on the screen.
     const box = (await drop.boundingBox())!

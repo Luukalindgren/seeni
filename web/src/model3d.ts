@@ -211,7 +211,7 @@ function setup(
     const fovY = aspect >= 1 ? fov : 2 * Math.atan(Math.tan(fov / 2) / aspect)
     gl!.uniformMatrix4fv(uProjection, false, perspective(fovY, aspect, distance / 10, distance * 3))
     gl!.uniformMatrix4fv(uView, false, viewMatrix(yaw, pitch, distance, centre))
-    gl!.drawElements(gl!.TRIANGLES, mesh.indices.length, indexType, 0)
+    gl!.drawElements(mesh.strip ? gl!.TRIANGLE_STRIP : gl!.TRIANGLES, mesh.indices.length, indexType, 0)
   }
 
   // Until touched, the model turns slowly, or sways ±50° around the photographed side, the

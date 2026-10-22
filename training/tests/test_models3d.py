@@ -11,7 +11,7 @@ import pytest
 from PIL import Image
 
 from seeni import models3d
-from seeni.models3d import SPECS, build, rgb, write_glb
+from seeni.models3d import SPECS, build, grid_strip, rgb, strip_triangles, turned_set, write_glb
 from seeni.paths import REPO_ROOT
 
 
@@ -32,7 +32,7 @@ def test_model_is_a_small_valid_glb(tmp_path, class_id):
     path = tmp_path / f"{class_id}.glb"
     write_glb(path, pos, nrm, uv, faces, tex)
     data = path.read_bytes()
-    assert len(data) < 1.5e6
+    assert len(data) < 0.75e6
     gltf, bin_ = read_glb(data)
     prim = gltf["meshes"][0]["primitives"][0]
     assert set(prim["attributes"]) == {"POSITION", "NORMAL", "TEXCOORD_0"}
@@ -47,6 +47,55 @@ def test_model_is_a_small_valid_glb(tmp_path, class_id):
     view = gltf["bufferViews"][gltf["images"][0]["bufferView"]]
     jpeg = bin_[view["byteOffset"] : view["byteOffset"] + view["byteLength"]]
     assert Image.open(io.BytesIO(jpeg)).format == "JPEG"
+
+
+@pytest.mark.parametrize("class_id", ["cantharellus-cibarius", "amanita-virosa", "morchella"])
+def test_the_quantized_glb_holds_the_built_mesh(tmp_path, class_id):
+    """Positions, normals and UVs come back within their quantization step, and the strip
+    draws exactly the built triangles, turned the same way."""
+    pos, nrm, uv, faces, tex = build(SPECS[class_id])
+    path = tmp_path / "m.glb"
+    write_glb(path, pos, nrm, uv, faces, tex)
+    gltf, bin_ = read_glb(path.read_bytes())
+    assert "KHR_mesh_quantization" in gltf["extensionsRequired"]
+    node = gltf["nodes"][0]
+    prim = gltf["meshes"][0]["primitives"][0]
+    assert prim["mode"] == 5
+    acc, views = gltf["accessors"], gltf["bufferViews"]
+
+    def read(index, dtype, width):
+        a = acc[index]
+        v = views[a["bufferView"]]
+        raw = np.frombuffer(
+            bin_, dtype, v["byteLength"] // np.dtype(dtype).itemsize, v["byteOffset"]
+        )
+        return raw.reshape(a["count"], -1)[:, :width]
+
+    q = read(prim["attributes"]["POSITION"], np.int16, 3) / 32767
+    back = q * np.array(node["scale"]) + np.array(node["translation"])
+    extent = (pos.max(0) - pos.min(0)).max()
+    assert np.abs(back - pos).max() < extent / 32767
+    n = read(prim["attributes"]["NORMAL"], np.int8, 3) / 127
+    assert np.abs(n - nrm).max() <= 0.5 / 127 + 1e-6
+    t = read(prim["attributes"]["TEXCOORD_0"], np.uint16, 2) / 65535
+    assert np.abs(t - uv).max() <= 0.5 / 65535 + 1e-6
+    strip = read(prim["indices"], np.uint16, 1).reshape(-1)
+    assert len(strip) < len(faces) * 3 / 2.5
+    assert len(strip_triangles(strip)) == len(faces)
+    # Checked here without grid_strip's own check: the strip as written draws the faces.
+    assert turned_set(strip_triangles(strip)) == turned_set(faces)
+
+
+def test_a_mesh_that_is_not_a_ring_grid_stays_a_triangle_list():
+    faces = np.array([[0, 2, 1], [1, 2, 3], [0, 3, 2]])
+    assert grid_strip(faces, 4) is None
+    assert grid_strip(np.zeros((0, 3), int), 0) is None
+    assert grid_strip(np.array([[0, 3, 1]]), 3) is None  # one ring, no quads
+
+
+def test_turned_set_keeps_the_winding():
+    assert turned_set(np.array([[2, 0, 1]])) == {(0, 1, 2)}
+    assert turned_set(np.array([[0, 2, 1]])) != turned_set(np.array([[0, 1, 2]]))
 
 
 def hue(colour) -> float:

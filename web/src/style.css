@@ -1819,3 +1819,43 @@ body.live-on .adding {
 #sheet-body > .reminder {
   margin-top: 2rem;
 }
+
+/* Species gallery. */
+.gallery {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin: 0.5rem -1.5rem 0;
+  padding: 0 1.5rem 0.5rem;
+  scroll-padding: 0 1.5rem;
+}
+.gallery:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+.gallery figure {
+  flex: 0 0 58%;
+  margin: 0;
+  scroll-snap-align: start;
+}
+.gallery img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 1rem;
+  display: block;
+}
+.gallery figcaption {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+.gallery-open[hidden] {
+  display: none;
+}
+.gallery-open {
+  display: block;
+  margin-top: 0.75rem;
+  padding-left: 0;
+}

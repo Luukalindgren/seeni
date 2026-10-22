@@ -49,6 +49,16 @@ export default defineConfig({
         globPatterns: ['**/*.{js,mjs,css,html,png,jpg,json,onnx,wasm}'],
         // The default 2 MiB would silently leave the model and the runtime out.
         maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
+        // The species gallery is extra: cached when first seen, not on install.
+        globIgnores: ['**/species/gallery/**'],
+        runtimeCaching: [
+          {
+            // A RegExp: a function would be copied into sw.js without `base`.
+            urlPattern: new RegExp(`^https?://[^/]+${base}species/gallery/`),
+            handler: 'CacheFirst',
+            options: { cacheName: 'species-gallery', expiration: { maxEntries: 400 } },
+          },
+        ],
       },
     }),
   ],

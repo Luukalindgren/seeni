@@ -112,6 +112,8 @@ export const en: Strings = {
   groupMyrkyllinen: 'Poisonous',
   groupEsikasiteltava: 'Poisonous raw',
 
+  galleryTitle: 'More photos',
+  galleryOpen: 'More photos and features',
   pictureLabel: (captions: string) => `Picture: ${captions}`,
 
   seasonRare: (month: string, region: string | null) =>

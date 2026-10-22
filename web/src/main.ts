@@ -518,6 +518,35 @@ function gallery(id: string): HTMLElement | null {
   return strip
 }
 
+// Species with a 3D model (#45): species/3d/models.json maps a class id to its .glb and
+// the credit of the photo it was made from. The model replaces the photo in the result
+// and the species sheet; without a model, or when it cannot be shown, the photo stays.
+interface Model3d extends Credit {
+  file: string
+}
+const models: Promise<Record<string, Model3d>> = fetch(`${base}species/3d/models.json`)
+  .then((r) => (r.ok ? r.json() : {}))
+  .catch(() => ({}))
+
+async function showModel(figure: HTMLElement, id: string): Promise<void> {
+  const m = (await models)[id]
+  if (!m) return
+  const { mountModel } = await import('./model3d.ts')
+  const name = asTitle(species.get(id)?.nimi ?? id)
+  const view = await mountModel(`${base}species/3d/${m.file}`, t().model3dLabel(name), reducedMotion)
+  if (!figure.isConnected) {
+    view.dispose()
+    return
+  }
+  figure.classList.add('has-model')
+  figure.prepend(view.canvas)
+  const tag = el('span', '3D', 'model3d-badge')
+  tag.setAttribute('aria-hidden', 'true')
+  view.canvas.after(tag)
+  const caption = figure.querySelector('figcaption') ?? figure.appendChild(el('figcaption'))
+  caption.textContent = t().model3dCredit(m.author, m.license)
+}
+
 function badge(id: string): HTMLElement | null {
   const g = species.get(id)?.ryhma
   const label = g ? groupLabel(g) : null
@@ -569,6 +598,7 @@ function photo(id: string, cls: string): HTMLElement {
     const caption = el('figcaption', t().photoCredit(c.author, c.license))
     figure.append(caption)
   }
+  if (cls === 'hero-photo' || cls === 'sheet-photo') showModel(figure, id).catch(() => undefined)
   return figure
 }
 

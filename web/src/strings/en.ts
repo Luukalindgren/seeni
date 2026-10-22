@@ -52,6 +52,8 @@ export const en: Strings = {
   webcamFailed: 'The camera could not be used. You can choose a photo from the device.',
 
   photoCredit: (author: string, license: string) => `Photo: ${author}, ${license}`,
+  model3dCredit: (author: string, license: string) => `3D model from a photo: ${author}, ${license}`,
+  model3dLabel: (name: string) => `${name}, 3D model. Turn it by dragging or with the arrow keys.`,
   identifyNew: 'Identify another mushroom',
   notSureTitle: 'I cannot identify this reliably',
   notSureText: 'The mushroom may be a species Seeni does not know, or the photo may be unclear.',

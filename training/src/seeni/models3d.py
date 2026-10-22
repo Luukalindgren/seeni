@@ -2410,6 +2410,23 @@ def build(spec: Spec, rings: int | None = None, segments: int = 150):
     return pos.astype(np.float32), nrm.astype(np.float32), uv.astype(np.float32), faces, tex
 
 
+def strip_triangles(strip: np.ndarray) -> np.ndarray:
+    """The triangles a strip draws, each turned as drawn, without the zero-area joins."""
+    i = np.arange(len(strip) - 2)
+    tris = np.stack([strip[i], strip[i + 1], strip[i + 2]], 1)
+    tris[1::2] = tris[1::2][:, [1, 0, 2]]  # every other strip triangle is turned back
+    keep = (tris[:, 0] != tris[:, 1]) & (tris[:, 1] != tris[:, 2]) & (tris[:, 0] != tris[:, 2])
+    return tris[keep]
+
+
+def turned_set(tris: np.ndarray) -> set:
+    """Triangles as a set, each rotated to start at its smallest index: same set, same turn."""
+    tris = np.asarray(tris)
+    k = tris.argmin(1)[:, None]
+    rolled = np.take_along_axis(tris, (k + np.arange(3)[None]) % 3, 1)
+    return set(map(tuple, rolled.tolist()))
+
+
 def grid_strip(faces: np.ndarray, n: int) -> np.ndarray | None:
     """The faces of a ring grid from build() as one triangle strip, or None for another mesh.
 
@@ -2417,10 +2434,12 @@ def grid_strip(faces: np.ndarray, n: int) -> np.ndarray | None:
     an even length, so each row starts with the winding of the faces. The strip is checked to
     hold exactly the same triangles, turned the same way.
     """
+    if len(faces) == 0:
+        return None
     a, c, b = (int(v) for v in faces[0])
     flipped = b > c  # (a, b, c) after build() flipped the winding
     cols = (b if flipped else c) - a
-    if a != 0 or cols < 2 or n % cols:
+    if a != 0 or cols < 2 or n % cols or n // cols < 2:
         return None
     rings = n // cols
     j = np.arange(cols)
@@ -2435,17 +2454,8 @@ def grid_strip(faces: np.ndarray, n: int) -> np.ndarray | None:
         if r < rings - 2:
             rows.append(row[-1:])
     strip = np.concatenate(rows)
-
-    def turned(tris: np.ndarray) -> set:
-        # A triangle as its vertices, rotated to start at the smallest: same set, same turn.
-        k = tris.argmin(1)
-        return {tuple(np.roll(t, -int(i))) for t, i in zip(tris.tolist(), k)}
-
-    i = np.arange(len(strip) - 2)
-    tris = np.stack([strip[i], strip[i + 1], strip[i + 2]], 1)
-    tris[1::2] = tris[1::2][:, [1, 0, 2]]  # every other strip triangle is turned back
-    tris = tris[(tris[:, 0] != tris[:, 1]) & (tris[:, 1] != tris[:, 2]) & (tris[:, 0] != tris[:, 2])]
-    if len(tris) != len(faces) or turned(tris) != turned(faces):
+    tris = strip_triangles(strip)
+    if len(tris) != len(faces) or turned_set(tris) != turned_set(faces):
         return None
     return strip
 
@@ -2463,7 +2473,9 @@ def write_glb(path, pos, nrm, uv, faces, tex, quality=86):
     qpos[:, :3] = np.round((pos - centre) / scale * 32767).clip(-32767, 32767)
     qnrm = np.zeros((len(nrm), 4), np.int8)
     qnrm[:, :3] = np.round(nrm * 127).clip(-127, 127)
-    quv = np.round(uv.astype(np.float64) * 65535).clip(0, 65535).astype(np.uint16)
+    if uv.min() < 0 or uv.max() > 1:
+        raise ValueError("UVs must lie in [0, 1] to be stored as uint16")
+    quv = np.round(uv.astype(np.float64) * 65535).astype(np.uint16)
     strip = grid_strip(faces, len(pos))
     idx = (faces.reshape(-1) if strip is None else strip).astype(
         np.uint16 if len(pos) < 65536 else np.uint32

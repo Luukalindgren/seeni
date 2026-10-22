@@ -11,7 +11,7 @@ import pytest
 from PIL import Image
 
 from seeni import models3d
-from seeni.models3d import SPECS, build, grid_strip, rgb, write_glb
+from seeni.models3d import SPECS, build, grid_strip, rgb, strip_triangles, turned_set, write_glb
 from seeni.paths import REPO_ROOT
 
 
@@ -49,18 +49,6 @@ def test_model_is_a_small_valid_glb(tmp_path, class_id):
     assert Image.open(io.BytesIO(jpeg)).format == "JPEG"
 
 
-def strip_triangles(strip: np.ndarray) -> np.ndarray:
-    i = np.arange(len(strip) - 2)
-    tris = np.stack([strip[i], strip[i + 1], strip[i + 2]], 1)
-    tris[1::2] = tris[1::2][:, [1, 0, 2]]
-    keep = (tris[:, 0] != tris[:, 1]) & (tris[:, 1] != tris[:, 2]) & (tris[:, 0] != tris[:, 2])
-    return tris[keep]
-
-
-def turned(tris) -> set:
-    return {tuple(np.roll(t, -int(np.argmin(t)))) for t in np.asarray(tris).tolist()}
-
-
 @pytest.mark.parametrize("class_id", ["cantharellus-cibarius", "amanita-virosa", "morchella"])
 def test_the_quantized_glb_holds_the_built_mesh(tmp_path, class_id):
     """Positions, normals and UVs come back within their quantization step, and the strip
@@ -92,12 +80,20 @@ def test_the_quantized_glb_holds_the_built_mesh(tmp_path, class_id):
     strip = read(prim["indices"], np.uint16, 1).reshape(-1)
     assert len(strip) < len(faces) * 3 / 2.5
     assert len(strip_triangles(strip)) == len(faces)
-    assert turned(strip_triangles(strip)) == turned(faces)
+    # Checked here without grid_strip's own check: the strip as written draws the faces.
+    assert turned_set(strip_triangles(strip)) == turned_set(faces)
 
 
 def test_a_mesh_that_is_not_a_ring_grid_stays_a_triangle_list():
     faces = np.array([[0, 2, 1], [1, 2, 3], [0, 3, 2]])
     assert grid_strip(faces, 4) is None
+    assert grid_strip(np.zeros((0, 3), int), 0) is None
+    assert grid_strip(np.array([[0, 3, 1]]), 3) is None  # one ring, no quads
+
+
+def test_turned_set_keeps_the_winding():
+    assert turned_set(np.array([[2, 0, 1]])) == {(0, 1, 2)}
+    assert turned_set(np.array([[0, 2, 1]])) != turned_set(np.array([[0, 1, 2]]))
 
 
 def hue(colour) -> float:

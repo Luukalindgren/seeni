@@ -38,8 +38,11 @@ const JSON_CHUNK = 0x4e4f534a
 const BIN_CHUNK = 0x004e4942
 const SIZE: Record<string, number> = { SCALAR: 1, VEC2: 2, VEC3: 3 }
 const FLOAT = 5126
-// Normalized integer components: their typed array and the divisor that maps them to ±1 or 0..1.
-const INTEGER: Record<number, [typeof Int8Array | typeof Uint8Array | typeof Int16Array | typeof Uint16Array, number]> = {
+type Typed = typeof Float32Array | typeof Int8Array | typeof Uint8Array | typeof Int16Array | typeof Uint16Array
+// Attribute components: their typed array and, for a normalized integer, the divisor that
+// maps it to ±1 or 0..1.
+const COMPONENT: Record<number, [Typed, number]> = {
+  [FLOAT]: [Float32Array, 1],
   5120: [Int8Array, 127],
   5121: [Uint8Array, 255],
   5122: [Int16Array, 32767],
@@ -79,6 +82,8 @@ export function parseGlb(data: ArrayBuffer): Mesh {
   if (node.matrix || node.rotation) throw new Error('only translation and scale are supported')
   const translation: number[] = node.translation ?? [0, 0, 0]
   const scale: number[] = node.scale ?? [1, 1, 1]
+  // The normals are used as they are, which holds only for one scale on every axis.
+  if (scale.some((v) => v !== scale[0] || !(v > 0))) throw new Error('the node scale must be uniform')
 
   const views: BufferView[] = json.bufferViews
   const accessors: Accessor[] = json.accessors
@@ -99,12 +104,12 @@ export function parseGlb(data: ArrayBuffer): Mesh {
     const { accessor, start, stride, end } = bytes(index)
     const size = SIZE[type] ?? 0
     if (accessor.type !== type) throw new Error(`accessor ${index} is not ${type}`)
-    if (accessor.componentType === FLOAT && !stride) {
-      return new Float32Array(buffer, start, accessor.count * size)
+    const component = COMPONENT[accessor.componentType]
+    const float = accessor.componentType === FLOAT
+    if (!component || float === !!accessor.normalized) {
+      throw new Error(`accessor ${index} is not float or normalized`)
     }
-    const integer = INTEGER[accessor.componentType]
-    if (!integer || !accessor.normalized) throw new Error(`accessor ${index} is not float or normalized`)
-    const [Typed, divisor] = integer
+    const [Typed, divisor] = component
     const step = stride ?? size * Typed.BYTES_PER_ELEMENT
     if (step % Typed.BYTES_PER_ELEMENT || step < size * Typed.BYTES_PER_ELEMENT) {
       throw new Error(`accessor ${index} has a bad stride`)
@@ -115,9 +120,10 @@ export function parseGlb(data: ArrayBuffer): Mesh {
     }
     const source = new Typed(buffer, start, (end - start) / Typed.BYTES_PER_ELEMENT | 0)
     const every = step / Typed.BYTES_PER_ELEMENT
+    const lowest = float ? -Infinity : -1 // a signed integer's minimum is also -1
     const out = new Float32Array(accessor.count * size)
     for (let i = 0; i < accessor.count; i++) {
-      for (let k = 0; k < size; k++) out[i * size + k] = Math.max(source[i * every + k]! / divisor, -1)
+      for (let k = 0; k < size; k++) out[i * size + k] = Math.max(source[i * every + k]! / divisor, lowest)
     }
     return out
   }
@@ -132,11 +138,13 @@ export function parseGlb(data: ArrayBuffer): Mesh {
   }
   const normals = floats(attributes.NORMAL, 'VEC3')
   const uvs = floats(attributes.TEXCOORD_0, 'VEC2')
-  const { accessor: ia, start: is } = bytes(primitive.indices)
-  let indices: Uint16Array | Uint32Array
-  if (ia.componentType === 5125) indices = new Uint32Array(buffer, is, ia.count)
-  else if (ia.componentType === 5123) indices = new Uint16Array(buffer, is, ia.count)
-  else throw new Error('indices must be uint16 or uint32')
+  const { accessor: ia, start: is, stride: istride, end: iend } = bytes(primitive.indices)
+  const IndexArray = ia.componentType === 5125 ? Uint32Array : ia.componentType === 5123 ? Uint16Array : null
+  if (!IndexArray) throw new Error('indices must be uint16 or uint32')
+  if (istride || is % IndexArray.BYTES_PER_ELEMENT || is + ia.count * IndexArray.BYTES_PER_ELEMENT > iend) {
+    throw new Error('the indices do not fit their buffer view')
+  }
+  const indices: Uint16Array | Uint32Array = new IndexArray(buffer, is, ia.count)
   const n = positions.length / 3
   if (normals.length / 3 !== n || uvs.length / 2 !== n) throw new Error('attribute counts differ')
   for (const i of indices) if (i >= n) throw new Error('index out of range')

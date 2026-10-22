@@ -82,7 +82,6 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, initial: Sky
   let gustTarget = 0
   let angle = 0
   let spin = 0
-  let rect = canvas.getBoundingClientRect()
 
   function resize() {
     const ratio = Math.min(window.devicePixelRatio || 1, 2)
@@ -91,7 +90,6 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, initial: Sky
     canvas.width = Math.round(width * ratio)
     canvas.height = Math.round(height * ratio)
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
-    rect = canvas.getBoundingClientRect()
   }
 
   // The sun's centre lies outside the page, so only a quarter of it shows.
@@ -188,6 +186,8 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, initial: Sky
 
   window.addEventListener('pointermove', (e) => {
     if (!visible || still || !options.reach) return
+    // Measured here: a canvas that is not fixed moves with the page.
+    const rect = canvas.getBoundingClientRect()
     pointerX = e.clientX - rect.left
     pointerY = e.clientY - rect.top
   })
@@ -195,16 +195,6 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, initial: Sky
     pointerX = pointerY = -1e4
   })
   document.addEventListener('visibilitychange', run)
-  // A canvas that is not fixed moves with the page.
-  if (getComputedStyle(canvas).position !== 'fixed') {
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (visible) rect = canvas.getBoundingClientRect()
-      },
-      { passive: true },
-    )
-  }
   let resizing = 0
   window.addEventListener('resize', () => {
     clearTimeout(resizing)

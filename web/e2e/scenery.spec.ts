@@ -33,7 +33,6 @@ test.describe('in Safari on an iPhone', () => {
   test('the grass stands at the end of the page and the sky at its top', async ({ page }) => {
     await start(page)
     await expect(page.locator('html')).toHaveClass(/ios-browser/)
-    await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', /viewport-fit=cover/)
     const grass = await box(page, '#grass')
     expect(grass.position).toBe('absolute')
     expect(grass.bottom).toBeCloseTo(grass.page, 0)
@@ -63,7 +62,6 @@ test.describe('in Safari on an iPhone', () => {
     await page.addInitScript(() => Object.defineProperty(navigator, 'standalone', { value: true }))
     await start(page)
     await expect(page.locator('html')).not.toHaveClass(/ios-browser/)
-    await expect(page.locator('meta[name="viewport"]')).not.toHaveAttribute('content', /viewport-fit/)
     expect((await box(page, '#grass')).position).toBe('fixed')
     expect((await box(page, '#sky')).position).toBe('fixed')
   })

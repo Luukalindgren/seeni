@@ -58,7 +58,6 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, initial: G
   let visible = false
   let frame = 0
   let last = 0
-  let rect = canvas.getBoundingClientRect()
 
   function blade(x: number, front: boolean): Blade {
     const palette = front ? FRONT : BACK
@@ -79,7 +78,6 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, initial: G
     canvas.width = Math.round(width * ratio)
     canvas.height = Math.round(height * ratio)
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
-    rect = canvas.getBoundingClientRect()
     blades = []
     for (const front of [false, true]) {
       for (let x = 0; x < width; x += front ? 5 : 4) {
@@ -141,6 +139,8 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, initial: G
 
   window.addEventListener('pointermove', (e) => {
     if (!visible || still || !options.reach) return
+    // Measured here: a canvas that is not fixed moves with the page.
+    const rect = canvas.getBoundingClientRect()
     pointerX = e.clientX - rect.left
     pointerY = e.clientY - rect.top
   })
@@ -149,16 +149,6 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, initial: G
     pointerX = pointerY = -1e4
   })
   document.addEventListener('visibilitychange', run)
-  // A canvas that is not fixed moves with the page.
-  if (getComputedStyle(canvas).position !== 'fixed') {
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (visible) rect = canvas.getBoundingClientRect()
-      },
-      { passive: true },
-    )
-  }
   // Regrow the grass only once a resize has settled, not on every step of a drag.
   let resizing = 0
   window.addEventListener('resize', () => {
@@ -176,7 +166,6 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, initial: G
       visible = v
       canvas.classList.toggle('visible', v)
       if (v && (canvas.clientWidth !== width || canvas.clientHeight !== height)) resize()
-      else if (v) rect = canvas.getBoundingClientRect()
       run()
     },
     configure(o: GrassOptions) {

@@ -379,17 +379,11 @@ const skyOptions = (large: boolean): SkyOptions =>
 const iosBrowser =
   (/iPhone|iPad|iPod/.test(navigator.userAgent) ||
     (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)) &&
-  !matchMedia("(display-mode: standalone)").matches &&
+  !matchMedia(
+    "(display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui)",
+  ).matches &&
   (navigator as Navigator & { standalone?: boolean }).standalone !== true;
-if (iosBrowser) {
-  document.documentElement.classList.add("ios-browser");
-  // Lets the page reach the bottom edge of the screen, under the toolbar.
-  const viewport = document.querySelector('meta[name="viewport"]');
-  viewport?.setAttribute(
-    "content",
-    `${viewport.getAttribute("content")}, viewport-fit=cover`,
-  );
-}
+document.documentElement.classList.toggle("ios-browser", iosBrowser);
 function startScenery() {
   const large = largeScreen.matches;
   document.documentElement.classList.toggle("small-scenery", !large);

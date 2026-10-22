@@ -351,6 +351,11 @@ svg {
   min-height: 100lvh;
 }
 
+/* Room for the toolbar too, so the last lines still end above it. */
+.ios-browser.small-scenery #app {
+  padding-bottom: calc(3rem + 100lvh - 100svh + env(safe-area-inset-bottom));
+}
+
 .ios-browser #sky,
 .ios-browser #grass {
   position: absolute;

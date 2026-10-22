@@ -365,10 +365,6 @@ let grass: Grass | null = null;
 let sky: Sky | null = null;
 let dropArt: DropArt | null = null;
 let currentView: keyof typeof views = "home";
-const grassOptions = (large: boolean): GrassOptions =>
-  large
-    ? { height: [24, 60], calmMiddle: true, reach: 120 }
-    : { height: [12, 26], calmMiddle: true, reach: 0, fps: 30 };
 const skyOptions = (large: boolean): SkyOptions =>
   large ? { reach: 140, scale: 1 } : { reach: 0, scale: 0.6, fps: 30 };
 // In a browser tab on an iPhone or iPad, the page runs on behind the status bar and the
@@ -384,6 +380,16 @@ const iosBrowser =
   ).matches &&
   (navigator as Navigator & { standalone?: boolean }).standalone !== true;
 document.documentElement.classList.toggle("ios-browser", iosBrowser);
+// How far the page and the grass run on below the toolbar's lowest edge there, in px. Even
+// with the toolbar shrunk, Safari ends the page about this far above the bottom of the
+// screen, and how far differs between phones; the blades start below the screen edge and
+// grow up past it, so the grass reaches the edge on all of them.
+const grassBleed = iosBrowser ? 64 : 0;
+document.documentElement.style.setProperty("--grass-bleed", `${grassBleed}px`);
+const grassOptions = (large: boolean): GrassOptions =>
+  large
+    ? { height: [24, 60], calmMiddle: true, reach: 120, root: grassBleed }
+    : { height: [12, 26], calmMiddle: true, reach: 0, fps: 30, root: grassBleed };
 function startScenery() {
   const large = largeScreen.matches;
   document.documentElement.classList.toggle("small-scenery", !large);

@@ -38,6 +38,9 @@ test.describe('in Safari on an iPhone', () => {
     expect(grass.bottom).toBeCloseTo(grass.page, 0)
     expect(grass.left).toBe(0)
     expect(grass.width).toBe(grass.window)
+    // It runs on below the end of the screen, as Safari ends the page short of it (#125).
+    expect(grass.page).toBeGreaterThanOrEqual(844 + 64)
+    expect(grass.bottom - grass.top).toBeGreaterThan(64 + 50)
     const sky = await box(page, '#sky')
     expect(sky.position).toBe('absolute')
     expect(sky.top).toBe(0)

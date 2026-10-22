@@ -348,12 +348,22 @@ svg {
    page and the grass at its end. The page is at least as tall as the screen with the toolbar
    shrunk, so on a short page the grass reaches the bottom edge of the screen. */
 .ios-browser #app {
-  min-height: 100lvh;
+  /* --grass-bleed (main.ts): Safari ends the page short of the bottom of the screen even
+     with the toolbar shrunk, so the page and the grass run on below that. */
+  min-height: calc(100lvh + var(--grass-bleed));
 }
 
 /* Room for the toolbar too, so the last lines still end above it. */
 .ios-browser.small-scenery #app {
-  padding-bottom: calc(3rem + 100lvh - 100svh + env(safe-area-inset-bottom));
+  padding-bottom: calc(3rem + 100lvh - 100svh + var(--grass-bleed) + env(safe-area-inset-bottom));
+}
+
+.ios-browser #grass {
+  height: calc(7.5rem + var(--grass-bleed));
+}
+
+.ios-browser.small-scenery #grass {
+  height: calc(3.5rem + var(--grass-bleed));
 }
 
 .ios-browser #sky,

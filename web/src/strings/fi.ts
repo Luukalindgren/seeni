@@ -185,6 +185,8 @@ export const fi = {
   // About
   aboutText:
     'Seeni ei kerro, voiko sientä syödä. Se ehdottaa lajeja, näyttää niiden vaaralliset näköislajit ja ohjaa tarkistamaan tuntomerkit. Kuvat käsitellään vain tällä laitteella, eikä mitään lähetetä minnekään. Lajitiedot ovat tarkistamattomia luonnoksia.',
+  aboutCamera:
+    'Kamera: iPhonen Safarissa voit sallia kameran tälle sivustolle pysyvästi osoiterivin aA-valikosta: Verkkosivuston asetukset → Kamera → Salli. Kotinäytölle lisätty sovellus kysyy luvan joka avauskerralla, eikä Seeni voi muuttaa sitä.',
   // Trusted markup with links, written here only.
   aboutSourcesHtml: `Malli on opetettu valokuvilla, jotka on jaettu <a href="https://www.gbif.org/">GBIF</a>in
       kautta CC0- tai CC BY -lisenssillä (GBIF.org, lataukset

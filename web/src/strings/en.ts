@@ -171,6 +171,8 @@ export const en: Strings = {
 
   aboutText:
     'Seeni does not tell whether a mushroom can be eaten. It suggests species, shows their dangerous lookalikes and guides you to check their features. Photos are processed only on this device, and nothing is sent anywhere. The species information is an unreviewed draft.',
+  aboutCamera:
+    'Camera: in Safari on iPhone, you can allow the camera for this site permanently from the aA menu in the address bar: Website Settings → Camera → Allow. An app added to the home screen asks each time it is opened, and Seeni cannot change that.',
   aboutSourcesHtml: `The model was trained on photos shared through <a href="https://www.gbif.org/">GBIF</a>
       under CC0 or CC BY licences (GBIF.org, downloads
       <a href="https://doi.org/10.15468/dl.fadmpu">10.15468/dl.fadmpu</a> and

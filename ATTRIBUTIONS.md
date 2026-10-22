@@ -152,7 +152,7 @@ More photos of each species for the app's species gallery, chosen by `species/ga
 | `web/public/species/gallery/russula-vinosa-1.jpg` | Per Marstad | CC-BY-4.0 | [GBIF 2407702494](https://www.gbif.org/occurrence/2407702494) |
 | `web/public/species/gallery/russula-vinosa-2.jpg` | Tove Jacobsen | CC-BY-4.0 | [GBIF 2416735847](https://www.gbif.org/occurrence/2416735847) |
 | `web/public/species/gallery/russula-vinosa-3.jpg` | Tove Jacobsen | CC-BY-4.0 | [GBIF 3960617697](https://www.gbif.org/occurrence/3960617697) |
-| `web/public/species/gallery/hygrophorus-camarophyllus-1.jpg` | Rob van Kruining | CC-BY-4.0 | [GBIF 2468109606](https://www.gbif.org/occurrence/2468109606) |
+| `web/public/species/gallery/hygrophorus-camarophyllus-1.jpg` | Perry Gunnar Larsen | CC-BY-4.0 | [GBIF 4454311756](https://www.gbif.org/occurrence/4454311756) |
 | `web/public/species/gallery/hygrophorus-camarophyllus-2.jpg` | Siv Moen | CC-BY-4.0 | [GBIF 1824601200](https://www.gbif.org/occurrence/1824601200) |
 | `web/public/species/gallery/hygrophorus-camarophyllus-3.jpg` | Hallvard Holtung | CC-BY-4.0 | [GBIF 4401662537](https://www.gbif.org/occurrence/4401662537) |
 | `web/public/species/gallery/cortinarius-caperatus-1.jpg` | Svein Olav B. Drangeid | CC-BY-4.0 | [GBIF 2408351346](https://www.gbif.org/occurrence/2408351346) |

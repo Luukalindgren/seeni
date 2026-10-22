@@ -195,6 +195,16 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, initial: Sky
     pointerX = pointerY = -1e4
   })
   document.addEventListener('visibilitychange', run)
+  // A canvas that is not fixed moves with the page.
+  if (getComputedStyle(canvas).position !== 'fixed') {
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (visible) rect = canvas.getBoundingClientRect()
+      },
+      { passive: true },
+    )
+  }
   let resizing = 0
   window.addEventListener('resize', () => {
     clearTimeout(resizing)

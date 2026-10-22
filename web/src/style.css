@@ -343,6 +343,30 @@ svg {
   padding-bottom: calc(3rem + env(safe-area-inset-bottom));
 }
 
+/* In a browser tab on an iPhone or iPad (main.ts, #125) the sky and the grass belong to the
+   page, so Safari draws them behind its status bar and toolbar: the sky at the top of the
+   page and the grass at its end. The page is at least as tall as the screen with the toolbar
+   shrunk, so on a short page the grass reaches the bottom edge of the screen. */
+.ios-browser #app {
+  min-height: 100lvh;
+}
+
+.ios-browser #sky,
+.ios-browser #grass {
+  position: absolute;
+  /* The full width of the window, not only of the centred column. */
+  left: calc(50% - 50vw);
+  right: auto;
+  width: 100vw;
+}
+
+/* The clouds hang from the top of the page; their cut edge fades out, as it does under the
+   status bar in the installed app. */
+.ios-browser #sky {
+  -webkit-mask-image: linear-gradient(transparent, #000 1.25rem);
+  mask-image: linear-gradient(transparent, #000 1.25rem);
+}
+
 @keyframes rise {
   from {
     opacity: 0;

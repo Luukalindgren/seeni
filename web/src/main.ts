@@ -371,6 +371,25 @@ const grassOptions = (large: boolean): GrassOptions =>
     : { height: [12, 26], calmMiddle: true, reach: 0, fps: 30 };
 const skyOptions = (large: boolean): SkyOptions =>
   large ? { reach: 140, scale: 1 } : { reach: 0, scale: 0.6, fps: 30 };
+// In a browser tab on an iPhone or iPad, the page runs on behind the status bar and the
+// toolbar, but Safari clips fixed elements to the area between them and fills the rest
+// with a flat colour, so fixed grass and sky would end in hard lines short of the screen
+// edges (#125). There they belong to the page instead: the sky at its top and the grass at
+// its end, drawn behind the toolbar. The installed app has no toolbar and keeps them fixed.
+const iosBrowser =
+  (/iPhone|iPad|iPod/.test(navigator.userAgent) ||
+    (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)) &&
+  !matchMedia("(display-mode: standalone)").matches &&
+  (navigator as Navigator & { standalone?: boolean }).standalone !== true;
+if (iosBrowser) {
+  document.documentElement.classList.add("ios-browser");
+  // Lets the page reach the bottom edge of the screen, under the toolbar.
+  const viewport = document.querySelector('meta[name="viewport"]');
+  viewport?.setAttribute(
+    "content",
+    `${viewport.getAttribute("content")}, viewport-fit=cover`,
+  );
+}
 function startScenery() {
   const large = largeScreen.matches;
   document.documentElement.classList.toggle("small-scenery", !large);

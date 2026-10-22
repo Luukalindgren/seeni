@@ -229,7 +229,7 @@ More photos of each species for the app's species gallery, chosen by `species/ga
 
 ### Species 3D models
 
-The 3D models shown in place of the species photo (#45), `web/public/species/3d/*.glb`, are drawn for Seeni by `seeni.models3d` from each species' field marks; they are not made from photos.
+The 3D models shown in place of the species photo (#45), `web/public/species/3d/*.glb`, are drawn for Seeni by `seeni.models3d` from each species' field marks; they are not made from photos. Like the species data, they are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ## Species data sources
 

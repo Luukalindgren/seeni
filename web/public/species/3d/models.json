@@ -1,14 +1,14 @@
 {
  "cantharellus-cibarius": {
-  "file": "cantharellus-cibarius.glb",
+  "file": "cantharellus-cibarius-drawn.glb",
   "drawn": true
  },
  "hygrophoropsis-aurantiaca": {
-  "file": "hygrophoropsis-aurantiaca.glb",
+  "file": "hygrophoropsis-aurantiaca-drawn.glb",
   "drawn": true
  },
  "cortinarius-orellanus": {
-  "file": "cortinarius-orellanus.glb",
+  "file": "cortinarius-orellanus-drawn.glb",
   "drawn": true
  }
 }

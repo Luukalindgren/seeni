@@ -13,7 +13,7 @@ import io
 import json
 import struct
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import numpy as np
 from PIL import Image, ImageFilter
@@ -39,7 +39,6 @@ class Spec:
     decurrent: float = 0.0  # how far the lines run down the stem (fraction of its length)
     cap_fibres: float = 0.0  # radial fibres on the cap top
     stem_fibres: str | None = None  # colour of fibres on the stem
-    extra: dict = field(default_factory=dict)
 
 
 def rgb(h: str) -> np.ndarray:
@@ -257,7 +256,7 @@ def noise(shape, cells, rng, stretch=(1, 1)) -> np.ndarray:
     return a / 127.5 - 1
 
 
-def paint(spec: Spec, region_rows: np.ndarray, t_rows: np.ndarray, gill_t: np.ndarray):
+def paint(spec: Spec, region_rows: np.ndarray, gill_t: np.ndarray):
     rng = np.random.default_rng(spec.seed)
     h = w = TEX
     tex = np.zeros((h, w, 3))
@@ -284,7 +283,7 @@ def paint(spec: Spec, region_rows: np.ndarray, t_rows: np.ndarray, gill_t: np.nd
 
     u = (np.arange(w) + 0.5) / w
     # The underside, and the part of the stem the lines run down onto (t < 0, fading out).
-    gills = (region_rows == "gills") | (gill_t < 0)
+    gills = (region_rows == "gills") | ((gill_t < 0) & (gill_t > -1))
     if gills.any():
         U, T = np.meshgrid(u, gill_t[gills])
         weight = np.clip(1 + np.minimum(T, 0), 0, 1)[..., None]
@@ -314,15 +313,19 @@ def paint(spec: Spec, region_rows: np.ndarray, t_rows: np.ndarray, gill_t: np.nd
         mid = margin.mean()
         edge = np.exp(-(((np.arange(h) - mid) / (len(margin) * 0.35)) ** 2))
         tex *= (1 - 0.16 * edge)[:, None, None]
-    # Stem fibres for the seitikki, a slightly felted centre for the cap.
-    if spec.extra.get("fibres", True):
-        fib = noise((h, w), 260, rng, stretch=(1, 40))
-        stem = region_rows == "stem"
-        tex[stem] *= (1 + 0.04 * fib[stem])[..., None]
+    # A faint grain along every stem.
+    fib = noise((h, w), 260, rng, stretch=(1, 40))
+    stem = region_rows == "stem"
+    tex[stem] *= (1 + 0.04 * fib[stem])[..., None]
     return np.clip(tex, 0, 1)
 
 
 # --- Mesh --------------------------------------------------------------------------------
+
+
+def ring_of_rows(rings: int) -> np.ndarray:
+    """The ring each texture row belongs to (rings are equally spaced in v)."""
+    return np.clip((np.arange(TEX) + 0.5) / TEX * (rings - 1), 0, rings - 1).round().astype(int)
 
 
 def build(spec: Spec, rings: int = 120, segments: int = 150):
@@ -394,17 +397,17 @@ def build(spec: Spec, rings: int = 120, segments: int = 150):
     grid[-1] = grid[-1].sum(0)
     nrm = grid.reshape(-1, 3)
     nrm /= np.linalg.norm(nrm, axis=1, keepdims=True).clip(1e-12)
-    if np.dot(nrm[len(nrm) // 3], pos[len(nrm) // 3] - [0, pos[len(nrm) // 3, 1], 0]) < 0:
+    # Outward means away from the axis, summed over the whole surface.
+    radial = pos.copy()
+    radial[:, 1] = 0
+    if np.einsum("ij,ij->", nrm, radial) < 0:
         nrm = -nrm
         faces = faces[:, [0, 2, 1]]
 
     uv = np.stack(np.meshgrid(u, s), -1).reshape(-1, 2)
-    region_rows = region[
-        np.clip((np.arange(TEX) + 0.5) / TEX * (rings - 1), 0, rings - 1).round().astype(int)
-    ]
-    s_rows = (np.arange(TEX) + 0.5) / TEX
-    gill_rows = np.interp(s_rows, s, t)
-    tex = paint(spec, region_rows, s_rows, gill_rows)
+    # Each texture row takes its nearest ring, so regions and line t never blend across a border.
+    ring = ring_of_rows(rings)
+    tex = paint(spec, region[ring], t[ring])
     return pos.astype(np.float32), nrm.astype(np.float32), uv.astype(np.float32), faces, tex
 
 
@@ -487,9 +490,11 @@ def main() -> int:
     listed = {}
     for class_id, spec in SPECS.items():
         mesh = build(spec)
-        write_glb(OUT / f"{class_id}.glb", *mesh)
-        listed[class_id] = {"file": f"{class_id}.glb", "drawn": True}
-        size = (OUT / f"{class_id}.glb").stat().st_size
+        # A new name, so a cached copy of an older model under the old URL is never served.
+        name = f"{class_id}-drawn.glb"
+        write_glb(OUT / name, *mesh)
+        listed[class_id] = {"file": name, "drawn": True}
+        size = (OUT / name).stat().st_size
         print(f"{class_id}: {len(mesh[0])} vertices, {size / 1e6:.2f} MB")
     (OUT / "models.json").write_text(json.dumps(listed, indent=1) + "\n", encoding="utf-8")
     return 0

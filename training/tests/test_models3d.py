@@ -62,10 +62,9 @@ def hue(colour) -> float:
 
 def region_colour(class_id: str, region: str) -> np.ndarray:
     spec = SPECS[class_id]
-    _, _, _, _, tex = build(spec)
-    rows = models3d.resample(spec, 120)[2]
-    picked = rows[np.clip((np.arange(len(tex)) + 0.5) / len(tex) * 119, 0, 119).round().astype(int)]
-    return tex[picked == region].reshape(-1, 3).mean(0)
+    _, _, _, _, tex = build(spec, rings=120)
+    rows = models3d.resample(spec, 120)[2][models3d.ring_of_rows(120)]
+    return tex[rows == region].reshape(-1, 3).mean(0)
 
 
 def test_the_chanterelle_is_yellow_everywhere():
@@ -92,8 +91,15 @@ def test_the_published_models_are_the_generated_ones():
     listed = json.loads((REPO_ROOT / "web/public/species/3d/models.json").read_text())
     assert set(listed) == set(SPECS)
     for class_id, m in listed.items():
-        assert m == {"file": f"{class_id}.glb", "drawn": True}
+        assert m == {"file": f"{class_id}-drawn.glb", "drawn": True}
         assert (REPO_ROOT / "web/public/species/3d" / m["file"]).exists()
+
+
+def test_the_generator_is_deterministic(tmp_path):
+    a, b = tmp_path / "a.glb", tmp_path / "b.glb"
+    for path in (a, b):
+        write_glb(path, *build(SPECS["cantharellus-cibarius"]))
+    assert a.read_bytes() == b.read_bytes()
 
 
 def test_rgb():

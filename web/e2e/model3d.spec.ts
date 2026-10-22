@@ -96,7 +96,7 @@ test('models are freed when their sheet is replaced, and cached for offline', as
   )
   expect(alive).toBeLessThanOrEqual(1)
   const cached = await page.evaluate(async () => (await (await caches.open('species-3d')).keys()).map((r) => r.url))
-  expect(cached).toEqual(['http://localhost:4173/seeni/species/3d/cantharellus-cibarius.glb'])
+  expect(cached).toEqual(['http://localhost:4173/seeni/species/3d/cantharellus-cibarius-drawn.glb'])
 })
 
 test('in the result, the button and the credit sit on the picture without overlapping', async ({ page }) => {

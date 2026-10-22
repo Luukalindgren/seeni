@@ -140,3 +140,31 @@ test('in the result, the button and the credit sit on the picture without overla
     if (view === 'model') await hero.getByRole('button', { name: 'Näytä valokuva' }).click()
   }
 })
+
+test.describe(() => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
+
+  test('on a phone, an upward swipe on the model turns it and does not scroll the page', async ({ page }) => {
+    await page.goto('http://localhost:4173/seeni/')
+    await page.getByRole('checkbox').check()
+    await page.getByRole('button', { name: 'Hyväksyn' }).click()
+    await page.locator('#guide-open').click()
+    await openSheet(page, 'kantar')
+    const model = page.locator('#sheet canvas.model3d')
+    await expect(model).toBeVisible({ timeout: 20_000 })
+    await model.scrollIntoViewIfNeeded()
+    const box = (await model.boundingBox())!
+    const scroller = () =>
+      page.evaluate(() => [document.scrollingElement!.scrollTop, document.querySelector('#sheet')!.scrollTop])
+    const before = await scroller()
+    const cdp = await page.context().newCDPSession(page)
+    const x = box.x + box.width / 2
+    const touch = (type: string, y: number) =>
+      cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y }] })
+    await touch('touchStart', box.y + box.height * 0.8)
+    for (let i = 1; i <= 10; i++) await touch('touchMove', box.y + box.height * (0.8 - i * 0.06))
+    await touch('touchEnd', 0)
+    await page.waitForTimeout(300)
+    expect(await scroller()).toEqual(before)
+  })
+})

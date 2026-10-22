@@ -326,6 +326,21 @@ export function isDone(state: State, species: Species): boolean {
   return !remaining.some((c) => Object.keys(c.vastaukset).some((a) => [...ruledOut(c, a)].some((x) => open.has(x))))
 }
 
+/**
+ * Whether the result may show recipes (#50), the one exception to "never suggest a mushroom
+ * is edible" (hard rule 8). Only when the flow is finished, at least one check was answered,
+ * no warning is open, and every candidate still in is syötävä: no dangerous or inedible
+ * species is left in the result. A merged class is syötävä only if all its taxa are, and an
+ * esikäsiteltävä class never qualifies, so no recipe skips a pre-treatment. "Not sure" (null)
+ * never shows recipes.
+ */
+export function showRecipes(state: State | null, species: Species): boolean {
+  if (state === null || state.candidates.length === 0 || state.warnings.length > 0) return false
+  if (!state.asked.some((a) => a.answer !== '')) return false
+  if (!state.candidates.every((c) => species.get(c.id)?.ryhma === 'syötävä')) return false
+  return isDone(state, species)
+}
+
 /** The result once the flow is done. Open warnings are every dangerous class still in. */
 export function outcome(state: State | null, species: Species): Outcome {
   if (state === null || state.candidates.length === 0) return { kind: 'not-sure' }

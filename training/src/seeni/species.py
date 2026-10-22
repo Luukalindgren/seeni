@@ -42,6 +42,9 @@ from seeni.paths import REPO_ROOT
 
 SPECIES = REPO_ROOT / "species" / "species.json"
 SPECIES_EN = REPO_ROOT / "species" / "species.en.json"
+RECIPES = REPO_ROOT / "species" / "reseptit.json"
+# Hosts the recipe links may point to: large Finnish recipe sites, curated by hand.
+RECIPE_HOSTS = {"www.valio.fi", "www.k-ruoka.fi", "yhteishyva.fi", "www.arla.fi"}
 FIELDS = [
     "id",
     "taxonKeys",
@@ -226,6 +229,43 @@ def check_translation(records: list[dict], en: dict) -> list[str]:
     return errors
 
 
+def check_recipes(recipes: dict, rows: list[Row]) -> list[str]:
+    """reseptit.json (#50): 1-2 recipe links per class, only for model classes whose every
+    taxon is syötävä (the merged group, hard rule 8). Never an esikäsiteltävä class, so no
+    recipe can skip the pre-treatment. The app shows them only behind the gate in flow.ts."""
+    errors = []
+    by_class = classes(rows)
+    for cid, links in recipes.items():
+        members = by_class.get(cid)
+        if members is None:
+            errors.append(f"recipes {cid}: not a class_id in lajilista.csv")
+            continue
+        if not members[0].in_model:
+            errors.append(f"recipes {cid}: not a model class")
+        if class_group(members) != "syötävä":
+            errors.append(
+                f"recipes {cid}: only a syötävä class may have recipes, not {class_group(members)}"
+            )
+        if not isinstance(links, list) or not 1 <= len(links) <= 2:
+            errors.append(f"recipes {cid}: give one or two recipes")
+            continue
+        for link in links:
+            if not isinstance(link, dict) or sorted(link) != ["lahde", "nimi", "url"]:
+                errors.append(f"recipes {cid}: a recipe has exactly nimi, url and lahde")
+                continue
+            if not all(isinstance(link[k], str) and link[k] for k in link):
+                errors.append(f"recipes {cid}: nimi, url and lahde must be non-empty strings")
+                continue
+            m = re.match(r"^https://([^/]+)/", link["url"])
+            if not m or m.group(1) not in RECIPE_HOSTS:
+                errors.append(
+                    f"recipes {cid}: {link['url']} is not https on {sorted(RECIPE_HOSTS)}"
+                )
+            if EDIBLE.search(link["nimi"]):
+                errors.append(f"recipes {cid}: name states edibility: {link['nimi']!r}")
+    return errors
+
+
 def load(path: Path = SPECIES) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
 
@@ -240,6 +280,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--lajilista", type=Path, default=LAJILISTA)
     parser.add_argument("--species", type=Path, default=SPECIES)
     parser.add_argument("--species-en", type=Path, default=SPECIES_EN)
+    parser.add_argument("--recipes", type=Path, default=RECIPES)
     args = parser.parse_args(argv)
     rows = read(args.lajilista)
     records = load(args.species)
@@ -253,6 +294,8 @@ def main(argv: list[str] | None = None) -> int:
         )
     else:
         errors.append(f"{args.species_en} is missing")
+    if args.recipes.exists():
+        errors += check_recipes(json.loads(args.recipes.read_text(encoding="utf-8")), rows)
     for e in errors:
         print(f"error: {e}", file=sys.stderr)
     drafts = sum(1 for r in records if not r.get("tarkistanut"))

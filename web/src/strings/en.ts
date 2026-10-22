@@ -92,6 +92,9 @@ export const en: Strings = {
   placeForget: 'Forget the location',
   placeLabel: 'Find spot',
 
+  recipesTitle: 'Recipes',
+  recipesNote: 'Cook only a mushroom that a mushroom advisor has confirmed. The links open a recipe site.',
+
   previousSpecies: 'Previous species',
   close: 'Close',
   sheetWarningOnly: 'Seeni cannot recognize this species from a photo. It can be ruled out only by checking its features.',

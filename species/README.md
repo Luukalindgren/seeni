@@ -15,6 +15,10 @@ Checks (`tarkistukset`) with the same `id` in several records must be identical,
 
 The flow that uses these records is `web/src/flow.ts`.
 
+## Recipes (#50)
+
+`reseptit.json` maps a class id to one or two recipe links (`nimi`, `url`, `lahde`) on large Finnish recipe sites (Valio, K-Ruoka, Yhteishyvä, Arla). Only syötävä model classes may have them, and `python -m seeni.species check` (CI) refuses any other class, a non-https link and any other host. Recipes are links only: no recipe text or image is copied, and nothing is loaded from the site until the user taps a link. The app shows them only behind `showRecipes` in `flow.ts`, with the note to have the mushroom confirmed. huhtasienet have none: they are poisonous raw.
+
 Every check has a picture in `web/src/checkArt.ts`: a drawing, made for this project (no image license to track), that shows where to look and what the answers look like. A new check needs a picture there too; `web/tests/checkArt.test.ts` fails otherwise.
 
 ## English (#52)

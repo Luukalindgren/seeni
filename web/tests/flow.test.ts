@@ -17,6 +17,7 @@ import {
   outcome,
   outcomeText,
   replay,
+  showRecipes,
   skip,
   ruledOut,
   softmax,
@@ -317,5 +318,57 @@ describe('listed lookalikes', () => {
     // The false chanterelle does not name the chanterelle, which would come without its deadly lookalikes.
     const state: State = { candidates: [{ id: 'hygrophoropsis-aurantiaca', probability: 1, source: 'model' }], warnings: [], asked: [] }
     assert.deepEqual(listedLookalikes(state, 'hygrophoropsis-aurantiaca', species, checks), [])
+  })
+})
+
+describe('recipes (#50)', () => {
+  /** Answers every check as the top class would, until the flow is done. */
+  function finish(state: State): State {
+    const top = state.candidates[0]!.id
+    for (let i = 0; i < 20 && !isDone(state, species); i++) {
+      const check = nextCheck(state, species)
+      if (!check) break
+      const fits = Object.keys(check.vastaukset).find((a) => check.vastaukset[a]!.includes(top))!
+      state = answer(state, check, fits) ?? state
+    }
+    return state
+  }
+
+  it('shows them for a syötävä class once the checks are done and nothing dangerous is left', () => {
+    const state = flow('cantharellus-cibarius', 0.97)
+    assert.equal(showRecipes(state, species), false, 'not before any answer')
+    const done = finish(state)
+    assert.ok(isDone(done, species))
+    assert.deepEqual(done.warnings, [])
+    assert.equal(showRecipes(done, species), true)
+  })
+
+  it('never for an esikäsiteltävä, poisonous or deadly class, even when done', () => {
+    for (const id of ['lactarius-rufus', 'lactarius-trivialis-agg', 'amanita-virosa', 'amanita-muscaria', 'gyromitra-esculenta']) {
+      const done = finish(flow(id, 0.97))
+      assert.equal(showRecipes(done, species), false, id)
+    }
+  })
+
+  it('never for "not sure", without an answer, with an open warning or an inedible candidate left', () => {
+    assert.equal(showRecipes(null, species), false)
+    const state = flow('cantharellus-cibarius', 0.9)
+    const check = nextCheck(state, species)!
+    assert.equal(showRecipes(skip(state, check), species), false, 'skipping is not an answer')
+    const asked = [{ check: 'alapinta', answer: 'x' }]
+    const one = (id: string) => ({ id, probability: 1, source: 'model' as const })
+    assert.equal(showRecipes({ candidates: [one('cantharellus-cibarius')], warnings: ['cortinarius-orellanus'], asked }, species), false)
+    assert.equal(
+      showRecipes({ candidates: [one('boletus-edulis-agg'), one('tylopilus-felleus')], warnings: [], asked }, species),
+      false,
+    )
+  })
+
+  it('exist only for syötävä model classes', () => {
+    const recipes: Record<string, unknown[]> = read('../../species/reseptit.json')
+    for (const id of Object.keys(recipes)) {
+      assert.equal(species.get(id)?.ryhma, 'syötävä', id)
+      assert.ok(ids.includes(id), id)
+    }
   })
 })

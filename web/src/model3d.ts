@@ -1,6 +1,7 @@
 // A turnable 3D model of a species (#45), drawn with plain WebGL: no library, and nothing
-// is loaded unless the species has a model. The model is made from one photo (TripoSR), so
-// the side facing away from the photo is the model's guess; the model faces +z (glTF).
+// is loaded unless the species has a model. A model faces +z (glTF). A drawn model
+// (seeni.models3d) turns all the way round; one made from a photo (TripoSR) sways around
+// the photographed side, as its far side is guessed.
 //
 // mountModel() resolves once the model is on screen; it rejects when WebGL is missing or
 // the file cannot be loaded or read, and the caller keeps the photo.
@@ -21,7 +22,8 @@ void main() {
   gl_Position = projection * view * vec4(position, 1.0);
 }`
 
-// The baked colours already carry the photo's light, so the shading is gentle.
+// The colours already carry their light, so the shading is gentle; the edges turning away
+// darken a little, like a drawn contour.
 const FRAGMENT = `
 precision mediump float;
 uniform sampler2D colour;
@@ -31,6 +33,8 @@ void main() {
   vec3 n = normalize(vNormal);
   if (!gl_FrontFacing) n = -n;
   float light = 0.78 + 0.22 * max(dot(n, normalize(vec3(0.4, 0.7, 0.6))), 0.0);
+  float rim = 1.0 - abs(n.z);
+  light *= 1.0 - 0.32 * rim * rim * rim;
   gl_FragColor = vec4(texture2D(colour, vUv).rgb * light, 1.0);
 }`
 
@@ -87,6 +91,12 @@ async function loadMesh(url: string): Promise<{ mesh: Mesh; image: ImageBitmap |
   return { mesh, image: img }
 }
 
+export interface ModelOptions {
+  reducedMotion: boolean
+  /** 'sway' around the front, or 'spin' all the way round, until touched. */
+  motion: 'sway' | 'spin'
+}
+
 export interface ModelView {
   canvas: HTMLCanvasElement
   dispose(): void
@@ -96,7 +106,7 @@ export interface ModelView {
 export async function mountModel(
   url: string,
   label: string,
-  reducedMotion: boolean,
+  options: ModelOptions,
 ): Promise<ModelView> {
   const canvas = document.createElement('canvas')
   canvas.className = 'model3d'
@@ -108,7 +118,7 @@ export async function mountModel(
   const gl = canvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: true })
   if (!gl) throw new Error('no WebGL')
   try {
-    return setup(canvas, gl, mesh, image, reducedMotion)
+    return setup(canvas, gl, mesh, image, options)
   } catch (e) {
     gl.getExtension('WEBGL_lose_context')?.loseContext()
     throw e
@@ -120,7 +130,7 @@ function setup(
   gl: WebGLRenderingContext,
   mesh: Mesh,
   image: ImageBitmap | HTMLImageElement,
-  reducedMotion: boolean,
+  { reducedMotion, motion }: ModelOptions,
 ): ModelView {
   if (mesh.indices instanceof Uint32Array && !gl.getExtension('OES_element_index_uint')) {
     throw new Error('no 32-bit indices')
@@ -204,14 +214,14 @@ function setup(
     gl!.drawElements(gl!.TRIANGLES, mesh.indices.length, indexType, 0)
   }
 
-  // Until touched, the model sways ±50° around the photographed side, the side that is not
-  // guessed; dragging turns it all the way round.
+  // Until touched, the model turns slowly, or sways ±50° around the photographed side, the
+  // side that is not guessed; dragging turns it all the way round.
   let swayTime = 0
   function tick(now: number) {
     frame = 0
     if (spinning && last) {
       swayTime += (now - last) / 1000
-      yaw = 0.87 * Math.sin(swayTime * 0.6)
+      yaw = motion === 'spin' ? swayTime * 0.45 : 0.87 * Math.sin(swayTime * 0.6)
     }
     last = now
     draw()

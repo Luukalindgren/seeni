@@ -57,6 +57,7 @@ export const fi = {
   // Result
   photoCredit: (author: string, license: string) => `Kuva: ${author}, ${license}`,
   model3dCredit: (author: string, license: string) => `3D-malli valokuvasta: ${author}, ${license}`,
+  model3dDrawn: 'Seenin piirtämä 3D-malli',
   model3dLabel: (name: string) => `${name}, 3D-malli. Käännä vetämällä tai nuolinäppäimillä.`,
   show3d: 'Näytä 3D-malli',
   showPhoto: 'Näytä valokuva',

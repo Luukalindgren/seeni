@@ -1,8 +1,14 @@
 {
  "cantharellus-cibarius": {
-  "file": "cantharellus-cibarius.glb",
-  "author": "Reidun Braathen",
-  "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2401086346"
+  "file": "cantharellus-cibarius-drawn.glb",
+  "drawn": true
+ },
+ "hygrophoropsis-aurantiaca": {
+  "file": "hygrophoropsis-aurantiaca-drawn.glb",
+  "drawn": true
+ },
+ "cortinarius-orellanus": {
+  "file": "cortinarius-orellanus-drawn.glb",
+  "drawn": true
  }
 }

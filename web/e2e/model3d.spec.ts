@@ -1,5 +1,5 @@
-// Species 3D models (#45): a species with a model shows it in place of the photo, credited to
-// the photo it was made from; a species without one keeps its photo.
+// Species 3D models (#45): a species with a model shows it in place of the photo, captioned
+// as Seeni's own drawing; a species without one keeps its photo.
 import { expect, test } from '@playwright/test'
 import { fileURLToPath } from 'node:url'
 
@@ -23,7 +23,7 @@ test('the chanterelle sheet shows its 3D model, other sheets their photo', async
   const model = figure.getByRole('img', { name: /Kantarelli, 3D-malli/ })
   await expect(model).toBeVisible({ timeout: 20_000 })
   await expect(figure.locator('img')).toBeHidden()
-  await expect(figure.locator('figcaption')).toHaveText('3D-malli valokuvasta: Reidun Braathen, CC-BY-4.0')
+  await expect(figure.locator('figcaption')).toHaveText('Seenin piirtämä 3D-malli')
   // It turns with the arrow keys.
   await model.focus()
   await page.keyboard.press('ArrowRight')
@@ -45,6 +45,14 @@ test('the chanterelle sheet shows its 3D model, other sheets their photo', async
   await figure.getByRole('button', { name: 'Näytä 3D-malli' }).click()
   await expect(model).toBeVisible()
   await expect(figure.locator('img')).toBeHidden()
+
+  // Its lookalikes have drawn models too.
+  await page.locator('#sheet-close').click()
+  await openSheet(page, 'valevahvero')
+  await expect(figure.getByRole('img', { name: /Valevahvero, 3D-malli/ })).toBeVisible({ timeout: 20_000 })
+  await page.locator('#sheet-close').click()
+  await openSheet(page, 'lehtomyrkky')
+  await expect(figure.getByRole('img', { name: /Lehtomyrkkyseitikki, 3D-malli/ })).toBeVisible({ timeout: 20_000 })
 
   await page.locator('#sheet-close').click()
   await openSheet(page, 'herkkutat')
@@ -88,7 +96,7 @@ test('models are freed when their sheet is replaced, and cached for offline', as
   )
   expect(alive).toBeLessThanOrEqual(1)
   const cached = await page.evaluate(async () => (await (await caches.open('species-3d')).keys()).map((r) => r.url))
-  expect(cached).toEqual(['http://localhost:4173/seeni/species/3d/cantharellus-cibarius.glb'])
+  expect(cached).toEqual(['http://localhost:4173/seeni/species/3d/cantharellus-cibarius-drawn.glb'])
 })
 
 test('in the result, the button and the credit sit on the picture without overlapping', async ({ page }) => {

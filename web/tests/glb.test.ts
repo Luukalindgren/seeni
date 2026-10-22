@@ -1,5 +1,6 @@
 // The species 3D models (#45): every model in models.json is a GLB the app's reader can
-// show, with a credited source photo, and a broken file is rejected so the photo stays.
+// show, drawn for Seeni or made from a credited photo, and a broken file is rejected so the
+// photo stays.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
@@ -8,7 +9,10 @@ import { parseGlb } from '../src/glb.ts'
 import speciesRecords from '../../species/species.json' with { type: 'json' }
 
 const dir = new URL('../public/species/3d/', import.meta.url)
-const models: Record<string, { file: string; author: string; license: string; source: string }> = JSON.parse(
+const models: Record<
+  string,
+  { file: string; drawn?: boolean; author?: string; license?: string; source?: string }
+> = JSON.parse(
   readFileSync(new URL('models.json', dir), 'utf-8'),
 )
 
@@ -18,14 +22,15 @@ function read(file: string): ArrayBuffer {
 }
 
 describe('species 3D models', () => {
-  it('are listed for known species, with a CC0 or CC-BY photo credit', () => {
+  it('are listed for known species, drawn or with a CC0 or CC-BY photo credit', () => {
     const ids = new Set((speciesRecords as { id: string }[]).map((r) => r.id))
     assert.ok(Object.keys(models).length > 0)
     for (const [id, m] of Object.entries(models)) {
       assert.ok(ids.has(id), `${id} is not in species.json`)
-      assert.match(m.license, /^CC0-1\.0$|^CC-BY-4\.0$/)
+      if (m.drawn) continue
+      assert.match(m.license ?? '', /^CC0-1\.0$|^CC-BY-4\.0$/)
       assert.ok(m.author)
-      assert.match(m.source, /^https:\/\/www\.gbif\.org\/occurrence\/\d+$/)
+      assert.match(m.source ?? '', /^https:\/\/www\.gbif\.org\/occurrence\/\d+$/)
     }
   })
 

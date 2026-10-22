@@ -1407,17 +1407,9 @@ function renderSheet() {
   }
   if (s.lookalikes.length) {
     sheetBody.append(el('h3', text.lookalikes))
-    const ul = el('ul', undefined, 'sheet-lookalikes')
-    for (const l of s.lookalikes) {
-      const li = el('li')
-      const open = el('button', asTitle(l.nimi), 'link')
-      open.type = 'button'
-      open.addEventListener('click', () => openSheet(l.id, current.compareTo))
-      li.append(open)
-      const lb = badge(l.id)
-      if (lb) li.append(lb)
-      ul.append(li)
-    }
+    // The same cards as in the result, so a species looks the same everywhere.
+    const ul = el('ul', undefined, 'lookalikes sheet-lookalikes')
+    for (const l of s.lookalikes) ul.append(speciesRow(l.id, () => openSheet(l.id, current.compareTo)))
     sheetBody.append(ul)
   }
   if (s.lahteet.length) {

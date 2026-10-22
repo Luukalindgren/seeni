@@ -1459,26 +1459,39 @@ body.live-on .adding {
   margin-left: auto;
 }
 
+/* Roomy, with one card colour: the page's own background, as on the start screen. */
 #sheet-body {
-  padding: 0 1.25rem 1.25rem;
+  padding: 0 1.5rem 1.75rem;
   margin-top: -3.5rem;
 }
 
 #sheet-body h2 {
   color: var(--fg);
-  margin: 0.75rem 0 0;
+  margin: 1rem 0 0.15rem;
+  font-size: 1.75rem;
+}
+
+#sheet-body > .latin {
+  margin: 0 0 0.6rem;
 }
 
 #sheet-body h3 {
-  margin: 1.25rem 0 0.4rem;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
+  margin: 2rem 0 0.75rem;
+  font-size: 1.05rem;
+  color: var(--fg);
+}
+
+#sheet .features {
+  margin: 0;
+}
+
+#sheet .features li {
+  background: var(--bg);
+  font-weight: 500;
 }
 
 .sheet-photo {
-  margin: 0 -1.25rem;
+  margin: 0 -1.5rem;
 }
 
 .sheet-photo img {
@@ -1489,16 +1502,16 @@ body.live-on .adding {
 }
 
 .sheet-photo figcaption {
-  padding: 0.3rem 1.25rem 0;
+  padding: 0.4rem 1.5rem 0;
   font-size: 0.75rem;
   color: var(--muted);
 }
 
 .sheet-note {
-  margin: 0.75rem 0 0;
-  padding: 0.6rem 0.8rem;
-  border-radius: 0.9rem;
-  background: var(--moss-soft);
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  background: var(--bg);
   font-size: 0.9rem;
 }
 
@@ -1511,39 +1524,40 @@ body.live-on .adding {
 }
 
 .differences li {
-  margin: 0 0 0.75rem;
-  padding: 0.7rem 0.85rem;
-  border-radius: 1rem;
-  background: var(--moss-soft);
+  margin: 0 0 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1.2rem;
+  background: var(--bg);
 }
 
 .difference-question {
-  margin: 0 0 0.4rem;
-  font-weight: 700;
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
+/* Each species' answer under its name, so a long answer has the card's whole width. */
 .differences dl {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.2rem 0.75rem;
   margin: 0;
   font-size: 0.95rem;
 }
 
 .differences dt {
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .differences dd {
-  margin: 0;
+  margin: 0.1rem 0 0.6rem;
 }
 
-.sheet-lookalikes li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.35rem 0;
+.differences dd:last-child {
+  margin-bottom: 0;
+}
+
+#sheet .lookalikes li {
+  background: var(--bg);
 }
 
 .link {
@@ -1800,4 +1814,8 @@ body.live-on .adding {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--danger-text);
+}
+
+#sheet-body > .reminder {
+  margin-top: 2rem;
 }

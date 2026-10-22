@@ -121,6 +121,8 @@ export const fi = {
   groupEsikasiteltava: 'Myrkyllinen raakana',
 
   // Check pictures
+  galleryTitle: 'Lisää kuvia',
+  galleryOpen: 'Lisää kuvia ja tuntomerkit',
   pictureLabel: (captions: string) => `Kuva: ${captions}`,
 
   // Time of year and region (#48)

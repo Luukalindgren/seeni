@@ -474,6 +474,42 @@ fetch(`${base}species/credits.json`)
   .then((c) => (credits = c))
   .catch(() => undefined)
 
+// More photos of each species (species/gallery/, credits in species/gallery.json, made by
+// training/src/seeni/species_images.py), loaded only when a sheet shows them; the photos
+// are not precached, so the first load stays small.
+let galleryCredits: Record<string, Credit> = {}
+fetch(`${base}species/gallery.json`)
+  .then((r) => (r.ok ? r.json() : {}))
+  .then((c) => (galleryCredits = c))
+  .catch(() => undefined)
+
+function hasGallery(id: string): boolean {
+  return `${id}-1` in galleryCredits
+}
+
+function gallery(id: string): HTMLElement | null {
+  const keys = Object.keys(galleryCredits)
+    .filter((k) => k.startsWith(`${id}-`) && /^\d+$/.test(k.slice(id.length + 1)))
+    .sort()
+  if (keys.length === 0) return null
+  const strip = el('div', undefined, 'gallery')
+  strip.setAttribute('role', 'group')
+  strip.setAttribute('aria-label', t().galleryTitle)
+  // Scrolls sideways, so it takes focus for the arrow keys.
+  strip.tabIndex = 0
+  for (const k of keys) {
+    const figure = el('figure')
+    const img = el('img')
+    img.src = `${base}species/gallery/${k}.jpg`
+    img.alt = asTitle(species.get(id)?.nimi ?? id)
+    img.loading = 'lazy'
+    const c = galleryCredits[k]!
+    figure.append(img, el('figcaption', t().photoCredit(c.author, c.license)))
+    strip.append(figure)
+  }
+  return strip
+}
+
 function badge(id: string): HTMLElement | null {
   const g = species.get(id)?.ryhma
   const label = g ? groupLabel(g) : null
@@ -649,6 +685,13 @@ function render(state: State | null, raw: Map<string, number>) {
   }
   const rare = seasonNote(top.id)
   if (rare) body.append(rare)
+  if (hasGallery(top.id)) {
+    const more = el('button', t().galleryOpen, 'live-link gallery-open')
+    more.type = 'button'
+    more.setAttribute('aria-haspopup', 'dialog')
+    more.addEventListener('click', () => openSheet(top.id, top.id))
+    body.append(more)
+  }
   hero.append(body)
   // Everything below the species goes in one column, beside the photo on large screens.
   const side = el('div', undefined, 'side')
@@ -1386,6 +1429,9 @@ function renderSheet() {
     for (const t of s.tuntomerkit) ul.append(el('li', t))
     sheetBody.append(ul)
   }
+  // More photos next to the features they show.
+  const more = gallery(s.id)
+  if (more) sheetBody.append(el('h3', t().galleryTitle), more)
   if (s.compareTo) {
     sheetBody.append(el('h3', text.compare(s.compareTo.nimi)))
     if (s.compareTo.differences.length === 0) {

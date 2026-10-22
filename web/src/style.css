@@ -1552,7 +1552,8 @@ figure:not(.has-model) .model3d-badge {
   aspect-ratio: 4 / 3;
   background: radial-gradient(ellipse at 50% 85%, var(--moss-soft), var(--bg) 70%);
   cursor: grab;
-  touch-action: pan-y;
+  /* A touch on the model turns it, in every direction, and never scrolls the page. */
+  touch-action: none;
 }
 
 .model3d:active {

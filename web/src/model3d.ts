@@ -237,7 +237,7 @@ function setup(
 
   let drag: { x: number; y: number; id: number } | null = null
   canvas.addEventListener('pointerdown', (e) => {
-    // The sway stops on the first move: a touch that becomes a page scroll leaves it on.
+    // The sway stops on the first move. touch-action: none keeps the page from scrolling.
     drag = { x: e.clientX, y: e.clientY, id: e.pointerId }
     canvas.setPointerCapture(e.pointerId)
   })

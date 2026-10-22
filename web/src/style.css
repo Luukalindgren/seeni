@@ -175,6 +175,12 @@ svg {
   display: none;
 }
 
+/* Home has the round drop area and big buttons, little text, as on a large screen (#129).
+   Phones keep the hint on taking the photo. */
+#home .intro {
+  display: none;
+}
+
 .intro {
   color: var(--muted);
   text-align: center;
@@ -199,9 +205,10 @@ svg {
   vertical-align: 0.1em;
 }
 
-/* The round drop area: shown on large screens, where it is the main target. */
+/* The round drop area, the centre of the home view on every screen (#129). On a phone a tap
+   opens the photos, as the button below does. */
 .drop {
-  display: none;
+  display: flex;
   position: relative;
   width: min(23.75rem, 70vw);
   aspect-ratio: 1;
@@ -232,9 +239,9 @@ svg {
   color: var(--fg);
 }
 
-/* Where there is a mouse, the area is drawn on a canvas (dropArt.ts): a wavy edge and a
-   mushroom that sway in the wind. The canvas reaches past the circle for the waves and the
-   shadow; the plain circle and icon above stay for tablets. */
+/* The area is drawn on a canvas (dropArt.ts): a wavy edge and a mushroom that sway in the
+   wind. The canvas reaches past the circle for the waves and the shadow; the plain circle
+   and icon above stay for when it is not drawn. */
 .drop .art {
   display: none;
   position: absolute;
@@ -943,6 +950,48 @@ footer summary {
   overflow-wrap: anywhere;
 }
 
+/* Nothing to drop on a phone; the mushroom says it all. */
+@media (max-width: 899.98px) and (pointer: coarse) {
+  .drop-text {
+    display: none;
+  }
+}
+
+/* Phones and narrow windows: the large-screen look in one column (#129). */
+@media (max-width: 899.98px) {
+  .drop {
+    width: min(17rem, 66vw, 34vh);
+    width: min(17rem, 66vw, 34svh);
+    margin: 1.75rem auto 2.25rem;
+  }
+
+  /* The result: the photo on its own, rounded and lifted, and the species below it on the
+     page instead of on a card. */
+  .hero {
+    background: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .hero-photo {
+    border-radius: 2rem;
+    overflow: hidden;
+    box-shadow: 0 1.25rem 2.5rem var(--shadow);
+  }
+
+  .hero-body {
+    padding: 1.4rem 0.25rem 0;
+  }
+
+  .hero-body h2 {
+    font-size: 2.6rem;
+  }
+
+  .features li {
+    background: var(--card);
+  }
+}
+
 /* Large screens */
 
 @media (min-width: 900px) {
@@ -955,7 +1004,7 @@ footer summary {
     padding-bottom: 1rem;
   }
 
-  /* Home: the round drop area and two big buttons, little text. */
+  /* Home: the round drop area and two big buttons side by side. */
   #home {
     justify-content: center;
     align-items: center;
@@ -963,13 +1012,8 @@ footer summary {
     padding-bottom: 1rem;
   }
 
-  #home .intro,
   #home .hint {
     display: none;
-  }
-
-  .drop {
-    display: flex;
   }
 
   .actions {

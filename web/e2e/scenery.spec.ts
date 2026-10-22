@@ -67,3 +67,34 @@ test.describe('in Chrome on an Android phone', () => {
     expect((await box(page, '#sky')).position).toBe('fixed')
   })
 })
+
+test.describe('home on a phone (#129)', () => {
+  test.use({ ...phone, userAgent: android })
+
+  test('has the drawn drop area and big buttons, as on a large screen', async ({ page }) => {
+    await start(page)
+    const drop = page.locator('#drop')
+    await expect(drop).toBeVisible()
+    await expect(drop).toHaveClass(/drawn/)
+    // The mushroom is drawn on the canvas.
+    await expect
+      .poll(() =>
+        drop.locator('.art').evaluate((c: HTMLCanvasElement) => {
+          const d = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data
+          let painted = 0
+          for (let i = 3; i < d.length; i += 4) if (d[i]! > 0) painted++
+          return painted
+        }),
+      )
+      .toBeGreaterThan(1000)
+    // Little text: no intro, only the hint on taking the photo, and nothing to drop.
+    await expect(page.locator('#home .intro')).toBeHidden()
+    await expect(page.locator('#home > .hint:not(#live-help)')).toBeVisible()
+    await expect(drop.locator('.drop-text')).toBeHidden()
+    // It fits beside the buttons on the screen.
+    const box = (await drop.boundingBox())!
+    expect(box.width).toBeLessThan(300)
+    await expect(page.locator('.actions label[for="camera"]')).toBeInViewport()
+    await expect(page.locator('.actions label[for="gallery"]')).toBeInViewport()
+  })
+})

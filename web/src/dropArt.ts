@@ -1,7 +1,8 @@
-// The drop area on large screens, drawn on a canvas: a round, softly wavy shape whose edge
+// The drop area on the home view, drawn on a canvas: a round, softly wavy shape whose edge
 // moves in the same slow wind as the grass, and a drawn mushroom inside it that sways from
-// its stem base. The mouse pushes both a little, like the grass along the bottom of the page.
-// Paused when the page or the home view is hidden; drawn once, still, under reduced motion.
+// its stem base. A mouse pushes both a little, like the grass along the bottom of the page;
+// a finger does not. Paused when the page or the home view is hidden; drawn once, still,
+// under reduced motion.
 
 import { windAt } from './grass.ts'
 
@@ -15,13 +16,19 @@ const STEM = '#fbf8f1'
 
 export interface DropArt {
   setVisible(visible: boolean): void
+  // A new frame-rate cap, e.g. when the window becomes large; none when not set.
+  setFps(fps?: number): void
   // While a photo is dragged over the page: a gust, and the shape turns moss green.
   setGust(gust: boolean): void
 }
 
-export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt {
+// `fps`: at most this many frames a second, e.g. on a phone to save the battery; the
+// display's rate when not set.
+export function startDropArt(canvas: HTMLCanvasElement, still: boolean, fps?: number): DropArt {
   const context = canvas.getContext('2d')
-  if (!context) return { setVisible() {}, setGust() {} }
+  if (!context) return { setVisible() {}, setFps() {}, setGust() {} }
+  // Drawn: the plain circle and icon in CSS give way to the canvas.
+  canvas.parentElement?.classList.add('drawn')
   const ctx = context
   let width = 0
   let height = 0
@@ -188,7 +195,8 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
   function loop(time: number) {
     frame = visible && !document.hidden ? requestAnimationFrame(loop) : 0
     if (frame === 0) last = 0
-    else draw(time)
+    // Skip a frame that comes too soon; a little slack keeps 30 fps on a 60 Hz display.
+    else if (!fps || !last || time - last >= 1000 / fps - 4) draw(time)
   }
 
   function run() {
@@ -202,6 +210,12 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
   window.addEventListener('pointermove', (e) => {
     if (visible && !still) pointer = { x: e.clientX, y: e.clientY }
   })
+  // A finger or a pen lifts without a mouseleave: its push ends with it.
+  const lift = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') pointer = null
+  }
+  window.addEventListener('pointerup', lift)
+  window.addEventListener('pointercancel', lift)
   // The mouse left the window: nothing pushes the shape any more.
   document.documentElement.addEventListener('mouseleave', () => {
     pointer = null
@@ -216,6 +230,9 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
     setVisible(v: boolean) {
       visible = v
       run()
+    },
+    setFps(f?: number) {
+      fps = f
     },
     setGust(g: boolean) {
       gustTarget = g ? 1 : 0

@@ -359,8 +359,8 @@ const largeScreen = window.matchMedia(
 );
 // Grass along the bottom of every view and a little sky along the top. On a large screen
 // they bend away from the mouse; on a phone they are smaller, sway on their own at a lower
-// frame rate, and never follow the finger. The drop area is drawn on a large screen only: a
-// wavy edge and a mushroom in the wind.
+// frame rate, and never follow the finger. The drop area on home is drawn too: a wavy edge
+// and a mushroom in the wind.
 let grass: Grass | null = null;
 let sky: Sky | null = null;
 let dropArt: DropArt | null = null;
@@ -407,9 +407,15 @@ function startScenery() {
     );
     sky.setVisible(true);
   }
-  if (large && !dropArt) {
-    $("#drop").classList.add("drawn");
-    dropArt = startDropArt($<HTMLCanvasElement>("#drop .art"), reducedMotion);
+  // The drop area is drawn on every screen (#129); on a phone at a lower frame rate.
+  const dropFps = large ? undefined : 30;
+  if (dropArt) dropArt.setFps(dropFps);
+  else {
+    dropArt = startDropArt(
+      $<HTMLCanvasElement>("#drop .art"),
+      reducedMotion,
+      dropFps,
+    );
     dropArt.setVisible(currentView === "home");
   }
 }
@@ -459,7 +465,9 @@ function show(view: keyof typeof views) {
     if (view === "result" && from === "result" && focus)
       focusAfterAnswer(focus === "scroll");
     // Only now, with home shown, does the drop area have a size to draw at.
-    dropArt?.setVisible(view === "home");
+    dropArt?.setVisible(
+      view === "home" && !document.body.classList.contains("live-on"),
+    );
   };
   // The photo of the last identification is no longer needed once back home.
   if (view === "home") setPreview(null);
@@ -2180,9 +2188,11 @@ let liveDismissed = false;
 function setLive(on: boolean) {
   live.hidden = !on;
   document.body.classList.toggle("live-on", on);
-  // The camera covers the page: the grass and the sky behind it rest, to save the battery.
+  // The camera covers the page: the grass, the sky and the drop area behind it rest, to save
+  // the battery.
   grass?.setVisible(!on);
   sky?.setVisible(!on);
+  dropArt?.setVisible(!on && currentView === "home");
   if (on) live.querySelector(".live-status")!.append(status);
   else statusAnchor.after(status);
 }

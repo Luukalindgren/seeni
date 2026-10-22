@@ -5,9 +5,9 @@
   "source": "https://www.gbif.org/occurrence/1933115692"
  },
  "tylopilus-felleus": {
-  "author": "Inger-Lise Fonneland",
+  "author": "Rob van Kruining",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2848728427"
+  "source": "https://www.gbif.org/occurrence/2398555936"
  },
  "leccinum-versipelle-agg": {
   "author": "Morten Pettersen",
@@ -15,9 +15,9 @@
   "source": "https://www.gbif.org/occurrence/2336096294"
  },
  "leccinum-scabrum": {
-  "author": "Tove Jacobsen",
+  "author": "Siv Moen",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/4437223184"
+  "source": "https://www.gbif.org/occurrence/2400151983"
  },
  "suillus-variegatus": {
   "author": "Ole Reitan",
@@ -25,29 +25,29 @@
   "source": "https://www.gbif.org/occurrence/5906031307"
  },
  "suillus-luteus": {
-  "author": "relet",
+  "author": "kallne",
   "license": "CC0-1.0",
-  "source": "https://www.gbif.org/occurrence/2423128576"
+  "source": "https://www.gbif.org/occurrence/4923835944"
  },
  "suillus-bovinus": {
-  "author": "Andreas Schneider",
+  "author": "Perry Gunnar Larsen",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/4172237397"
+  "source": "https://www.gbif.org/occurrence/4912395790"
  },
  "lactarius-trivialis-agg": {
-  "author": "Ole Reitan",
+  "author": "Inger-Lise Fonneland",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/4923453732"
+  "source": "https://www.gbif.org/occurrence/2399447724"
  },
  "lactarius-rufus": {
-  "author": "Else Landsem",
+  "author": "Inger-Lise Fonneland",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/5287764019"
+  "source": "https://www.gbif.org/occurrence/2386570203"
  },
  "lactarius-torminosus": {
-  "author": "Morten Pettersen",
+  "author": "Rune Zakariassen",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2359967843"
+  "source": "https://www.gbif.org/occurrence/2872993354"
  },
  "lactarius-pubescens": {
   "author": "Siv Moen",
@@ -60,19 +60,19 @@
   "source": "https://www.gbif.org/occurrence/2402510348"
  },
  "lactarius-helvus": {
-  "author": "Ellen Renate Andreassen",
-  "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/5841811500"
- },
- "russula-paludosa": {
   "author": "Tove Jacobsen",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/6434861585"
+  "source": "https://www.gbif.org/occurrence/1937552032"
+ },
+ "russula-paludosa": {
+  "author": "Bente Rian",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2825945420"
  },
  "russula-emetica": {
-  "author": "Siv Moen",
+  "author": "Rob van Kruining",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2410469437"
+  "source": "https://www.gbif.org/occurrence/2858141385"
  },
  "russula-decolorans-agg": {
   "author": "Siv Moen",
@@ -80,9 +80,9 @@
   "source": "https://www.gbif.org/occurrence/2399974770"
  },
  "russula-claroflava": {
-  "author": "Per Morten  Selle",
+  "author": "Inger Kristoffersen",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/3921204461"
+  "source": "https://www.gbif.org/occurrence/2399204710"
  },
  "russula-vinosa": {
   "author": "Per Marstad",
@@ -90,9 +90,9 @@
   "source": "https://www.gbif.org/occurrence/2411532639"
  },
  "hygrophorus-camarophyllus": {
-  "author": "Wenche Eli Johansen",
+  "author": "Rob van Kruining",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2408362578"
+  "source": "https://www.gbif.org/occurrence/2468109606"
  },
  "cortinarius-caperatus": {
   "author": "Heinähukka",
@@ -100,24 +100,24 @@
   "source": "https://www.gbif.org/occurrence/4438838143"
  },
  "cantharellus-cibarius": {
-  "author": "Johan Adler",
+  "author": "Christian Kortner",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/6550883990"
+  "source": "https://www.gbif.org/occurrence/2401894371"
  },
  "hygrophoropsis-aurantiaca": {
-  "author": "Jan Alsvik",
-  "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/1933295190"
- },
- "craterellus-tubaeformis-agg": {
-  "author": "Inger Kristoffersen",
-  "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2408323761"
- },
- "craterellus-cornucopioides": {
   "author": "Morten Pettersen",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/3408487326"
+  "source": "https://www.gbif.org/occurrence/3013661393"
+ },
+ "craterellus-tubaeformis-agg": {
+  "author": "Inger-Lise Fonneland",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2402165361"
+ },
+ "craterellus-cornucopioides": {
+  "author": "Nils Edvard Stokke",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5841845950"
  },
  "albatrellus-ovinus": {
   "author": "Inger-Lise Fonneland",
@@ -125,14 +125,14 @@
   "source": "https://www.gbif.org/occurrence/6574911460"
  },
  "hydnum-repandum-agg": {
-  "author": "Siv Moen",
+  "author": "Rune Zakariassen",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2409288982"
+  "source": "https://www.gbif.org/occurrence/2873037374"
  },
  "morchella": {
-  "author": "Ole Reitan",
+  "author": "Pyry Liedes",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/5150059390"
+  "source": "https://www.gbif.org/occurrence/6333844477"
  },
  "tricholoma-matsutake": {
   "author": "Siv Moen",
@@ -140,9 +140,9 @@
   "source": "https://www.gbif.org/occurrence/4404645623"
  },
  "armillaria": {
-  "author": "Jan Alsvik",
+  "author": "Gunnar Bureid",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/6574909346"
+  "source": "https://www.gbif.org/occurrence/5841566624"
  },
  "kuehneromyces-mutabilis": {
   "author": "Inger Kristoffersen",
@@ -150,14 +150,14 @@
   "source": "https://www.gbif.org/occurrence/2403802593"
  },
  "agaricus-campestris-agg": {
-  "author": "Tove Jacobsen",
+  "author": "Per Marstad",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2823036417"
+  "source": "https://www.gbif.org/occurrence/2404670794"
  },
  "amanita-virosa": {
-  "author": "Kirsti Anne  Mandal",
+  "author": "Inger Kristoffersen",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2421635434"
+  "source": "https://www.gbif.org/occurrence/2401684621"
  },
  "amanita-phalloides": {
   "author": "Inger-Lise Fonneland",
@@ -165,9 +165,9 @@
   "source": "https://www.gbif.org/occurrence/2400039989"
  },
  "cortinarius-rubellus": {
-  "author": "Edel Humstad",
+  "author": "Jan Sørensen",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2408464409"
+  "source": "https://www.gbif.org/occurrence/1824014196"
  },
  "gyromitra-esculenta": {
   "author": "Per Marstad",
@@ -175,14 +175,14 @@
   "source": "https://www.gbif.org/occurrence/2409616406"
  },
  "galerina-marginata": {
-  "author": "Johan Adler",
+  "author": "Reidun Braathen",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/5889279375"
+  "source": "https://www.gbif.org/occurrence/2825900443"
  },
  "paxillus-involutus": {
-  "author": "Kirsti Anne  Mandal",
+  "author": "Rob van Kruining",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/6495174005"
+  "source": "https://www.gbif.org/occurrence/2403401266"
  },
  "amanita-muscaria": {
   "author": "Ola Vestre",
@@ -200,19 +200,19 @@
   "source": "https://www.gbif.org/occurrence/5841598276"
  },
  "hypholoma-fasciculare": {
-  "author": "Ole Christian Hagestad",
+  "author": "Inger-Lise Fonneland",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/4131950390"
+  "source": "https://www.gbif.org/occurrence/1933364770"
  },
  "inocybe": {
-  "author": "Tove Jacobsen",
+  "author": "Arild Omberg",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/2822917384"
+  "source": "https://www.gbif.org/occurrence/6405746515"
  },
  "tricholoma-equestre": {
-  "author": "Morten Pettersen",
+  "author": "Per Marstad",
   "license": "CC-BY-4.0",
-  "source": "https://www.gbif.org/occurrence/4437233428"
+  "source": "https://www.gbif.org/occurrence/3912700585"
  },
  "cortinarius-orellanus": {
   "author": "Inger-Lise Fonneland",
@@ -220,8 +220,8 @@
   "source": "https://www.gbif.org/occurrence/1823027126"
  },
  "verpa-bohemica": {
-  "author": "Tero Linjama",
-  "license": "CC0-1.0",
-  "source": "https://www.gbif.org/occurrence/3301903748"
+  "author": "Lars Mathisen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6338015335"
  }
 }

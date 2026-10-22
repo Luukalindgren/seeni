@@ -988,12 +988,7 @@ function render(state: State | null, raw: Map<string, number>) {
 
   // Recipes only behind the gate in flow.ts (#50), always with the note to have the mushroom
   // confirmed. Plain links: nothing is loaded from the recipe site until the user taps one.
-  const recipes = (
-    recipeLinks as Record<
-      string,
-      { nimi: string; url: string; lahde: string }[]
-    >
-  )[top.id];
+  const recipes = recipesOf(top.id);
   const resemblances = files
     ? dangerousResemblances(
         files.labels,
@@ -1003,23 +998,7 @@ function render(state: State | null, raw: Map<string, number>) {
       )
     : ["?"];
   if (recipes && !rare && showRecipes(state, species, resemblances)) {
-    const box = el("section", undefined, "recipes");
-    box.append(
-      el("h3", t().recipesTitle),
-      el("p", t().recipesNote, "recipes-note"),
-    );
-    const ul = el("ul");
-    for (const r of recipes) {
-      const a = el("a", `${r.nimi} (${r.lahde})`);
-      a.href = r.url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      const li = el("li");
-      li.append(a);
-      ul.append(li);
-    }
-    box.append(ul);
-    side.append(box);
+    side.append(recipesSection(recipes, t().recipesNote));
   }
 
   const strip = photoStrip();
@@ -1616,7 +1595,7 @@ function renderGuide() {
   list.replaceChildren();
   if (all.length === 0) list.append(el("li", t().guideNone, "finds-empty"));
   for (const r of all)
-    list.append(speciesRow(r.id, () => openSheet(r.id, r.id)));
+    list.append(speciesRow(r.id, () => openSheet(r.id, r.id, true)));
 }
 
 async function openGuide() {
@@ -1732,7 +1711,7 @@ const sheetDialog = $<HTMLDialogElement>("#sheet");
 const sheetBody = $("#sheet-body");
 const sheetBack = $<HTMLButtonElement>("#sheet-back");
 // The sheets opened, the current one last; each has one history entry.
-let sheetStack: { id: string; compareTo: string }[] = [];
+let sheetStack: { id: string; compareTo: string; guide: boolean }[] = [];
 
 function renderSheet() {
   const current = sheetStack[sheetStack.length - 1];
@@ -1787,9 +1766,18 @@ function renderSheet() {
     // The same cards as in the result, so a species looks the same everywhere.
     const ul = el("ul", undefined, "lookalikes sheet-lookalikes");
     for (const l of s.lookalikes)
-      ul.append(speciesRow(l.id, () => openSheet(l.id, current.compareTo)));
+      ul.append(
+        speciesRow(l.id, () =>
+          openSheet(l.id, current.compareTo, current.guide),
+        ),
+      );
     sheetBody.append(ul);
   }
+  // Recipes in the species guide only (#50): it identifies nothing, so it says so, and they
+  // come after the lookalikes. A sheet opened from a result never shows them; there only the
+  // gate in flow.ts (showRecipes) decides. Only syötävä classes have recipes (CI checks).
+  const recipes = current.guide ? recipesOf(s.id) : undefined;
+  if (recipes) sheetBody.append(recipesSection(recipes, t().recipesGuideNote));
   if (s.lahteet.length) {
     sheetBody.append(el("h3", text.sources));
     const ul = el("ul", undefined, "sources");
@@ -1800,9 +1788,37 @@ function renderSheet() {
   sheetDialog.scrollTop = 0;
 }
 
-function openSheet(id: string, compareTo: string) {
+type Recipe = { nimi: string; url: string; lahde: string };
+
+/** The recipe links of a class (species/reseptit.json), if it has any. */
+function recipesOf(id: string): Recipe[] | undefined {
+  return (recipeLinks as Record<string, Recipe[]>)[id];
+}
+
+/** Recipe links under the note to have the mushroom confirmed. Plain links: nothing is
+ * loaded from the recipe site until the user taps one. */
+function recipesSection(recipes: Recipe[], note: string): HTMLElement {
+  const box = el("section", undefined, "recipes");
+  box.append(el("h3", t().recipesTitle), el("p", note, "recipes-note"));
+  const ul = el("ul");
+  for (const r of recipes) {
+    const a = el("a", `${r.nimi} (${r.lahde})`);
+    a.href = r.url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    const li = el("li");
+    li.append(a);
+    ul.append(li);
+  }
+  box.append(ul);
+  return box;
+}
+
+/** `guide`: opened from the species guide, not from a result; the sheets opened from it
+ * inherit it. */
+function openSheet(id: string, compareTo: string, guide = false) {
   if (!species.has(id) || !modelClasses) return;
-  sheetStack.push({ id, compareTo });
+  sheetStack.push({ id, compareTo, guide });
   pushEntry(sheetStack.length);
   renderSheet();
   if (!sheetDialog.open) sheetDialog.showModal();

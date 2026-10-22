@@ -1529,6 +1529,14 @@ figure:not(.has-model) > .model3d-badge {
   cursor: pointer;
 }
 
+/* In the result the photo credit sits bottom right, so the button goes top right. */
+.hero-photo .model3d-toggle {
+  top: 0.6rem;
+  right: 0.6rem;
+  bottom: auto;
+  left: auto;
+}
+
 .model3d-toggle:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;

@@ -74,5 +74,65 @@
  "morchella": {
   "file": "morchella-drawn.glb",
   "drawn": true
+ },
+ "lactarius-trivialis-agg": {
+  "file": "lactarius-trivialis-agg-drawn.glb",
+  "drawn": true
+ },
+ "lactarius-rufus": {
+  "file": "lactarius-rufus-drawn.glb",
+  "drawn": true
+ },
+ "lactarius-torminosus": {
+  "file": "lactarius-torminosus-drawn.glb",
+  "drawn": true
+ },
+ "lactarius-pubescens": {
+  "file": "lactarius-pubescens-drawn.glb",
+  "drawn": true
+ },
+ "lactarius-deliciosus-agg": {
+  "file": "lactarius-deliciosus-agg-drawn.glb",
+  "drawn": true
+ },
+ "armillaria": {
+  "file": "armillaria-drawn.glb",
+  "drawn": true
+ },
+ "russula-paludosa": {
+  "file": "russula-paludosa-drawn.glb",
+  "drawn": true
+ },
+ "russula-decolorans-agg": {
+  "file": "russula-decolorans-agg-drawn.glb",
+  "drawn": true
+ },
+ "russula-claroflava": {
+  "file": "russula-claroflava-drawn.glb",
+  "drawn": true
+ },
+ "russula-vinosa": {
+  "file": "russula-vinosa-drawn.glb",
+  "drawn": true
+ },
+ "hygrophorus-camarophyllus": {
+  "file": "hygrophorus-camarophyllus-drawn.glb",
+  "drawn": true
+ },
+ "cortinarius-caperatus": {
+  "file": "cortinarius-caperatus-drawn.glb",
+  "drawn": true
+ },
+ "tricholoma-matsutake": {
+  "file": "tricholoma-matsutake-drawn.glb",
+  "drawn": true
+ },
+ "kuehneromyces-mutabilis": {
+  "file": "kuehneromyces-mutabilis-drawn.glb",
+  "drawn": true
+ },
+ "agaricus-campestris-agg": {
+  "file": "agaricus-campestris-agg-drawn.glb",
+  "drawn": true
  }
 }

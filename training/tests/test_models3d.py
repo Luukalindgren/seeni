@@ -166,3 +166,20 @@ def test_the_false_morels_cap_hangs_free_but_the_morels_is_joined():
     morel = SPECS["morchella"]
     r, y, region, _ = models3d.resample(morel, morel.rings)
     assert y[region == "under"].max() - y[region == "under"].min() < 0.08
+
+
+@pytest.mark.parametrize("class_id", sorted(SPECS))
+def test_every_region_keeps_the_colours_it_is_given(class_id):
+    # Catches a gradient overshooting its colours (it wraps around in uint8, to black).
+    spec = SPECS[class_id]
+    _, _, _, _, tex = build(spec)
+    rows = models3d.resample(spec, spec.rings)[2][models3d.ring_of_rows(spec.rings)]
+    for region, (c0, c1) in spec.colours.items():
+        if not (rows == region).any():
+            continue
+        lo = np.minimum(rgb(c0), rgb(c1)) - 0.3
+        hi = np.maximum(rgb(c0), rgb(c1)) + 0.3
+        row_means = tex[rows == region].mean(axis=1)
+        inside = ((row_means >= lo) & (row_means <= hi)).all(axis=1)
+        # Borders blur into the next region, and lines are painted over the gills.
+        assert inside.mean() > 0.9, region

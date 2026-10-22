@@ -38,7 +38,7 @@ async function identify(page: Page, buffer: Buffer) {
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles({ name: 'sieni.jpg', mimeType: 'image/jpeg', buffer })
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
 }
 
 test('uses the position in the photo', async ({ page }) => {

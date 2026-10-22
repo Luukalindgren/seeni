@@ -12,7 +12,7 @@ test('finds a species by name and opens its sheet', async ({ page }) => {
   await guide.getByRole('searchbox', { name: 'Hae lajia' }).fill('kantar')
   await expect(guide.locator('.lookalike')).toHaveCount(1)
   await guide.locator('.lookalike').click()
-  await expect(page.locator('#sheet-title')).toHaveText('kantarelli')
+  await expect(page.locator('#sheet-title')).toHaveText('Kantarelli')
   // A warning-only species is in the guide too, with its danger label.
   await page.locator('#sheet-close').click()
   await expect(page.locator('#sheet')).toBeHidden()

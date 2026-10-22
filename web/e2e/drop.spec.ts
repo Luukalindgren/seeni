@@ -28,7 +28,7 @@ test('a dropped photo is identified, and a dropped document is explained', async
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
 
   await dropFile(page, 'sieni.jpg', 'image/jpeg', chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   await expect(page.locator('#drop')).not.toHaveClass(/dragging/)
 
   await page.locator('#again').click()

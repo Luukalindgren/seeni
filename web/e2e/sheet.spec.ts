@@ -9,27 +9,27 @@ test('opens a lookalike, steps into its own lookalike and back, and closes with 
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
 
   const sheet = page.locator('#sheet')
   // A deadly lookalike that is not a model class: a warning-only record.
   await page.locator('.lookalike', { hasText: 'lehtomyrkkyseitikki' }).click()
   await expect(sheet).toBeVisible()
-  await expect(sheet.locator('h2')).toHaveText('lehtomyrkkyseitikki')
+  await expect(sheet.locator('h2')).toHaveText('Lehtomyrkkyseitikki')
   await expect(sheet).toContainText('Seeni ei tunnista tätä lajia kuvasta')
   await expect(sheet).toContainText('Näin erotat lajista kantarelli')
 
   // Its own lookalike opens in the same modal, with a back step.
   await sheet.locator('.sheet-lookalikes button', { hasText: 'suippumyrkkyseitikki' }).click()
-  await expect(sheet.locator('h2')).toHaveText('suippumyrkkyseitikki')
+  await expect(sheet.locator('h2')).toHaveText('Suippumyrkkyseitikki')
   await page.locator('#sheet-back').click()
-  await expect(sheet.locator('h2')).toHaveText('lehtomyrkkyseitikki')
+  await expect(sheet.locator('h2')).toHaveText('Lehtomyrkkyseitikki')
 
   // Escape (and Android's back button, which reaches the dialog the same way) goes one back.
   await sheet.locator('.sheet-lookalikes button', { hasText: 'suippumyrkkyseitikki' }).click()
-  await expect(sheet.locator('h2')).toHaveText('suippumyrkkyseitikki')
+  await expect(sheet.locator('h2')).toHaveText('Suippumyrkkyseitikki')
   await page.keyboard.press('Escape')
-  await expect(sheet.locator('h2')).toHaveText('lehtomyrkkyseitikki')
+  await expect(sheet.locator('h2')).toHaveText('Lehtomyrkkyseitikki')
 
   await page.goBack()
   await expect(sheet).toBeHidden()

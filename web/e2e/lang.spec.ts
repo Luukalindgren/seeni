@@ -19,7 +19,7 @@ test.describe('in an English browser', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
     await expect(page.locator('#warning h2')).toHaveText('Before you start')
     await identify(page, 'I accept')
-    await expect(page.locator('#result h2').first()).toHaveText('chanterelle', { timeout: 60_000 })
+    await expect(page.locator('#result h2').first()).toHaveText('Chanterelle', { timeout: 60_000 })
     await expect(page.locator('.verify h3')).toHaveText('How to make sure')
     const question = await page.locator('.verify .question').textContent()
     // Answer the first check in English.
@@ -30,7 +30,7 @@ test.describe('in an English browser', () => {
 
     await page.locator('#lang').click()
     await expect(page.locator('html')).toHaveAttribute('lang', 'fi')
-    await expect(page.locator('#result h2').first()).toHaveText('kantarelli')
+    await expect(page.locator('#result h2').first()).toHaveText('Kantarelli')
     // The same answer, now in Finnish.
     await expect(page.locator('#result .checked li')).toHaveCount(1)
     await expect(page.locator('#result h3', { hasText: 'Tarkistamasi asiat' })).toBeVisible()
@@ -45,10 +45,10 @@ test('opens in English from ?lang=en, also the lookalike sheet', async ({ page }
   await page.goto('http://localhost:4173/seeni/?lang=en')
   await expect(page.locator('#info')).toHaveAttribute('aria-label', 'About and sources')
   await identify(page, 'I accept')
-  await expect(page.locator('#result h2').first()).toHaveText('chanterelle', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Chanterelle', { timeout: 60_000 })
   await page.locator('.lookalike', { hasText: "fool's webcap" }).click()
   const sheet = page.locator('#sheet')
-  await expect(sheet.locator('h2')).toHaveText("fool's webcap")
+  await expect(sheet.locator('h2')).toHaveText("Fool's webcap")
   await expect(sheet).toContainText('Deadly poisonous')
   await expect(sheet).toContainText('How to tell it from chanterelle')
   await expect(sheet).not.toContainText('kyllä')
@@ -67,7 +67,7 @@ test('the warning has its own language switch, and a switch drops ?lang= from th
 test('a "not sure" reached by the answers stays "not sure" after a switch', async ({ page }) => {
   await page.goto('http://localhost:4173/seeni/')
   await identify(page, 'Hyväksyn')
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   // A dark spore print fits none of the candidates.
   await page.locator('.verify .answer', { hasText: 'violetinmusta' }).click()
   await expect(page.locator('#result h2')).toHaveText('En tunnista varmasti')

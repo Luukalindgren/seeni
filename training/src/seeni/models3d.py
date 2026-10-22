@@ -291,7 +291,7 @@ SPECS = {
         spots={"colour": "#fdfcf6", "count": 110, "size": 0.014, "relief": 0.6},
         rings=160,
     ),
-    # Kuningaskärpässieni: a liver-brown cap with yellowish-grey warts; white gills; a pale
+    # Ruskokärpässieni: a liver-brown cap with yellowish-grey warts; white gills; a pale
     # stem with a ring; a bulb ringed with yellowish-brown warts.
     "amanita-regalis": Spec(
         profile=[
@@ -659,6 +659,240 @@ SPECS = {
         wrinkles={"depth": 0.045, "cells": 15},
         rings=150,
     ),
+    # Tulipunahapero: a bright scarlet cap, convex to flat with a shallow dip, shiny; crowded
+    # pure white gills; a pure white, firm stem.
+    "russula-emetica": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.085, 0.004, "base"),
+            (0.1, 0.03, "stem"),
+            (0.095, 0.25, "stem"),
+            (0.092, 0.50, "stem"),
+            (0.095, 0.56, "gills"),
+            (0.20, 0.585, "gills"),
+            (0.33, 0.61, "gills"),
+            (0.395, 0.625, "margin"),
+            (0.41, 0.65, "margin"),
+            (0.40, 0.685, "top"),
+            (0.32, 0.72, "top"),
+            (0.18, 0.725, "top"),
+            (0.07, 0.715, "top"),
+            (0.0, 0.715, "top"),
+        ],
+        colours={
+            "base": ("#ebe9e3", "#f3f2ee"),
+            "stem": ("#f6f5f1", "#fbfbf8"),
+            "gills": ("#f7f6f0", "#fbfaf5"),
+            "margin": ("#e85048", "#e0352c"),
+            "top": ("#e02a24", "#c81c1a"),
+        },
+        lines=AMANITA_LINES,
+        lobes=0.03,
+        lift=0.02,
+        lobe_count=(4, 6, 9),
+        bend=0.03,
+        seed=47,
+        tilt=0.05,
+    ),
+    # Kitkerälahokka: a sulphur-yellow cap with an orange-brown centre; sulphur- to
+    # greenish-yellow gills; a slender yellow stem, browner below.
+    "hypholoma-fasciculare": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.04, 0.004, "base"),
+            (0.048, 0.03, "stem"),
+            (0.042, 0.30, "stem"),
+            (0.04, 0.60, "stem"),
+            (0.04, 0.66, "gills"),
+            (0.12, 0.675, "gills"),
+            (0.22, 0.69, "gills"),
+            (0.265, 0.70, "margin"),
+            (0.275, 0.725, "margin"),
+            (0.26, 0.77, "top"),
+            (0.19, 0.83, "top"),
+            (0.10, 0.86, "top"),
+            (0.0, 0.87, "top"),
+        ],
+        colours={
+            "base": ("#8a6a2a", "#a88a3a"),
+            "stem": ("#c2a442", "#e8d66a"),
+            "gills": ("#c9cc5a", "#d8d468"),
+            "margin": ("#f0e07a", "#ead76a"),
+            "top": ("#e8cf58", "#d07a2c"),
+        },
+        lines={
+            "count": 60,
+            "width": 0.3,
+            "depth": 0.004,
+            "fork": False,
+            "colour": "#8a8a2e",
+            "highlight": "#efe98a",
+        },
+        lobes=0.025,
+        lift=0.015,
+        lobe_count=(4, 7, 11),
+        bend=0.08,
+        seed=53,
+        tilt=0.06,
+        stem_fibres="#a87a32",
+    ),
+    # Lakritsirousku: a pale yellowish- to cinnamon-brown, finely felty cap, flat with a small
+    # dip and sometimes a small umbo; pale ochre gills running slightly down; a stem the
+    # colour of the cap.
+    "lactarius-helvus": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.06, 0.004, "base"),
+            (0.072, 0.03, "stem"),
+            (0.066, 0.30, "stem"),
+            (0.066, 0.50, "stem"),
+            (0.075, 0.56, "gills"),
+            (0.18, 0.60, "gills"),
+            (0.31, 0.635, "gills"),
+            (0.375, 0.65, "margin"),
+            (0.39, 0.675, "margin"),
+            (0.375, 0.705, "top"),
+            (0.28, 0.72, "top"),
+            (0.14, 0.705, "top"),
+            (0.04, 0.70, "top"),
+            (0.0, 0.705, "top"),
+        ],
+        colours={
+            "base": ("#b49068", "#c09c72"),
+            "stem": ("#c7a47a", "#d2b088"),
+            "gills": ("#e2c9a0", "#e8d0a8"),
+            "margin": ("#d4b186", "#c49e72"),
+            "top": ("#c09a6c", "#a47c50"),
+        },
+        lines={
+            "count": 80,
+            "width": 0.28,
+            "depth": 0.004,
+            "fork": False,
+            "colour": "#a8885e",
+            "highlight": "#f2dfba",
+        },
+        lobes=0.04,
+        lift=0.02,
+        lobe_count=(4, 6, 9),
+        bend=0.04,
+        seed=59,
+        tilt=0.05,
+        decurrent=0.1,
+        cap_fibres=0.08,
+    ),
+    # Kangaskeltavalmuska: a sulphur-yellow cap with fine brownish scales at the centre;
+    # crowded, bright lemon-yellow gills; a pale yellow stem; no ring.
+    "tricholoma-equestre": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.075, 0.004, "base"),
+            (0.09, 0.03, "stem"),
+            (0.085, 0.22, "stem"),
+            (0.085, 0.40, "stem"),
+            (0.09, 0.47, "gills"),
+            (0.20, 0.50, "gills"),
+            (0.34, 0.53, "gills"),
+            (0.40, 0.545, "margin"),
+            (0.415, 0.575, "margin"),
+            (0.395, 0.62, "top"),
+            (0.31, 0.665, "top"),
+            (0.17, 0.685, "top"),
+            (0.0, 0.69, "top"),
+        ],
+        colours={
+            "base": ("#d8c87a", "#e2d48a"),
+            "stem": ("#ece08e", "#f0e69a"),
+            "gills": ("#f2e04a", "#f4e352"),
+            "margin": ("#efd860", "#e2c650"),
+            "top": ("#dcc24c", "#a88a3e"),
+        },
+        lines={
+            "count": 100,
+            "width": 0.3,
+            "depth": 0.004,
+            "fork": False,
+            "colour": "#c4b030",
+            "highlight": "#fff48a",
+        },
+        lobes=0.035,
+        lift=0.02,
+        lobe_count=(4, 6, 9),
+        bend=0.03,
+        seed=61,
+        tilt=0.05,
+        spots={"colour": "#8f6e38", "count": 35, "size": 0.01, "relief": 0.0},
+    ),
+    # Poimukellomörsky: a thimble-like, wrinkled yellowish-brown cap hanging free around the
+    # stem, attached only at its top; a long pale cream stem.
+    "verpa-bohemica": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.06, 0.005, "base"),
+            (0.072, 0.03, "stem"),
+            (0.062, 0.45, "stem"),
+            (0.052, 0.88, "stem"),
+            (0.06, 0.93, "under"),
+            (0.13, 0.86, "under"),
+            (0.165, 0.72, "under"),
+            (0.175, 0.62, "margin"),
+            (0.19, 0.61, "margin"),
+            (0.195, 0.64, "top"),
+            (0.19, 0.76, "top"),
+            (0.16, 0.89, "top"),
+            (0.10, 0.965, "top"),
+            (0.0, 0.99, "top"),
+        ],
+        colours={
+            "base": ("#d9c9a8", "#e6d8ba"),
+            "stem": ("#efe4cc", "#f4ebd6"),
+            "under": ("#d9c6a0", "#cbb48a"),
+            "margin": ("#a87e4a", "#9c7240"),
+            "top": ("#a47844", "#7a5430"),
+        },
+        lines={"count": 1, "width": 0.1, "depth": 0.0, "fork": False},
+        lobes=0.0,
+        lift=0.0,
+        bend=0.04,
+        seed=67,
+        tilt=0.0,
+        wrinkles={"depth": 0.03, "cells": 14, "stretch": 4, "under": 0.0},
+        bands={"region": "stem", "count": 9, "colour": "#e2d2b0", "ragged": 0.3, "thin": 0.6},
+        rings=150,
+    ),
+    # Huhtasienet: a conical, honeycombed cap of pits and paler ridges, grey-brown to dark
+    # brown, joined to the stem at its base; a whitish, hollow stem.
+    "morchella": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.08, 0.005, "base"),
+            (0.095, 0.03, "stem"),
+            (0.085, 0.20, "stem"),
+            (0.08, 0.38, "stem"),
+            (0.09, 0.42, "under"),
+            (0.17, 0.43, "under"),
+            (0.18, 0.47, "top"),
+            (0.19, 0.60, "top"),
+            (0.17, 0.75, "top"),
+            (0.12, 0.88, "top"),
+            (0.06, 0.97, "top"),
+            (0.0, 1.0, "top"),
+        ],
+        colours={
+            "base": ("#d8ccb4", "#e4d9c2"),
+            "stem": ("#efe6d4", "#f2eadb"),
+            "under": ("#c9b48e", "#8a6a44"),
+            "top": ("#7a5a38", "#4e3622"),
+        },
+        lines={"count": 1, "width": 0.1, "depth": 0.0, "fork": False},
+        lobes=0.0,
+        lift=0.0,
+        bend=0.03,
+        seed=71,
+        tilt=0.0,
+        wrinkles={"depth": 0.03, "cells": 150, "kind": "pits", "stretch": 1.6, "under": 0.0},
+        rings=150,
+    ),
 }
 
 
@@ -809,9 +1043,29 @@ def wrinkle_field(spec: Spec) -> np.ndarray:
     noise, periodic around the cap."""
     rng = np.random.default_rng(spec.seed + 1000)
     cells = spec.wrinkles["cells"]
-    f = noise((TEX, TEX), cells, rng) + 0.35 * noise((TEX, TEX), cells * 2, rng)
+    if spec.wrinkles.get("kind") == "pits":
+        return pit_field(cells, spec.wrinkles.get("stretch", 1.0), rng)
+    st = (1, spec.wrinkles.get("stretch", 1))
+    f = noise((TEX, TEX), cells, rng, st) + 0.35 * noise((TEX, TEX), cells * 2, rng, st)
     x = np.clip(np.abs(f) / 0.3, 0, 1)
     return x * x * (3 - 2 * x)  # rounded ridges
+
+
+def pit_field(cells: int, stretch: float, rng) -> np.ndarray:
+    """A honeycomb of pits: 0 in a pit, 1 on the ridges between them (cell borders of
+    random points, periodic around the cap, the cells drawn out along the profile)."""
+    n = 256
+    pts = rng.uniform(0, 1, (cells, 2))
+    v, u = np.meshgrid((np.arange(n) + 0.5) / n, (np.arange(n) + 0.5) / n, indexing="ij")
+    du = np.abs(u[..., None] - pts[:, 0])
+    du = np.minimum(du, 1 - du)
+    d = np.sqrt(du**2 + ((v[..., None] - pts[:, 1]) / stretch) ** 2)
+    d.sort(axis=-1)
+    edge = (d[..., 1] - d[..., 0]) / (d[..., 1] + 1e-9)
+    x = 1 - np.clip(edge / 0.35, 0, 1)
+    x = x * x * (3 - 2 * x)
+    img = Image.fromarray((x * 255).astype(np.uint8)).resize((TEX, TEX), Image.Resampling.BILINEAR)
+    return np.asarray(img, np.float64) / 255
 
 
 def paint_bands(tex, bands: dict, region_rows, rng) -> None:
@@ -935,7 +1189,8 @@ def build(spec: Spec, rings: int | None = None, segments: int = 150):
     if folds is not None:
         rows = np.clip((s * TEX).astype(int), 0, TEX - 1)
         cols = np.clip((u * TEX).astype(int), 0, TEX) % TEX
-        reach = np.where(region == "top", 1.0, np.where(region == "under", 0.5, 0.0))
+        under = spec.wrinkles.get("under", 0.5)
+        reach = np.where(region == "top", 1.0, np.where(region == "under", under, 0.0))
         d = spec.wrinkles["depth"] * (folds[rows][:, cols] - 0.5) * reach[:, None]
         R = R + d * n2[:, 0:1]
         Y = Y + d * n2[:, 1:2]

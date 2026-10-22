@@ -144,3 +144,25 @@ def test_the_false_morel_cap_is_folded_and_reddish_brown():
     assert np.percentile(moved, 75) > spec.wrinkles["depth"] * 0.25
     assert (moved > 0.005).mean() > 0.5
     assert hue(region_colour("gyromitra-esculenta", "top")) < 25
+
+
+def test_the_sickener_is_scarlet_with_white_gills():
+    assert (
+        hue(region_colour("russula-emetica", "top")) < 12
+        or hue(region_colour("russula-emetica", "top")) > 350
+    )
+    gills = region_colour("russula-emetica", "gills")
+    assert gills.mean() > 0.85 and gills.max() - gills.min() < 0.08
+
+
+def test_the_false_morels_cap_hangs_free_but_the_morels_is_joined():
+    # Poimukellomörsky: the cap's inside runs from its margin up to the stem top, so the
+    # margin stands well clear of the stem. Huhtasieni: the cap meets the stem at its base.
+    verpa = SPECS["verpa-bohemica"]
+    r, y, region, _ = models3d.resample(verpa, verpa.rings)
+    stem_r = r[region == "stem"].max()
+    assert r[region == "margin"].min() > 2 * stem_r
+    assert y[region == "under"].max() > y[region == "margin"].max() + 0.2
+    morel = SPECS["morchella"]
+    r, y, region, _ = models3d.resample(morel, morel.rings)
+    assert y[region == "under"].max() - y[region == "under"].min() < 0.08

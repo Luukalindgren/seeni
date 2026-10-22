@@ -1,0 +1,647 @@
+{
+ "boletus-edulis-agg-1": {
+  "author": "Kirsti Anne  Mandal",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3353351320"
+ },
+ "boletus-edulis-agg-2": {
+  "author": "Halvard Hatlen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3451556349"
+ },
+ "boletus-edulis-agg-3": {
+  "author": "Rune Zakariassen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/1822585596"
+ },
+ "tylopilus-felleus-1": {
+  "author": "Per Marstad",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2822936457"
+ },
+ "tylopilus-felleus-2": {
+  "author": "jussi majaniemi",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6431049534"
+ },
+ "tylopilus-felleus-3": {
+  "author": "Ole",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4926324202"
+ },
+ "leccinum-versipelle-agg-1": {
+  "author": "Reidun Braathen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2411024143"
+ },
+ "leccinum-versipelle-agg-2": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2401292700"
+ },
+ "leccinum-versipelle-agg-3": {
+  "author": "Yehor Yatsiuk",
+  "license": "CC0-1.0",
+  "source": "https://www.gbif.org/occurrence/4952371405"
+ },
+ "leccinum-scabrum-1": {
+  "author": "delognut",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6481265782"
+ },
+ "leccinum-scabrum-2": {
+  "author": "Jan Alsvik",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4948252689"
+ },
+ "leccinum-scabrum-3": {
+  "author": "Christopher Kullenberg",
+  "license": "CC0-1.0",
+  "source": "https://www.gbif.org/occurrence/3343745862"
+ },
+ "suillus-variegatus-1": {
+  "author": "Eirik Hissingby Trandem",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5186584787"
+ },
+ "suillus-variegatus-2": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3912698465"
+ },
+ "suillus-variegatus-3": {
+  "author": "Niklas Wahlberg",
+  "license": "CC0-1.0",
+  "source": "https://www.gbif.org/occurrence/6552279849"
+ },
+ "suillus-luteus-1": {
+  "author": "Gry Støvind Hoell",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5841566097"
+ },
+ "suillus-luteus-2": {
+  "author": "Ola Vestre",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/1933158311"
+ },
+ "suillus-luteus-3": {
+  "author": "Perry Gunnar Larsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6509509514"
+ },
+ "suillus-bovinus-1": {
+  "author": "Tero Linjama",
+  "license": "CC0-1.0",
+  "source": "https://www.gbif.org/occurrence/4416764756"
+ },
+ "suillus-bovinus-2": {
+  "author": "Ole Reitan",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5905763867"
+ },
+ "suillus-bovinus-3": {
+  "author": "Perry Gunnar Larsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5841730734"
+ },
+ "lactarius-trivialis-agg-1": {
+  "author": "Inger-Lise Fonneland",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3342084303"
+ },
+ "lactarius-trivialis-agg-2": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4923435398"
+ },
+ "lactarius-trivialis-agg-3": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/1933120430"
+ },
+ "lactarius-rufus-1": {
+  "author": "Reidun Braathen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2400070702"
+ },
+ "lactarius-rufus-2": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2882472405"
+ },
+ "lactarius-rufus-3": {
+  "author": "Mikko Heikkinen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4417058525"
+ },
+ "lactarius-torminosus-1": {
+  "author": "Alex Sosnovshchenko",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4952898014"
+ },
+ "lactarius-torminosus-2": {
+  "author": "Nina Fiskerstrand",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4921344108"
+ },
+ "lactarius-torminosus-3": {
+  "author": "Arne Reitan",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2405715296"
+ },
+ "lactarius-pubescens-1": {
+  "author": "Magnar Olsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3970180563"
+ },
+ "lactarius-pubescens-2": {
+  "author": "Nina  Lundberg",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4930110760"
+ },
+ "lactarius-pubescens-3": {
+  "author": "Tove Jacobsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2402566511"
+ },
+ "lactarius-deliciosus-agg-1": {
+  "author": "Hans Andreas Sagstuen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6522702471"
+ },
+ "lactarius-deliciosus-agg-2": {
+  "author": "Perry Gunnar Larsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6509460638"
+ },
+ "lactarius-deliciosus-agg-3": {
+  "author": "Ulrik Andreassen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5759302325"
+ },
+ "lactarius-helvus-1": {
+  "author": "Nils Edvard Stokke",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4437140789"
+ },
+ "lactarius-helvus-2": {
+  "author": "Nils Edvard Stokke",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/1844021474"
+ },
+ "lactarius-helvus-3": {
+  "author": "Kirsti Anne  Mandal",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4947250310"
+ },
+ "russula-paludosa-1": {
+  "author": "Anne Christenson",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3332604441"
+ },
+ "russula-paludosa-2": {
+  "author": "Jonas Heggedal",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5287720627"
+ },
+ "russula-paludosa-3": {
+  "author": "Sigurd Anders Svalestad",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5759307175"
+ },
+ "russula-emetica-1": {
+  "author": "Jeanette Elden",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4907959324"
+ },
+ "russula-emetica-2": {
+  "author": "Inger-Lise Fonneland",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4437188474"
+ },
+ "russula-emetica-3": {
+  "author": "Bjørn Eidhammer",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4437168571"
+ },
+ "russula-decolorans-agg-1": {
+  "author": "Willow Peo Hansen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4925393698"
+ },
+ "russula-decolorans-agg-2": {
+  "author": "Rune Zakariassen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6543661534"
+ },
+ "russula-decolorans-agg-3": {
+  "author": "Tove Jacobsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4947197135"
+ },
+ "russula-claroflava-1": {
+  "author": "Else Landsem",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5841878127"
+ },
+ "russula-claroflava-2": {
+  "author": "Tove Jacobsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3327211372"
+ },
+ "russula-claroflava-3": {
+  "author": "Gry Dolva",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3329882436"
+ },
+ "russula-vinosa-1": {
+  "author": "Per Marstad",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2407702494"
+ },
+ "russula-vinosa-2": {
+  "author": "Tove Jacobsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2416735847"
+ },
+ "russula-vinosa-3": {
+  "author": "Tove Jacobsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3960617697"
+ },
+ "hygrophorus-camarophyllus-1": {
+  "author": "Rob van Kruining",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2468109606"
+ },
+ "hygrophorus-camarophyllus-2": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/1824601200"
+ },
+ "hygrophorus-camarophyllus-3": {
+  "author": "Hallvard Holtung",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4401662537"
+ },
+ "cortinarius-caperatus-1": {
+  "author": "Svein Olav B. Drangeid",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2408351346"
+ },
+ "cortinarius-caperatus-2": {
+  "author": "Rune Zakariassen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3357901336"
+ },
+ "cortinarius-caperatus-3": {
+  "author": "Anne Christenson",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3332601429"
+ },
+ "cantharellus-cibarius-1": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4164318439"
+ },
+ "cantharellus-cibarius-2": {
+  "author": "Mark Taylor",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5223442523"
+ },
+ "cantharellus-cibarius-3": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2333347168"
+ },
+ "hygrophoropsis-aurantiaca-1": {
+  "author": "Tove Jacobsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2398124019"
+ },
+ "hygrophoropsis-aurantiaca-2": {
+  "author": "Alex Sosnovshchenko",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4405372892"
+ },
+ "hygrophoropsis-aurantiaca-3": {
+  "author": "Johan Adler",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5867910626"
+ },
+ "craterellus-tubaeformis-agg-1": {
+  "author": "Kristoffer Olsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4978917405"
+ },
+ "craterellus-tubaeformis-agg-2": {
+  "author": "Sarah Zukoff",
+  "license": "CC0-1.0",
+  "source": "https://www.gbif.org/occurrence/6500006514"
+ },
+ "craterellus-tubaeformis-agg-3": {
+  "author": "Hans Andreas Sagstuen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5905549724"
+ },
+ "craterellus-cornucopioides-1": {
+  "author": "Ola Vestre",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2416584307"
+ },
+ "craterellus-cornucopioides-2": {
+  "author": "Siri Lie Olsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4923448039"
+ },
+ "craterellus-cornucopioides-3": {
+  "author": "Mathilde Norby Lorentzen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5905818689"
+ },
+ "albatrellus-ovinus-1": {
+  "author": "Tove Jacobsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4404687633"
+ },
+ "albatrellus-ovinus-2": {
+  "author": "Tittanoora Martikainen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4414386642"
+ },
+ "albatrellus-ovinus-3": {
+  "author": "Inger Kristoffersen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6574925408"
+ },
+ "hydnum-repandum-agg-1": {
+  "author": "Andreas Schneider",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6479520811"
+ },
+ "hydnum-repandum-agg-2": {
+  "author": "Ellen Christensen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5003571884"
+ },
+ "hydnum-repandum-agg-3": {
+  "author": "Bjørn Eidhammer",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2333052915"
+ },
+ "morchella-1": {
+  "author": "Astrid Grendstad",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5163880517"
+ },
+ "morchella-2": {
+  "author": "Jostein Sandvik",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3469517427"
+ },
+ "morchella-3": {
+  "author": "Jan Sørensen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4109621382"
+ },
+ "tricholoma-matsutake-1": {
+  "author": "Erik Kagge",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4930092317"
+ },
+ "tricholoma-matsutake-2": {
+  "author": "Turid Helland",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4948239158"
+ },
+ "tricholoma-matsutake-3": {
+  "author": "Rune Solvang",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4465976530"
+ },
+ "armillaria-1": {
+  "author": "Inger-Lise Fonneland",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3393096418"
+ },
+ "armillaria-2": {
+  "author": "Hans Andreas Sagstuen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6558170324"
+ },
+ "armillaria-3": {
+  "author": "Gunnar Bureid",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2398602304"
+ },
+ "kuehneromyces-mutabilis-1": {
+  "author": "Bjørn Eidhammer",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3820086341"
+ },
+ "kuehneromyces-mutabilis-2": {
+  "author": "Nils Edvard Stokke",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3879064557"
+ },
+ "kuehneromyces-mutabilis-3": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2399248523"
+ },
+ "agaricus-campestris-agg-1": {
+  "author": "Tove Jacobsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4401699874"
+ },
+ "agaricus-campestris-agg-2": {
+  "author": "Jon Arne Wilhelmsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4948268642"
+ },
+ "agaricus-campestris-agg-3": {
+  "author": "Tove Jacobsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2401039625"
+ },
+ "amanita-virosa-1": {
+  "author": "Rune Zakariassen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4930102789"
+ },
+ "amanita-virosa-2": {
+  "author": "Perry Gunnar Larsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/3332643377"
+ },
+ "amanita-virosa-3": {
+  "author": "Per Marstad",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2858252459"
+ },
+ "amanita-phalloides-1": {
+  "author": "Inger-Lise Fonneland",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5841614133"
+ },
+ "amanita-phalloides-2": {
+  "author": "Inger-Lise Fonneland",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/1933264887"
+ },
+ "amanita-phalloides-3": {
+  "author": "Arild Omberg",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5841828824"
+ },
+ "cortinarius-rubellus-1": {
+  "author": "Perry Gunnar Larsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4947218749"
+ },
+ "cortinarius-rubellus-2": {
+  "author": "June Erlandsen Høgås",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5058947545"
+ },
+ "cortinarius-rubellus-3": {
+  "author": "Gunnar Bureid",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5841930842"
+ },
+ "gyromitra-esculenta-1": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2247976477"
+ },
+ "gyromitra-esculenta-2": {
+  "author": "Jens Ullenius",
+  "license": "CC0-1.0",
+  "source": "https://www.gbif.org/occurrence/3118408664"
+ },
+ "gyromitra-esculenta-3": {
+  "author": "Steinar Stueflotten",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2406238945"
+ },
+ "galerina-marginata-1": {
+  "author": "Sieglinde Hansen [1939-2019]",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2407449289"
+ },
+ "galerina-marginata-2": {
+  "author": "Kirsti Anne  Mandal",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5841813888"
+ },
+ "galerina-marginata-3": {
+  "author": "Tove Jacobsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2404110492"
+ },
+ "paxillus-involutus-1": {
+  "author": "Cecilie Ness",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4947184054"
+ },
+ "paxillus-involutus-2": {
+  "author": "Gunnar Bureid",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2405437573"
+ },
+ "paxillus-involutus-3": {
+  "author": "Dag Leonard Fjeldstad",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6543573346"
+ },
+ "amanita-muscaria-1": {
+  "author": "Inger-Lise Fonneland",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4942173799"
+ },
+ "amanita-muscaria-2": {
+  "author": "Alex Sosnovshchenko",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4980453698"
+ },
+ "amanita-muscaria-3": {
+  "author": "Johann Stamm",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4454340678"
+ },
+ "amanita-regalis-1": {
+  "author": "Aleksi Lehikoinen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4952430554"
+ },
+ "amanita-regalis-2": {
+  "author": "Else Landsem",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6444872440"
+ },
+ "amanita-regalis-3": {
+  "author": "Willow Peo Hansen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4161452468"
+ },
+ "amanita-pantherina-1": {
+  "author": "Gunvor Bollingmo",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/1822603018"
+ },
+ "amanita-pantherina-2": {
+  "author": "Rob van Kruining",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2398064081"
+ },
+ "amanita-pantherina-3": {
+  "author": "Jens Ullenius",
+  "license": "CC0-1.0",
+  "source": "https://www.gbif.org/occurrence/2873797133"
+ },
+ "hypholoma-fasciculare-1": {
+  "author": "Jon Trygve Johnsen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2407978987"
+ },
+ "hypholoma-fasciculare-2": {
+  "author": "Inger-Lise Fonneland",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2406268819"
+ },
+ "hypholoma-fasciculare-3": {
+  "author": "Siv Moen",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/1933224471"
+ },
+ "inocybe-1": {
+  "author": "Gry Handberg",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/6558221312"
+ },
+ "inocybe-2": {
+  "author": "Jan Alsvik",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2882501326"
+ },
+ "inocybe-3": {
+  "author": "Per Marstad",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5841918712"
+ },
+ "tricholoma-equestre-1": {
+  "author": "Cato Erga",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/4948248752"
+ },
+ "tricholoma-equestre-2": {
+  "author": "Eli Heiberg",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/2901377330"
+ },
+ "tricholoma-equestre-3": {
+  "author": "Johan Adler",
+  "license": "CC-BY-4.0",
+  "source": "https://www.gbif.org/occurrence/5007844636"
+ }
+}

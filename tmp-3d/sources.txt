@@ -1,0 +1,10 @@
+Drawn species 3D models (#45), for review. Temporary branch.
+
+Made by training/src/seeni/models3d.py on branch claude/3d-drawn (commit e673e4f), not by an
+image model and not from photos: a turned profile with a wavy cap, the underside's ridges or
+gills in the geometry, and a procedurally painted watercolour-like texture. No source photos,
+no image model, no prompts. Seeni's own work.
+
+<class_id>.glb       the model as the app loads it
+<class_id>_front/side/back/below.png  512 px renders with the app viewer's shading
+(front 0 deg, side 90, back 180, below = pitch -57 deg looking at the underside)

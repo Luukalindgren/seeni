@@ -5,7 +5,8 @@ underside's ridges or gills in the geometry and a watercolour-like painted textu
 
 Each model is drawn from the species' field marks (colour, underside, shape), not made from
 a photo, so no side of it is guessed and its colours are the ones the species sheet names.
-This writes web/public/species/3d/<class id>.glb and models.json, which the app reads. The
+This writes web/public/species/3d/<class id>-drawn.glb and models.json, which the app reads.
+The files are quantized and drawn as one strip (write_glb), about 0.4-0.6 MB each. The
 models are Seeni's own work.
 """
 
@@ -2409,36 +2410,90 @@ def build(spec: Spec, rings: int | None = None, segments: int = 150):
     return pos.astype(np.float32), nrm.astype(np.float32), uv.astype(np.float32), faces, tex
 
 
+def grid_strip(faces: np.ndarray, n: int) -> np.ndarray | None:
+    """The faces of a ring grid from build() as one triangle strip, or None for another mesh.
+
+    Rows of quads join through two repeated indices (zero-area triangles), and every row has
+    an even length, so each row starts with the winding of the faces. The strip is checked to
+    hold exactly the same triangles, turned the same way.
+    """
+    a, c, b = (int(v) for v in faces[0])
+    flipped = b > c  # (a, b, c) after build() flipped the winding
+    cols = (b if flipped else c) - a
+    if a != 0 or cols < 2 or n % cols:
+        return None
+    rings = n // cols
+    j = np.arange(cols)
+    rows = []
+    for r in range(rings - 1):
+        top, bottom = r * cols + j, (r + 1) * cols + j
+        first, second = (bottom, top) if flipped else (top, bottom)
+        row = np.stack([first, second], 1).reshape(-1)
+        if rows:
+            rows.append(row[:1])  # repeats close the previous row and open this one
+        rows.append(row)
+        if r < rings - 2:
+            rows.append(row[-1:])
+    strip = np.concatenate(rows)
+
+    def turned(tris: np.ndarray) -> set:
+        # A triangle as its vertices, rotated to start at the smallest: same set, same turn.
+        k = tris.argmin(1)
+        return {tuple(np.roll(t, -int(i))) for t, i in zip(tris.tolist(), k)}
+
+    i = np.arange(len(strip) - 2)
+    tris = np.stack([strip[i], strip[i + 1], strip[i + 2]], 1)
+    tris[1::2] = tris[1::2][:, [1, 0, 2]]  # every other strip triangle is turned back
+    tris = tris[(tris[:, 0] != tris[:, 1]) & (tris[:, 1] != tris[:, 2]) & (tris[:, 0] != tris[:, 2])]
+    if len(tris) != len(faces) or turned(tris) != turned(faces):
+        return None
+    return strip
+
+
 def write_glb(path, pos, nrm, uv, faces, tex, quality=86):
+    """A binary glTF, made small for the phone (KHR_mesh_quantization): positions as int16 and
+    normals as int8, both padded to 4 bytes, UVs as uint16, and the grid as one strip. The node
+    scales the positions back (one scale for all axes, so the normals keep their direction)."""
     jpg = io.BytesIO()
     Image.fromarray((tex * 255).astype(np.uint8)).save(jpg, "JPEG", quality=quality, optimize=True)
-    idx = faces.astype(np.uint16 if len(pos) < 65536 else np.uint32).reshape(-1)
-    blobs = [pos.tobytes(), nrm.tobytes(), uv.tobytes(), idx.tobytes(), jpg.getvalue()]
+    lo, hi = pos.min(0).astype(np.float64), pos.max(0).astype(np.float64)
+    centre = (lo + hi) / 2
+    scale = float((hi - lo).max() / 2) or 1.0
+    qpos = np.zeros((len(pos), 4), np.int16)
+    qpos[:, :3] = np.round((pos - centre) / scale * 32767).clip(-32767, 32767)
+    qnrm = np.zeros((len(nrm), 4), np.int8)
+    qnrm[:, :3] = np.round(nrm * 127).clip(-127, 127)
+    quv = np.round(uv.astype(np.float64) * 65535).clip(0, 65535).astype(np.uint16)
+    strip = grid_strip(faces, len(pos))
+    idx = (faces.reshape(-1) if strip is None else strip).astype(
+        np.uint16 if len(pos) < 65536 else np.uint32
+    )
+    blobs = [qpos.tobytes(), qnrm.tobytes(), quv.tobytes(), idx.tobytes(), jpg.getvalue()]
     views, bin_ = [], b""
     for blob in blobs:
         bin_ += b"\0" * ((-len(bin_)) % 4)
         views.append({"buffer": 0, "byteOffset": len(bin_), "byteLength": len(blob)})
         bin_ += blob
     bin_ += b"\0" * ((-len(bin_)) % 4)
-    for k in range(3):
+    for k, stride in enumerate((8, 4, 4)):
         views[k]["target"] = 34962
+        views[k]["byteStride"] = stride
     views[3]["target"] = 34963
+    primitive = {
+        "attributes": {"POSITION": 0, "NORMAL": 1, "TEXCOORD_0": 2},
+        "indices": 3,
+        "material": 0,
+    }
+    if strip is not None:
+        primitive["mode"] = 5
     gltf = {
         "asset": {"version": "2.0", "generator": "seeni.models3d"},
+        "extensionsUsed": ["KHR_mesh_quantization"],
+        "extensionsRequired": ["KHR_mesh_quantization"],
         "scene": 0,
         "scenes": [{"nodes": [0]}],
-        "nodes": [{"mesh": 0}],
-        "meshes": [
-            {
-                "primitives": [
-                    {
-                        "attributes": {"POSITION": 0, "NORMAL": 1, "TEXCOORD_0": 2},
-                        "indices": 3,
-                        "material": 0,
-                    }
-                ]
-            }
-        ],
+        "nodes": [{"mesh": 0, "translation": centre.tolist(), "scale": [scale] * 3}],
+        "meshes": [{"primitives": [primitive]}],
         "materials": [
             {
                 "pbrMetallicRoughness": {
@@ -2454,14 +2509,27 @@ def write_glb(path, pos, nrm, uv, faces, tex, quality=86):
         "accessors": [
             {
                 "bufferView": 0,
-                "componentType": 5126,
+                "componentType": 5122,
+                "normalized": True,
                 "count": len(pos),
                 "type": "VEC3",
-                "min": pos.min(0).tolist(),
-                "max": pos.max(0).tolist(),
+                "min": qpos[:, :3].min(0).tolist(),
+                "max": qpos[:, :3].max(0).tolist(),
             },
-            {"bufferView": 1, "componentType": 5126, "count": len(nrm), "type": "VEC3"},
-            {"bufferView": 2, "componentType": 5126, "count": len(uv), "type": "VEC2"},
+            {
+                "bufferView": 1,
+                "componentType": 5120,
+                "normalized": True,
+                "count": len(nrm),
+                "type": "VEC3",
+            },
+            {
+                "bufferView": 2,
+                "componentType": 5123,
+                "normalized": True,
+                "count": len(uv),
+                "type": "VEC2",
+            },
             {
                 "bufferView": 3,
                 "componentType": 5123 if idx.dtype == np.uint16 else 5125,

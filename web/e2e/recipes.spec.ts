@@ -15,7 +15,7 @@ test('a chanterelle checked to the end shows recipes with the note', async ({ pa
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   // Nothing before the checks.
   await expect(page.locator('.recipes')).toHaveCount(0)
   // Answer each check as a chanterelle would, until no check is left.
@@ -39,7 +39,7 @@ test('no recipes when every check is skipped', async ({ page }) => {
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   // Skipping every check answers nothing, so nothing is ruled out.
   for (let i = 0; i < 10 && (await page.locator('.verify .question').count()) > 0; i++) {
     await page.getByRole('button', { name: 'En pysty tarkistamaan tätä' }).click()

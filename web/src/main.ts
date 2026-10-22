@@ -33,6 +33,7 @@ import { answerText, asTitle, localizeRecords, type Translation } from './specie
 import type { Strings } from './strings/fi.ts'
 import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
+import { startSky, type Sky } from './sky.ts'
 import { loadFiles, type ModelFiles } from './modelFiles.ts'
 import { createLiveCamera } from './liveCamera.ts'
 import { addFind, addFinds, countFinds, deleteFind, keepStorage, listFinds, thumbnail, updateFind, type Find } from './finds.ts'
@@ -212,6 +213,7 @@ app.innerHTML = `
     <ul id="guide-list" class="lookalikes guide-list"></ul>
   </dialog>
 
+  <canvas id="sky" aria-hidden="true"></canvas>
   <canvas id="grass" aria-hidden="true"></canvas>
 
   <footer>
@@ -267,8 +269,10 @@ const again = $<HTMLButtonElement>('#again')
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const largeScreen = window.matchMedia('(min-width: 900px) and (hover: hover) and (pointer: fine)')
 // The grass starts when the window is (or later becomes) large: a strip along the bottom
-// of every view. The drop area is then drawn too: a wavy edge and a mushroom in the wind.
+// of every view, with a little sky along the top. The drop area is then drawn too: a wavy
+// edge and a mushroom in the wind.
 let grass: Grass | null = null
+let sky: Sky | null = null
 let dropArt: DropArt | null = null
 let currentView: keyof typeof views = 'home'
 function startGrassIfLarge() {
@@ -279,6 +283,8 @@ function startGrassIfLarge() {
     reach: 120,
   })
   grass.setVisible(true)
+  sky = startSky($<HTMLCanvasElement>('#sky'), reducedMotion, { reach: 140 })
+  sky.setVisible(true)
   $('#drop').classList.add('drawn')
   dropArt = startDropArt($<HTMLCanvasElement>('#drop .art'), reducedMotion)
   dropArt.setVisible(currentView === 'home')
@@ -1829,6 +1835,7 @@ const isImage = (f: File) => f.type === '' || f.type.startsWith('image/')
 // A photo dragged over the page brings a gust of wind to the grass and the drop area.
 function gust(on: boolean) {
   grass?.setGust(on)
+  sky?.setGust(on)
   dropArt?.setGust(on)
 }
 

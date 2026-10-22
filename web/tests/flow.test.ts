@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
+import { MODEL_VERSION } from '../src/modelFiles.ts'
 
 import {
   DANGEROUS,
@@ -31,8 +32,8 @@ import { EDIBLE } from './edible.ts'
 
 const read = (path: string) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'))
 const records: SpeciesRecord[] = read('../../species/species.json')
-const labels: Label[] = read('../public/models/v1/labels.json')
-const calibration: Calibration = read('../public/models/v1/calibration.json')
+const labels: Label[] = read(`../public/models/${MODEL_VERSION}/labels.json`)
+const calibration: Calibration = read(`../public/models/${MODEL_VERSION}/calibration.json`)
 const species = speciesMap(records)
 const ids = labels.map((l) => l.id)
 

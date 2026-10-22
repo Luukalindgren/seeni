@@ -2,7 +2,7 @@
 
 Run from training/ on the desktop, after `seeni.evaluate val` and `test`:
 
-    uv run python -m seeni.export --run b0-224-muu --version v1
+    uv run python -m seeni.export --run b0-224-muu2 --version v2
 
 It writes the four files that are the contract between training and the web app to
 web/public/models/<version>/:
@@ -251,7 +251,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--lajilista", type=Path, default=LAJILISTA)
     parser.add_argument("--run", required=True, help="run directory under <data dir>/runs")
-    parser.add_argument("--version", default="v1", help="folder under web/public/models")
+    parser.add_argument(
+        "--version", required=True, help="new folder under web/public/models, e.g. v3"
+    )
     parser.add_argument("--fixtures", type=Path, default=FIXTURES)
     args = parser.parse_args(argv)
     return cmd_export(args)

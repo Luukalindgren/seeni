@@ -42,6 +42,7 @@ import { EXIF_BYTES, appleMapsUrl, exifDate, exifPosition, googleMapsUrl, placeL
 import { REGIONS, isRare, isRecent, monthOf, regionOf, type Occurrence, type RegionId } from './season.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
 import type { Request, Response } from './worker.ts'
+import type { ModelView } from './model3d.ts'
 import './style.css'
 
 // The language first (#52): `?lang=`, then the stored choice, then the browser's.
@@ -524,11 +525,22 @@ function gallery(id: string): HTMLElement | null {
 interface Model3d extends Credit {
   file: string
 }
-const models: Promise<Record<string, Model3d>> = fetch(`${base}species/3d/models.json`)
-  .then((r) => (r.ok ? r.json() : {}))
-  .catch(() => ({}))
+let models: Promise<Record<string, Model3d>> | null = null
+// Models on the page; one whose result or sheet was replaced is freed, as browsers keep only
+// a few WebGL contexts.
+const liveModels = new Set<ModelView>()
+function freeModels() {
+  for (const v of liveModels) {
+    if (v.canvas.isConnected) continue
+    v.dispose()
+    liveModels.delete(v)
+  }
+}
 
 async function showModel(figure: HTMLElement, id: string): Promise<void> {
+  models ??= fetch(`${base}species/3d/models.json`)
+    .then((r) => (r.ok ? r.json() : {}))
+    .catch(() => ({}))
   const m = (await models)[id]
   if (!m) return
   const { mountModel } = await import('./model3d.ts')
@@ -538,6 +550,7 @@ async function showModel(figure: HTMLElement, id: string): Promise<void> {
     view.dispose()
     return
   }
+  liveModels.add(view)
   figure.classList.add('has-model')
   figure.prepend(view.canvas)
   const tag = el('span', '3D', 'model3d-badge')
@@ -549,13 +562,11 @@ async function showModel(figure: HTMLElement, id: string): Promise<void> {
   // The model is made by a program and its far side is guessed, so the real photo is one tap away.
   const toggle = el('button', t().showPhoto, 'model3d-toggle')
   toggle.type = 'button'
-  toggle.setAttribute('aria-pressed', 'false')
   toggle.addEventListener('click', () => {
-    const photo = figure.classList.toggle('has-model')
-    const showingPhoto = !photo
+    const showingPhoto = !figure.classList.toggle('has-model')
     toggle.textContent = showingPhoto ? t().show3d : t().showPhoto
-    toggle.setAttribute('aria-pressed', String(showingPhoto))
     caption.textContent = showingPhoto ? photoCaption : t().model3dCredit(m.author, m.license)
+    caption.hidden = !caption.textContent
   })
   tag.after(toggle)
 }
@@ -611,7 +622,10 @@ function photo(id: string, cls: string): HTMLElement {
     const caption = el('figcaption', t().photoCredit(c.author, c.license))
     figure.append(caption)
   }
-  if (cls === 'hero-photo' || cls === 'sheet-photo') showModel(figure, id).catch(() => undefined)
+  if (cls === 'hero-photo' || cls === 'sheet-photo') {
+    freeModels()
+    showModel(figure, id).catch(() => undefined)
+  }
   return figure
 }
 

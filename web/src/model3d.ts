@@ -79,7 +79,11 @@ async function loadMesh(url: string): Promise<{ mesh: Mesh; image: ImageBitmap |
   if (typeof createImageBitmap === 'function') return { mesh, image: await createImageBitmap(mesh.image) }
   const img = new Image()
   img.src = URL.createObjectURL(mesh.image)
-  await img.decode()
+  try {
+    await img.decode()
+  } finally {
+    URL.revokeObjectURL(img.src)
+  }
   return { mesh, image: img }
 }
 
@@ -99,9 +103,25 @@ export async function mountModel(
   canvas.setAttribute('role', 'img')
   canvas.setAttribute('aria-label', label)
   canvas.tabIndex = 0
+  // The file first, so a model that cannot load (offline) never takes a WebGL context.
+  const { mesh, image } = await loadMesh(url)
   const gl = canvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: true })
   if (!gl) throw new Error('no WebGL')
-  const { mesh, image } = await loadMesh(url)
+  try {
+    return setup(canvas, gl, mesh, image, reducedMotion)
+  } catch (e) {
+    gl.getExtension('WEBGL_lose_context')?.loseContext()
+    throw e
+  }
+}
+
+function setup(
+  canvas: HTMLCanvasElement,
+  gl: WebGLRenderingContext,
+  mesh: Mesh,
+  image: ImageBitmap | HTMLImageElement,
+  reducedMotion: boolean,
+): ModelView {
   if (mesh.indices instanceof Uint32Array && !gl.getExtension('OES_element_index_uint')) {
     throw new Error('no 32-bit indices')
   }
@@ -135,8 +155,14 @@ export async function mountModel(
   const texture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, texture)
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image)
-  gl.generateMipmap(gl.TEXTURE_2D)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+  // WebGL 1 makes mipmaps only for power-of-two sizes.
+  const pot = (n: number) => n > 0 && (n & (n - 1)) === 0
+  if (pot(image.width) && pot(image.height)) {
+    gl.generateMipmap(gl.TEXTURE_2D)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+  } else {
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+  }
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
@@ -201,12 +227,13 @@ export async function mountModel(
 
   let drag: { x: number; y: number; id: number } | null = null
   canvas.addEventListener('pointerdown', (e) => {
-    stopSpin()
+    // The sway stops on the first move: a touch that becomes a page scroll leaves it on.
     drag = { x: e.clientX, y: e.clientY, id: e.pointerId }
     canvas.setPointerCapture(e.pointerId)
   })
   canvas.addEventListener('pointermove', (e) => {
     if (!drag || e.pointerId !== drag.id) return
+    stopSpin()
     yaw += ((e.clientX - drag.x) / Math.max(canvas.clientWidth, 1)) * Math.PI * 2
     pitch = Math.max(-0.6, Math.min(1.2, pitch + ((e.clientY - drag.y) / Math.max(canvas.clientHeight, 1)) * 2))
     drag.x = e.clientX

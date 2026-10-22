@@ -52,6 +52,12 @@ export default defineConfig({
         // The species gallery is extra: cached when first seen, not on install.
         globIgnores: ['**/species/gallery/**'],
         runtimeCaching: [
+          // The 3D models (#45): cached when first shown; offline before that, the photo shows.
+          {
+            urlPattern: new RegExp(`^https?://[^/]+${base}species/3d/.+\\.glb$`),
+            handler: 'CacheFirst',
+            options: { cacheName: 'species-3d', expiration: { maxEntries: 100 } },
+          },
           {
             // A RegExp: a function would be copied into sw.js without `base`.
             urlPattern: new RegExp(`^https?://[^/]+${base}species/gallery/`),

@@ -1,7 +1,7 @@
 import json
 
 from seeni.lajilista import Row, read
-from seeni.species import SPECIES_EN, check, check_translation, load, sync
+from seeni.species import RECIPES, SPECIES_EN, check, check_recipes, check_translation, load, sync
 
 
 def test_species_json_is_valid():
@@ -131,3 +131,37 @@ def test_translation_problems_are_caught():
     del en["records"]["gone"]
     en["checks"]["x"]["vastaukset"]["ei"] = "no"
     assert check_translation(r, en) == []
+
+
+def test_recipes_are_valid():
+    recipes = json.loads(RECIPES.read_text(encoding="utf-8"))
+    assert check_recipes(recipes, read()) == []
+
+
+def test_recipes_only_for_syotava_classes():
+    link = {
+        "nimi": "Sienikastike",
+        "url": "https://www.k-ruoka.fi/reseptit/sienikastike",
+        "lahde": "K-Ruoka",
+    }
+    rows = read()
+    # esikäsiteltävä, tappava, warning-only, an unknown id and a bad host are all refused.
+    errors = "\n".join(
+        check_recipes(
+            {
+                "lactarius-rufus": [link],
+                "amanita-virosa": [link],
+                "cortinarius-orellanus": [link],
+                "no-such-class": [link],
+                "cantharellus-cibarius": [{**link, "url": "http://example.com/x"}],
+                "boletus-edulis-agg": [],
+            },
+            rows,
+        )
+    )
+    assert "lactarius-rufus: only a syötävä class" in errors
+    assert "amanita-virosa: only a syötävä class" in errors
+    assert "cortinarius-orellanus: not a model class" in errors
+    assert "no-such-class: not a class_id" in errors
+    assert "http://example.com/x is not https" in errors
+    assert "boletus-edulis-agg: give one or two recipes" in errors

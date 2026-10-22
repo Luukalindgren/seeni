@@ -1,0 +1,224 @@
+{
+  "boletus-edulis-agg": [
+    {
+      "nimi": "Herkkutattikeitto",
+      "url": "https://www.valio.fi/reseptit/herkkutattikeitto/",
+      "lahde": "Valio"
+    },
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://www.valio.fi/reseptit/sienimuhennos/",
+      "lahde": "Valio"
+    }
+  ],
+  "leccinum-versipelle-agg": [
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://www.valio.fi/reseptit/sienimuhennos/",
+      "lahde": "Valio"
+    },
+    {
+      "nimi": "Sienikastike",
+      "url": "https://www.k-ruoka.fi/reseptit/sienikastike",
+      "lahde": "K-Ruoka"
+    }
+  ],
+  "leccinum-scabrum": [
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://www.valio.fi/reseptit/sienimuhennos/",
+      "lahde": "Valio"
+    },
+    {
+      "nimi": "Sienikastike",
+      "url": "https://www.k-ruoka.fi/reseptit/sienikastike",
+      "lahde": "K-Ruoka"
+    }
+  ],
+  "suillus-variegatus": [
+    {
+      "nimi": "Sienikastike",
+      "url": "https://www.k-ruoka.fi/reseptit/sienikastike",
+      "lahde": "K-Ruoka"
+    },
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://yhteishyva.fi/reseptit/sienimuhennos/recipe-326",
+      "lahde": "Yhteishyvä"
+    }
+  ],
+  "suillus-luteus": [
+    {
+      "nimi": "Sienikastike",
+      "url": "https://www.k-ruoka.fi/reseptit/sienikastike",
+      "lahde": "K-Ruoka"
+    },
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://yhteishyva.fi/reseptit/sienimuhennos/recipe-326",
+      "lahde": "Yhteishyvä"
+    }
+  ],
+  "suillus-bovinus": [
+    {
+      "nimi": "Sienikastike",
+      "url": "https://www.k-ruoka.fi/reseptit/sienikastike",
+      "lahde": "K-Ruoka"
+    },
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://yhteishyva.fi/reseptit/sienimuhennos/recipe-326",
+      "lahde": "Yhteishyvä"
+    }
+  ],
+  "lactarius-deliciosus-agg": [
+    {
+      "nimi": "Paistetut sienet",
+      "url": "https://www.k-ruoka.fi/reseptit/paistetut-sienet",
+      "lahde": "K-Ruoka"
+    },
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://www.valio.fi/reseptit/sienimuhennos/",
+      "lahde": "Valio"
+    }
+  ],
+  "russula-paludosa": [
+    {
+      "nimi": "Paistetut sienet",
+      "url": "https://www.k-ruoka.fi/reseptit/paistetut-sienet",
+      "lahde": "K-Ruoka"
+    },
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://yhteishyva.fi/reseptit/sienimuhennos/recipe-326",
+      "lahde": "Yhteishyvä"
+    }
+  ],
+  "russula-decolorans-agg": [
+    {
+      "nimi": "Paistetut sienet",
+      "url": "https://www.k-ruoka.fi/reseptit/paistetut-sienet",
+      "lahde": "K-Ruoka"
+    },
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://yhteishyva.fi/reseptit/sienimuhennos/recipe-326",
+      "lahde": "Yhteishyvä"
+    }
+  ],
+  "russula-claroflava": [
+    {
+      "nimi": "Paistetut sienet",
+      "url": "https://www.k-ruoka.fi/reseptit/paistetut-sienet",
+      "lahde": "K-Ruoka"
+    },
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://yhteishyva.fi/reseptit/sienimuhennos/recipe-326",
+      "lahde": "Yhteishyvä"
+    }
+  ],
+  "russula-vinosa": [
+    {
+      "nimi": "Paistetut sienet",
+      "url": "https://www.k-ruoka.fi/reseptit/paistetut-sienet",
+      "lahde": "K-Ruoka"
+    },
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://yhteishyva.fi/reseptit/sienimuhennos/recipe-326",
+      "lahde": "Yhteishyvä"
+    }
+  ],
+  "hygrophorus-camarophyllus": [
+    {
+      "nimi": "Sienikastike",
+      "url": "https://www.k-ruoka.fi/reseptit/sienikastike",
+      "lahde": "K-Ruoka"
+    }
+  ],
+  "cortinarius-caperatus": [
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://www.valio.fi/reseptit/sienimuhennos/",
+      "lahde": "Valio"
+    }
+  ],
+  "cantharellus-cibarius": [
+    {
+      "nimi": "Kantarellikastike",
+      "url": "https://www.valio.fi/reseptit/kantarellikastike/",
+      "lahde": "Valio"
+    },
+    {
+      "nimi": "Kantarellikastike",
+      "url": "https://yhteishyva.fi/reseptit/kantarellikastike/recipe-2712",
+      "lahde": "Yhteishyvä"
+    }
+  ],
+  "craterellus-tubaeformis-agg": [
+    {
+      "nimi": "Suppilovahverokeitto",
+      "url": "https://www.valio.fi/reseptit/suppilovahverokeitto/",
+      "lahde": "Valio"
+    },
+    {
+      "nimi": "Suppilovahverokastike",
+      "url": "https://www.valio.fi/reseptit/suppilovahverokastike/",
+      "lahde": "Valio"
+    }
+  ],
+  "craterellus-cornucopioides": [
+    {
+      "nimi": "Mustatorvisienikeitto",
+      "url": "https://www.k-ruoka.fi/reseptit/mustatorvisienikeitto",
+      "lahde": "K-Ruoka"
+    }
+  ],
+  "albatrellus-ovinus": [
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://www.arla.fi/reseptit/sienimuhennos/",
+      "lahde": "Arla"
+    }
+  ],
+  "hydnum-repandum-agg": [
+    {
+      "nimi": "Sienimuhennos",
+      "url": "https://www.valio.fi/reseptit/sienimuhennos/",
+      "lahde": "Valio"
+    },
+    {
+      "nimi": "Paistetut sienet",
+      "url": "https://www.k-ruoka.fi/reseptit/paistetut-sienet",
+      "lahde": "K-Ruoka"
+    }
+  ],
+  "tricholoma-matsutake": [
+    {
+      "nimi": "Paistetut sienet",
+      "url": "https://www.k-ruoka.fi/reseptit/paistetut-sienet",
+      "lahde": "K-Ruoka"
+    }
+  ],
+  "kuehneromyces-mutabilis": [
+    {
+      "nimi": "Sienikastike",
+      "url": "https://www.k-ruoka.fi/reseptit/sienikastike",
+      "lahde": "K-Ruoka"
+    }
+  ],
+  "agaricus-campestris-agg": [
+    {
+      "nimi": "Paistetut herkkusienet",
+      "url": "https://www.k-ruoka.fi/reseptit/paistetut-herkkusienet",
+      "lahde": "K-Ruoka"
+    },
+    {
+      "nimi": "Herkkusienirisotto",
+      "url": "https://yhteishyva.fi/reseptit/herkkusienirisotto/recipe-876",
+      "lahde": "Yhteishyvä"
+    }
+  ]
+}

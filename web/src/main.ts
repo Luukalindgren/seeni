@@ -3,6 +3,7 @@
 // runs on the device; no image or result is sent anywhere (hard rule 9).
 import speciesRecords from '../../species/species.json'
 import speciesEn from '../../species/species.en.json'
+import recipeLinks from '../../species/reseptit.json'
 import {
   DANGEROUS,
   answer,
@@ -14,7 +15,9 @@ import {
   listedLookalikes,
   nextCheck,
   outcome,
+  recipeCheck,
   replay,
+  showRecipes,
   skip,
   speciesMap,
   start,
@@ -628,7 +631,9 @@ function render(state: State | null, raw: Map<string, number>) {
   }
 
   // How to make sure: the checks, one at a time.
-  const check = done ? null : nextCheck(state, species)
+  // Once done, an edible species may get one more check against its listed lookalikes
+  // before recipes are offered (#50).
+  const check = done ? recipeCheck(state, species) : nextCheck(state, species)
   if (check) {
     const box = el('section', undefined, 'verify')
     box.append(el('h3', t().verifyTitle))
@@ -668,6 +673,27 @@ function render(state: State | null, raw: Map<string, number>) {
       ul.append(el('li', `${k?.kysymys ?? a.check} – ${k ? answerLabel(k, a.answer) : a.answer}`))
     }
     side.append(el('h3', t().checkedTitle), ul)
+  }
+
+  // Recipes only behind the gate in flow.ts (#50), always with the note to have the mushroom
+  // confirmed. Plain links: nothing is loaded from the recipe site until the user taps one.
+  const recipes = (recipeLinks as Record<string, { nimi: string; url: string; lahde: string }[]>)[top.id]
+  const resemblances = files ? dangerousResemblances(files.labels, photos.map((p) => p.probabilities), species, state.asked) : ['?']
+  if (recipes && !rare && showRecipes(state, species, resemblances)) {
+    const box = el('section', undefined, 'recipes')
+    box.append(el('h3', t().recipesTitle), el('p', t().recipesNote, 'recipes-note'))
+    const ul = el('ul')
+    for (const r of recipes) {
+      const a = el('a', `${r.nimi} (${r.lahde})`)
+      a.href = r.url
+      a.target = '_blank'
+      a.rel = 'noopener noreferrer'
+      const li = el('li')
+      li.append(a)
+      ul.append(li)
+    }
+    box.append(ul)
+    side.append(box)
   }
 
   const strip = photoStrip()

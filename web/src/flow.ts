@@ -326,6 +326,42 @@ export function isDone(state: State, species: Species): boolean {
   return !remaining.some((c) => Object.keys(c.vastaukset).some((a) => [...ruledOut(c, a)].some((x) => open.has(x))))
 }
 
+/**
+ * Whether the result may show recipes (#50), the one exception to "never suggest a mushroom
+ * is edible" (hard rule 8). Only when the flow is done, at least one check was answered, and
+ * nothing but one syötävä species is left: a single candidate, no open warning, no listed
+ * lookalike that an answer has not ruled out, and no dangerous species the photos resemble
+ * (`resemblances`, from dangerousResemblances). A merged class is syötävä only if all its taxa
+ * are, and an esikäsiteltävä class never qualifies, so no recipe skips a pre-treatment.
+ * "Not sure" (null) never shows recipes.
+ */
+export function showRecipes(state: State | null, species: Species, resemblances: readonly string[] = []): boolean {
+  if (state === null || state.candidates.length !== 1 || state.warnings.length > 0 || resemblances.length > 0) return false
+  const top = state.candidates[0]!.id
+  if (species.get(top)?.ryhma !== 'syötävä') return false
+  if (!state.asked.some((a) => a.answer !== '')) return false
+  if (listedLookalikes(state, top, species, checkById(species)).length > 0) return false
+  return isDone(state, species)
+}
+
+/**
+ * Once the flow is done with one syötävä candidate, a check of that species that can still
+ * rule out one of its listed lookalikes (e.g. the false chanterelle beside a chanterelle), so
+ * that the user can make sure before the result offers recipes. Null when there is none.
+ */
+export function recipeCheck(state: State, species: Species): Check | null {
+  if (state.candidates.length !== 1 || state.warnings.length > 0) return null
+  const top = state.candidates[0]!.id
+  if (species.get(top)?.ryhma !== 'syötävä' || !isDone(state, species)) return null
+  const left = new Set(listedLookalikes(state, top, species, checkById(species)))
+  const asked = new Set(state.asked.map((a) => a.check))
+  return (
+    species.get(top)!.tarkistukset.find(
+      (c) => !asked.has(c.id) && Object.keys(c.vastaukset).some((a) => [...ruledOut(c, a)].some((x) => left.has(x))),
+    ) ?? null
+  )
+}
+
 /** The result once the flow is done. Open warnings are every dangerous class still in. */
 export function outcome(state: State | null, species: Species): Outcome {
   if (state === null || state.candidates.length === 0) return { kind: 'not-sure' }

@@ -97,6 +97,10 @@ export const fi = {
   placeForget: 'Unohda sijainti',
   placeLabel: 'Löytöpaikka',
 
+  // Recipes, shown only behind the gate in flow.ts (#50)
+  recipesTitle: 'Reseptejä',
+  recipesNote: 'Valmista vain sieni, jonka sienineuvoja on varmistanut. Linkit avautuvat reseptisivustolle.',
+
   // Species sheet (#47)
   previousSpecies: 'Edellinen laji',
   close: 'Sulje',

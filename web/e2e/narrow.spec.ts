@@ -12,7 +12,7 @@ async function sideways(page: Page): Promise<number> {
 for (const lang of ['fi', 'en'] as const) {
   test(`nothing scrolls sideways at 320 and 360 px (${lang})`, async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 })
-    await page.goto(`http://localhost:4173/seeni/?lang=${lang}`)
+    await page.goto(`http://localhost:4173/?lang=${lang}`)
     expect(await sideways(page)).toBe(0)
     await page.getByRole('checkbox').check()
     await page.getByRole('button', { name: lang === 'fi' ? 'Hyväksyn' : 'I accept' }).click()
@@ -30,7 +30,7 @@ for (const lang of ['fi', 'en'] as const) {
 
 test('long species names stay inside their cards at 320 px', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 })
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#guide-open').click()

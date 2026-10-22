@@ -11,7 +11,7 @@ const records: { tarkistukset: { kysymys: string; vastaukset: Record<string, str
 const checks = new Map(records.flatMap((r) => r.tarkistukset.map((c) => [c.kysymys, c] as const)))
 
 test('a chanterelle checked to the end shows recipes with the note', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
@@ -39,7 +39,7 @@ test('a chanterelle checked to the end shows recipes with the note', async ({ pa
 })
 
 test('no recipes when every check is skipped', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
@@ -53,7 +53,7 @@ test('no recipes when every check is skipped', async ({ page }) => {
 })
 
 test('the species guide shows recipes with its own note, a result sheet never', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#guide-open').click()

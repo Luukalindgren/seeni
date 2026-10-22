@@ -5,9 +5,8 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { MODEL_VERSION } from './src/modelFiles.ts'
 
-// GitHub Pages serves the app from https://luukalindgren.github.io/seeni/.
-// Change base to '/' when moving to seeni.fi.
-const base = '/seeni/'
+// GitHub Pages serves the app from the custom domain https://seeni.fi/, at the root.
+const base = '/'
 
 // What the first visit downloads before it can identify: the model and the WebAssembly
 // runtime, uncompressed. The loading status shows progress against it (the server may send

@@ -14,7 +14,7 @@ The full step-by-step plan is in `docs/PLAN.md` (in Finnish). Each phase is also
 | `web/` | Vite + TypeScript PWA, onnxruntime-web | User's browser, deployed to GitHub Pages via Actions |
 | `web/public/models/vN/` | `model.onnx`, `labels.json`, `preprocess.json`, `calibration.json` | Produced by `training/`, read by `web/` |
 
-Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base` is `'/seeni/'`. `.github/workflows/pages.yml` deploys every push to `main`, so a merge goes live. Later moving to the custom domain seeni.fi.
+Hosting: GitHub Pages on the custom domain `https://seeni.fi/` (DNS at Cloudflare, DNS only, no proxy), served from the root, so Vite `base` is `'/'`. The old `https://luukalindgren.github.io/seeni/` redirects there. `.github/workflows/pages.yml` deploys every push to `main`, so a merge goes live.
 
 ## Hard rules
 

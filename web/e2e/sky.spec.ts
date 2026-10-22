@@ -3,7 +3,7 @@
 import { expect, test } from '@playwright/test'
 
 async function consent(page: import('@playwright/test').Page) {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
 }

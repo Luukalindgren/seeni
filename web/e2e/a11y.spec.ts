@@ -17,7 +17,7 @@ async function check(page: Page, name: string) {
 }
 
 test('the warning, home, result, sheet, guide and finds have no violations', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await expect(page.locator('#warning')).toBeVisible()
   await check(page, 'warning')
   await page.getByRole('checkbox').check()
@@ -57,7 +57,7 @@ test.describe('on an iPhone', () => {
   test.use({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1' })
 
   test('the install dialog has no violations', async ({ page }) => {
-    await page.goto('http://localhost:4173/seeni/')
+    await page.goto('http://localhost:4173/')
     await page.getByRole('checkbox').check()
     await page.getByRole('button', { name: 'Hyväksyn' }).click()
     await page.locator('#install-open').click()
@@ -70,7 +70,7 @@ test.describe('in English', () => {
   test.use({ locale: 'en-GB' })
 
   test('the result and the "not sure" view have no violations', async ({ page }) => {
-    await page.goto('http://localhost:4173/seeni/')
+    await page.goto('http://localhost:4173/')
     await page.getByRole('checkbox').check()
     await page.getByRole('button', { name: 'I accept' }).click()
     await page.locator('#gallery').setInputFiles({ name: 'sieni.jpg', mimeType: 'image/jpeg', buffer: chanterelle })

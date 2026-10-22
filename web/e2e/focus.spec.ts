@@ -7,7 +7,7 @@ const chanterelle = fileURLToPath(new URL('../public/species/cantharellus-cibari
 
 test('focus follows the checks when answering from the keyboard', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 700 })
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)

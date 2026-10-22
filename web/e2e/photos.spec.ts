@@ -10,7 +10,7 @@ const images = readdirSync(dir)
   .map((f) => dir + f)
 
 test('identifies several photos together, and photos can be removed and added', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await expect(page.locator('#status')).toContainText('Valmis', { timeout: 100_000 })

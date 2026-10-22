@@ -23,7 +23,7 @@ async function dropFile(page: Page, name: string, type: string, bytes: Buffer) {
 }
 
 test('a dropped photo is identified, and a dropped document is explained', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
 

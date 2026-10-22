@@ -42,6 +42,7 @@ import { EXIF_BYTES, appleMapsUrl, exifDate, exifPosition, googleMapsUrl, placeL
 import { REGIONS, isRare, isRecent, monthOf, regionOf, type Occurrence, type RegionId } from './season.ts'
 import { hasCamera, setupWebcam } from './webcam.ts'
 import type { Request, Response } from './worker.ts'
+import type { ModelView } from './model3d.ts'
 import './style.css'
 
 // The language first (#52): `?lang=`, then the stored choice, then the browser's.
@@ -518,6 +519,58 @@ function gallery(id: string): HTMLElement | null {
   return strip
 }
 
+// Species with a 3D model (#45): species/3d/models.json maps a class id to its .glb and
+// the credit of the photo it was made from. The model replaces the photo in the result
+// and the species sheet; without a model, or when it cannot be shown, the photo stays.
+interface Model3d extends Credit {
+  file: string
+}
+let models: Promise<Record<string, Model3d>> | null = null
+// Models on the page; one whose result or sheet was replaced is freed, as browsers keep only
+// a few WebGL contexts.
+const liveModels = new Set<ModelView>()
+function freeModels() {
+  for (const v of liveModels) {
+    if (v.canvas.isConnected) continue
+    v.dispose()
+    liveModels.delete(v)
+  }
+}
+
+async function showModel(figure: HTMLElement, id: string): Promise<void> {
+  models ??= fetch(`${base}species/3d/models.json`)
+    .then((r) => (r.ok ? r.json() : {}))
+    .catch(() => ({}))
+  const m = (await models)[id]
+  if (!m) return
+  const { mountModel } = await import('./model3d.ts')
+  const name = asTitle(species.get(id)?.nimi ?? id)
+  const view = await mountModel(`${base}species/3d/${m.file}`, t().model3dLabel(name), reducedMotion)
+  if (!figure.isConnected) {
+    view.dispose()
+    return
+  }
+  liveModels.add(view)
+  figure.classList.add('has-model')
+  figure.prepend(view.canvas)
+  const tag = el('span', '3D', 'model3d-badge')
+  tag.setAttribute('aria-hidden', 'true')
+  view.canvas.after(tag)
+  const caption = figure.querySelector('figcaption') ?? figure.appendChild(el('figcaption'))
+  const photoCaption = caption.textContent
+  caption.textContent = t().model3dCredit(m.author, m.license)
+  // The model is made by a program and its far side is guessed, so the real photo is one tap away.
+  const toggle = el('button', t().showPhoto, 'model3d-toggle')
+  toggle.type = 'button'
+  toggle.addEventListener('click', () => {
+    const showingPhoto = !figure.classList.toggle('has-model')
+    toggle.textContent = showingPhoto ? t().show3d : t().showPhoto
+    caption.textContent = showingPhoto ? photoCaption : t().model3dCredit(m.author, m.license)
+    caption.hidden = !caption.textContent
+  })
+  tag.after(toggle)
+}
+
 function badge(id: string): HTMLElement | null {
   const g = species.get(id)?.ryhma
   const label = g ? groupLabel(g) : null
@@ -568,6 +621,10 @@ function photo(id: string, cls: string): HTMLElement {
   if (c && (cls === 'hero-photo' || cls === 'sheet-photo')) {
     const caption = el('figcaption', t().photoCredit(c.author, c.license))
     figure.append(caption)
+  }
+  if (cls === 'hero-photo' || cls === 'sheet-photo') {
+    freeModels()
+    showModel(figure, id).catch(() => undefined)
   }
   return figure
 }

@@ -227,6 +227,14 @@ More photos of each species for the app's species gallery, chosen by `species/ga
 | `web/public/species/gallery/tricholoma-equestre-2.jpg` | Eli Heiberg | CC-BY-4.0 | [GBIF 2901377330](https://www.gbif.org/occurrence/2901377330) |
 | `web/public/species/gallery/tricholoma-equestre-3.jpg` | Johan Adler | CC-BY-4.0 | [GBIF 5007844636](https://www.gbif.org/occurrence/5007844636) |
 
+### Species 3D models
+
+3D models shown in place of the species photo (#45), listed in `web/public/species/3d/models.json`. Each is made from one photo with [TripoSR](https://github.com/VAST-AI-Research/TripoSR) (background removed with rembg, texture colours matched to the photo), so it is an adaptation of that photo under the same license:
+
+| File | Made from a photo by | License | Source |
+| --- | --- | --- | --- |
+| `web/public/species/3d/cantharellus-cibarius.glb` | Reidun Braathen | CC-BY-4.0 | [GBIF 2401086346](https://www.gbif.org/occurrence/2401086346) |
+
 ## Species data sources
 
 `data-meta/lajilista.csv` and `species/species.json` are compiled from the sources below. They take facts from them (which species, their names and taxon ids); no text is copied. The descriptions and checks in `species.json` are written for Seeni, and the check pictures in `web/src/checkArt.ts` are drawn for Seeni.
@@ -266,3 +274,5 @@ Tools used to build the app and train the model, not shipped:
 | [TypeScript](https://github.com/microsoft/TypeScript) | Apache-2.0 |
 | [ONNX](https://github.com/onnx/onnx), [onnxruntime](https://github.com/microsoft/onnxruntime), [onnxconverter-common](https://github.com/microsoft/onnxconverter-common) | Apache-2.0, MIT, MIT |
 | [Playwright](https://github.com/microsoft/playwright) | Apache-2.0 |
+| [TripoSR](https://github.com/VAST-AI-Research/TripoSR) and its [weights](https://huggingface.co/stabilityai/TripoSR), species 3D models | MIT |
+| [rembg](https://github.com/danielgatis/rembg) with [U²-Net](https://github.com/xuebinqin/U-2-Net), background removal for the 3D models | MIT, Apache-2.0 |

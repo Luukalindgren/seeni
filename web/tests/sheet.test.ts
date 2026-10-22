@@ -8,11 +8,12 @@ import { LANGS, setLang } from '../src/i18n.ts'
 import { differences, sheet, sheetTexts } from '../src/sheet.ts'
 import { answerText, localizeRecords, type Translation } from '../src/speciesText.ts'
 import { EDIBLE } from './edible.ts'
+import { MODEL_VERSION } from '../src/modelFiles.ts'
 
 const read = (path: string) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'))
 const records: SpeciesRecord[] = read('../../species/species.json')
 const en: Translation = read('../../species/species.en.json')
-const labels: Label[] = read('../public/models/v1/labels.json')
+const labels: Label[] = read(`../public/models/${MODEL_VERSION}/labels.json`)
 const species = speciesMap(records)
 const model = new Set(labels.map((l) => l.id))
 

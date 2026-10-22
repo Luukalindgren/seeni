@@ -92,6 +92,14 @@ Example photos of each species, shown in the app's result view and chosen by `sp
 | `web/public/species/cortinarius-orellanus.jpg` | Inger-Lise Fonneland | CC-BY-4.0 | [GBIF 1823027126](https://www.gbif.org/occurrence/1823027126) |
 | `web/public/species/verpa-bohemica.jpg` | Tero Linjama | CC0-1.0 | [GBIF 3301903748](https://www.gbif.org/occurrence/3301903748) |
 
+### Species 3D models
+
+3D models shown in place of the species photo (#45), listed in `web/public/species/3d/models.json`. Each is made from one photo with [TripoSR](https://github.com/VAST-AI-Research/TripoSR) (background removed with rembg), so it is an adaptation of that photo under the same license:
+
+| File | Made from a photo by | License | Source |
+| --- | --- | --- | --- |
+| `web/public/species/3d/cantharellus-cibarius.glb` | Johan Adler | CC-BY-4.0 | [GBIF 5840059472](https://www.gbif.org/occurrence/5840059472) |
+
 ## Species data sources
 
 `data-meta/lajilista.csv` and `species/species.json` are compiled from the sources below. They take facts from them (which species, their names and taxon ids); no text is copied. The descriptions and checks in `species.json` are written for Seeni, and the check pictures in `web/src/checkArt.ts` are drawn for Seeni.
@@ -131,3 +139,5 @@ Tools used to build the app and train the model, not shipped:
 | [TypeScript](https://github.com/microsoft/TypeScript) | Apache-2.0 |
 | [ONNX](https://github.com/onnx/onnx), [onnxruntime](https://github.com/microsoft/onnxruntime), [onnxconverter-common](https://github.com/microsoft/onnxconverter-common) | Apache-2.0, MIT, MIT |
 | [Playwright](https://github.com/microsoft/playwright) | Apache-2.0 |
+| [TripoSR](https://github.com/VAST-AI-Research/TripoSR) and its [weights](https://huggingface.co/stabilityai/TripoSR), species 3D models | MIT |
+| [rembg](https://github.com/danielgatis/rembg) with [U²-Net](https://github.com/xuebinqin/U-2-Net), background removal for the 3D models | MIT, Apache-2.0 |

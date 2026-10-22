@@ -7,12 +7,13 @@ import { describe, it } from 'node:test'
 import { answer, speciesMap, start, type Calibration, type Label, type SpeciesRecord } from '../src/flow.ts'
 import { answerText, localizeRecords, type Translation } from '../src/speciesText.ts'
 import { EDIBLE } from './edible.ts'
+import { MODEL_VERSION } from '../src/modelFiles.ts'
 
 const read = (path: string) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'))
 const records: SpeciesRecord[] = read('../../species/species.json')
 const en: Translation = read('../../species/species.en.json')
-const labels: Label[] = read('../public/models/v1/labels.json')
-const calibration: Calibration = read('../public/models/v1/calibration.json')
+const labels: Label[] = read(`../public/models/${MODEL_VERSION}/labels.json`)
+const calibration: Calibration = read(`../public/models/${MODEL_VERSION}/calibration.json`)
 
 describe('species.en.json', () => {
   it('never states edibility', () => {

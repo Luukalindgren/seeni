@@ -66,7 +66,7 @@ const ICON = {
 const app = document.querySelector<HTMLDivElement>('#app')!
 app.innerHTML = `
   <dialog id="warning" aria-labelledby="warning-title" closedby="none">
-    <button id="warning-lang" class="round lang" type="button" data-t="languageShort" data-t-aria="language"></button>
+    <button id="warning-lang" class="round lang" type="button"><span data-t="languageShort" data-other-lang></span><span class="visually-hidden" data-other-lang><span data-t="language"></span></span></button>
     <h2 id="warning-title" data-t="warningTitle"></h2>
     <p data-t="warningText"></p>
     <p><strong data-t="warningNever"></strong>
@@ -83,7 +83,7 @@ app.innerHTML = `
       <span>Seeni</span>
     </h1>
     <button id="again" class="pill" type="button" hidden>${ICON.plus} <span data-t="newPhoto"></span></button>
-    <button id="lang" class="round lang" type="button" data-t="languageShort" data-t-aria="language"></button>
+    <button id="lang" class="round lang" type="button"><span data-t="languageShort" data-other-lang></span><span class="visually-hidden" data-other-lang><span data-t="language"></span></span></button>
     <button id="info" class="round" type="button" data-t-aria="info">${ICON.info}</button>
   </header>
 
@@ -232,6 +232,9 @@ function applyStatic() {
   for (const e of app.querySelectorAll<HTMLElement>('[data-t]')) e.textContent = text(e.dataset.t!)
   for (const e of app.querySelectorAll<HTMLElement>('[data-t-html]')) e.innerHTML = text(e.dataset.tHtml!)
   for (const e of app.querySelectorAll<HTMLElement>('[data-t-aria]')) e.setAttribute('aria-label', text(e.dataset.tAria!))
+  // The language button's name starts with its visible text (WCAG 2.5.3) and is spoken in
+  // the language it switches to (WCAG 3.1.2).
+  for (const e of app.querySelectorAll<HTMLElement>('[data-other-lang]')) e.lang = lang() === 'fi' ? 'en' : 'fi'
   ;(app.querySelector('[data-t="aboutTranslation"]') as HTMLElement).hidden = s.aboutTranslation === ''
   document.title = s.htmlTitle
   document.querySelector('meta[name="description"]')?.setAttribute('content', s.description)

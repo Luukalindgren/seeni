@@ -33,7 +33,7 @@ test('back goes from a sheet to the result, from adding a photo to the result, a
   await page.goBack()
   await expect(page.locator('#home')).toBeVisible()
   await expect(page.locator('#result')).toBeHidden()
-  expect(page.url()).toMatch(/^http:\/\/localhost:4173\//)
+  expect(page.url()).toBe('http://localhost:4173/')
 
   // A new photo, then home with the button: no entry is left behind, so the history does
   // not grow with every mushroom.

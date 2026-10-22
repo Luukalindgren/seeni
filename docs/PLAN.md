@@ -8,7 +8,7 @@ Koko ketju toimii ilman backendiä. Malli koulutetaan Windows-pöytäkoneen näy
 
 - **Pöytäkone (WSL2 + RTX):** datan keruu, koulutus, arviointi ja vienti.
 - **Mac:** kehitys etänä pöytäkoneelle SSH:n yli, sekä web-sovelluksen tekeminen agenttien kanssa.
-- **GitHub:** koodi, lajitiedot, valmis malli, Actions-julkaisu ja Pages-hostaus osoitteessa `https://luukalindgren.github.io/seeni/`.
+- **GitHub:** koodi, lajitiedot, valmis malli, Actions-julkaisu ja Pages-hostaus omassa domainissa `https://seeni.fi/` (aiemmin `https://luukalindgren.github.io/seeni/`).
 
 ```mermaid
 flowchart LR
@@ -227,7 +227,7 @@ Playwright-testi ajaa vaiheen 8 kultaiset kuvat sovelluksen oikealla esikäsitte
 
 **GitHub Pages**
 
-1. `vite.config.ts`: `base: '/seeni/'`.
+1. `vite.config.ts`: `base: '/'` (seeni.fi juuressa; github.io-aikana `'/seeni/'`).
 2. Repon asetukset → Pages → Source: **GitHub Actions**.
 3. `.github/workflows/pages.yml`, kun main-haaraan pushataan: checkout → setup-node → `npm ci` → testit → `npm run build` → `actions/configure-pages` → `actions/upload-pages-artifact` (polku `web/dist`) → `actions/deploy-pages`. Oikeuksiksi `pages: write` ja `id-token: write`.
 4. github.io tarjoaa HTTPS:n automaattisesti, ja sitä tarvitaan sekä service workeriin että kameraan.
@@ -247,7 +247,6 @@ Playwright-testi ajaa vaiheen 8 kultaiset kuvat sovelluksen oikealla esikäsitte
 
 ## Myöhemmin
 
-- **seeni.fi:** lisää `web/public/CNAME` (sisältö `seeni.fi`), aseta DNS:ään GitHub Pagesin A-tietueet ja www-CNAME, ota Pages-asetuksista *Enforce HTTPS* käyttöön ja vaihda `base` arvoon `'/'`.
 - **Puhelinsovellus:** nopein reitti on Capacitor, joka käyttää samaa web-koodia ja mallia. Natiivisti voi käyttää onnxruntime-mobilea tai muuntaa mallin CoreML/TFLite-muotoon.
 - **Kuukausi ja sijainti:** GBIF-havaintojen kuukausijakaumista saa priorin, joka kerrotaan mallin todennäköisyyksiin. Esimerkiksi huhtasieni lokakuussa saa pienemmän painon.
 - **Käyttäjäpalaute** ("oliko oikein?"): vaatii kevyen backendin, kuten Supabasen, sekä tietosuojaselosteen.

@@ -46,7 +46,7 @@ test('asks for consent first, then identifies a mushroom offline without sending
   await expect(page.locator('#result .reminder').first()).toContainText('Älä syö sientä')
   await expect(page.locator('#result')).toContainText(/Mallin arvio|En tunnista varmasti/)
   expect(requests.filter((r) => !r.startsWith('GET '))).toEqual([])
-  expect(requests.filter((r) => !r.includes(' http://localhost:4173/'))).toEqual([])
+  expect(requests.filter((r) => new URL(r.split(' ')[1]).origin !== 'http://localhost:4173')).toEqual([])
 })
 
 test.describe('without a service worker', () => {

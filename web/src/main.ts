@@ -21,6 +21,7 @@ import {
   skip,
   speciesMap,
   start,
+  RESEMBLES_MIN,
   type SpeciesRecord,
   type Check,
   type State,
@@ -474,7 +475,9 @@ function badge(id: string): HTMLElement | null {
 }
 
 /** A species as a row that opens its sheet: photo, name, scientific name and danger label. */
-function speciesRow(id: string, onOpen: () => void): HTMLElement {
+/** `probability`: the model's estimate to show, null for a species the model does not know,
+ * undefined for none at all. */
+function speciesRow(id: string, onOpen: () => void, probability?: number | null): HTMLElement {
   const li = el('li')
   const open = el('button', undefined, 'lookalike')
   open.type = 'button'
@@ -492,6 +495,13 @@ function speciesRow(id: string, onOpen: () => void): HTMLElement {
   const b = badge(id)
   if (b) text.append(b)
   open.append(thumb, text)
+  const shown = probability === undefined ? null : estimateText(id, probability)
+  if (shown) {
+    const estimate = el('span', undefined, 'estimate')
+    estimate.append(el('strong', shown[0]))
+    if (shown[1]) estimate.append(el('small', shown[1]))
+    open.append(estimate)
+  }
   open.addEventListener('click', onOpen)
   li.append(open)
   return li
@@ -521,6 +531,29 @@ function newPhotoButton(): HTMLElement {
   return b
 }
 
+/** A model probability in whole percent: never 100, the model is never certain. */
+function modelPercent(p: number): number {
+  return Math.min(99, Math.round(p * 100))
+}
+
+/** The estimate on a species card, as [value, label], or null for none. A dangerous species
+ * with a small estimate, or one the model does not know, says "not ruled out" instead of a
+ * small number that would read as reassurance (hard rule 8). A tiny estimate of any other
+ * species is "< 1 %", never "0 %". */
+function estimateText(id: string, p: number | null): [string, string] | [string] | null {
+  if (isDangerousId(id) && (p === null || p < RESEMBLES_MIN)) return [t().notRuledOut]
+  if (p === null) return null
+  const percent = modelPercent(p)
+  return [percent < 1 ? t().percentBelowOne : t().percent(percent), t().estimateLabel]
+}
+
+/** A class's highest probability in any photo, as "not sure" lists the species it resembles
+ * (dangerousResemblances); null for a species that is not a model class. */
+function bestProbability(id: string): number | null {
+  const i = files?.labels.findIndex((l) => l.id === id) ?? -1
+  return i < 0 ? null : Math.max(0, ...photos.map((p) => p.probabilities[i] ?? 0))
+}
+
 function renderNotSure(raw: ReadonlyMap<string, number>) {
   resultOfPhotos = true
   const box = el('div', undefined, 'unsure')
@@ -545,7 +578,7 @@ function renderNotSure(raw: ReadonlyMap<string, number>) {
   const leaning = [...raw].filter(([id]) => id !== UNKNOWN).sort((a, b) => b[1] - a[1])[0]?.[0]
   if (resembles.length > 0) {
     const list = el('ul', undefined, 'lookalikes')
-    for (const id of resembles) list.append(speciesRow(id, () => openSheet(id, leaning ?? id)))
+    for (const id of resembles) list.append(speciesRow(id, () => openSheet(id, leaning ?? id), bestProbability(id)))
     box.append(el('h3', s.notSureDanger, 'unsure-danger'), list)
   }
   box.append(el('p', s.reminder, 'reminder'))
@@ -594,7 +627,7 @@ function render(state: State | null, raw: Map<string, number>) {
     body.append(el('p', t().answersFit, 'confidence'))
   } else {
     // Never "100 %": the model is never certain.
-    const percent = Math.min(99, Math.round((raw.get(top.id) ?? top.probability) * 100))
+    const percent = modelPercent(raw.get(top.id) ?? top.probability)
     const meter = el('div', undefined, 'meter')
     const bar = el('span')
     bar.style.width = `${percent}%`
@@ -626,7 +659,10 @@ function render(state: State | null, raw: Map<string, number>) {
   if (others.length > 0) {
     side.append(el('h3', t().lookalikesTitle))
     const list = el('ul', undefined, 'lookalikes')
-    for (const id of others) list.append(speciesRow(id, () => openSheet(id, top.id)))
+    // Model estimates only until the first answer, as for the species above.
+    for (const id of others) {
+      list.append(speciesRow(id, () => openSheet(id, top.id), answered ? undefined : (raw.get(id) ?? null)))
+    }
     side.append(list)
   }
 

@@ -16,6 +16,8 @@ test('"not sure" names a deadly species the photo resembles, and it opens its sh
   const rows = page.locator('.unsure .lookalike')
   await expect(rows.first()).toContainText('Suippumyrkkyseitikki')
   await expect(rows.first()).toContainText('Tappavan myrkyllinen')
+  // With its highest estimate in any photo, the one that put it on the list.
+  await expect(rows.first().locator('.estimate')).toHaveText(/^\d+ %\s*mallin arvio$/)
   // Only dangerous species are listed: every row has its danger label.
   await expect(page.locator('.unsure .lookalike .badge')).toHaveCount(await rows.count())
   await rows.first().click()

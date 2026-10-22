@@ -187,7 +187,6 @@ More photos of each species for the app's species gallery, chosen by `species/ga
 | `web/public/species/gallery/armillaria-3.jpg` | Gunnar Bureid | CC-BY-4.0 | [GBIF 2398602304](https://www.gbif.org/occurrence/2398602304) |
 | `web/public/species/gallery/kuehneromyces-mutabilis-1.jpg` | Bjørn Eidhammer | CC-BY-4.0 | [GBIF 3820086341](https://www.gbif.org/occurrence/3820086341) |
 | `web/public/species/gallery/kuehneromyces-mutabilis-2.jpg` | Nils Edvard Stokke | CC-BY-4.0 | [GBIF 3879064557](https://www.gbif.org/occurrence/3879064557) |
-| `web/public/species/gallery/kuehneromyces-mutabilis-3.jpg` | Siv Moen | CC-BY-4.0 | [GBIF 2399248523](https://www.gbif.org/occurrence/2399248523) |
 | `web/public/species/gallery/agaricus-campestris-agg-1.jpg` | Tove Jacobsen | CC-BY-4.0 | [GBIF 4401699874](https://www.gbif.org/occurrence/4401699874) |
 | `web/public/species/gallery/agaricus-campestris-agg-2.jpg` | Jon Arne Wilhelmsen | CC-BY-4.0 | [GBIF 4948268642](https://www.gbif.org/occurrence/4948268642) |
 | `web/public/species/gallery/agaricus-campestris-agg-3.jpg` | Tove Jacobsen | CC-BY-4.0 | [GBIF 2401039625](https://www.gbif.org/occurrence/2401039625) |

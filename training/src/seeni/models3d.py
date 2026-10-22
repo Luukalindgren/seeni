@@ -45,6 +45,8 @@ class Spec:
     bands: dict | None = None
     volva_lobes: float = 0.0  # waviness of a sac volva's free rim (radius)
     rings: int = 120  # mesh resolution along the profile
+    # Brain-like folds over the cap: {"depth", "cells"}; grooves follow the noise's zero lines.
+    wrinkles: dict | None = None
 
 
 def rgb(h: str) -> np.ndarray:
@@ -622,6 +624,41 @@ SPECS = {
         tilt=0.08,
         decurrent=0.3,
     ),
+    # Korvasieni: a brain-like cap, chestnut- to reddish-brown, folded into irregular lobes;
+    # a short, thick, whitish stem; a paler underside where the cap folds meet the stem.
+    "gyromitra-esculenta": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.11, 0.005, "base"),
+            (0.135, 0.035, "stem"),
+            (0.12, 0.15, "stem"),
+            (0.11, 0.28, "stem"),
+            (0.13, 0.34, "under"),
+            (0.25, 0.32, "under"),
+            (0.34, 0.35, "under"),
+            (0.39, 0.42, "top"),
+            (0.41, 0.55, "top"),
+            (0.38, 0.68, "top"),
+            (0.29, 0.79, "top"),
+            (0.16, 0.85, "top"),
+            (0.0, 0.87, "top"),
+        ],
+        colours={
+            "base": ("#d9c7b4", "#e6d6c4"),
+            "stem": ("#ece0d2", "#e2cfbd"),
+            "under": ("#b88f74", "#8a5236"),
+            "top": ("#7a3a22", "#5e2a18"),
+        },
+        lines={"count": 1, "width": 0.1, "depth": 0.0, "fork": False},
+        lobes=0.14,
+        lift=0.07,
+        lobe_count=(2, 3, 5),
+        bend=0.02,
+        seed=43,
+        tilt=0.0,
+        wrinkles={"depth": 0.045, "cells": 15},
+        rings=150,
+    ),
 }
 
 
@@ -767,6 +804,16 @@ def paint(spec: Spec, region_rows: np.ndarray, gill_t: np.ndarray, r_rows=None, 
     return np.clip(tex, 0, 1)
 
 
+def wrinkle_field(spec: Spec) -> np.ndarray:
+    """0 in the grooves, 1 on the ridges: meandering lines along the zero set of smooth
+    noise, periodic around the cap."""
+    rng = np.random.default_rng(spec.seed + 1000)
+    cells = spec.wrinkles["cells"]
+    f = noise((TEX, TEX), cells, rng) + 0.35 * noise((TEX, TEX), cells * 2, rng)
+    x = np.clip(np.abs(f) / 0.3, 0, 1)
+    return x * x * (3 - 2 * x)  # rounded ridges
+
+
 def paint_bands(tex, bands: dict, region_rows, rng) -> None:
     idx = np.where(region_rows == bands["region"])[0]
     if not len(idx):
@@ -860,7 +907,7 @@ def build(spec: Spec, rings: int | None = None, segments: int = 150):
         wave_r += np.cos(k * theta + rng.uniform(0, 2 * np.pi)) / len(spec.lobe_count)
         wave_y += np.sin(k * theta + rng.uniform(0, 2 * np.pi)) / len(spec.lobe_count)
     rmax = r.max()
-    cap = np.isin(region, ["gills", "margin", "top"])
+    cap = np.isin(region, ["gills", "margin", "top", "under"])
     wcap = np.where(cap, (r / rmax) ** 2.5, 0.0)
     # A sac volva's free rim is torn into lobes, more towards its top.
     volva = region == "volva"
@@ -884,6 +931,14 @@ def build(spec: Spec, rings: int | None = None, segments: int = 150):
         bump[~((region == "gills") | (t < 0))] = 0
         R = R + bump * n2[:, 0:1]
         Y = Y + bump * n2[:, 1:2]
+    folds = wrinkle_field(spec) if spec.wrinkles else None
+    if folds is not None:
+        rows = np.clip((s * TEX).astype(int), 0, TEX - 1)
+        cols = np.clip((u * TEX).astype(int), 0, TEX) % TEX
+        reach = np.where(region == "top", 1.0, np.where(region == "under", 0.5, 0.0))
+        d = spec.wrinkles["depth"] * (folds[rows][:, cols] - 0.5) * reach[:, None]
+        R = R + d * n2[:, 0:1]
+        Y = Y + d * n2[:, 1:2]
     bend = spec.bend * np.clip((stem_top - y) / stem_top, 0, 1) ** 2
     X = R * np.cos(theta)[None] + bend[:, None] + spec.tilt * np.clip(Y - stem_top, 0, None)
     Z = R * np.sin(theta)[None]
@@ -918,6 +973,10 @@ def build(spec: Spec, rings: int | None = None, segments: int = 150):
     ring = ring_of_rows(rings)
     total = float(np.sum(np.linalg.norm(np.diff(np.stack([r, y], 1), axis=0), axis=1)))
     tex = paint(spec, region[ring], t[ring], r[ring], total)
+    if folds is not None:
+        # Shade the grooves, as a drawing would.
+        cap_rows = np.isin(region[ring], ["top", "under"])
+        tex[cap_rows] *= (0.55 + 0.45 * folds[cap_rows])[..., None]
     return pos.astype(np.float32), nrm.astype(np.float32), uv.astype(np.float32), faces, tex
 
 

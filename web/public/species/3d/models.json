@@ -46,5 +46,9 @@
  "paxillus-involutus": {
   "file": "paxillus-involutus-drawn.glb",
   "drawn": true
+ },
+ "gyromitra-esculenta": {
+  "file": "gyromitra-esculenta-drawn.glb",
+  "drawn": true
  }
 }

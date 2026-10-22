@@ -1,6 +1,7 @@
 """The drawn species 3D models (#45): valid GLBs the app can read, small, and painted in the
 colours the species sheets name (hard rule 6: colour is a field mark)."""
 
+import dataclasses
 import io
 import json
 import struct
@@ -131,3 +132,15 @@ def test_the_deadly_webcap_has_yellow_belts_on_its_stem():
     assert np.median(hues) < 30
     assert (hues > 42).mean() > 0.03
     assert hue(region_colour("cortinarius-rubellus", "gills")) < 30
+
+
+def test_the_false_morel_cap_is_folded_and_reddish_brown():
+    spec = SPECS["gyromitra-esculenta"]
+    folded, *_ = build(spec)
+    smooth, *_ = build(dataclasses.replace(spec, wrinkles=None))
+    rows = models3d.resample(spec, spec.rings)[2]
+    moved = np.linalg.norm(folded - smooth, axis=1).reshape(spec.rings, -1)[rows == "top"]
+    # The folds stand out about the fold depth, all over the cap.
+    assert np.percentile(moved, 75) > spec.wrinkles["depth"] * 0.25
+    assert (moved > 0.005).mean() > 0.5
+    assert hue(region_colour("gyromitra-esculenta", "top")) < 25

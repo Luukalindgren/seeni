@@ -24,8 +24,18 @@ test('the chanterelle sheet shows its 3D model, other sheets their photo', async
   // It turns with the arrow keys.
   await model.focus()
   await page.keyboard.press('ArrowRight')
-  // The photo is one tap away, and the model comes back.
+  // The photo is one tap away, and the model comes back; the button stays put, in the
+  // picture's bottom right corner.
+  const toggle = figure.locator('.model3d-toggle')
+  const at3d = (await toggle.boundingBox())!
+  const picture = (await model.boundingBox())!
+  expect(at3d.x + at3d.width).toBeGreaterThan(picture.x + picture.width - 40)
+  expect(at3d.y + at3d.height).toBeGreaterThan(picture.y + picture.height - 40)
+  expect(at3d.y + at3d.height).toBeLessThanOrEqual(picture.y + picture.height)
   await figure.getByRole('button', { name: 'Näytä valokuva' }).click()
+  const atPhoto = (await toggle.boundingBox())!
+  expect(atPhoto.x + atPhoto.width).toBeCloseTo(at3d.x + at3d.width, 0)
+  expect(atPhoto.y + atPhoto.height).toBeCloseTo(at3d.y + at3d.height, 0)
   await expect(figure.locator('img')).toBeVisible()
   await expect(model).toBeHidden()
   await expect(figure.locator('figcaption')).toHaveText(/^Kuva: /)

@@ -551,11 +551,16 @@ async function showModel(figure: HTMLElement, id: string): Promise<void> {
     return
   }
   liveModels.add(view)
-  figure.classList.add('has-model')
-  figure.prepend(view.canvas)
+  // The model, the photo, the badge and the button share one box, so the button stays in
+  // the picture's corner in both views.
+  const stage = el('div', undefined, 'model3d-stage')
+  const img = figure.querySelector('img')
+  if (img) img.replaceWith(stage)
+  else figure.prepend(stage)
   const tag = el('span', '3D', 'model3d-badge')
   tag.setAttribute('aria-hidden', 'true')
-  view.canvas.after(tag)
+  stage.append(view.canvas, ...(img ? [img] : []), tag)
+  figure.classList.add('has-3d', 'has-model')
   const caption = figure.querySelector('figcaption') ?? figure.appendChild(el('figcaption'))
   const photoCaption = caption.textContent
   caption.textContent = t().model3dCredit(m.author, m.license)

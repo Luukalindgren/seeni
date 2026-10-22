@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
 
 import { answer, speciesMap, start, type Calibration, type Label, type SpeciesRecord } from '../src/flow.ts'
-import { answerText, localizeRecords, type Translation } from '../src/speciesText.ts'
+import { answerText, asTitle, localizeRecords, type Translation } from '../src/speciesText.ts'
 import { EDIBLE } from './edible.ts'
 import { MODEL_VERSION } from '../src/modelFiles.ts'
 
@@ -61,5 +61,15 @@ describe('localizeRecords', () => {
       const key = Object.keys(check.vastaukset)[0]!
       assert.deepEqual(answer(b.state, enCheck, key)?.candidates, answer(a.state, check, key)?.candidates)
     }
+  })
+})
+
+describe('asTitle', () => {
+  it('capitalizes only the first letter, also a non-ASCII one', () => {
+    assert.equal(asTitle('kantarelli'), 'Kantarelli')
+    assert.equal(asTitle('isohapero'), 'Isohapero')
+    assert.equal(asTitle('äimäsieni'), 'Äimäsieni')
+    assert.equal(asTitle('false chanterelle'), 'False chanterelle')
+    assert.equal(asTitle(''), '')
   })
 })

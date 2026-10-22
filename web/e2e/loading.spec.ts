@@ -41,7 +41,7 @@ test('a photo chosen while the model downloads shows the download in the wait', 
   await expect(page.locator('#loading')).toBeVisible()
   await expect(page.locator('#loading-model')).toHaveText(/^Ladataan mallia… \d+ %$/)
   release()
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   await expect(page.locator('#loading-model')).toBeHidden()
 })
 
@@ -61,7 +61,7 @@ test.describe('without a service worker', () => {
     await page.getByRole('button', { name: 'Hyväksyn' }).click()
     await expect(page.locator('#status')).toContainText('Mallin lataus epäonnistui')
     await page.locator('#gallery').setInputFiles(chanterelle)
-    await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+    await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
     await expect(page.locator('#status')).toHaveClass(/ready/)
     expect(attempts).toBe(2)
   })

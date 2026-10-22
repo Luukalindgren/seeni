@@ -25,7 +25,7 @@ import {
 import { checkPicture } from './checkArt.ts'
 import { groupLabel, sheet, sheetText } from './sheet.ts'
 import { initialLang, lang, setLang, storedLang, t, type Lang } from './i18n.ts'
-import { answerText, localizeRecords, type Translation } from './speciesText.ts'
+import { answerText, asTitle, localizeRecords, type Translation } from './speciesText.ts'
 import type { Strings } from './strings/fi.ts'
 import { startDropArt, type DropArt } from './dropArt.ts'
 import { startGrass, type Grass } from './grass.ts'
@@ -484,7 +484,7 @@ function speciesRow(id: string, onOpen: () => void): HTMLElement {
   img.loading = 'lazy'
   thumb.append(img)
   const text = el('span', undefined, 'lookalike-text')
-  text.append(el('strong', r?.nimi ?? id))
+  text.append(el('strong', asTitle(r?.nimi ?? id)))
   text.append(el('span', r?.tieteellinen ?? '', 'latin'))
   const b = badge(id)
   if (b) text.append(b)
@@ -498,7 +498,7 @@ function photo(id: string, cls: string): HTMLElement {
   const figure = el('figure', undefined, cls)
   const img = el('img')
   img.src = `${base}species/${id}.jpg`
-  img.alt = species.get(id)?.nimi ?? id
+  img.alt = asTitle(species.get(id)?.nimi ?? id)
   img.loading = 'lazy'
   figure.append(img)
   const c = credits[id]
@@ -582,7 +582,7 @@ function render(state: State | null, raw: Map<string, number>) {
   const hero = el('article', undefined, 'hero')
   hero.append(photo(top.id, 'hero-photo'))
   const body = el('div', undefined, 'hero-body')
-  body.append(el('h2', record?.nimi ?? top.id))
+  body.append(el('h2', asTitle(record?.nimi ?? top.id)))
   body.append(el('p', record?.tieteellinen ?? '', 'latin'))
   const b = badge(top.id)
   if (b) body.append(b)
@@ -1051,7 +1051,7 @@ async function renderFinds() {
     findUrls.push(img.src)
     img.alt = ''
     const text = el('div', undefined, 'find-text')
-    const nimi = f.speciesId ? (species.get(f.speciesId)?.nimi ?? f.speciesId) : null
+    const nimi = f.speciesId ? asTitle(species.get(f.speciesId)?.nimi ?? f.speciesId) : null
     const name = nimi ? `${nimi}?` : s.findsUnknown
     text.append(el('strong', name))
     const b = f.speciesId ? badge(f.speciesId) : null
@@ -1302,7 +1302,7 @@ function renderSheet() {
   sheetBack.hidden = sheetStack.length < 2
   sheetBody.replaceChildren()
   sheetBody.append(photo(s.id, 'sheet-photo'))
-  sheetBody.append(el('h2', s.nimi))
+  sheetBody.append(el('h2', asTitle(s.nimi)))
   sheetBody.lastElementChild!.id = 'sheet-title'
   sheetBody.append(el('p', s.tieteellinen, 'latin'))
   const b = badge(s.id)
@@ -1329,8 +1329,8 @@ function renderSheet() {
         li.append(el('p', d.check.kysymys, 'difference-question'))
         const dl = el('dl')
         const answers = (keys: string[]) => keys.map((k) => answerLabel(d.check, k)).join(t().or) || '–'
-        dl.append(el('dt', s.nimi), el('dd', answers(d.self)))
-        dl.append(el('dt', s.compareTo.nimi), el('dd', answers(d.other)))
+        dl.append(el('dt', asTitle(s.nimi)), el('dd', answers(d.self)))
+        dl.append(el('dt', asTitle(s.compareTo.nimi)), el('dd', answers(d.other)))
         li.append(dl)
         ul.append(li)
       }
@@ -1342,7 +1342,7 @@ function renderSheet() {
     const ul = el('ul', undefined, 'sheet-lookalikes')
     for (const l of s.lookalikes) {
       const li = el('li')
-      const open = el('button', l.nimi, 'link')
+      const open = el('button', asTitle(l.nimi), 'link')
       open.type = 'button'
       open.addEventListener('click', () => openSheet(l.id, current.compareTo))
       li.append(open)

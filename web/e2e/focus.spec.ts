@@ -11,7 +11,7 @@ test('focus follows the checks when answering from the keyboard', async ({ page 
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
 
   const question = page.locator('.verify .question')
   const current = async () => (await question.allTextContents())[0] ?? null

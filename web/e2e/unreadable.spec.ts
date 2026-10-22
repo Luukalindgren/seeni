@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 const chanterelle = {
-  name: 'kantarelli.jpg',
+  name: 'Kantarelli.jpg',
   mimeType: 'image/jpeg',
   buffer: readFileSync(fileURLToPath(new URL('../public/species/cantharellus-cibarius.jpg', import.meta.url))),
 }
@@ -23,7 +23,7 @@ test('explains a file that cannot be opened, and leaves it out among several pho
 
   await page.locator('#again').click()
   await page.locator('#gallery').setInputFiles([broken, chanterelle])
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   await expect(page.locator('#result .photo-notice')).toHaveText('Yhtä kuvaa ei voitu avata, joten se jätettiin pois.')
   await expect(page.locator('#result .shot')).toHaveCount(1)
 })

@@ -13,7 +13,7 @@ test('back goes from a sheet to the result, from adding a photo to the result, a
   const start = await page.evaluate(() => history.length)
   await page.locator('#gallery').setInputFiles(chanterelle)
   // On the whole result, so a failure shows the error message too.
-  await expect(page.locator('#result')).toContainText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result')).toContainText('Kantarelli', { timeout: 60_000 })
 
   // A sheet is closed first, the result stays.
   await page.locator('.lookalike', { hasText: 'lehtomyrkkyseitikki' }).click()
@@ -27,7 +27,7 @@ test('back goes from a sheet to the result, from adding a photo to the result, a
   await expect(page.locator('#adding')).toBeVisible()
   await page.goBack()
   await expect(page.locator('#adding')).toBeHidden()
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli')
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli')
 
   // Back from the result goes to the start screen, within the app.
   await page.goBack()
@@ -38,12 +38,12 @@ test('back goes from a sheet to the result, from adding a photo to the result, a
   // A new photo, then home with the button: no entry is left behind, so the history does
   // not grow with every mushroom.
   await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   await page.locator('#again').click()
   await expect(page.locator('#home')).toBeVisible()
   await expect.poll(() => page.evaluate(() => (history.state as { view?: string } | null)?.view ?? null)).toBeNull()
   await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   // The start entry and one entry for the result.
   expect(await page.evaluate(() => history.length)).toBe(start + 1)
 
@@ -52,7 +52,7 @@ test('back goes from a sheet to the result, from adding a photo to the result, a
   await page.locator('#gallery').setInputFiles(chanterelle)
   await expect(page.locator('#loading')).toBeVisible()
   await page.goBack()
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli')
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli')
   await expect(page.locator('#result .shot')).toHaveCount(1)
   // The cancelled photo does not turn up later.
   await page.waitForTimeout(2500)
@@ -74,7 +74,7 @@ test('a photo picked right after a button went home still gets its result, and b
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   // The button's back step and the new photo in the same task.
   await page.evaluate(async () => {
     const blob = await (await fetch('/seeni/species/cantharellus-cibarius.jpg')).blob()
@@ -85,7 +85,7 @@ test('a photo picked right after a button went home still gets its result, and b
     input.files = files.files
     input.dispatchEvent(new Event('change'))
   })
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   await page.goBack()
   await expect(page.locator('#home')).toBeVisible()
 })
@@ -95,12 +95,12 @@ test('after a reload on the result, back is not lost on leftover entries', async
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   await page.locator('.lookalike', { hasText: 'lehtomyrkkyseitikki' }).click()
   await page.reload()
   await expect(page.locator('#home')).toBeVisible()
   await page.locator('#gallery').setInputFiles(chanterelle)
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   await page.goBack()
   await expect(page.locator('#home')).toBeVisible()
 })
@@ -113,11 +113,11 @@ test('back steps through nested sheets opened from the species guide', async ({ 
   await page.locator('#guide').getByRole('searchbox').fill('kantar')
   await page.locator('#guide .lookalike').click()
   const sheet = page.locator('#sheet')
-  await expect(sheet.locator('h2')).toHaveText('kantarelli')
+  await expect(sheet.locator('h2')).toHaveText('Kantarelli')
   await sheet.locator('.sheet-lookalikes button', { hasText: 'lehtomyrkkyseitikki' }).click()
-  await expect(sheet.locator('h2')).toHaveText('lehtomyrkkyseitikki')
+  await expect(sheet.locator('h2')).toHaveText('Lehtomyrkkyseitikki')
   await page.goBack()
-  await expect(sheet.locator('h2')).toHaveText('kantarelli')
+  await expect(sheet.locator('h2')).toHaveText('Kantarelli')
   await page.goBack()
   await expect(sheet).toBeHidden()
   await expect(page.locator('#home')).toBeVisible()

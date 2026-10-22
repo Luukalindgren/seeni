@@ -32,3 +32,10 @@ export function answerText(check: Pick<Check, 'id'>, key: string, lang: Lang, en
   if (lang === 'fi') return key
   return en.checks[check.id]?.vastaukset[key] ?? key
 }
+
+/** A species name standing on its own, as a heading or a label: the first letter in upper
+ * case, the rest as it is ("Mustatorvisieni", "Koivunpunikkitatti"). Names inside a sentence
+ * stay in lower case, as Finnish writes them. */
+export function asTitle(name: string): string {
+  return name.charAt(0).toLocaleUpperCase() + name.slice(1)
+}

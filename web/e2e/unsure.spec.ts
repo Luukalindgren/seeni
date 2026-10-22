@@ -14,10 +14,10 @@ test('"not sure" names a deadly species the photo resembles, and it opens its sh
   await expect(page.locator('.unsure-danger')).toBeVisible()
   // The most likely dangerous species first.
   const rows = page.locator('.unsure .lookalike')
-  await expect(rows.first()).toContainText('suippumyrkkyseitikki')
+  await expect(rows.first()).toContainText('Suippumyrkkyseitikki')
   await expect(rows.first()).toContainText('Tappavan myrkyllinen')
   // Only dangerous species are listed: every row has its danger label.
   await expect(page.locator('.unsure .lookalike .badge')).toHaveCount(await rows.count())
   await rows.first().click()
-  await expect(page.locator('#sheet-title')).toHaveText('suippumyrkkyseitikki')
+  await expect(page.locator('#sheet-title')).toHaveText('Suippumyrkkyseitikki')
 })

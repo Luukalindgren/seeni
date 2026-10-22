@@ -28,7 +28,7 @@ test('the warning, home, result, sheet, guide and finds have no violations', asy
   await expect(page.locator('#lang [data-t="languageShort"]')).toHaveAttribute('lang', 'en')
 
   await page.locator('#gallery').setInputFiles({ name: 'sieni.jpg', mimeType: 'image/jpeg', buffer: chanterelle })
-  await expect(page.locator('#result h2').first()).toHaveText('kantarelli', { timeout: 60_000 })
+  await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   await check(page, 'result')
 
   await page.locator('#result .lookalike').first().click()
@@ -74,7 +74,7 @@ test.describe('in English', () => {
     await page.getByRole('checkbox').check()
     await page.getByRole('button', { name: 'I accept' }).click()
     await page.locator('#gallery').setInputFiles({ name: 'sieni.jpg', mimeType: 'image/jpeg', buffer: chanterelle })
-    await expect(page.locator('#result h2').first()).toHaveText('chanterelle', { timeout: 60_000 })
+    await expect(page.locator('#result h2').first()).toHaveText('Chanterelle', { timeout: 60_000 })
     await check(page, 'result')
     // A dark spore print fits none of the candidates.
     await page.locator('.verify .answer', { hasText: 'dark chocolate brown or violet black' }).click()

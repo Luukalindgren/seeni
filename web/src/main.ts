@@ -1569,7 +1569,8 @@ if ("indexedDB" in window) void refreshFindsCount();
 // Every species Seeni knows, and the dangerous ones it only warns about, in one searchable
 // list; each opens its species sheet, so the features and lookalikes can be read before
 // going to the forest, offline. The list names no edibility (hard rule 8): the danger
-// label is the only group shown.
+// label is the only group shown. A syötävä class's own sheet lists its recipes, under the
+// note that the guide identifies nothing (renderSheet).
 
 const guideDialog = $<HTMLDialogElement>("#guide");
 const guideSearch = $<HTMLInputElement>("#guide-search");
@@ -1767,17 +1768,23 @@ function renderSheet() {
     const ul = el("ul", undefined, "lookalikes sheet-lookalikes");
     for (const l of s.lookalikes)
       ul.append(
-        speciesRow(l.id, () =>
-          openSheet(l.id, current.compareTo, current.guide),
-        ),
+        speciesRow(l.id, () => openSheet(l.id, current.compareTo)),
       );
     sheetBody.append(ul);
   }
-  // Recipes in the species guide only (#50): it identifies nothing, so it says so, and they
-  // come after the lookalikes. A sheet opened from a result never shows them; there only the
-  // gate in flow.ts (showRecipes) decides. Only syötävä classes have recipes (CI checks).
+  // Recipes on the species guide's own sheet only (#50): the guide identifies nothing, so it
+  // says so, names the dangerous lookalikes again, and the recipes come after the lookalikes.
+  // A sheet opened from a result, or a lookalike's sheet opened from another sheet, never
+  // shows them; in the result only the gate in flow.ts (showRecipes) decides. Only syötävä
+  // classes have recipes (CI checks).
   const recipes = current.guide ? recipesOf(s.id) : undefined;
-  if (recipes) sheetBody.append(recipesSection(recipes, t().recipesGuideNote));
+  if (recipes) {
+    const dangerous = s.lookalikes.filter((l) => l.label).map((l) => asTitle(l.nimi));
+    const note = dangerous.length
+      ? `${t().recipesGuideNote} ${t().recipesGuideDanger(dangerous.join(", "))}`
+      : t().recipesGuideNote;
+    sheetBody.append(recipesSection(recipes, note));
+  }
   if (s.lahteet.length) {
     sheetBody.append(el("h3", text.sources));
     const ul = el("ul", undefined, "sources");
@@ -1814,8 +1821,7 @@ function recipesSection(recipes: Recipe[], note: string): HTMLElement {
   return box;
 }
 
-/** `guide`: opened from the species guide, not from a result; the sheets opened from it
- * inherit it. */
+/** `guide`: opened from the species guide's list, not from a result or another sheet. */
 function openSheet(id: string, compareTo: string, guide = false) {
   if (!species.has(id) || !modelClasses) return;
   sheetStack.push({ id, compareTo, guide });

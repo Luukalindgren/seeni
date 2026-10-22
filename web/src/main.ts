@@ -369,9 +369,10 @@ const skyOptions = (large: boolean): SkyOptions =>
   large ? { reach: 140, scale: 1 } : { reach: 0, scale: 0.6, fps: 30 };
 // In a browser tab on an iPhone or iPad, the page runs on behind the status bar and the
 // toolbar, but Safari clips fixed elements to the area between them and fills the rest
-// with a flat colour, so fixed grass and sky would end in hard lines short of the screen
-// edges (#125). There they belong to the page instead: the sky at its top and the grass at
-// its end, drawn behind the toolbar. The installed app has no toolbar and keeps them fixed.
+// with a flat colour, so the fixed grass and sky ended in hard lines short of the screen
+// edges (#125). There the sky belongs to the page instead, at its top, and there is no
+// grass: Safari ends the page short of the bottom of the screen, so grass at its end
+// floated above an empty strip. The installed app has no toolbar and keeps both, fixed.
 const iosBrowser =
   (/iPhone|iPad|iPod/.test(navigator.userAgent) ||
     (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)) &&
@@ -380,29 +381,25 @@ const iosBrowser =
   ).matches &&
   (navigator as Navigator & { standalone?: boolean }).standalone !== true;
 document.documentElement.classList.toggle("ios-browser", iosBrowser);
-// How far the page and the grass run on below the toolbar's lowest edge there, in px. Even
-// with the toolbar shrunk, Safari ends the page about this far above the bottom of the
-// screen, and how far differs between phones; the blades start below the screen edge and
-// grow up past it, so the grass reaches the edge on all of them.
-const grassBleed = iosBrowser ? 64 : 0;
-document.documentElement.style.setProperty("--grass-bleed", `${grassBleed}px`);
 const grassOptions = (large: boolean): GrassOptions =>
   large
-    ? { height: [24, 60], calmMiddle: true, reach: 120, root: grassBleed }
-    : { height: [12, 26], calmMiddle: true, reach: 0, fps: 30, root: grassBleed };
+    ? { height: [24, 60], calmMiddle: true, reach: 120 }
+    : { height: [12, 26], calmMiddle: true, reach: 0, fps: 30 };
 function startScenery() {
   const large = largeScreen.matches;
   document.documentElement.classList.toggle("small-scenery", !large);
-  if (grass && sky) {
-    grass.configure(grassOptions(large));
+  if (sky) {
+    grass?.configure(grassOptions(large));
     sky.configure(skyOptions(large));
   } else {
-    grass = startGrass(
-      $<HTMLCanvasElement>("#grass"),
-      reducedMotion,
-      grassOptions(large),
-    );
-    grass.setVisible(true);
+    if (!iosBrowser) {
+      grass = startGrass(
+        $<HTMLCanvasElement>("#grass"),
+        reducedMotion,
+        grassOptions(large),
+      );
+      grass.setVisible(true);
+    }
     sky = startSky(
       $<HTMLCanvasElement>("#sky"),
       reducedMotion,

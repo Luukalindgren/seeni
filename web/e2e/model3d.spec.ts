@@ -24,6 +24,14 @@ test('the chanterelle sheet shows its 3D model, other sheets their photo', async
   // It turns with the arrow keys.
   await model.focus()
   await page.keyboard.press('ArrowRight')
+  // The photo is one tap away, and the model comes back.
+  await figure.getByRole('button', { name: 'Näytä valokuva' }).click()
+  await expect(figure.locator('img')).toBeVisible()
+  await expect(model).toBeHidden()
+  await expect(figure.locator('figcaption')).toHaveText(/^Kuva: /)
+  await figure.getByRole('button', { name: 'Näytä 3D-malli' }).click()
+  await expect(model).toBeVisible()
+  await expect(figure.locator('img')).toBeHidden()
 
   await page.locator('#sheet-close').click()
   await openSheet(page, 'herkkutat')

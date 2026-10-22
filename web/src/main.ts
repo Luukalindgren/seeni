@@ -544,7 +544,20 @@ async function showModel(figure: HTMLElement, id: string): Promise<void> {
   tag.setAttribute('aria-hidden', 'true')
   view.canvas.after(tag)
   const caption = figure.querySelector('figcaption') ?? figure.appendChild(el('figcaption'))
+  const photoCaption = caption.textContent
   caption.textContent = t().model3dCredit(m.author, m.license)
+  // The model is made by a program and its far side is guessed, so the real photo is one tap away.
+  const toggle = el('button', t().showPhoto, 'model3d-toggle')
+  toggle.type = 'button'
+  toggle.setAttribute('aria-pressed', 'false')
+  toggle.addEventListener('click', () => {
+    const photo = figure.classList.toggle('has-model')
+    const showingPhoto = !photo
+    toggle.textContent = showingPhoto ? t().show3d : t().showPhoto
+    toggle.setAttribute('aria-pressed', String(showingPhoto))
+    caption.textContent = showingPhoto ? photoCaption : t().model3dCredit(m.author, m.license)
+  })
+  tag.after(toggle)
 }
 
 function badge(id: string): HTMLElement | null {

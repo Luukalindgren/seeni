@@ -65,6 +65,8 @@ test.describe('with a camera', () => {
     await page.locator('#live-info').click()
     await expect(live).toBeHidden()
     await expect(page.locator('#about')).toHaveAttribute('open', '')
+    // It tells how to allow the camera for good in Safari (#69).
+    await expect(page.locator('#about [data-t="aboutCamera"]')).toContainText('Kamera')
     await setHidden(page, true)
     await setHidden(page, false)
     await expect(live).toBeHidden()

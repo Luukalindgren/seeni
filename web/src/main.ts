@@ -279,6 +279,7 @@ app.innerHTML = `
     <details id="about">
       <summary data-t="info"></summary>
       <p data-t="aboutText"></p>
+      <p data-t="aboutCamera"></p>
       <p data-t-html="aboutSourcesHtml"></p>
       <p data-t="aboutTranslation"></p>
       <div id="season-settings"></div>

@@ -50,5 +50,29 @@
  "gyromitra-esculenta": {
   "file": "gyromitra-esculenta-drawn.glb",
   "drawn": true
+ },
+ "russula-emetica": {
+  "file": "russula-emetica-drawn.glb",
+  "drawn": true
+ },
+ "hypholoma-fasciculare": {
+  "file": "hypholoma-fasciculare-drawn.glb",
+  "drawn": true
+ },
+ "lactarius-helvus": {
+  "file": "lactarius-helvus-drawn.glb",
+  "drawn": true
+ },
+ "tricholoma-equestre": {
+  "file": "tricholoma-equestre-drawn.glb",
+  "drawn": true
+ },
+ "verpa-bohemica": {
+  "file": "verpa-bohemica-drawn.glb",
+  "drawn": true
+ },
+ "morchella": {
+  "file": "morchella-drawn.glb",
+  "drawn": true
  }
 }

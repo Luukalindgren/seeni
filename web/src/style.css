@@ -1509,15 +1509,20 @@ body.live-on .adding {
 }
 
 /* A species 3D model (#45) in place of the photo, the same size. */
-.has-model > img,
-figure:not(.has-model) > .model3d,
-figure:not(.has-model) > .model3d-badge {
+.has-model .model3d-stage > img,
+figure:not(.has-model) .model3d,
+figure:not(.has-model) .model3d-badge {
   display: none;
+}
+
+/* The model or the photo, with the badge and the button on it; the caption stays outside. */
+.model3d-stage {
+  position: relative;
 }
 
 .model3d-toggle {
   position: absolute;
-  left: 0.6rem;
+  right: 0.6rem;
   bottom: 0.6rem;
   font: inherit;
   font-size: 0.8rem;
@@ -1529,12 +1534,11 @@ figure:not(.has-model) > .model3d-badge {
   cursor: pointer;
 }
 
-/* In the result the photo credit sits bottom right, so the button goes top right. */
-.hero-photo .model3d-toggle {
-  top: 0.6rem;
-  right: 0.6rem;
+/* In the result the credit lies on the picture: top right, clear of the badge and the button. */
+.hero-photo:has(.model3d-stage) figcaption {
+  top: 0.5rem;
   bottom: auto;
-  left: auto;
+  max-width: calc(100% - 4rem);
 }
 
 .model3d-toggle:focus-visible {
@@ -1558,10 +1562,6 @@ figure:not(.has-model) > .model3d-badge {
 .model3d:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: -3px;
-}
-
-.has-model {
-  position: relative;
 }
 
 .model3d-badge {

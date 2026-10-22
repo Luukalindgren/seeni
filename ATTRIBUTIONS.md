@@ -2,14 +2,16 @@
 
 Seeni is built on photos, data and software made by others. This file credits them and states the licenses that apply. See [`README.md`](README.md#license) for the license of Seeni's own code, model and species data.
 
-Sections marked *pending* are filled in by the phase in brackets. Nothing in them is in use yet.
-
 ## Training images
 
 The model is trained on photos shared through [GBIF](https://www.gbif.org/) under CC0 or CC-BY licenses: mushrooms, and for the unknown class `muu` also other fungi and non-fungi such as moss, cones, leaves and plants (#7). Every photographer is credited, whatever the class. Each photo's license is taken from GBIF `multimedia.txt`, not from the occurrence record. The photos are not distributed in this repository or with the app, but the model is derived from them.
 
 - GBIF occurrence downloads: species images GBIF.org (20 October 2026) https://doi.org/10.15468/dl.fadmpu; unknown class `muu` GBIF.org (20 October 2026) https://doi.org/10.15468/dl.3x49qy (both recorded in `data-meta/gbif_download.json`)
 - Photographers and licenses: 29 858 images by 988 rights holders (28 178 CC-BY-4.0, 1 680 CC0-1.0). `seeni.attributions` generates the list from the image manifests: per rights holder in `web/public/attributions.json`, shown in the app under "Tietoa ja lähteet", and per image (with its GBIF record and source URL) in `data-meta/attributions.parquet`.
+
+## Observation counts
+
+`web/public/occurrence.json` (#48) holds monthly counts of occurrences in Finland per class and region, from the GBIF.org occurrence search API (accessed 21 October 2026), using only occurrences licensed CC0 or CC BY 4.0. It contains counts only, no occurrence records. `seeni.occurrence` makes it. The app uses it to note that a suggested species is rarely found at that time of year. The counts aggregate records from many datasets published through GBIF; GBIF.org is the source to cite.
 
 ## Images committed to this repository
 
@@ -92,13 +94,13 @@ Example photos of each species, shown in the app's result view and chosen by `sp
 
 ## Species data sources
 
-*Pending (#3).* `data-meta/lajilista.csv` and `species/species.json` are compiled from the sources below. Each source's license and required credit is recorded here before release.
+`data-meta/lajilista.csv` and `species/species.json` are compiled from the sources below. They take facts from them (which species, their names and taxon ids); no text is copied. The descriptions and checks in `species.json` are written for Seeni, and the check pictures in `web/src/checkArt.ts` are drawn for Seeni.
 
 | Source | Used for | License |
 | --- | --- | --- |
-| [GBIF Backbone Taxonomy](https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) | taxonKeys | To be checked |
-| [Laji.fi (FinBIF) taxonomy](https://laji.fi/) | Finnish names | To be checked |
-| [Ruokavirasto](https://www.ruokavirasto.fi/) list of commercial mushrooms | Species selection | To be checked |
+| [GBIF Backbone Taxonomy](https://doi.org/10.15468/39omei), GBIF Secretariat | taxonKeys, scientific names | CC BY 4.0 |
+| [Laji.fi (FinBIF) taxonomy](https://laji.fi/), Finnish Biodiversity Information Facility | Finnish names | CC BY 4.0 (FinBIF's default for its own data) |
+| [Ruokavirasto](https://www.ruokavirasto.fi/) list of commercial mushrooms (*kauppasienet*) | Which species are on the list | Facts only, credited as the source |
 
 ## Pretrained weights
 

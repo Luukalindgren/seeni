@@ -1,31 +1,29 @@
+/* Look "Metsänpohja": warm ground, moss green and chanterelle brown, big round buttons and
+   a few quiet animations. Mobile first; from 900px wide the home view centres a round drop
+   area and the result splits into photo and details. */
+
 :root {
-  --bg: #f7f4ee;
+  --bg: #f5f0e6;
   --fg: #2a241d;
-  --muted: #6b6257;
+  --muted: #5e5549;
   --accent: #7a4b1f;
   --accent-fg: #ffffff;
+  --moss: #33513f;
+  --moss-soft: #e9efe6;
+  --moss-line: #9db09f;
   --danger: #b3261e;
+  --danger-text: #8e2019;
   --pre: #a15c00;
+  --ok: #3e7d4f;
   --card: #ffffff;
-  --line: #e4ddd2;
+  --line: #e0d6c5;
+  --shadow: rgb(51 81 63 / 0.12);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   color: var(--fg);
   background: var(--bg);
   -webkit-text-size-adjust: 100%;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1c1915;
-    --fg: #eee6da;
-    --muted: #a99f92;
-    --accent: #d39a5e;
-    --accent-fg: #1c1915;
-    --danger: #ff8a80;
-    --pre: #ffb74d;
-    --card: #2a251f;
-    --line: #3a332b;
-  }
+  /* One light theme on purpose, the one chosen in the design (no dark variant). */
+  color-scheme: light;
 }
 
 * {
@@ -38,16 +36,33 @@ body {
 }
 
 #app {
+  /* Its own stacking context, so the grass canvas (z-index -1) sits behind the content but
+     above the page background. */
+  position: relative;
+  z-index: 0;
   max-width: 34rem;
   margin: 0 auto;
-  padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  padding: 0.75rem 1rem calc(1rem + env(safe-area-inset-bottom));
   min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The views, as the page's main landmark. */
+main {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
 .view {
   flex: 1;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
 }
 
 h1,
@@ -60,54 +75,272 @@ a {
   color: var(--accent);
 }
 
+svg {
+  flex: none;
+}
+
+/* Top bar */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.logo {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--moss);
+  letter-spacing: -0.01em;
+  margin-right: auto;
+}
+
+.logo img {
+  border-radius: 0.6rem;
+}
+
+/* On a phone the "Uusi kuva" button leaves no room for the name next to the icon: the name
+   stays for screen readers only, and the gaps get smaller on the narrowest screens. */
+@media (max-width: 420px) {
+  .topbar:has(#again:not([hidden])) .logo span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 340px) {
+  .topbar {
+    gap: 0.5rem;
+  }
+}
+
+.pill,
+.round {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  border-radius: 1.4rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pill {
+  border: 0;
+  background: var(--moss);
+  color: var(--bg);
+  padding: 0 1.1rem 0 0.85rem;
+  white-space: nowrap;
+}
+
+.pill[hidden] {
+  display: none;
+}
+
+.round {
+  flex-shrink: 0;
+  width: 2.75rem;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  color: var(--fg);
+}
+
 /* Home */
 
-.brand {
+#home {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+#home[hidden] {
+  display: none;
+}
+
+.intro {
+  color: var(--muted);
   text-align: center;
-  margin: 2rem 0 1.5rem;
+  margin: 0.5rem 0 1rem;
 }
 
-.brand h1 {
-  font-size: 2.2rem;
-  color: var(--accent);
-}
-
-.brand img {
-  border-radius: 1rem;
-}
-
-.brand p,
 .hint,
 .status {
   color: var(--muted);
-}
-
-.status,
-.hint {
   text-align: center;
   font-size: 0.9rem;
 }
 
+.status.ready::before {
+  content: '';
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--ok);
+  margin-right: 0.5rem;
+  vertical-align: 0.1em;
+}
+
+/* The round drop area: shown on large screens, where it is the main target. */
+.drop {
+  display: none;
+  position: relative;
+  width: min(23.75rem, 70vw);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  color: var(--moss);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 1.9rem 3.75rem var(--shadow);
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.drop .mushroom {
+  width: 9rem;
+  height: 9rem;
+  transition: transform 0.4s ease;
+}
+
+.drop-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+/* Where there is a mouse, the area is drawn on a canvas (dropArt.ts): a wavy edge and a
+   mushroom that sway in the wind. The canvas reaches past the circle for the waves and the
+   shadow; the plain circle and icon above stay for tablets. */
+.drop .art {
+  display: none;
+  position: absolute;
+  inset: -1.75rem;
+  width: calc(100% + 3.5rem);
+  height: calc(100% + 3.5rem);
+  pointer-events: none;
+}
+
+.drop.drawn,
+.drop.drawn.dragging {
+  justify-content: flex-start;
+  padding-top: 4.75rem;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.drop.drawn .art {
+  display: block;
+  filter: drop-shadow(0 1.1rem 1.4rem var(--shadow));
+}
+
+.drop.drawn .mushroom {
+  display: none;
+}
+
+.drop.drawn .drop-text {
+  position: relative;
+  z-index: 1;
+}
+
+.drop.dragging {
+  border-color: var(--moss);
+  background: var(--moss-soft);
+}
+
+.drop.dragging .mushroom {
+  transform: translateY(-0.4rem);
+}
+
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 3px solid var(--moss);
+  outline-offset: 3px;
+}
+
+/* The grass along the bottom of every view on large screens (grass.ts). */
+#grass {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 7.5rem;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+#grass.on {
+  display: block;
+}
+
+#grass.on.visible {
+  opacity: 1;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+}
+
+@keyframes fill {
+  from {
+    width: 0;
+  }
+}
+
 /* Buttons */
+
+.actions {
+  display: flex;
+  flex-direction: column;
+}
 
 .primary,
 .secondary,
 .answer {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
   width: 100%;
   border: 0;
-  border-radius: 0.9rem;
+  border-radius: 2rem;
   padding: 1rem;
   font: inherit;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
   cursor: pointer;
   margin: 0.6rem 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .big {
   font-size: 1.15rem;
-  padding: 1.15rem;
+  padding: 1.15rem 2rem;
 }
 
 .primary {
@@ -124,23 +357,34 @@ a {
 .answer {
   background: var(--card);
   color: var(--fg);
-  border: 1px solid var(--line);
-  font-weight: 500;
-  text-align: left;
+  border-radius: 1.1rem;
+  min-height: 3.5rem;
+  margin: 0;
 }
 
 .answer.ghost {
   background: transparent;
   color: var(--muted);
-  text-align: center;
+  font-weight: 600;
+  min-height: 2.75rem;
+}
+
+@media (hover: hover) {
+  .primary:hover,
+  .secondary:hover,
+  .answer:not(.ghost):hover,
+  .pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.6rem 1.5rem var(--shadow);
+  }
 }
 
 /* Warning dialog */
 
 dialog {
   border: 0;
-  border-radius: 1rem;
-  padding: 1.25rem;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
   max-width: min(30rem, calc(100vw - 2rem));
   background: var(--card);
   color: var(--fg);
@@ -154,6 +398,38 @@ dialog h2 {
   color: var(--danger);
 }
 
+#warning .fine {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.consent {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin: 1.25rem 0;
+  font-weight: 600;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.consent input {
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: 0;
+  accent-color: var(--moss);
+}
+
+#accept {
+  width: 100%;
+}
+
+#accept:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* Loading */
 
 #loading {
@@ -164,32 +440,101 @@ dialog h2 {
   gap: 1rem;
   min-height: 60dvh;
   color: var(--muted);
+  font-weight: 600;
 }
 
 #loading[hidden] {
   display: none;
 }
 
-.spinner {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  border: 0.35rem solid var(--line);
-  border-top-color: var(--accent);
-  animation: spin 0.9s linear infinite;
+.loading-model {
+  margin: 0;
+  font-weight: 400;
+  font-size: 0.95rem;
 }
 
-@keyframes spin {
+.scan {
+  display: none;
+  position: relative;
+  margin: 0;
+  width: min(20rem, 80vw);
+  aspect-ratio: 1;
+  border-radius: 2rem;
+  overflow: hidden;
+  box-shadow: 0 1.9rem 3.75rem var(--shadow);
+}
+
+.scan img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A soft light line that sweeps over the photo while the model runs. */
+.scan::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 30%;
+  background: linear-gradient(to bottom, transparent, rgb(255 255 255 / 0.45), transparent);
+  animation: sweep 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes sweep {
+  from {
+    transform: translateY(-100%);
+  }
   to {
-    transform: rotate(360deg);
+    transform: translateY(333%);
+  }
+}
+
+.has-preview .scan {
+  display: block;
+}
+
+.has-preview .loader {
+  display: none;
+}
+
+.loader {
+  color: var(--moss);
+  animation: bob 1.4s ease-in-out infinite;
+}
+
+.loader .mushroom {
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+@keyframes bob {
+  50% {
+    transform: translateY(-0.6rem) scale(1.04);
   }
 }
 
 /* Result */
 
+/* Only when a new result appears; answering a check re-renders without hiding anything. */
+#result.enter > *,
+#result.enter .side > * {
+  animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+#result.enter .side > :nth-child(1) {
+  animation-delay: 0.08s;
+}
+
+#result.enter .side > :nth-child(n + 2) {
+  animation-delay: 0.16s;
+}
+
 .hero {
   background: var(--card);
-  border-radius: 1rem;
+  border-radius: 1.5rem;
   overflow: hidden;
   margin-top: 0.5rem;
 }
@@ -208,46 +553,85 @@ dialog h2 {
 
 .hero-photo figcaption {
   position: absolute;
-  right: 0.4rem;
-  bottom: 0.3rem;
-  font-size: 0.65rem;
+  right: 0.5rem;
+  bottom: 0.4rem;
+  font-size: 0.7rem;
   color: #fff;
-  background: rgb(0 0 0 / 0.45);
-  padding: 0.05rem 0.35rem;
-  border-radius: 0.3rem;
+  background: rgb(0 0 0 / 0.5);
+  padding: 0.1rem 0.45rem;
+  border-radius: 0.4rem;
 }
 
 .hero-body {
-  padding: 0.75rem 1rem 1rem;
+  padding: 0.9rem 1.1rem 1.1rem;
 }
 
 .hero-body h2 {
-  font-size: 1.6rem;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
   margin-bottom: 0;
 }
 
 .latin {
   font-style: italic;
   color: var(--muted);
-  margin: 0.1rem 0 0.5rem;
+  margin: 0.2rem 0 0.6rem;
   display: block;
 }
 
 .confidence {
   color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+}
+
+.meter {
+  flex: 1;
+  max-width: 14rem;
+  height: 0.6rem;
+  border-radius: 0.3rem;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  border-radius: 0.3rem;
+  background: var(--moss);
+}
+
+#result.enter .meter span {
+  animation: fill 1s cubic-bezier(0.2, 0.7, 0.2, 1) both 0.3s;
 }
 
 .features {
-  padding-left: 1.2rem;
-  margin: 0.5rem 0 0;
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.features li {
+  padding: 0.5rem 0.85rem;
+  border-radius: 1.2rem;
+  background: var(--bg);
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
 .badge {
   display: inline-block;
   font-size: 0.85rem;
   font-weight: 700;
-  padding: 0.2rem 0.55rem;
-  border-radius: 0.4rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 1rem;
   color: #fff;
   margin: 0.15rem 0;
 }
@@ -260,6 +644,10 @@ dialog h2 {
   background: var(--pre);
 }
 
+.side > h3 {
+  margin-top: 1.5rem;
+}
+
 .lookalikes {
   list-style: none;
   padding: 0;
@@ -268,12 +656,12 @@ dialog h2 {
 
 .lookalikes li {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.9rem;
   align-items: center;
   background: var(--card);
-  border-radius: 0.75rem;
-  padding: 0.5rem;
-  margin: 0.4rem 0;
+  border-radius: 1.2rem;
+  padding: 0.65rem;
+  margin: 0.5rem 0;
 }
 
 .lookalikes li > div {
@@ -282,33 +670,90 @@ dialog h2 {
   align-items: flex-start;
 }
 
+.lookalikes strong {
+  font-size: 1.1rem;
+}
+
 .lookalikes .latin {
   margin: 0;
   font-size: 0.85rem;
 }
 
+/* Narrow phones: less padding and a smaller picture and name leave room for the long names. */
+@media (max-width: 360px) {
+  dialog {
+    padding-inline: 1rem;
+  }
+  .lookalikes li {
+    gap: 0.65rem;
+  }
+  .lookalikes .thumb img {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  .lookalikes strong {
+    font-size: 1rem;
+  }
+}
+
 .thumb {
+  display: block;
   margin: 0;
   flex: none;
 }
 
 .thumb img {
-  width: 4rem;
-  height: 4rem;
+  width: 4.5rem;
+  height: 4.5rem;
   object-fit: cover;
-  border-radius: 0.5rem;
+  border-radius: 0.9rem;
   display: block;
 }
 
 .verify {
   margin-top: 1rem;
-  border-top: 1px solid var(--line);
-  padding-top: 0.5rem;
+  background: var(--moss-soft);
+  border-radius: 1.5rem;
+  padding: 1.1rem 1.25rem 0.75rem;
+}
+
+.verify h3 {
+  margin-top: 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
 }
 
 .question {
-  font-weight: 600;
-  font-size: 1.05rem;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.35;
+}
+
+.check-figure {
+  margin: 0 0 0.9rem;
+  background: var(--card);
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+
+.check-art {
+  display: block;
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+  margin: 0 auto;
+}
+
+.check-art text {
+  fill: var(--muted);
+  stroke: none;
+}
+
+.answers {
+  display: grid;
+  gap: 0.6rem;
 }
 
 .checked {
@@ -317,11 +762,93 @@ dialog h2 {
 }
 
 .reminder {
-  border-left: 4px solid var(--danger);
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
   background: var(--card);
-  padding: 0.75rem;
-  border-radius: 0.25rem;
+  color: var(--danger-text);
+  font-weight: 600;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
   margin: 1rem 0 0.5rem;
+}
+
+.reminder::before {
+  content: '';
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.1rem;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l10 18H2z'/%3E%3Cpath d='M12 10v5M12 18v.01'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* "En tunnista varmasti": one calm column, one text style, the tips as chips. */
+.unsure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2.5rem 0 1rem;
+}
+
+.unsure-icon {
+  color: var(--moss-line);
+}
+
+.unsure-icon .mushroom {
+  width: 6rem;
+  height: 6rem;
+}
+
+.unsure h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.unsure p {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.unsure .tips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.unsure .tips li {
+  padding: 0.55rem 1rem;
+  border-radius: 1.2rem;
+  background: var(--card);
+  font-weight: 600;
+}
+
+.unsure .primary {
+  width: auto;
+  margin: 1rem 0 0;
+}
+
+/* The reminder as the same quiet line as on the home view, not a card. */
+.unsure .reminder {
+  color: var(--danger-text);
+  font-weight: 600;
+  background: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  font-size: 0.95rem;
+  align-items: center;
+  text-align: left;
 }
 
 /* Footer */
@@ -335,9 +862,859 @@ footer {
 footer summary {
   cursor: pointer;
   text-align: center;
+  min-height: 2.75rem;
+  line-height: 2.75rem;
 }
 
 .photographers {
   columns: 2;
+  column-gap: 2rem;
   padding-left: 1rem;
+  /* A rights holder named by a long number or URL wraps instead of running into the
+     next column. */
+  overflow-wrap: anywhere;
+}
+
+/* Large screens */
+
+@media (min-width: 900px) {
+  #app {
+    max-width: 76rem;
+    padding: 1.5rem 3rem 1.5rem;
+  }
+
+  .topbar {
+    padding-bottom: 1rem;
+  }
+
+  /* Home: the round drop area and two big buttons, little text. */
+  #home {
+    justify-content: center;
+    align-items: center;
+    gap: 2.25rem;
+    padding-bottom: 1rem;
+  }
+
+  #home .intro,
+  #home .hint {
+    display: none;
+  }
+
+  .drop {
+    display: flex;
+  }
+
+  .actions {
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .actions .big {
+    width: auto;
+    margin: 0;
+    padding: 1.25rem 2.5rem;
+    font-size: 1.25rem;
+  }
+
+  .status {
+    margin: 0;
+  }
+
+  /* Result: the photo on the left; the species and everything below it on the right. The
+     1fr row takes the photo's extra height, so the species block keeps its natural size. */
+  #result:not([hidden]) {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: 3.5rem;
+    align-content: start;
+  }
+
+  .hero {
+    display: contents;
+  }
+
+  .hero-photo {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: start;
+    position: sticky;
+    top: 1.5rem;
+    border-radius: 2rem;
+    overflow: hidden;
+    box-shadow: 0 1.9rem 3.75rem var(--shadow);
+  }
+
+  .side {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #result.enter .hero-photo {
+    animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .hero-photo img {
+    aspect-ratio: 7 / 8;
+  }
+
+  .hero-body {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 0;
+  }
+
+  #result.enter .hero-body {
+    animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both 0.04s;
+  }
+
+  .hero-body h2 {
+    font-size: 4rem;
+  }
+
+  .hero-body .latin {
+    font-size: 1.25rem;
+  }
+
+  .features li {
+    background: var(--card);
+  }
+
+  .answers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .answers .ghost {
+    grid-column: 1 / -1;
+  }
+
+  .side > .primary {
+    width: auto;
+    align-self: flex-start;
+  }
+
+  /* The result without a species (or an error) has no photo: one column. */
+  #result:not([hidden]):not(:has(.hero)) {
+    display: block;
+    max-width: 40rem;
+    margin: 0 auto;
+  }
+
+  .unsure {
+    padding-top: 4.5rem;
+  }
+
+  /* Room at the end of the page, so the last lines can scroll up out of the grass. */
+  #app {
+    padding-bottom: 6rem;
+  }
+}
+
+/* The webcam button is for computers; phones and tablets open the camera via the file input. */
+#webcam {
+  display: none;
+}
+
+/* On a computer a file input cannot open a camera, so "Ota kuva" there is the webcam button,
+   shown only when a camera is connected (webcam.ts). Tablets keep the file input. */
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .actions label[for='camera'] {
+    display: none;
+  }
+
+  #webcam:not([hidden]) {
+    display: flex;
+  }
+
+  .actions:not(.has-webcam) label[for='gallery'] {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: 0;
+  }
+}
+
+/* Webcam dialog */
+
+#webcam-dialog {
+  width: min(52rem, calc(100vw - 2rem));
+  max-width: none;
+  padding: 1rem;
+}
+
+#webcam-dialog video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 1rem;
+  background: var(--moss-soft);
+}
+
+#webcam-dialog .row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+#webcam-dialog .row > * {
+  width: auto;
+  margin: 0;
+}
+
+#webcam-dialog .note {
+  text-align: center;
+  color: var(--muted);
+  margin: 0.75rem 0 0;
+}
+
+/* Views cross-fade when the browser supports view transitions; otherwise they fade in. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: ease;
+}
+
+@supports not (view-transition-name: none) {
+  .view:not([hidden]) {
+    animation: appear 0.3s ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Live camera start screen on phones (#43): the camera fills the screen, blurred and dimmed
+   behind a card until "Ota kuva" is chosen; then it is sharp and a shutter shows. */
+
+body.live-on {
+  overflow: hidden;
+}
+
+.live {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: #11140f;
+  color: #fff;
+  overflow: hidden;
+}
+
+.live[hidden] {
+  display: none;
+}
+
+.live video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(14px) brightness(0.55);
+  transform: scale(1.08);
+  transition:
+    filter 250ms ease,
+    transform 250ms ease;
+}
+
+.live.shooting video {
+  filter: none;
+  transform: none;
+}
+
+.live-card {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 24rem;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.5rem 1.25rem 1rem;
+  border-radius: 1.75rem;
+  background: var(--card);
+  color: var(--fg);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.35);
+  transition: opacity 200ms ease;
+}
+
+.live-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.live-text {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.live-status .status {
+  margin: 0.25rem 0 0;
+}
+
+.live-link {
+  justify-self: center;
+  border: 0;
+  background: none;
+  padding: 0.5rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.live-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 1.25rem 1rem calc(1.5rem + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);
+}
+
+.live.shooting .live-card {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.live.shooting .live-bar {
+  display: flex;
+}
+
+.live-bar .round {
+  width: 3.25rem;
+  min-height: 3.25rem;
+  border-radius: 50%;
+  border: 0;
+  background: rgb(255 255 255 / 0.85);
+  cursor: pointer;
+}
+
+.shutter {
+  width: 4.75rem;
+  height: 4.75rem;
+  border-radius: 50%;
+  border: 0.3rem solid #fff;
+  background: rgb(255 255 255 / 0.35);
+  box-shadow: inset 0 0 0 0.3rem rgb(0 0 0 / 0.25);
+  cursor: pointer;
+}
+
+.shutter:active {
+  background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live video,
+  .live-card {
+    transition: none;
+  }
+}
+
+/* Several photos of one mushroom (#46): the banner while adding one, and the thumbnails. */
+
+.adding {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1.25rem;
+  background: var(--moss-soft);
+  color: var(--fg);
+  font-size: 0.9rem;
+}
+
+.adding[hidden] {
+  display: none;
+}
+
+.adding p {
+  margin: 0;
+  flex: 1 1 14rem;
+}
+
+.adding strong {
+  display: block;
+}
+
+/* Over the live camera, the banner floats at the top. */
+body.live-on .adding {
+  position: fixed;
+  top: calc(0.75rem + env(safe-area-inset-top));
+  left: 0.75rem;
+  right: 0.75rem;
+  z-index: 11;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.25);
+}
+
+.photo-strip {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 0.75rem;
+}
+
+.shot {
+  position: relative;
+  flex: none;
+  width: 5rem;
+  height: 5rem;
+  margin: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.shot-remove {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.55);
+  color: #fff;
+  cursor: pointer;
+}
+
+.shot-remove svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.unsure .photo-strip {
+  justify-content: center;
+}
+
+.photo-notice {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* Species sheet (#47): a lookalike's identification info in a modal. */
+
+.lookalike {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lookalike-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+/* Long compound names (suippumyrkkyseitikki) break instead of running past a narrow card. */
+.lookalike-text strong {
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+.lookalikes li:has(.lookalike:hover) {
+  box-shadow: 0 0 0 2px var(--moss-line);
+}
+
+.lookalike:focus-visible {
+  outline: 3px solid var(--moss);
+  outline-offset: 0.4rem;
+  border-radius: 0.9rem;
+}
+
+#sheet {
+  padding: 0;
+  width: min(34rem, calc(100vw - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
+  overflow-y: auto;
+}
+
+.sheet-top {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0.75rem 0;
+  pointer-events: none;
+}
+
+.sheet-top .round {
+  pointer-events: auto;
+  box-shadow: 0 0.25rem 0.75rem var(--shadow);
+}
+
+#sheet-close {
+  margin-left: auto;
+}
+
+#sheet-body {
+  padding: 0 1.25rem 1.25rem;
+  margin-top: -3.5rem;
+}
+
+#sheet-body h2 {
+  color: var(--fg);
+  margin: 0.75rem 0 0;
+}
+
+#sheet-body h3 {
+  margin: 1.25rem 0 0.4rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.sheet-photo {
+  margin: 0 -1.25rem;
+}
+
+.sheet-photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.sheet-photo figcaption {
+  padding: 0.3rem 1.25rem 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.sheet-note {
+  margin: 0.75rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.9rem;
+  background: var(--moss-soft);
+  font-size: 0.9rem;
+}
+
+.differences,
+.sheet-lookalikes,
+.sources {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.differences li {
+  margin: 0 0 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 1rem;
+  background: var(--moss-soft);
+}
+
+.difference-question {
+  margin: 0 0 0.4rem;
+  font-weight: 700;
+}
+
+.differences dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.75rem;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.differences dt {
+  font-weight: 700;
+}
+
+.differences dd {
+  margin: 0;
+}
+
+.sheet-lookalikes li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.35rem 0;
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sources {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.sheet-top .round[hidden] {
+  display: none;
+}
+
+/* Find spot (#51). */
+.place {
+  margin-top: 1.25rem;
+}
+.place .place-links {
+  display: flex;
+  flex-direction: column;
+}
+.place a.secondary {
+  text-align: center;
+  text-decoration: none;
+}
+.place-note,
+.place-error {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+#live-retry:not([hidden]) {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Language switch (#52): the other language's code as text. */
+.round.lang {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* The language switch on the warning, which covers the header until it is accepted. */
+#warning {
+  position: relative;
+}
+#warning-lang {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+}
+#warning h2 {
+  padding-right: 3.5rem;
+}
+
+/* Time of year and region (#48). */
+.season-note {
+  margin: 0.75rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.8rem;
+  background: var(--card);
+  border-left: 4px solid var(--accent);
+  font-size: 0.95rem;
+}
+.season-settings .season-region {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.season-settings select {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+}
+
+/* My finds. */
+#finds-open:not([hidden]) {
+  display: block;
+  margin: 0 auto;
+}
+.find-saved {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+#finds,
+#guide,
+#install {
+  width: min(34rem, calc(100vw - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
+  overflow-y: auto;
+  padding-top: 0.75rem;
+}
+#finds .sheet-top,
+#guide .sheet-top,
+#install .sheet-top {
+  padding: 0;
+  justify-content: flex-end;
+}
+#finds h2,
+#guide h2,
+#install h2 {
+  color: var(--fg);
+  margin: -2rem 0 0;
+}
+#finds .fine,
+#guide .fine,
+#install .fine {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.finds-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.find {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  padding: 0.6rem;
+  border-radius: 1rem;
+  background: var(--bg);
+}
+.find img {
+  width: 4.5rem;
+  height: 4.5rem;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+.find-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.find-date {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+.find-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.find-actions .live-link {
+  padding: 0.25rem 0;
+}
+.finds-empty {
+  opacity: 0.8;
+}
+.find-danger {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--danger-text);
+}
+.finds-backup {
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+.finds-backup .find-actions {
+  flex-wrap: wrap;
+  column-gap: 1rem;
+}
+#finds-backup-status:empty {
+  display: none;
+}
+
+/* Install as an app. */
+.install-steps {
+  margin: 1rem 0 0.5rem;
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Species guide. */
+.home-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 1rem;
+}
+.home-links #finds-open:not([hidden]) {
+  margin: 0;
+}
+.guide-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+#guide-search {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* "Not sure", with dangerous species the photo still resembles. */
+.unsure-danger {
+  margin: 0.5rem 0 0;
+  color: var(--danger-text);
+}
+
+.unsure .lookalikes {
+  align-self: stretch;
+  text-align: left;
+}
+
+/* Read by screen readers, not shown. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

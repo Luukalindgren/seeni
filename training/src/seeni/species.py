@@ -15,6 +15,10 @@ has no record. Every record is a draft until an expert fills `tarkistanut`.
 
 A check (`tarkistukset`) may appear in several records under the same `id`; then it must be
 the same check everywhere, since the app asks it once.
+
+species.en.json holds the English texts (#52): per record id its `nimi` and `tuntomerkit`,
+per check id its `kysymys` and, under each Finnish answer key, the English answer. The keys
+stay the logic, so `check` requires the translation to cover exactly the records and checks.
 """
 
 import argparse
@@ -37,6 +41,7 @@ from seeni.lajilista import (
 from seeni.paths import REPO_ROOT
 
 SPECIES = REPO_ROOT / "species" / "species.json"
+SPECIES_EN = REPO_ROOT / "species" / "species.en.json"
 FIELDS = [
     "id",
     "taxonKeys",
@@ -52,7 +57,12 @@ FIELDS = [
 CHECK_ID = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 # Text the app shows must never state edibility (hard rule 8). web/tests/flow.test.ts uses
 # the same pattern for the result texts.
-EDIBLE = re.compile(r"syötäv|syödä|syöd|ruokasien|herkullinen|maukas", re.IGNORECASE)
+# The English part leaves out a plain "eat", which the warnings need.
+EDIBLE = re.compile(
+    r"syötäv|syödä|syöd|ruokasien|herkullinen|maukas"
+    r"|edib|eaten|eatable|culinary|\bchoice\b|delicious|tasty|food mushroom|good to eat|safe to eat",
+    re.IGNORECASE,
+)
 # Checks on features a beginner can see reliably. Only these may rule out a dangerous class
 # (tappava, myrkyllinen, esikäsiteltävä); in every other check a dangerous class that the
 # check mentions is listed under every answer (species/README.md).
@@ -178,6 +188,44 @@ def check(records: list[dict], rows: list[Row]) -> list[str]:
     return errors
 
 
+def check_translation(records: list[dict], en: dict) -> list[str]:
+    """Problems in species.en.json: a missing or extra record or check, a missing answer, a
+    feature list of another length, or English text that states edibility."""
+    errors = []
+    tr_records = en.get("records", {})
+    tr_checks = en.get("checks", {})
+    checks: dict[str, dict] = {}
+    for r in records:
+        rid = r["id"]
+        tr = tr_records.get(rid)
+        if not tr or not tr.get("nimi"):
+            errors.append(f"{rid}: no English name in species.en.json")
+            continue
+        if len(tr.get("tuntomerkit", [])) != len(r.get("tuntomerkit", [])):
+            errors.append(f"{rid}: English features differ in number from the Finnish")
+        for text in [tr["nimi"], *tr.get("tuntomerkit", [])]:
+            if EDIBLE.search(text):
+                errors.append(f"{rid}: English text states edibility: {text!r}")
+        for c in r.get("tarkistukset", []):
+            checks.setdefault(c["id"], c)
+    for rid in sorted(set(tr_records) - {r["id"] for r in records}):
+        errors.append(f"{rid}: in species.en.json but has no record")
+    for cid, c in checks.items():
+        tr = tr_checks.get(cid)
+        if not tr or not tr.get("kysymys"):
+            errors.append(f"check {cid}: no English question in species.en.json")
+            continue
+        answers = tr.get("vastaukset", {})
+        if set(answers) != set(c.get("vastaukset", {})):
+            errors.append(f"check {cid}: English answers must have exactly the Finnish answer keys")
+        for text in [tr["kysymys"], *answers.values()]:
+            if not text or EDIBLE.search(text):
+                errors.append(f"check {cid}: English text is empty or states edibility: {text!r}")
+    for cid in sorted(set(tr_checks) - set(checks)):
+        errors.append(f"check {cid}: in species.en.json but no record has it")
+    return errors
+
+
 def load(path: Path = SPECIES) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
 
@@ -191,6 +239,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("command", choices=["sync", "check"])
     parser.add_argument("--lajilista", type=Path, default=LAJILISTA)
     parser.add_argument("--species", type=Path, default=SPECIES)
+    parser.add_argument("--species-en", type=Path, default=SPECIES_EN)
     args = parser.parse_args(argv)
     rows = read(args.lajilista)
     records = load(args.species)
@@ -198,6 +247,12 @@ def main(argv: list[str] | None = None) -> int:
         records = sync(records, rows)
         save(records, args.species)
     errors = check(records, rows)
+    if args.species_en.exists():
+        errors += check_translation(
+            records, json.loads(args.species_en.read_text(encoding="utf-8"))
+        )
+    else:
+        errors.append(f"{args.species_en} is missing")
     for e in errors:
         print(f"error: {e}", file=sys.stderr)
     drafts = sum(1 for r in records if not r.get("tarkistanut"))

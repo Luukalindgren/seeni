@@ -14,7 +14,7 @@ The full step-by-step plan is in `docs/PLAN.md` (in Finnish). Each phase is also
 | `web/` | Vite + TypeScript PWA, onnxruntime-web | User's browser, deployed to GitHub Pages via Actions |
 | `web/public/models/vN/` | `model.onnx`, `labels.json`, `preprocess.json`, `calibration.json` | Produced by `training/`, read by `web/` |
 
-Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base` is `'/seeni/'`. Later moving to the custom domain seeni.fi.
+Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base` is `'/seeni/'`. `.github/workflows/pages.yml` deploys every push to `main`, so a merge goes live. Later moving to the custom domain seeni.fi.
 
 ## Hard rules
 
@@ -53,7 +53,7 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - Verify against PyTorch on test images before publishing.
 
 **Web app**
-- onnxruntime-web with execution providers `['webgpu', 'wasm']`, running in a Web Worker.
+- onnxruntime-web on WASM only (`onnxruntime-web/wasm`), running in a Web Worker. The WebGPU bundle was dropped in #41: its runtime is about twice the size, and EfficientNet-B0 runs well under a second on WASM.
 - Serve the wasm files from the app's own origin so offline works.
 - Read images with `createImageBitmap(file, { imageOrientation: 'from-image' })`.
 
@@ -73,12 +73,12 @@ Hosting: GitHub Pages at `https://luukalindgren.github.io/seeni/`, so Vite `base
 - [x] Repo created
 - [x] 1. Desktop setup: WSL2, CUDA, uv, Tailscale + SSH (#1)
 - [x] 2. Repo structure (#2)
-- [ ] 3. Species list (#3)
+- [x] 3. Species list (#3)
 - [x] 4. GBIF data download + license filtering (#4)
 - [x] 5. Split + DINOv2 baseline (#5)
 - [x] 6. Fine-tuning (#6)
 - [x] 7. Evaluation, calibration, unknown class (#7)
 - [x] 8. ONNX export + golden fixtures (#8)
-- [ ] 9. Species database + verification flow (#9)
+- [x] 9. Species database + verification flow (#9)
 - [x] 10. Web app, PWA, GitHub Pages (#10)
-- [ ] 11. Release checklist (#11)
+- [x] 11. Release checklist (#11)

@@ -4,9 +4,9 @@ name: Pages
 # push to main (PLAN.md phase 10). The tests (unit, parity, offline) run in ci.yml on the PR
 # and on main; this only builds and deploys.
 #
-# Deploying is off until a person turns it on: set the repository's Pages source to
-# "GitHub Actions" and the repository variable DEPLOY_PAGES to true. The species texts are
-# unreviewed drafts (hard rule 8), so turning it on is a decision for the owner.
+# Deploying is on: the owner set the repository's Pages source to "GitHub Actions" and the
+# repository variable DEPLOY_PAGES to true (2026-10-21). Setting DEPLOY_PAGES to anything
+# else stops the deploys.
 on:
   push:
     branches: [main]

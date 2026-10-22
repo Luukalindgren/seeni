@@ -96,32 +96,51 @@ function normalize(candidates: Candidate[]): Candidate[] {
   return candidates.map((c) => ({ ...c, probability: sum > 0 ? c.probability / sum : 1 / candidates.length }))
 }
 
-/** The first step: "not sure", or the candidates with their dangerous lookalikes. */
+/** The first step: "not sure", or the candidates with their dangerous lookalikes.
+ * `perImage` are the probabilities of each photo when there are several (#46): averaging can
+ * hide a dangerous class that one photo shows clearly, so a dangerous class that is top-1 in
+ * a single photo above the "not sure" threshold is a candidate too, also when the average
+ * alone would say "not sure". */
 export function start(
   probabilities: readonly number[],
   labels: readonly Label[],
   species: Species,
   calibration: Calibration,
+  perImage: readonly (readonly number[])[] = [],
 ): { kind: 'not-sure' } | { kind: 'flow'; state: State } {
   if (probabilities.length !== labels.length) throw new Error('probabilities do not match labels.json')
   const order = probabilities
     .map((p, i) => ({ id: labels[i]!.id, p }))
     .sort((a, b) => b.p - a.p)
-  const top = order[0]
-  if (!top || top.id === UNKNOWN) return { kind: 'not-sure' }
-  if (top.p < calibration.unknownThreshold) return { kind: 'not-sure' }
-
-  const candidates: Candidate[] = []
-  let mass = 0
-  for (const { id, p } of order) {
-    if (id === UNKNOWN) continue
-    candidates.push({ id, probability: p, source: 'model' })
-    mass += p
-    if (mass >= calibration.candidateMass || candidates.length >= calibration.maxCandidates) break
+  const modelProbability = new Map(order.map(({ id, p }) => [id, p]))
+  // Dangerous classes that one photo shows clearly; they are candidates even when the
+  // average says "not sure".
+  const flagged: string[] = []
+  for (const p of perImage) {
+    if (p.length !== labels.length) throw new Error('per-image probabilities do not match labels.json')
+    const best = p.reduce((b, x, i) => (x > p[b]! ? i : b), 0)
+    const id = labels[best]!.id
+    if (id === UNKNOWN || p[best]! < calibration.unknownThreshold || !isDangerous(id, species)) continue
+    if (!flagged.includes(id)) flagged.push(id)
   }
 
+  const candidates: Candidate[] = []
+  const top = order[0]
+  if (top && top.id !== UNKNOWN && top.p >= calibration.unknownThreshold) {
+    let mass = 0
+    for (const { id, p } of order) {
+      if (id === UNKNOWN) continue
+      candidates.push({ id, probability: p, source: 'model' })
+      mass += p
+      if (mass >= calibration.candidateMass || candidates.length >= calibration.maxCandidates) break
+    }
+  }
+  for (const id of flagged) {
+    if (!candidates.some((c) => c.id === id)) candidates.push({ id, probability: modelProbability.get(id)!, source: 'model' })
+  }
+  if (candidates.length === 0) return { kind: 'not-sure' }
+
   // Dangerous lookalikes of every candidate, also of the ones added here (hard rule 8).
-  const modelProbability = new Map(order.map(({ id, p }) => [id, p]))
   const warnings: string[] = []
   const queue = candidates.map((c) => c.id)
   for (let id = queue.shift(); id !== undefined; id = queue.shift()) {
@@ -137,6 +156,41 @@ export function start(
   return { kind: 'flow', state: { candidates: normalize(candidates), warnings, asked: [] } }
 }
 
+// On "not sure", a dangerous class with at least this probability is still named.
+export const RESEMBLES_MIN = 0.1
+
+/** On "not sure": the dangerous species the photos still resemble somewhat, most likely
+ * first. A deadly species that loses to an edible one below the "not sure" threshold (e.g.
+ * 65 % / 28 %) would otherwise go unmentioned. A class counts with its highest probability in
+ * any photo (#46: averaging can hide what one photo shows). Every class at the minimum also
+ * brings its dangerous lookalikes, warning-only records too, as start() does. A species that
+ * an answer has ruled out is left out (hard rule 8: only the classes the check lists).
+ * Display only: they are not candidates and no check is asked about them. */
+export function dangerousResemblances(
+  labels: readonly Label[],
+  perImage: readonly (readonly number[])[],
+  species: Species,
+  asked: State['asked'] = [],
+  min = RESEMBLES_MIN,
+): string[] {
+  const checks = checkById(species)
+  const out = new Set(
+    asked.flatMap((a) => {
+      const check = checks.get(a.check)
+      return check && a.answer in check.vastaukset ? [...ruledOut(check, a.answer)] : []
+    }),
+  )
+  const best = new Map(labels.map((l, i) => [l.id, Math.max(0, ...perImage.map((p) => p[i] ?? 0))]))
+  const found = new Map<string, number>()
+  for (const [id, p] of best) {
+    if (id === UNKNOWN || p < min) continue
+    for (const x of [id, ...(species.get(id)?.kaksoisolennot ?? [])]) {
+      if (isDangerous(x, species) && !out.has(x)) found.set(x, Math.max(found.get(x) ?? 0, best.get(x) ?? 0))
+    }
+  }
+  return [...found].sort((a, b) => b[1] - a[1]).map(([id]) => id)
+}
+
 function checksFor(state: State, species: Species): Check[] {
   const seen = new Map<string, Check>()
   for (const id of [...state.candidates.map((c) => c.id), ...state.warnings]) {
@@ -148,7 +202,7 @@ function checksFor(state: State, species: Species): Check[] {
   return [...seen.values()].filter((c) => !asked.has(c.id))
 }
 
-function mentioned(check: Check): Set<string> {
+export function mentioned(check: Check): Set<string> {
   return new Set(Object.values(check.vastaukset).flat())
 }
 
@@ -210,6 +264,47 @@ export function answer(state: State, check: Check, chosen: string): State | null
     warnings: state.warnings.filter((w) => !out.has(w)),
     asked: [...state.asked, { check: check.id, answer: chosen }],
   }
+}
+
+/** Every check of the species records by its id. */
+export function checkById(species: Species): Map<string, Check> {
+  return new Map([...species.values()].flatMap((r) => r.tarkistukset.map((c) => [c.id, c] as const)))
+}
+
+/** The answers given before applied to a new start, e.g. after another photo is added (#46).
+ * The answers describe the mushroom, so they still hold; if together they rule out every
+ * candidate, the flow starts over without them. */
+export function replay(state: State, asked: State['asked'], species: Species): State {
+  const checks = checkById(species)
+  let next: State | null = state
+  for (const a of asked) {
+    const check = checks.get(a.check)
+    if (!check || !next) break
+    // Only answers about the classes still in: an answer to a check that mentions none of
+    // them says nothing about this result.
+    const about = mentioned(check)
+    if (![...next.candidates.map((c) => c.id), ...next.warnings].some((id) => about.has(id))) continue
+    next = a.answer === '' ? skip(next, check) : a.answer in check.vastaukset ? answer(next, check, a.answer) : next
+  }
+  return next ?? state
+}
+
+/** The listed lookalikes of the top species that the flow does not carry: those that are not
+ * food mushrooms (group "ei ruokasieni"), not shown already and not ruled out by an answer so
+ * far. Shown after the other options so that, for example, a chanterelle still names the
+ * false chanterelle. Only a species nobody should eat is added: a food mushroom would be a
+ * new alternative without the dangerous lookalikes of its own, and a dangerous one is either
+ * shown already or ruled out. Display only; it never changes the candidates or the checks. */
+export function listedLookalikes(state: State, topId: string, species: Species, checks: Map<string, Check>): string[] {
+  const out = new Set<string>()
+  for (const a of state.asked) {
+    const check = checks.get(a.check)
+    if (check && a.answer in check.vastaukset) for (const id of ruledOut(check, a.answer)) out.add(id)
+  }
+  const shown = new Set([...state.candidates.map((c) => c.id), ...state.warnings])
+  return (species.get(topId)?.kaksoisolennot ?? []).filter(
+    (id) => species.get(id)?.ryhma === 'ei ruokasieni' && !shown.has(id) && !out.has(id),
+  )
 }
 
 /** The user could not check this: it is not asked again and rules nothing out. */

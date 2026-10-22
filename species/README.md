@@ -14,3 +14,13 @@ uv run python -m seeni.species check   # validate (CI runs it in pytest)
 Checks (`tarkistukset`) with the same `id` in several records must be identical, since the app asks each one once. An answer lists the classes that are consistent with it; a check rules out only the classes it mentions, and only under the other answers. Safety rule, enforced by `check`: a dangerous class (tappava, myrkyllinen, esikäsiteltävä) is ruled out only by a check on a feature a beginner can see reliably, listed in `RELIABLE_CHECKS` in `training/src/seeni/species.py` (pores, gills or ridges; spore print colour; milk; the inside of a morel cut in half). In every other check, a dangerous class that the check mentions is listed under every answer, so the check can rule out a food mushroom but never a dangerous one.
 
 The flow that uses these records is `web/src/flow.ts`.
+
+Every check has a picture in `web/src/checkArt.ts`: a drawing, made for this project (no image license to track), that shows where to look and what the answers look like. A new check needs a picture there too; `web/tests/checkArt.test.ts` fails otherwise.
+
+## English (#52)
+
+`species.en.json` has the English texts by the same ids:
+- per record, `nimi` (a common English name, or the scientific name where there is none) and `tuntomerkit`, in the same order as the Finnish;
+- per check, `kysymys`, and under each Finnish answer key, the English answer text.
+
+The Finnish answer text is the answer's id, and the flow uses only ids, so a translation never changes what a check rules out. `python -m seeni.species check` (CI) requires the translation to cover exactly the records, checks and answers, with no edibility wording. The English texts are drafts like the Finnish ones.

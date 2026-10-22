@@ -19,7 +19,7 @@ flowchart LR
     D[Repo<br/>koodi, malli, species.json] --> E[Actions<br/>testit ja build] --> F[Pages<br/>staattinen sivu, HTTPS]
   end
   subgraph BR["Käyttäjän selain · toimii offline"]
-    G[PWA-välimuisti<br/>malli ja wasm laitteella] --> H[Tunnistus<br/>Web Worker, WebGPU/WASM] --> I[Varmistusohjaus<br/>ehdokkaat ja tarkistukset]
+    G[PWA-välimuisti<br/>malli ja wasm laitteella] --> H[Tunnistus<br/>Web Worker, WASM] --> I[Varmistusohjaus<br/>ehdokkaat ja tarkistukset]
   end
   C -- git push --> D
   F -- ladataan kerran --> G
@@ -209,7 +209,7 @@ Sovellus on Vite + TypeScript -sivu, joka ajaa mallin onnxruntime-webillä Web W
 
 **Malli selaimessa**
 
-- `onnxruntime-web`, ajotavat `['webgpu', 'wasm']`. WebGPU on nopein, ja WASM toimii varalla, jos selain ei tue WebGPU:ta.
+- `onnxruntime-web`, pelkkä WASM (`onnxruntime-web/wasm`). Alun perin suunniteltiin `['webgpu', 'wasm']`, mutta #41 jätti WebGPU:n pois: sen ajonaikainen osa on noin kaksi kertaa suurempi, ja EfficientNet-B0 toimii WASM:lla alle sekunnissa.
 - Kopioi onnxruntimen `.wasm`-tiedostot omaan `public`-kansioon ja aseta `ort.env.wasm.wasmPaths` niihin. Ilman tätä ne haetaan CDN:stä, eikä offline-tila toimi.
 - Aja malli Web Workerissa `OffscreenCanvas`in kanssa, niin käyttöliittymä ei jäädy. Luo istunto kerran ja tee yksi lämmittelyajo.
 - Kuva: `<input type="file" accept="image/*" capture="environment" multiple>`. Lue se `createImageBitmap(file, { imageOrientation: 'from-image' })`-kutsulla, jotta puhelinkuvien EXIF-kierto tulee oikein.
@@ -234,7 +234,7 @@ Playwright-testi ajaa vaiheen 8 kultaiset kuvat sovelluksen oikealla esikäsitte
 
 ## Vaihe 11: Julkaisun tarkistuslista
 
-- [ ] Vastuuvapauslauseke näkyy etusivulla ja jokaisessa tuloksessa: sovellus ei kerro, voiko sientä syödä.
+- [ ] Kertakäyttöinen suostumus ensimmäisellä käynnillä (#44) ja lyhyt muistutus jokaisessa tuloksessa: sovellus ei kerro, voiko sientä syödä.
 - [ ] Turvamittarit (vaihe 7) ovat hyväksytyllä tasolla, ja vaaralliset kaksoisolennot näkyvät aina.
 - [ ] Jokainen julkaistu lajitietue on asiantuntijan tarkistama.
 - [ ] Attribuutiot-sivu: GBIF-latauksen DOI ja kuvaajien nimet lisensseineen (generoidaan manifestista), sekä käytettyjen esikoulutettujen painojen ja kirjastojen lisenssit. Tarkista painojen lisenssi mallikortista.

@@ -1,7 +1,8 @@
-// A little sky along the top of the page on large screens, to go with the grass at the
-// bottom (grass.ts): a few clouds that hang down from the top edge and sway in the same
+// A little sky along the top of the page, to go with the grass at the bottom (grass.ts):
+// a few clouds that hang down from the top edge and sway in the same
 // slow wind, and a sun peeking in at the top right corner that turns slowly. The mouse
-// pointer pushes the clouds aside and spins the sun faster, as it bends the grass.
+// pointer pushes the clouds aside and spins the sun faster, as it bends the grass. On phones
+// everything is smaller, nothing follows the finger, and the frame rate is lower.
 // Purely decorative: drawn on a canvas, paused when the page is hidden, and drawn once
 // without motion under prefers-reduced-motion.
 
@@ -28,12 +29,18 @@ const SUN = 'rgb(232 178 74 / 0.4)'
 const RAY = 'rgb(232 178 74 / 0.3)'
 
 export interface SkyOptions {
-  // How far the pointer reaches, in px.
+  // How far the pointer reaches, in px; 0 for none.
   reach: number
+  // The size of the clouds and the sun, 1 on a large screen.
+  scale: number
+  // At most this many frames a second; the display's rate when not set.
+  fps?: number
 }
 
 export interface Sky {
   setVisible(visible: boolean): void
+  // New options, e.g. when the window becomes large.
+  configure(options: SkyOptions): void
   // A gust: stronger wind, e.g. while a photo is dragged over the drop area.
   setGust(gust: boolean): void
 }
@@ -53,12 +60,17 @@ function cloud(x: number, y: number, scale: number): Cloud {
   return { x, y, puffs, phase: Math.random() * Math.PI * 2, shift: 0 }
 }
 
-export function startSky(canvas: HTMLCanvasElement, still: boolean, options: SkyOptions): Sky {
+// Kept clear of the sun at the right.
+function clouds(scale: number): Cloud[] {
+  return [cloud(0.1, -6 * scale, scale), cloud(0.36, -18 * scale, 0.8 * scale), cloud(0.66, -10 * scale, 0.9 * scale)]
+}
+
+export function startSky(canvas: HTMLCanvasElement, still: boolean, initial: SkyOptions): Sky {
   const context = canvas.getContext('2d')
-  if (!context) return { setVisible() {}, setGust() {} }
+  if (!context) return { setVisible() {}, configure() {}, setGust() {} }
   const ctx = context
-  // Kept clear of the sun at the right.
-  const clouds = [cloud(0.1, -6, 1), cloud(0.36, -18, 0.8), cloud(0.66, -10, 0.9)]
+  let options = initial
+  let sky = clouds(options.scale)
   let width = 0
   let height = 0
   let pointerX = -1e4
@@ -83,7 +95,7 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, options: Sky
   }
 
   // The sun's centre lies outside the page, so only a quarter of it shows.
-  const sun = () => ({ x: width - 20, y: -20, r: 54 })
+  const sun = () => ({ x: width - 20 * options.scale, y: -20 * options.scale, r: 54 * options.scale })
 
   function nearness(x: number, y: number): number {
     const distance = Math.hypot(x - pointerX, y - pointerY)
@@ -92,6 +104,7 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, options: Sky
 
   function drawSun() {
     const { x, y, r } = sun()
+    const k = options.scale
     ctx.save()
     ctx.translate(x, y)
     ctx.rotate(angle)
@@ -101,9 +114,9 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, options: Sky
       const a = (i / rays) * Math.PI * 2
       const spread = Math.PI / rays / 2.4
       ctx.beginPath()
-      ctx.moveTo(Math.cos(a - spread) * (r + 8), Math.sin(a - spread) * (r + 8))
-      ctx.lineTo(Math.cos(a) * (r + (i % 2 ? 26 : 38)), Math.sin(a) * (r + (i % 2 ? 26 : 38)))
-      ctx.lineTo(Math.cos(a + spread) * (r + 8), Math.sin(a + spread) * (r + 8))
+      ctx.moveTo(Math.cos(a - spread) * (r + 8 * k), Math.sin(a - spread) * (r + 8 * k))
+      ctx.lineTo(Math.cos(a) * (r + (i % 2 ? 26 : 38) * k), Math.sin(a) * (r + (i % 2 ? 26 : 38) * k))
+      ctx.lineTo(Math.cos(a + spread) * (r + 8 * k), Math.sin(a + spread) * (r + 8 * k))
       ctx.closePath()
       ctx.fill()
     }
@@ -146,12 +159,12 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, options: Sky
     angle += spin * dt
     drawSun()
 
-    for (const c of clouds) {
+    for (const c of sky) {
       const cx = c.x * width
       // The same wind as the grass, as a drift of some pixels to and fro.
-      const wind = still ? 0 : windAt(t * 0.6, cx, c.phase) * 260 * (1 + gust * 2) + gust * 30
+      const wind = still ? 0 : windAt(t * 0.6, cx, c.phase) * 260 * options.scale * (1 + gust * 2) + gust * 30 * options.scale
       // The pointer pushes the cloud away from it.
-      const near = nearness(cx + c.shift, c.y + 20)
+      const near = nearness(cx + c.shift, c.y + 20 * options.scale)
       const push = near * Math.sign(cx + c.shift - pointerX || 1) * 70
       c.shift += (wind + push - c.shift) * ease
       drawCloud(c, t)
@@ -159,7 +172,8 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, options: Sky
   }
 
   function loop(time: number) {
-    draw(time)
+    // Skip a frame that comes too soon; a little slack keeps 30 fps on a 60 Hz display.
+    if (!options.fps || !last || time - last >= 1000 / options.fps - 4) draw(time)
     frame = visible && !document.hidden ? requestAnimationFrame(loop) : 0
     if (frame === 0) last = 0
   }
@@ -173,7 +187,7 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, options: Sky
   }
 
   window.addEventListener('pointermove', (e) => {
-    if (!visible || still) return
+    if (!visible || still || !options.reach) return
     pointerX = e.clientX - rect.left
     pointerY = e.clientY - rect.top
   })
@@ -198,6 +212,13 @@ export function startSky(canvas: HTMLCanvasElement, still: boolean, options: Sky
       canvas.classList.toggle('visible', v)
       if (v) resize()
       run()
+    },
+    configure(o: SkyOptions) {
+      options = o
+      sky = clouds(o.scale)
+      pointerX = pointerY = -1e4
+      resize()
+      if (still) draw(0)
     },
     setGust(g: boolean) {
       gustTarget = g ? 1 : 0

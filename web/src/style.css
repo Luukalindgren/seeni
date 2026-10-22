@@ -1348,6 +1348,51 @@ body.live-on .adding {
   min-width: 0;
 }
 
+/* The model's estimate at the right end of the card. */
+.lookalike .estimate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: auto;
+  padding-right: 0.25rem;
+  flex-shrink: 0;
+  text-align: right;
+  line-height: 1.15;
+}
+
+.lookalike .estimate strong {
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.lookalike .estimate small {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* Phones: the estimate goes under the name, which then keeps the card's width. */
+@media (max-width: 420px) {
+  .lookalike:has(.estimate) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 0.9rem;
+    row-gap: 0.15rem;
+  }
+  .lookalike:has(.estimate) .thumb {
+    grid-row: span 2;
+  }
+  .lookalike .estimate {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.35rem;
+    margin-left: 0;
+    padding-right: 0;
+  }
+  .lookalike .estimate strong {
+    font-size: 0.9rem;
+  }
+}
+
 /* Long compound names (suippumyrkkyseitikki) break instead of running past a narrow card. */
 .lookalike-text strong {
   hyphens: auto;

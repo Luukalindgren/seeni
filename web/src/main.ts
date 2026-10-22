@@ -474,7 +474,7 @@ function badge(id: string): HTMLElement | null {
 }
 
 /** A species as a row that opens its sheet: photo, name, scientific name and danger label. */
-function speciesRow(id: string, onOpen: () => void): HTMLElement {
+function speciesRow(id: string, onOpen: () => void, probability?: number): HTMLElement {
   const li = el('li')
   const open = el('button', undefined, 'lookalike')
   open.type = 'button'
@@ -492,6 +492,11 @@ function speciesRow(id: string, onOpen: () => void): HTMLElement {
   const b = badge(id)
   if (b) text.append(b)
   open.append(thumb, text)
+  if (probability !== undefined) {
+    const estimate = el('span', undefined, 'estimate')
+    estimate.append(el('strong', percentText(probability)), el('small', t().estimateLabel))
+    open.append(estimate)
+  }
   open.addEventListener('click', onOpen)
   li.append(open)
   return li
@@ -521,6 +526,13 @@ function newPhotoButton(): HTMLElement {
   return b
 }
 
+/** A model probability as shown: never 100 % (the model is never certain), and "< 1 %"
+ * instead of a 0 % that would read as "ruled out". */
+function percentText(p: number): string {
+  const percent = Math.min(99, Math.round(p * 100))
+  return percent < 1 ? t().percentBelowOne : t().percent(percent)
+}
+
 function renderNotSure(raw: ReadonlyMap<string, number>) {
   resultOfPhotos = true
   const box = el('div', undefined, 'unsure')
@@ -545,7 +557,7 @@ function renderNotSure(raw: ReadonlyMap<string, number>) {
   const leaning = [...raw].filter(([id]) => id !== UNKNOWN).sort((a, b) => b[1] - a[1])[0]?.[0]
   if (resembles.length > 0) {
     const list = el('ul', undefined, 'lookalikes')
-    for (const id of resembles) list.append(speciesRow(id, () => openSheet(id, leaning ?? id)))
+    for (const id of resembles) list.append(speciesRow(id, () => openSheet(id, leaning ?? id), raw.get(id)))
     box.append(el('h3', s.notSureDanger, 'unsure-danger'), list)
   }
   box.append(el('p', s.reminder, 'reminder'))
@@ -626,7 +638,7 @@ function render(state: State | null, raw: Map<string, number>) {
   if (others.length > 0) {
     side.append(el('h3', t().lookalikesTitle))
     const list = el('ul', undefined, 'lookalikes')
-    for (const id of others) list.append(speciesRow(id, () => openSheet(id, top.id)))
+    for (const id of others) list.append(speciesRow(id, () => openSheet(id, top.id), raw.get(id)))
     side.append(list)
   }
 

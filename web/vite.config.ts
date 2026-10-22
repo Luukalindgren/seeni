@@ -53,7 +53,8 @@ export default defineConfig({
         globIgnores: ['**/species/gallery/**'],
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.pathname.startsWith(`${base}species/gallery/`),
+            // A RegExp: a function would be copied into sw.js without `base`.
+            urlPattern: new RegExp(`^https?://[^/]+${base}species/gallery/`),
             handler: 'CacheFirst',
             options: { cacheName: 'species-gallery', expiration: { maxEntries: 400 } },
           },

@@ -74,6 +74,10 @@ def main() -> int:
             path = GALLERY_OUT / f"{key}.jpg"
             credits[key], row = write_photo(manifest[image], class_id, path, GALLERY_WIDTH, 80)
             rows.append(row)
+    # A photo dropped from galleria.json would otherwise stay in the app without its credit.
+    for stale in GALLERY_OUT.glob("*.jpg"):
+        if stale.stem not in credits:
+            stale.unlink()
     write_credits(OUT / "gallery.json", credits)
     print("\n".join(rows))
     return 0

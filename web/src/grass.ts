@@ -32,6 +32,9 @@ export interface GrassOptions {
   reach: number
   // At most this many frames a second; the display's rate when not set.
   fps?: number
+  // Px each blade runs on below the ground line, for a canvas that reaches past the bottom
+  // edge of the screen; 0 when not set.
+  root?: number
 }
 
 export interface Grass {
@@ -63,7 +66,7 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, initial: G
     const palette = front ? FRONT : BACK
     return {
       x,
-      height: (options.height[0] + Math.random() * options.height[1]) * (front ? 0.75 : 1),
+      height: (options.height[0] + Math.random() * options.height[1]) * (front ? 0.75 : 1) + (options.root ?? 0),
       width: 2 + Math.random() * (front ? 3 : 2.5),
       color: palette[Math.floor(Math.random() * palette.length)]!,
       phase: Math.random() * Math.PI * 2,
@@ -104,13 +107,17 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, initial: G
       // The pointer pushes nearby blades away; the push fades with distance.
       let push = 0
       const dx = b.x - pointerX
-      const dy = height - b.height * 0.7 - pointerY
+      const root = options.root ?? 0
+      const dy = height - root - (b.height - root) * 0.7 - pointerY
       const distance = Math.hypot(dx, dy)
       if (distance < options.reach) push = Math.sign(dx || 1) * (1 - distance / options.reach) ** 2 * 0.5
       b.bend += (wind + push - b.bend) * ease
-      const tipX = b.x + Math.sin(b.bend) * b.height
-      const tipY = height - Math.cos(b.bend) * b.height
-      const midX = b.x + Math.sin(b.bend * 0.5) * b.height * 0.5
+      // A blade with a root below the ground line leans less, so its tip moves as far as
+      // that of a blade without one.
+      const lean = b.bend * (1 - root / b.height)
+      const tipX = b.x + Math.sin(lean) * b.height
+      const tipY = height - Math.cos(lean) * b.height
+      const midX = b.x + Math.sin(lean * 0.5) * b.height * 0.5
       const midY = height - b.height * 0.5
       ctx.beginPath()
       ctx.moveTo(b.x - b.width / 2, height)

@@ -988,12 +988,7 @@ function render(state: State | null, raw: Map<string, number>) {
 
   // Recipes only behind the gate in flow.ts (#50), always with the note to have the mushroom
   // confirmed. Plain links: nothing is loaded from the recipe site until the user taps one.
-  const recipes = (
-    recipeLinks as Record<
-      string,
-      { nimi: string; url: string; lahde: string }[]
-    >
-  )[top.id];
+  const recipes = recipesOf(top.id);
   const resemblances = files
     ? dangerousResemblances(
         files.labels,
@@ -1003,23 +998,7 @@ function render(state: State | null, raw: Map<string, number>) {
       )
     : ["?"];
   if (recipes && !rare && showRecipes(state, species, resemblances)) {
-    const box = el("section", undefined, "recipes");
-    box.append(
-      el("h3", t().recipesTitle),
-      el("p", t().recipesNote, "recipes-note"),
-    );
-    const ul = el("ul");
-    for (const r of recipes) {
-      const a = el("a", `${r.nimi} (${r.lahde})`);
-      a.href = r.url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      const li = el("li");
-      li.append(a);
-      ul.append(li);
-    }
-    box.append(ul);
-    side.append(box);
+    side.append(recipesSection(recipes, t().recipesNote));
   }
 
   const strip = photoStrip();
@@ -1590,7 +1569,8 @@ if ("indexedDB" in window) void refreshFindsCount();
 // Every species Seeni knows, and the dangerous ones it only warns about, in one searchable
 // list; each opens its species sheet, so the features and lookalikes can be read before
 // going to the forest, offline. The list names no edibility (hard rule 8): the danger
-// label is the only group shown.
+// label is the only group shown. A syötävä class's own sheet lists its recipes, under the
+// note that the guide identifies nothing (renderSheet).
 
 const guideDialog = $<HTMLDialogElement>("#guide");
 const guideSearch = $<HTMLInputElement>("#guide-search");
@@ -1616,7 +1596,7 @@ function renderGuide() {
   list.replaceChildren();
   if (all.length === 0) list.append(el("li", t().guideNone, "finds-empty"));
   for (const r of all)
-    list.append(speciesRow(r.id, () => openSheet(r.id, r.id)));
+    list.append(speciesRow(r.id, () => openSheet(r.id, r.id, true)));
 }
 
 async function openGuide() {
@@ -1732,7 +1712,7 @@ const sheetDialog = $<HTMLDialogElement>("#sheet");
 const sheetBody = $("#sheet-body");
 const sheetBack = $<HTMLButtonElement>("#sheet-back");
 // The sheets opened, the current one last; each has one history entry.
-let sheetStack: { id: string; compareTo: string }[] = [];
+let sheetStack: { id: string; compareTo: string; guide: boolean }[] = [];
 
 function renderSheet() {
   const current = sheetStack[sheetStack.length - 1];
@@ -1787,8 +1767,23 @@ function renderSheet() {
     // The same cards as in the result, so a species looks the same everywhere.
     const ul = el("ul", undefined, "lookalikes sheet-lookalikes");
     for (const l of s.lookalikes)
-      ul.append(speciesRow(l.id, () => openSheet(l.id, current.compareTo)));
+      ul.append(
+        speciesRow(l.id, () => openSheet(l.id, current.compareTo)),
+      );
     sheetBody.append(ul);
+  }
+  // Recipes on the species guide's own sheet only (#50): the guide identifies nothing, so it
+  // says so, names the dangerous lookalikes again, and the recipes come after the lookalikes.
+  // A sheet opened from a result, or a lookalike's sheet opened from another sheet, never
+  // shows them; in the result only the gate in flow.ts (showRecipes) decides. Only syötävä
+  // classes have recipes (CI checks).
+  const recipes = current.guide ? recipesOf(s.id) : undefined;
+  if (recipes) {
+    const dangerous = s.lookalikes.filter((l) => l.label).map((l) => asTitle(l.nimi));
+    const note = dangerous.length
+      ? `${t().recipesGuideNote} ${t().recipesGuideDanger(dangerous.join(", "))}`
+      : t().recipesGuideNote;
+    sheetBody.append(recipesSection(recipes, note));
   }
   if (s.lahteet.length) {
     sheetBody.append(el("h3", text.sources));
@@ -1800,9 +1795,36 @@ function renderSheet() {
   sheetDialog.scrollTop = 0;
 }
 
-function openSheet(id: string, compareTo: string) {
+type Recipe = { nimi: string; url: string; lahde: string };
+
+/** The recipe links of a class (species/reseptit.json), if it has any. */
+function recipesOf(id: string): Recipe[] | undefined {
+  return (recipeLinks as Record<string, Recipe[]>)[id];
+}
+
+/** Recipe links under the note to have the mushroom confirmed. Plain links: nothing is
+ * loaded from the recipe site until the user taps one. */
+function recipesSection(recipes: Recipe[], note: string): HTMLElement {
+  const box = el("section", undefined, "recipes");
+  box.append(el("h3", t().recipesTitle), el("p", note, "recipes-note"));
+  const ul = el("ul");
+  for (const r of recipes) {
+    const a = el("a", `${r.nimi} (${r.lahde})`);
+    a.href = r.url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    const li = el("li");
+    li.append(a);
+    ul.append(li);
+  }
+  box.append(ul);
+  return box;
+}
+
+/** `guide`: opened from the species guide's list, not from a result or another sheet. */
+function openSheet(id: string, compareTo: string, guide = false) {
   if (!species.has(id) || !modelClasses) return;
-  sheetStack.push({ id, compareTo });
+  sheetStack.push({ id, compareTo, guide });
   pushEntry(sheetStack.length);
   renderSheet();
   if (!sheetDialog.open) sheetDialog.showModal();

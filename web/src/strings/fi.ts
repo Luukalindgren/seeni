@@ -108,6 +108,9 @@ export const fi = {
 
   // Recipes, shown only behind the gate in flow.ts (#50)
   recipesTitle: 'Reseptejä',
+  recipesGuideNote:
+    'Lajiopas ei tunnista sientäsi. Valmista vain sieni, jonka sienineuvoja on varmistanut, ja tarkista ensin sen näköislajit. Linkit avautuvat reseptisivustolle.',
+  recipesGuideDanger: (names: string) => `Vaaralliset näköislajit: ${names}.`,
   recipesNote: 'Valmista vain sieni, jonka sienineuvoja on varmistanut. Linkit avautuvat reseptisivustolle.',
 
   // Species sheet (#47)

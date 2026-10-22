@@ -2,7 +2,8 @@
 // shows, as plain data, so that it is unit tested (tests/sheet.test.ts). Pure, no DOM.
 //
 // Safety (hard rule 8): nothing here states that a species is edible, a syötävä class gets
-// no group label, and opening a sheet changes nothing in the flow.
+// no group label, and opening a sheet changes nothing in the flow. The recipe links that
+// main.ts adds to a sheet opened from the species guide are outside this data.
 
 import { mentioned, type Check, type Group, type Species } from './flow.ts'
 import { t } from './i18n.ts'

@@ -102,6 +102,9 @@ export const en: Strings = {
   placeLabel: 'Find spot',
 
   recipesTitle: 'Recipes',
+  recipesGuideNote:
+    'The species guide does not identify your mushroom. Only cook a mushroom that a mushroom advisor has confirmed, and check its lookalikes first. The links open a recipe site.',
+  recipesGuideDanger: (names: string) => `Dangerous lookalikes: ${names}.`,
   recipesNote: 'Cook only a mushroom that a mushroom advisor has confirmed. The links open a recipe site.',
 
   previousSpecies: 'Previous species',

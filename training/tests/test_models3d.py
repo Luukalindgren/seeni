@@ -62,8 +62,8 @@ def hue(colour) -> float:
 
 def region_colour(class_id: str, region: str) -> np.ndarray:
     spec = SPECS[class_id]
-    _, _, _, _, tex = build(spec, rings=120)
-    rows = models3d.resample(spec, 120)[2][models3d.ring_of_rows(120)]
+    _, _, _, _, tex = build(spec)
+    rows = models3d.resample(spec, spec.rings)[2][models3d.ring_of_rows(spec.rings)]
     return tex[rows == region].reshape(-1, 3).mean(0)
 
 
@@ -104,3 +104,18 @@ def test_the_generator_is_deterministic(tmp_path):
 
 def test_rgb():
     assert np.allclose(rgb("#ff8000"), [1, 128 / 255, 0])
+
+
+@pytest.mark.parametrize("class_id", [k for k in SPECS if k.startswith("amanita-")])
+def test_the_amanitas_have_white_gills_a_ring_and_a_volva(class_id):
+    gills = region_colour(class_id, "gills")
+    assert gills.mean() > 0.85 and gills.max() - gills.min() < 0.08
+    regions = set(models3d.resample(SPECS[class_id], SPECS[class_id].rings)[2])
+    assert {"ring", "volva"} <= regions
+
+
+def test_the_amanita_caps_keep_their_colours():
+    assert hue(region_colour("amanita-muscaria", "top")) < 12
+    assert 50 <= hue(region_colour("amanita-phalloides", "top")) <= 75
+    virosa = region_colour("amanita-virosa", "top")
+    assert virosa.min() > 0.85 and virosa.max() - virosa.min() < 0.08

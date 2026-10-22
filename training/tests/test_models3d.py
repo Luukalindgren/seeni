@@ -66,7 +66,9 @@ def test_the_quantized_glb_holds_the_built_mesh(tmp_path, class_id):
     def read(index, dtype, width):
         a = acc[index]
         v = views[a["bufferView"]]
-        raw = np.frombuffer(bin_, dtype, v["byteLength"] // np.dtype(dtype).itemsize, v["byteOffset"])
+        raw = np.frombuffer(
+            bin_, dtype, v["byteLength"] // np.dtype(dtype).itemsize, v["byteOffset"]
+        )
         return raw.reshape(a["count"], -1)[:, :width]
 
     q = read(prim["attributes"]["POSITION"], np.int16, 3) / 32767

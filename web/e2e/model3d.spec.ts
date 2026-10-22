@@ -1,6 +1,9 @@
 // Species 3D models (#45): a species with a model shows it in place of the photo, credited to
 // the photo it was made from; a species without one keeps its photo.
 import { expect, test } from '@playwright/test'
+import { fileURLToPath } from 'node:url'
+
+type Box = { x: number; y: number; width: number; height: number }
 
 async function openSheet(page: import('@playwright/test').Page, search: string) {
   const guide = page.locator('#guide')
@@ -86,4 +89,24 @@ test('models are freed when their sheet is replaced, and cached for offline', as
   expect(alive).toBeLessThanOrEqual(1)
   const cached = await page.evaluate(async () => (await (await caches.open('species-3d')).keys()).map((r) => r.url))
   expect(cached).toEqual(['http://localhost:4173/seeni/species/3d/cantharellus-cibarius.glb'])
+})
+
+test('in the result, the button and the credit sit on the picture without overlapping', async ({ page }) => {
+  await page.goto('http://localhost:4173/seeni/')
+  await page.getByRole('checkbox').check()
+  await page.getByRole('button', { name: 'Hyväksyn' }).click()
+  await page.locator('#gallery').setInputFiles(fileURLToPath(new URL('../public/species/cantharellus-cibarius.jpg', import.meta.url)))
+  const hero = page.locator('#result .hero-photo')
+  await expect(hero.locator('canvas.model3d')).toBeVisible({ timeout: 60_000 })
+  const overlap = (a: Box, b: Box) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+  for (const view of ['model', 'photo']) {
+    const picture = (await hero.locator(view === 'model' ? 'canvas.model3d' : '.model3d-stage > img').boundingBox())!
+    const button = (await hero.locator('.model3d-toggle').boundingBox())!
+    const credit = (await hero.locator('figcaption').boundingBox())!
+    expect(button.x + button.width).toBeGreaterThan(picture.x + picture.width - 40)
+    expect(button.y + button.height).toBeGreaterThan(picture.y + picture.height - 40)
+    expect(overlap(button, credit), view).toBe(false)
+    expect(credit.y + credit.height).toBeLessThanOrEqual(picture.y + picture.height)
+    if (view === 'model') await hero.getByRole('button', { name: 'Näytä valokuva' }).click()
+  }
 })

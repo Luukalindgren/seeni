@@ -1534,11 +1534,11 @@ figure:not(.has-model) .model3d-badge {
   cursor: pointer;
 }
 
-/* In the result the credit lies on the picture: bottom left, clear of the button. */
-.hero-photo.has-3d figcaption {
-  right: auto;
-  left: 0.5rem;
-  max-width: calc(100% - 10rem);
+/* In the result the credit lies on the picture: top right, clear of the badge and the button. */
+.hero-photo:has(.model3d-stage) figcaption {
+  top: 0.5rem;
+  bottom: auto;
+  max-width: calc(100% - 4rem);
 }
 
 .model3d-toggle:focus-visible {
@@ -1563,7 +1563,6 @@ figure:not(.has-model) .model3d-badge {
   outline: 3px solid var(--accent);
   outline-offset: -3px;
 }
-
 
 .model3d-badge {
   position: absolute;

@@ -16,6 +16,7 @@ import {
   nextCheck,
   outcome,
   outcomeText,
+  recipeCheck,
   replay,
   showRecipes,
   skip,
@@ -322,11 +323,12 @@ describe('listed lookalikes', () => {
 })
 
 describe('recipes (#50)', () => {
-  /** Answers every check as the top class would, until the flow is done. */
+  /** Answers every check as the top class would, as render() asks them: the flow's checks,
+   * then the recipe check once done. */
   function finish(state: State): State {
     const top = state.candidates[0]!.id
-    for (let i = 0; i < 20 && !isDone(state, species); i++) {
-      const check = nextCheck(state, species)
+    for (let i = 0; i < 20; i++) {
+      const check = isDone(state, species) ? recipeCheck(state, species) : nextCheck(state, species)
       if (!check) break
       const fits = Object.keys(check.vastaukset).find((a) => check.vastaukset[a]!.includes(top))!
       state = answer(state, check, fits) ?? state
@@ -334,13 +336,32 @@ describe('recipes (#50)', () => {
     return state
   }
 
-  it('shows them for a syötävä class once the checks are done and nothing dangerous is left', () => {
+  it('shows them for a syötävä class once the checks are done and nothing else is left', () => {
     const state = flow('cantharellus-cibarius', 0.97)
     assert.equal(showRecipes(state, species), false, 'not before any answer')
     const done = finish(state)
     assert.ok(isDone(done, species))
     assert.deepEqual(done.warnings, [])
+    assert.deepEqual(listedLookalikes(done, 'cantharellus-cibarius', species, checkById(species)), [], 'the false chanterelle was ruled out')
     assert.equal(showRecipes(done, species), true)
+    assert.equal(showRecipes(done, species, ['amanita-virosa']), false, 'not while a photo resembles a dangerous species')
+  })
+
+  it('asks one more check before recipes while a listed lookalike is not ruled out', () => {
+    let state = flow('cantharellus-cibarius', 0.97)
+    for (let i = 0; i < 20 && !isDone(state, species); i++) {
+      const check = nextCheck(state, species)!
+      const fits = Object.keys(check.vastaukset).find((a) => check.vastaukset[a]!.includes('cantharellus-cibarius'))!
+      state = answer(state, check, fits) ?? state
+    }
+    if (listedLookalikes(state, 'cantharellus-cibarius', species, checkById(species)).length === 0) return
+    assert.equal(showRecipes(state, species), false, 'the false chanterelle is still listed')
+    const check = recipeCheck(state, species)
+    assert.ok(check, 'a check of the chanterelle that can rule out the false chanterelle')
+    assert.ok(Object.keys(check.vastaukset).some((a) => ruledOut(check, a).has('hygrophoropsis-aurantiaca')))
+    // Gills: not a chanterelle at all.
+    const gills = Object.keys(check.vastaukset).find((a) => !check.vastaukset[a]!.includes('cantharellus-cibarius'))!
+    assert.equal(answer(state, check, gills), null)
   })
 
   it('never for an esikäsiteltävä, poisonous or deadly class, even when done', () => {

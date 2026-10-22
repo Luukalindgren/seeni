@@ -23,7 +23,7 @@ test('a chanterelle checked to the end shows recipes with the note', async ({ pa
     const question = (await page.locator('.verify .question').textContent())!
     const check = checks.get(question)!
     const fits = Object.keys(check.vastaukset).find((a) => check.vastaukset[a]!.includes('cantharellus-cibarius'))!
-    await page.locator('.verify .answer', { hasText: fits }).first().click()
+    await page.locator('.verify').getByRole('button', { name: fits, exact: true }).click()
     await expect(page.locator('#result .checked li')).toHaveCount(i + 1)
   }
   const recipes = page.locator('.recipes')

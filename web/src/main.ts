@@ -15,6 +15,7 @@ import {
   listedLookalikes,
   nextCheck,
   outcome,
+  recipeCheck,
   replay,
   showRecipes,
   skip,
@@ -630,7 +631,9 @@ function render(state: State | null, raw: Map<string, number>) {
   }
 
   // How to make sure: the checks, one at a time.
-  const check = done ? null : nextCheck(state, species)
+  // Once done, an edible species may get one more check against its listed lookalikes
+  // before recipes are offered (#50).
+  const check = done ? recipeCheck(state, species) : nextCheck(state, species)
   if (check) {
     const box = el('section', undefined, 'verify')
     box.append(el('h3', t().verifyTitle))
@@ -675,7 +678,8 @@ function render(state: State | null, raw: Map<string, number>) {
   // Recipes only behind the gate in flow.ts (#50), always with the note to have the mushroom
   // confirmed. Plain links: nothing is loaded from the recipe site until the user taps one.
   const recipes = (recipeLinks as Record<string, { nimi: string; url: string; lahde: string }[]>)[top.id]
-  if (recipes && showRecipes(state, species)) {
+  const resemblances = files ? dangerousResemblances(files.labels, photos.map((p) => p.probabilities), species, state.asked) : ['?']
+  if (recipes && !rare && showRecipes(state, species, resemblances)) {
     const box = el('section', undefined, 'recipes')
     box.append(el('h3', t().recipesTitle), el('p', t().recipesNote, 'recipes-note'))
     const ul = el('ul')

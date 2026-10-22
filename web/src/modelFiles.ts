@@ -3,7 +3,7 @@
 import type { Calibration, Label } from './flow.ts'
 import type { PreprocessSpec } from './preprocess.ts'
 
-export const MODEL_VERSION = 'v1'
+export const MODEL_VERSION = 'v2'
 
 export interface ModelFiles {
   labels: Label[]

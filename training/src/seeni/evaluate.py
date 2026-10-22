@@ -2,9 +2,9 @@
 
 Run from training/ on the desktop, after `seeni.train`:
 
-    uv run python -m seeni.evaluate val --run b0-224-muu      # fit T and the threshold on val
-    uv run python -m seeni.evaluate errors --run b0-224-muu   # contact sheets of val confusions
-    uv run python -m seeni.evaluate test --run b0-224-muu     # once, at the end: the test set
+    uv run python -m seeni.evaluate val --run b0-224-muu2      # fit T and the threshold on val
+    uv run python -m seeni.evaluate errors --run b0-224-muu2   # contact sheets of val confusions
+    uv run python -m seeni.evaluate test --run b0-224-muu2     # once, at the end: the test set
 
 Everything runs in fp32. Output goes under <data dir>/runs/<name>/eval/:
 
@@ -70,6 +70,9 @@ MAX_CANDIDATES = 5
 # that has a food mushroom in it. An unlisted fungus may be poisonous, so (2) is the
 # unknown-species version of (1). Zero for (1) would need a threshold of 0.99, at which the
 # app answers a quarter of the photos: the lookalike checks of phase 9 are the next guard.
+# (2) counts only unseen muu fungi, species with no muu image in train: the common unlisted
+# species have many images in every set, and the model has learnt those, so counting them
+# would make the threshold look safer for a truly unknown fungus than it is.
 MAX_RESIDUAL = 0.005
 MAX_UNKNOWN_FOOD = 0.075
 THRESHOLDS = [round(t / 100, 2) for t in range(100)]
@@ -241,9 +244,13 @@ def safety(results: list[Outcome]) -> dict:
 def unknown_metrics(results: list[Outcome], items: list[dict], info: ClassInfo) -> dict:
     """How `muu` images and species images fare against the "en tunnista" answer."""
     out = {}
-    for kind in ("fungi", "other"):
+    for kind in ("fungi", "fungi_unseen", "other"):
         rel = [
-            o for o, m in zip(results, items) if o.true == UNKNOWN_CLASS and m.get("kind") == kind
+            o
+            for o, m in zip(results, items)
+            if o.true == UNKNOWN_CLASS
+            and m.get("kind") == kind.removesuffix("_unseen")
+            and (kind != "fungi_unseen" or m.get("unseen"))
         ]
         if rel:
             food = sum(o.food_shown for o in rel)
@@ -294,6 +301,9 @@ def threshold_curve(probs, items, class_ids, info, taxon_group) -> list[dict]:
                 "species_top1_when_answered": u.get("species_top1_when_answered"),
                 "muu_fungi_not_sure": u.get("muu_fungi", {}).get("not_sure"),
                 "muu_fungi_food": u["muu_fungi"]["answered_as_food_class"],
+                "muu_fungi_unseen_food": u.get("muu_fungi_unseen", {}).get(
+                    "answered_as_food_class"
+                ),
                 "muu_other_not_sure": u.get("muu_other", {}).get("not_sure"),
                 "at_risk": s["a"]["images"] + s["b"]["images"],
             }
@@ -307,9 +317,12 @@ def pick_threshold(
     max_unknown_food: float = MAX_UNKNOWN_FOOD,
 ) -> float:
     for r in curve:
-        if (r["residual_a"] + r["residual_b"]) <= max_residual * r["at_risk"] and r.get(
-            "muu_fungi_food", 0.0
-        ) <= max_unknown_food:
+        unknown_food = r.get("muu_fungi_unseen_food")
+        if unknown_food is None:
+            unknown_food = r.get("muu_fungi_food", 0.0)
+        if (r["residual_a"] + r["residual_b"]) <= max_residual * r[
+            "at_risk"
+        ] and unknown_food <= max_unknown_food:
             return r["threshold"]
     return curve[-1]["threshold"]
 
@@ -336,8 +349,17 @@ def checked_labels(run: Path, rows: list[Row]) -> list[str]:
 def items_for(set_name: str, rows: list[Row]) -> list[dict]:
     split = read_split()
     in_model = {r.class_id for r in rows if r.in_model} | {UNKNOWN_CLASS}
+    manifests = read_manifests()
+    trained = {
+        m["taxonKey"]
+        for m in manifests
+        if m["class_id"] == UNKNOWN_CLASS and split.get(int(m["gbifID"]), ("", ""))[1] == "train"
+    }
     out = []
-    for m in read_manifests():
+    for m in manifests:
+        if m["class_id"] == UNKNOWN_CLASS:
+            # A muu species with no image in train is what an unknown fungus looks like.
+            m = {**m, "unseen": m["taxonKey"] not in trained}
         entry = split.get(int(m["gbifID"]))
         if entry is None or entry[0] != m["class_id"]:
             raise SystemExit(f"gbifID {m['gbifID']} is missing from split.csv; run seeni.split")
@@ -488,11 +510,12 @@ def markdown(report: dict) -> str:
         f'- Species images answered (not "en tunnista"): {pct(u.get("species_answered"))}, '
         f"top-1 correct when answered: {pct(u.get('species_top1_when_answered'))}"
     )
-    for kind in ("fungi", "other"):
+    for kind in ("fungi", "fungi_unseen", "other"):
         if f"muu_{kind}" in u:
             m = u[f"muu_{kind}"]
+            label = "fungi of species not in train" if kind == "fungi_unseen" else kind
             lines.append(
-                f'- muu {kind} ({m["images"]} images): "en tunnista" {pct(m["not_sure"])}, '
+                f'- muu {label} ({m["images"]} images): "en tunnista" {pct(m["not_sure"])}, '
                 f"answered with a food mushroom among the candidates {pct(m['answered_as_food_class'])}"
             )
     for name in ("in_model", "outside"):

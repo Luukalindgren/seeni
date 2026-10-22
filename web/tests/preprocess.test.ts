@@ -4,13 +4,14 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
+import { MODEL_VERSION } from '../src/modelFiles.ts'
 
 import { readNpy as parseNpy } from '../src/npy.ts'
 import { preprocess, resizedSize, type PreprocessSpec } from '../src/preprocess.ts'
 
 const fixtures = new URL('./fixtures/', import.meta.url)
 const golden = JSON.parse(readFileSync(new URL('golden.json', fixtures), 'utf8'))
-const spec: PreprocessSpec = JSON.parse(readFileSync(new URL('../public/models/v1/preprocess.json', import.meta.url), 'utf8'))
+const spec: PreprocessSpec = JSON.parse(readFileSync(new URL(`../public/models/${MODEL_VERSION}/preprocess.json`, import.meta.url), 'utf8'))
 
 const readNpy = (path: URL) => parseNpy(new Uint8Array(readFileSync(path)))
 

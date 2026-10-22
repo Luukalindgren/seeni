@@ -1,54 +1,54 @@
 {
-  "model": "models/v1/model.onnx",
-  "temperature": 0.7328,
+  "model": "models/v2/model.onnx",
+  "temperature": 0.7657,
   "tensors": [
-    "tensors/1825514568_6b6b5c2f2f.npy",
+    "tensors/2627618689_60309adb20.npy",
     "tensors/3345075329_9ae2b10657.npy",
     "tensors/6509447648_53910f941e.npy"
   ],
   "decoded": [
-    "decoded/1825514568_6b6b5c2f2f.npy",
+    "decoded/2627618689_60309adb20.npy",
     "decoded/3345075329_9ae2b10657.npy"
   ],
   "images": [
     {
-      "file": "images/1825514568_6b6b5c2f2f.jpg",
+      "file": "images/2627618689_60309adb20.jpg",
       "class_id": "muu",
       "top5": [
         {
           "index": 43,
           "id": "muu",
-          "logit": 3.87767,
-          "logitFp32": 3.87382,
-          "probability": 0.717636
+          "logit": 5.89049,
+          "logitFp32": 5.89255,
+          "probability": 0.98221
         },
         {
-          "index": 25,
-          "id": "hydnum-repandum-agg",
-          "logit": 2.24067,
-          "logitFp32": 2.23526,
-          "probability": 0.076866
+          "index": 37,
+          "id": "amanita-muscaria",
+          "logit": 0.63595,
+          "logitFp32": 0.63096,
+          "probability": 0.001028
         },
         {
-          "index": 7,
-          "id": "lactarius-trivialis-agg",
-          "logit": 2.027,
-          "logitFp32": 2.01664,
-          "probability": 0.057425
+          "index": 40,
+          "id": "hypholoma-fasciculare",
+          "logit": 0.55956,
+          "logitFp32": 0.55962,
+          "probability": 0.00093
         },
         {
           "index": 20,
           "id": "cantharellus-cibarius",
-          "logit": 1.40418,
-          "logitFp32": 1.40881,
-          "probability": 0.024546
+          "logit": 0.4725,
+          "logitFp32": 0.46863,
+          "probability": 0.00083
         },
         {
-          "index": 19,
-          "id": "cortinarius-caperatus",
-          "logit": 1.25651,
-          "logitFp32": 1.25756,
-          "probability": 0.020066
+          "index": 0,
+          "id": "boletus-edulis-agg",
+          "logit": 0.35617,
+          "logitFp32": 0.34753,
+          "probability": 0.000713
         }
       ]
     },
@@ -59,37 +59,37 @@
         {
           "index": 29,
           "id": "kuehneromyces-mutabilis",
-          "logit": 5.58212,
-          "logitFp32": 5.58022,
-          "probability": 0.933224
-        },
-        {
-          "index": 35,
-          "id": "galerina-marginata",
-          "logit": 2.27146,
-          "logitFp32": 2.27017,
-          "probability": 0.010184
-        },
-        {
-          "index": 21,
-          "id": "hygrophoropsis-aurantiaca",
-          "logit": 1.96758,
-          "logitFp32": 1.96401,
-          "probability": 0.006727
-        },
-        {
-          "index": 40,
-          "id": "hypholoma-fasciculare",
-          "logit": 1.94285,
-          "logitFp32": 1.93599,
-          "probability": 0.006504
+          "logit": 6.11939,
+          "logitFp32": 6.11594,
+          "probability": 0.950066
         },
         {
           "index": 36,
           "id": "paxillus-involutus",
-          "logit": 1.81976,
-          "logitFp32": 1.82143,
-          "probability": 0.005498
+          "logit": 3.0732,
+          "logitFp32": 3.07742,
+          "probability": 0.017783
+        },
+        {
+          "index": 21,
+          "id": "hygrophoropsis-aurantiaca",
+          "logit": 2.51399,
+          "logitFp32": 2.51977,
+          "probability": 0.008567
+        },
+        {
+          "index": 35,
+          "id": "galerina-marginata",
+          "logit": 1.95406,
+          "logitFp32": 1.95107,
+          "probability": 0.004123
+        },
+        {
+          "index": 40,
+          "id": "hypholoma-fasciculare",
+          "logit": 1.45331,
+          "logitFp32": 1.45254,
+          "probability": 0.002144
         }
       ]
     },
@@ -100,37 +100,37 @@
         {
           "index": 8,
           "id": "lactarius-rufus",
-          "logit": 5.72632,
-          "logitFp32": 5.72599,
-          "probability": 0.974305
+          "logit": 4.27473,
+          "logitFp32": 4.28619,
+          "probability": 0.767963
         },
         {
           "index": 17,
           "id": "russula-vinosa",
-          "logit": 1.98571,
-          "logitFp32": 1.98543,
-          "probability": 0.005913
-        },
-        {
-          "index": 12,
-          "id": "lactarius-helvus",
-          "logit": 1.64617,
-          "logitFp32": 1.65611,
-          "probability": 0.00372
+          "logit": 2.87266,
+          "logitFp32": 2.86699,
+          "probability": 0.123056
         },
         {
           "index": 22,
           "id": "craterellus-tubaeformis-agg",
-          "logit": 1.23606,
-          "logitFp32": 1.24005,
-          "probability": 0.002126
+          "logit": 1.36058,
+          "logitFp32": 1.35692,
+          "probability": 0.017079
         },
         {
           "index": 36,
           "id": "paxillus-involutus",
-          "logit": 1.18699,
-          "logitFp32": 1.18045,
-          "probability": 0.001988
+          "logit": 1.11837,
+          "logitFp32": 1.12507,
+          "probability": 0.012448
+        },
+        {
+          "index": 9,
+          "id": "lactarius-torminosus",
+          "logit": 0.89157,
+          "logitFp32": 0.90256,
+          "probability": 0.009257
         }
       ]
     },
@@ -141,37 +141,37 @@
         {
           "index": 37,
           "id": "amanita-muscaria",
-          "logit": 6.83724,
-          "logitFp32": 6.83404,
-          "probability": 0.987065
-        },
-        {
-          "index": 39,
-          "id": "amanita-pantherina",
-          "logit": 1.27095,
-          "logitFp32": 1.27338,
-          "probability": 0.000496
-        },
-        {
-          "index": 17,
-          "id": "russula-vinosa",
-          "logit": 1.24194,
-          "logitFp32": 1.24041,
-          "probability": 0.000477
+          "logit": 7.12245,
+          "logitFp32": 7.12596,
+          "probability": 0.983295
         },
         {
           "index": 10,
           "id": "lactarius-pubescens",
-          "logit": 1.23892,
-          "logitFp32": 1.24075,
-          "probability": 0.000475
+          "logit": 1.57255,
+          "logitFp32": 1.57012,
+          "probability": 0.0007
         },
         {
-          "index": 14,
-          "id": "russula-emetica",
-          "logit": 1.22202,
-          "logitFp32": 1.22149,
-          "probability": 0.000464
+          "index": 41,
+          "id": "inocybe",
+          "logit": 1.55803,
+          "logitFp32": 1.55432,
+          "probability": 0.000686
+        },
+        {
+          "index": 3,
+          "id": "leccinum-scabrum",
+          "logit": 1.51979,
+          "logitFp32": 1.52055,
+          "probability": 0.000653
+        },
+        {
+          "index": 35,
+          "id": "galerina-marginata",
+          "logit": 1.4056,
+          "logitFp32": 1.40688,
+          "probability": 0.000563
         }
       ]
     },
@@ -182,37 +182,37 @@
         {
           "index": 3,
           "id": "leccinum-scabrum",
-          "logit": 4.23243,
-          "logitFp32": 4.24141,
-          "probability": 0.66544
+          "logit": 4.66961,
+          "logitFp32": 4.66841,
+          "probability": 0.688849
         },
         {
           "index": 1,
           "id": "tylopilus-felleus",
-          "logit": 2.48262,
-          "logitFp32": 2.48718,
-          "probability": 0.061106
+          "logit": 3.31189,
+          "logitFp32": 3.31356,
+          "probability": 0.116962
+        },
+        {
+          "index": 0,
+          "id": "boletus-edulis-agg",
+          "logit": 2.26225,
+          "logitFp32": 2.25807,
+          "probability": 0.029696
         },
         {
           "index": 7,
           "id": "lactarius-trivialis-agg",
-          "logit": 2.32646,
-          "logitFp32": 2.31774,
-          "probability": 0.049378
+          "logit": 1.85147,
+          "logitFp32": 1.87071,
+          "probability": 0.017366
         },
         {
-          "index": 36,
-          "id": "paxillus-involutus",
-          "logit": 1.75335,
-          "logitFp32": 1.75859,
-          "probability": 0.022588
-        },
-        {
-          "index": 17,
-          "id": "russula-vinosa",
-          "logit": 1.65249,
-          "logitFp32": 1.65053,
-          "probability": 0.019684
+          "index": 39,
+          "id": "amanita-pantherina",
+          "logit": 1.52366,
+          "logitFp32": 1.52034,
+          "probability": 0.011318
         }
       ]
     },
@@ -223,37 +223,37 @@
         {
           "index": 43,
           "id": "muu",
-          "logit": 4.22325,
-          "logitFp32": 4.23138,
-          "probability": 0.819045
-        },
-        {
-          "index": 26,
-          "id": "morchella",
-          "logit": 1.47079,
-          "logitFp32": 1.46794,
-          "probability": 0.019145
-        },
-        {
-          "index": 5,
-          "id": "suillus-luteus",
-          "logit": 1.37424,
-          "logitFp32": 1.37175,
-          "probability": 0.016782
-        },
-        {
-          "index": 31,
-          "id": "amanita-virosa",
-          "logit": 1.36723,
-          "logitFp32": 1.36536,
-          "probability": 0.016622
+          "logit": 5.52228,
+          "logitFp32": 5.53492,
+          "probability": 0.951628
         },
         {
           "index": 0,
           "id": "boletus-edulis-agg",
-          "logit": 1.07586,
-          "logitFp32": 1.06528,
-          "probability": 0.011169
+          "logit": 1.84203,
+          "logitFp32": 1.83701,
+          "probability": 0.007782
+        },
+        {
+          "index": 37,
+          "id": "amanita-muscaria",
+          "logit": 1.70798,
+          "logitFp32": 1.71408,
+          "probability": 0.006532
+        },
+        {
+          "index": 36,
+          "id": "paxillus-involutus",
+          "logit": 1.50698,
+          "logitFp32": 1.50593,
+          "probability": 0.005024
+        },
+        {
+          "index": 10,
+          "id": "lactarius-pubescens",
+          "logit": 1.46548,
+          "logitFp32": 1.45481,
+          "probability": 0.004759
         }
       ]
     },
@@ -262,39 +262,80 @@
       "class_id": "paxillus-involutus",
       "top5": [
         {
-          "index": 6,
-          "id": "suillus-bovinus",
-          "logit": 4.67457,
-          "logitFp32": 4.66326,
-          "probability": 0.650386
-        },
-        {
           "index": 36,
           "id": "paxillus-involutus",
-          "logit": 4.0448,
-          "logitFp32": 4.04321,
-          "probability": 0.275384
+          "logit": 4.80522,
+          "logitFp32": 4.79464,
+          "probability": 0.898449
         },
         {
-          "index": 25,
-          "id": "hydnum-repandum-agg",
-          "logit": 1.89767,
-          "logitFp32": 1.89308,
-          "probability": 0.014704
+          "index": 6,
+          "id": "suillus-bovinus",
+          "logit": 1.99354,
+          "logitFp32": 1.99243,
+          "probability": 0.022843
+        },
+        {
+          "index": 0,
+          "id": "boletus-edulis-agg",
+          "logit": 1.94843,
+          "logitFp32": 1.96021,
+          "probability": 0.021536
+        },
+        {
+          "index": 40,
+          "id": "hypholoma-fasciculare",
+          "logit": 1.40888,
+          "logitFp32": 1.41301,
+          "probability": 0.010645
         },
         {
           "index": 20,
           "id": "cantharellus-cibarius",
-          "logit": 1.46128,
-          "logitFp32": 1.46763,
-          "probability": 0.008106
+          "logit": 0.85292,
+          "logitFp32": 0.85805,
+          "probability": 0.00515
+        }
+      ]
+    },
+    {
+      "file": "images/3408602375_c3728d07ba.jpg",
+      "class_id": "muu",
+      "top5": [
+        {
+          "index": 43,
+          "id": "muu",
+          "logit": 4.21307,
+          "logitFp32": 4.20561,
+          "probability": 0.442524
         },
         {
-          "index": 38,
-          "id": "amanita-regalis",
-          "logit": 1.21465,
-          "logitFp32": 1.2165,
-          "probability": 0.00579
+          "index": 33,
+          "id": "cortinarius-rubellus",
+          "logit": 4.05501,
+          "logitFp32": 4.0525,
+          "probability": 0.359985
+        },
+        {
+          "index": 12,
+          "id": "lactarius-helvus",
+          "logit": 2.67167,
+          "logitFp32": 2.6792,
+          "probability": 0.059112
+        },
+        {
+          "index": 11,
+          "id": "lactarius-deliciosus-agg",
+          "logit": 2.37584,
+          "logitFp32": 2.38841,
+          "probability": 0.040168
+        },
+        {
+          "index": 8,
+          "id": "lactarius-rufus",
+          "logit": 1.59693,
+          "logitFp32": 1.59771,
+          "probability": 0.014524
         }
       ]
     },
@@ -305,37 +346,37 @@
         {
           "index": 41,
           "id": "inocybe",
-          "logit": 5.97261,
-          "logitFp32": 5.96626,
-          "probability": 0.958905
-        },
-        {
-          "index": 22,
-          "id": "craterellus-tubaeformis-agg",
-          "logit": 2.74473,
-          "logitFp32": 2.74274,
-          "probability": 0.011716
+          "logit": 5.78653,
+          "logitFp32": 5.77655,
+          "probability": 0.927169
         },
         {
           "index": 29,
           "id": "kuehneromyces-mutabilis",
-          "logit": 2.26595,
-          "logitFp32": 2.25993,
-          "probability": 0.006096
+          "logit": 3.03387,
+          "logitFp32": 3.04639,
+          "probability": 0.025462
         },
         {
-          "index": 25,
-          "id": "hydnum-repandum-agg",
-          "logit": 1.90887,
-          "logitFp32": 1.9095,
-          "probability": 0.003745
+          "index": 43,
+          "id": "muu",
+          "logit": 2.57785,
+          "logitFp32": 2.56466,
+          "probability": 0.014036
+        },
+        {
+          "index": 22,
+          "id": "craterellus-tubaeformis-agg",
+          "logit": 2.27944,
+          "logitFp32": 2.28487,
+          "probability": 0.009506
         },
         {
           "index": 19,
           "id": "cortinarius-caperatus",
-          "logit": 1.53856,
-          "logitFp32": 1.53851,
-          "probability": 0.002259
+          "logit": 1.86614,
+          "logitFp32": 1.86796,
+          "probability": 0.005541
         }
       ]
     },
@@ -346,37 +387,37 @@
         {
           "index": 23,
           "id": "craterellus-cornucopioides",
-          "logit": 5.66764,
-          "logitFp32": 5.67237,
-          "probability": 0.963548
-        },
-        {
-          "index": 43,
-          "id": "muu",
-          "logit": 1.67769,
-          "logitFp32": 1.68342,
-          "probability": 0.004161
-        },
-        {
-          "index": 31,
-          "id": "amanita-virosa",
-          "logit": 1.41449,
-          "logitFp32": 1.41316,
-          "probability": 0.002906
-        },
-        {
-          "index": 26,
-          "id": "morchella",
-          "logit": 1.30862,
-          "logitFp32": 1.30745,
-          "probability": 0.002515
+          "logit": 5.52058,
+          "logitFp32": 5.52641,
+          "probability": 0.936567
         },
         {
           "index": 18,
           "id": "hygrophorus-camarophyllus",
-          "logit": 1.17209,
-          "logitFp32": 1.16369,
-          "probability": 0.002087
+          "logit": 2.44392,
+          "logitFp32": 2.43824,
+          "probability": 0.016846
+        },
+        {
+          "index": 26,
+          "id": "morchella",
+          "logit": 1.51901,
+          "logitFp32": 1.51316,
+          "probability": 0.005034
+        },
+        {
+          "index": 31,
+          "id": "amanita-virosa",
+          "logit": 1.31821,
+          "logitFp32": 1.3213,
+          "probability": 0.003873
+        },
+        {
+          "index": 43,
+          "id": "muu",
+          "logit": 1.03505,
+          "logitFp32": 1.03668,
+          "probability": 0.002676
         }
       ]
     },
@@ -387,37 +428,37 @@
         {
           "index": 0,
           "id": "boletus-edulis-agg",
-          "logit": 7.54132,
-          "logitFp32": 7.5431,
-          "probability": 0.994119
+          "logit": 7.1691,
+          "logitFp32": 7.17023,
+          "probability": 0.981664
         },
         {
-          "index": 21,
-          "id": "hygrophoropsis-aurantiaca",
-          "logit": 1.70184,
-          "logitFp32": 1.70124,
-          "probability": 0.000344
+          "index": 40,
+          "id": "hypholoma-fasciculare",
+          "logit": 2.03891,
+          "logitFp32": 2.04465,
+          "probability": 0.001208
         },
         {
-          "index": 11,
-          "id": "lactarius-deliciosus-agg",
-          "logit": 1.68607,
-          "logitFp32": 1.68895,
-          "probability": 0.000337
+          "index": 41,
+          "id": "inocybe",
+          "logit": 1.97814,
+          "logitFp32": 1.97989,
+          "probability": 0.001116
         },
         {
-          "index": 23,
-          "id": "craterellus-cornucopioides",
-          "logit": 1.60574,
-          "logitFp32": 1.60694,
-          "probability": 0.000302
+          "index": 22,
+          "id": "craterellus-tubaeformis-agg",
+          "logit": 1.67772,
+          "logitFp32": 1.67997,
+          "probability": 0.000754
         },
         {
-          "index": 34,
-          "id": "gyromitra-esculenta",
-          "logit": 1.4945,
-          "logitFp32": 1.49742,
-          "probability": 0.000259
+          "index": 36,
+          "id": "paxillus-involutus",
+          "logit": 1.63852,
+          "logitFp32": 1.64026,
+          "probability": 0.000716
         }
       ]
     },
@@ -428,37 +469,37 @@
         {
           "index": 34,
           "id": "gyromitra-esculenta",
-          "logit": 7.34282,
-          "logitFp32": 7.34312,
-          "probability": 0.993001
+          "logit": 7.04346,
+          "logitFp32": 7.04275,
+          "probability": 0.986713
         },
         {
-          "index": 10,
-          "id": "lactarius-pubescens",
-          "logit": 1.57744,
-          "logitFp32": 1.58118,
-          "probability": 0.00038
+          "index": 2,
+          "id": "leccinum-versipelle-agg",
+          "logit": 1.4233,
+          "logitFp32": 1.42545,
+          "probability": 0.00064
         },
         {
-          "index": 40,
-          "id": "hypholoma-fasciculare",
-          "logit": 1.3479,
-          "logitFp32": 1.34607,
-          "probability": 0.000278
+          "index": 22,
+          "id": "craterellus-tubaeformis-agg",
+          "logit": 1.40334,
+          "logitFp32": 1.40818,
+          "probability": 0.000624
+        },
+        {
+          "index": 37,
+          "id": "amanita-muscaria",
+          "logit": 1.36402,
+          "logitFp32": 1.36659,
+          "probability": 0.000593
         },
         {
           "index": 25,
           "id": "hydnum-repandum-agg",
-          "logit": 1.33732,
-          "logitFp32": 1.34075,
-          "probability": 0.000274
-        },
-        {
-          "index": 0,
-          "id": "boletus-edulis-agg",
-          "logit": 1.32777,
-          "logitFp32": 1.32744,
-          "probability": 0.00027
+          "logit": 1.35257,
+          "logitFp32": 1.35144,
+          "probability": 0.000584
         }
       ]
     },
@@ -469,37 +510,37 @@
         {
           "index": 37,
           "id": "amanita-muscaria",
-          "logit": 4.57336,
-          "logitFp32": 4.57327,
-          "probability": 0.72606
-        },
-        {
-          "index": 13,
-          "id": "russula-paludosa",
-          "logit": 3.51324,
-          "logitFp32": 3.51101,
-          "probability": 0.17088
+          "logit": 2.68644,
+          "logitFp32": 2.69456,
+          "probability": 0.321615
         },
         {
           "index": 15,
           "id": "russula-decolorans-agg",
-          "logit": 2.58384,
-          "logitFp32": 2.58603,
-          "probability": 0.048071
+          "logit": 2.04084,
+          "logitFp32": 2.03708,
+          "probability": 0.138409
         },
         {
-          "index": 14,
-          "id": "russula-emetica",
-          "logit": 1.00684,
-          "logitFp32": 1.0025,
-          "probability": 0.005588
+          "index": 13,
+          "id": "russula-paludosa",
+          "logit": 1.9436,
+          "logitFp32": 1.94455,
+          "probability": 0.121903
         },
         {
-          "index": 9,
-          "id": "lactarius-torminosus",
-          "logit": 0.78043,
-          "logitFp32": 0.77649,
-          "probability": 0.004103
+          "index": 16,
+          "id": "russula-claroflava",
+          "logit": 1.65472,
+          "logitFp32": 1.65131,
+          "probability": 0.083591
+        },
+        {
+          "index": 43,
+          "id": "muu",
+          "logit": 1.16561,
+          "logitFp32": 1.15744,
+          "probability": 0.044131
         }
       ]
     },
@@ -510,37 +551,37 @@
         {
           "index": 22,
           "id": "craterellus-tubaeformis-agg",
-          "logit": 7.19927,
-          "logitFp32": 7.19806,
-          "probability": 0.99009
+          "logit": 6.80089,
+          "logitFp32": 6.79854,
+          "probability": 0.979756
         },
         {
-          "index": 16,
-          "id": "russula-claroflava",
-          "logit": 1.83115,
-          "logitFp32": 1.83016,
-          "probability": 0.000652
-        },
-        {
-          "index": 2,
-          "id": "leccinum-versipelle-agg",
-          "logit": 1.53926,
-          "logitFp32": 1.53956,
-          "probability": 0.000438
-        },
-        {
-          "index": 8,
-          "id": "lactarius-rufus",
-          "logit": 1.42077,
-          "logitFp32": 1.41897,
-          "probability": 0.000372
+          "index": 43,
+          "id": "muu",
+          "logit": 2.0637,
+          "logitFp32": 2.0612,
+          "probability": 0.002015
         },
         {
           "index": 26,
           "id": "morchella",
-          "logit": 1.40541,
-          "logitFp32": 1.40659,
-          "probability": 0.000365
+          "logit": 1.94622,
+          "logitFp32": 1.94828,
+          "probability": 0.001728
+        },
+        {
+          "index": 23,
+          "id": "craterellus-cornucopioides",
+          "logit": 1.34598,
+          "logitFp32": 1.34473,
+          "probability": 0.000789
+        },
+        {
+          "index": 33,
+          "id": "cortinarius-rubellus",
+          "logit": 1.28541,
+          "logitFp32": 1.28958,
+          "probability": 0.000729
         }
       ]
     },
@@ -551,78 +592,37 @@
         {
           "index": 42,
           "id": "tricholoma-equestre",
-          "logit": 7.01234,
-          "logitFp32": 7.01969,
-          "probability": 0.984806
-        },
-        {
-          "index": 22,
-          "id": "craterellus-tubaeformis-agg",
-          "logit": 2.12952,
-          "logitFp32": 2.12762,
-          "probability": 0.001258
-        },
-        {
-          "index": 25,
-          "id": "hydnum-repandum-agg",
-          "logit": 2.09819,
-          "logitFp32": 2.10443,
-          "probability": 0.001205
-        },
-        {
-          "index": 35,
-          "id": "galerina-marginata",
-          "logit": 1.91377,
-          "logitFp32": 1.91365,
-          "probability": 0.000937
+          "logit": 6.05086,
+          "logitFp32": 6.05328,
+          "probability": 0.919648
         },
         {
           "index": 4,
           "id": "suillus-variegatus",
-          "logit": 1.80036,
-          "logitFp32": 1.79699,
-          "probability": 0.000803
-        }
-      ]
-    },
-    {
-      "file": "images/3924311384_75e4b57cb2.jpg",
-      "class_id": "muu",
-      "top5": [
-        {
-          "index": 43,
-          "id": "muu",
-          "logit": 7.06169,
-          "logitFp32": 7.05657,
-          "probability": 0.996227
+          "logit": 2.75181,
+          "logitFp32": 2.75542,
+          "probability": 0.012372
         },
         {
-          "index": 18,
-          "id": "hygrophorus-camarophyllus",
-          "logit": 2.22668,
-          "logitFp32": 2.22314,
-          "probability": 0.001358
+          "index": 8,
+          "id": "lactarius-rufus",
+          "logit": 2.02624,
+          "logitFp32": 2.0238,
+          "probability": 0.004796
         },
         {
-          "index": 41,
-          "id": "inocybe",
-          "logit": 1.36446,
-          "logitFp32": 1.37414,
-          "probability": 0.000419
-        },
-        {
-          "index": 23,
-          "id": "craterellus-cornucopioides",
-          "logit": 0.88412,
-          "logitFp32": 0.88277,
-          "probability": 0.000217
+          "index": 1,
+          "id": "tylopilus-felleus",
+          "logit": 1.91535,
+          "logitFp32": 1.91758,
+          "probability": 0.00415
         },
         {
           "index": 22,
           "id": "craterellus-tubaeformis-agg",
-          "logit": 0.83257,
-          "logitFp32": 0.83412,
-          "probability": 0.000203
+          "logit": 1.89153,
+          "logitFp32": 1.887,
+          "probability": 0.004023
         }
       ]
     },
@@ -631,39 +631,39 @@
       "class_id": "leccinum-versipelle-agg",
       "top5": [
         {
-          "index": 2,
-          "id": "leccinum-versipelle-agg",
-          "logit": 6.26787,
-          "logitFp32": 6.2597,
-          "probability": 0.954788
-        },
-        {
           "index": 3,
           "id": "leccinum-scabrum",
-          "logit": 3.49018,
-          "logitFp32": 3.50675,
-          "probability": 0.021563
+          "logit": 5.71444,
+          "logitFp32": 5.70357,
+          "probability": 0.643653
+        },
+        {
+          "index": 2,
+          "id": "leccinum-versipelle-agg",
+          "logit": 5.19749,
+          "logitFp32": 5.21367,
+          "probability": 0.327678
+        },
+        {
+          "index": 16,
+          "id": "russula-claroflava",
+          "logit": 1.3358,
+          "logitFp32": 1.33785,
+          "probability": 0.002114
+        },
+        {
+          "index": 39,
+          "id": "amanita-pantherina",
+          "logit": 1.0786,
+          "logitFp32": 1.07214,
+          "probability": 0.001511
         },
         {
           "index": 6,
           "id": "suillus-bovinus",
-          "logit": 1.93287,
-          "logitFp32": 1.9273,
-          "probability": 0.002575
-        },
-        {
-          "index": 32,
-          "id": "amanita-phalloides",
-          "logit": 1.43994,
-          "logitFp32": 1.43969,
-          "probability": 0.001314
-        },
-        {
-          "index": 41,
-          "id": "inocybe",
-          "logit": 1.38126,
-          "logitFp32": 1.37733,
-          "probability": 0.001213
+          "logit": 1.05875,
+          "logitFp32": 1.05152,
+          "probability": 0.001472
         }
       ]
     },
@@ -674,37 +674,37 @@
         {
           "index": 27,
           "id": "tricholoma-matsutake",
-          "logit": 6.99306,
-          "logitFp32": 6.99695,
-          "probability": 0.99562
+          "logit": 6.96968,
+          "logitFp32": 6.96731,
+          "probability": 0.991286
         },
         {
           "index": 22,
           "id": "craterellus-tubaeformis-agg",
-          "logit": 1.66332,
-          "logitFp32": 1.66548,
-          "probability": 0.000691
+          "logit": 2.35231,
+          "logitFp32": 2.34757,
+          "probability": 0.002384
         },
         {
           "index": 18,
           "id": "hygrophorus-camarophyllus",
-          "logit": 1.37045,
-          "logitFp32": 1.37023,
-          "probability": 0.000463
+          "logit": 1.42145,
+          "logitFp32": 1.41468,
+          "probability": 0.000707
         },
         {
           "index": 30,
           "id": "agaricus-campestris-agg",
-          "logit": 1.07363,
-          "logitFp32": 1.07,
-          "probability": 0.000309
+          "logit": 1.31063,
+          "logitFp32": 1.3099,
+          "probability": 0.000612
         },
         {
           "index": 0,
           "id": "boletus-edulis-agg",
-          "logit": 0.86467,
-          "logitFp32": 0.86503,
-          "probability": 0.000232
+          "logit": 1.16701,
+          "logitFp32": 1.16399,
+          "probability": 0.000507
         }
       ]
     },
@@ -715,37 +715,37 @@
         {
           "index": 41,
           "id": "inocybe",
-          "logit": 3.06071,
-          "logitFp32": 3.05292,
-          "probability": 0.444057
-        },
-        {
-          "index": 43,
-          "id": "muu",
-          "logit": 2.27794,
-          "logitFp32": 2.28615,
-          "probability": 0.15259
-        },
-        {
-          "index": 36,
-          "id": "paxillus-involutus",
-          "logit": 2.06132,
-          "logitFp32": 2.04245,
-          "probability": 0.11354
-        },
-        {
-          "index": 25,
-          "id": "hydnum-repandum-agg",
-          "logit": 1.92325,
-          "logitFp32": 1.91831,
-          "probability": 0.094042
+          "logit": 3.95678,
+          "logitFp32": 3.92866,
+          "probability": 0.572317
         },
         {
           "index": 2,
           "id": "leccinum-versipelle-agg",
-          "logit": 1.37591,
-          "logitFp32": 1.38806,
-          "probability": 0.044559
+          "logit": 3.28549,
+          "logitFp32": 3.31178,
+          "probability": 0.238172
+        },
+        {
+          "index": 43,
+          "id": "muu",
+          "logit": 2.80489,
+          "logitFp32": 2.82292,
+          "probability": 0.127146
+        },
+        {
+          "index": 36,
+          "id": "paxillus-involutus",
+          "logit": 1.37662,
+          "logitFp32": 1.37586,
+          "probability": 0.019688
+        },
+        {
+          "index": 26,
+          "id": "morchella",
+          "logit": 0.76463,
+          "logitFp32": 0.75766,
+          "probability": 0.008853
         }
       ]
     },
@@ -756,37 +756,37 @@
         {
           "index": 25,
           "id": "hydnum-repandum-agg",
-          "logit": 7.10533,
-          "logitFp32": 7.09774,
-          "probability": 0.9928
-        },
-        {
-          "index": 39,
-          "id": "amanita-pantherina",
-          "logit": 2.4125,
-          "logitFp32": 2.41921,
-          "probability": 0.001643
-        },
-        {
-          "index": 41,
-          "id": "inocybe",
-          "logit": 2.24355,
-          "logitFp32": 2.24559,
-          "probability": 0.001305
+          "logit": 6.77646,
+          "logitFp32": 6.77976,
+          "probability": 0.984044
         },
         {
           "index": 43,
           "id": "muu",
-          "logit": 1.76188,
-          "logitFp32": 1.76544,
-          "probability": 0.000676
+          "logit": 2.8697,
+          "logitFp32": 2.86567,
+          "probability": 0.005986
         },
         {
           "index": 38,
           "id": "amanita-regalis",
-          "logit": 1.44522,
-          "logitFp32": 1.44325,
-          "probability": 0.000439
+          "logit": 1.53289,
+          "logitFp32": 1.53635,
+          "probability": 0.001045
+        },
+        {
+          "index": 36,
+          "id": "paxillus-involutus",
+          "logit": 1.33308,
+          "logitFp32": 1.33762,
+          "probability": 0.000805
+        },
+        {
+          "index": 31,
+          "id": "amanita-virosa",
+          "logit": 1.1135,
+          "logitFp32": 1.11423,
+          "probability": 0.000604
         }
       ]
     },
@@ -795,39 +795,39 @@
       "class_id": "morchella",
       "top5": [
         {
-          "index": 43,
-          "id": "muu",
-          "logit": 5.20372,
-          "logitFp32": 5.21323,
-          "probability": 0.90861
-        },
-        {
           "index": 26,
           "id": "morchella",
-          "logit": 2.75349,
-          "logitFp32": 2.72509,
-          "probability": 0.032081
+          "logit": 5.79491,
+          "logitFp32": 5.79249,
+          "probability": 0.929
         },
         {
-          "index": 6,
-          "id": "suillus-bovinus",
-          "logit": 1.64106,
-          "logitFp32": 1.64554,
-          "probability": 0.00703
+          "index": 43,
+          "id": "muu",
+          "logit": 3.01741,
+          "logitFp32": 3.01906,
+          "probability": 0.024698
+        },
+        {
+          "index": 8,
+          "id": "lactarius-rufus",
+          "logit": 1.41804,
+          "logitFp32": 1.41698,
+          "probability": 0.003059
         },
         {
           "index": 5,
           "id": "suillus-luteus",
-          "logit": 1.34745,
-          "logitFp32": 1.35049,
-          "probability": 0.004709
+          "logit": 1.25096,
+          "logitFp32": 1.2495,
+          "probability": 0.002459
         },
         {
-          "index": 21,
-          "id": "hygrophoropsis-aurantiaca",
-          "logit": 1.03396,
-          "logitFp32": 1.0329,
-          "probability": 0.00307
+          "index": 6,
+          "id": "suillus-bovinus",
+          "logit": 1.10189,
+          "logitFp32": 1.09756,
+          "probability": 0.002024
         }
       ]
     }

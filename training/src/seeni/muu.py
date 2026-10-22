@@ -66,9 +66,13 @@ OTHER_TAXA = {
     3073: "Poaceae",
     319: "Myxomycetes",
 }
-FUNGI_IMAGES = 4000
+FUNGI_IMAGES = 12000
 OTHER_IMAGES = 2000
 PER_SPECIES = 4
+# The fungi with the most usable observations in the archive are roughly what people
+# photograph, so they get many images each; one image per rare species did not teach the model that e.g. Amanita fulva is muu.
+COMMON_SPECIES = 200
+PER_COMMON_SPECIES = 40
 SPECIES_RANKS = {"SPECIES", "SUBSPECIES", "VARIETY", "FORM"}
 COLUMNS = [*gi.CANDIDATE_COLUMNS, "kind", "scientific_name"]
 
@@ -134,6 +138,19 @@ def order(value: str) -> str:
     return hashlib.sha1(f"muu:{value}".encode()).hexdigest()
 
 
+def common(by_species: dict[int, list[dict]], n: int, per_species: int, total: int) -> list[dict]:
+    """Up to per_species observations of each of the n species with the most usable
+    observations (licensed, not excluded) in the archive, whole species only, at most total."""
+    species = sorted(by_species, key=lambda s: (-len(by_species[s]), order(str(s))))[:n]
+    out = []
+    for s in species:
+        picked = sorted(by_species[s], key=lambda c: order(str(c["gbifID"])))[:per_species]
+        if len(out) + len(picked) > total:
+            break
+        out += picked
+    return out
+
+
 def sample(by_species: dict[int, list[dict]], total: int, per_species: int) -> list[dict]:
     """Round-robin over the species in a fixed random order: every species gets its first
     observation before any gets a second, up to per_species each."""
@@ -156,8 +173,11 @@ def index(
     fungi: int = FUNGI_IMAGES,
     other: int = OTHER_IMAGES,
     per_species: int = PER_SPECIES,
+    common_species: int = COMMON_SPECIES,
+    per_common_species: int = PER_COMMON_SPECIES,
 ) -> tuple[list[dict], dict[str, int]]:
-    """Pick one licensed image per observation, then sample. Returns (candidates, stats)."""
+    """Pick one licensed image per observation, then sample: the most observed fungi first,
+    up to per_common_species each, then the rest round-robin. Returns (candidates, stats)."""
     listed = listed_keys(rows)
     stats: dict[str, int] = defaultdict(int)
     occurrences: dict[int, tuple] = {}
@@ -221,8 +241,14 @@ def index(
         for c in first.values():
             if c["kind"] == kind:
                 by_species[c["taxonKey"]].append(c)
-        picked = sample(by_species, total, per_species)
-        stats[f"{kind}_species"] = len(by_species)
+        picked = []
+        if kind == "fungi":
+            picked = common(by_species, common_species, per_common_species, total)
+            for s in {c["taxonKey"] for c in picked}:
+                del by_species[s]
+            stats["fungi_common_selected"] = len(picked)
+        stats[f"{kind}_species"] = len(by_species) + len({c["taxonKey"] for c in picked})
+        picked += sample(by_species, total - len(picked), per_species)
         stats[f"{kind}_selected"] = len(picked)
         stats[f"{kind}_selected_species"] = len({c["taxonKey"] for c in picked})
         candidates.extend(picked)
@@ -335,6 +361,8 @@ def cmd_index(args) -> int:
         args.fungi,
         args.other,
         args.per_species,
+        args.common_species,
+        args.per_common_species,
     )
     muu_dir().mkdir(parents=True, exist_ok=True)
     gi.write_table(candidates, muu_dir() / "candidates.parquet", COLUMNS)
@@ -411,6 +439,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--fungi", type=int, default=FUNGI_IMAGES)
     p.add_argument("--other", type=int, default=OTHER_IMAGES)
     p.add_argument("--per-species", type=int, default=PER_SPECIES)
+    p.add_argument("--common-species", type=int, default=COMMON_SPECIES)
+    p.add_argument("--per-common-species", type=int, default=PER_COMMON_SPECIES)
     p.set_defaults(func=cmd_index)
     p = sub.add_parser("download", help="fetch and resize images, write the muu manifest")
     p.add_argument("--workers", type=int, default=gi.WORKERS)

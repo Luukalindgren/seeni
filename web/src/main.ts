@@ -2149,6 +2149,9 @@ let liveDismissed = false;
 function setLive(on: boolean) {
   live.hidden = !on;
   document.body.classList.toggle("live-on", on);
+  // The camera covers the page: the grass and the sky behind it rest, to save the battery.
+  grass?.setVisible(!on);
+  sky?.setVisible(!on);
   if (on) live.querySelector(".live-status")!.append(status);
   else statusAnchor.after(status);
 }

@@ -35,6 +35,8 @@ test.describe('with a camera', () => {
     const live = page.locator('#live')
     await expect(live).toBeVisible()
     await expect.poll(() => cameraOn(page)).toBe(true)
+    // The grass and the sky behind the camera rest, and come back with the result.
+    await expect(page.locator('#grass')).not.toHaveClass(/visible/)
     // The card first; the shutter only after "Ota kuva".
     await expect(page.locator('#live-shutter')).toBeHidden()
     await page.locator('#live-take').click()
@@ -44,6 +46,7 @@ test.describe('with a camera', () => {
     await expect(page.locator('#result')).toBeVisible({ timeout: 60_000 })
     await expect(live).toBeHidden()
     expect(await cameraOn(page)).toBe(false)
+    await expect(page.locator('#grass')).toHaveClass(/visible/)
 
     // Another photo of the same mushroom goes straight to the shutter.
     await page.getByRole('button', { name: 'Lisää kuva samasta sienestä' }).click()

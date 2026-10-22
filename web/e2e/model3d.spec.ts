@@ -20,7 +20,7 @@ test('the chanterelle sheet shows its 3D model, other sheets their photo', async
   const model = figure.getByRole('img', { name: /Kantarelli, 3D-malli/ })
   await expect(model).toBeVisible({ timeout: 20_000 })
   await expect(figure.locator('img')).toBeHidden()
-  await expect(figure.locator('figcaption')).toHaveText('3D-malli valokuvasta: Johan Adler, CC-BY-4.0')
+  await expect(figure.locator('figcaption')).toHaveText('3D-malli valokuvasta: Reidun Braathen, CC-BY-4.0')
   // It turns with the arrow keys.
   await model.focus()
   await page.keyboard.press('ArrowRight')

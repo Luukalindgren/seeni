@@ -229,11 +229,11 @@ More photos of each species for the app's species gallery, chosen by `species/ga
 
 ### Species 3D models
 
-3D models shown in place of the species photo (#45), listed in `web/public/species/3d/models.json`. Each is made from one photo with [TripoSR](https://github.com/VAST-AI-Research/TripoSR) (background removed with rembg), so it is an adaptation of that photo under the same license:
+3D models shown in place of the species photo (#45), listed in `web/public/species/3d/models.json`. Each is made from one photo with [TripoSR](https://github.com/VAST-AI-Research/TripoSR) (background removed with rembg, texture colours matched to the photo), so it is an adaptation of that photo under the same license:
 
 | File | Made from a photo by | License | Source |
 | --- | --- | --- | --- |
-| `web/public/species/3d/cantharellus-cibarius.glb` | Johan Adler | CC-BY-4.0 | [GBIF 5840059472](https://www.gbif.org/occurrence/5840059472) |
+| `web/public/species/3d/cantharellus-cibarius.glb` | Reidun Braathen | CC-BY-4.0 | [GBIF 2401086346](https://www.gbif.org/occurrence/2401086346) |
 
 ## Species data sources
 

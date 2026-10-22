@@ -1,5 +1,5 @@
-// The model's estimate on the cards of the other options, also in "not sure": never 0 % or
-// 100 %, and always called the model's estimate.
+// The model's estimate on the cards of the other options: never 0 % or 100 %, always called
+// the model's estimate, and for a dangerous species with a small one "not ruled out" instead.
 import { expect, test } from '@playwright/test'
 import { fileURLToPath } from 'node:url'
 
@@ -14,6 +14,14 @@ test('the other options show the model estimate', async ({ page }) => {
   const estimates = page.locator('#result .lookalikes .estimate')
   await expect(estimates.first()).toBeVisible()
   for (const text of await estimates.allInnerTexts()) {
-    expect(text.replace(/\s+/g, ' ')).toMatch(/^(< 1|[1-9]\d?) % mallin arvio$/)
+    expect(text.replace(/\s+/g, ' ')).toMatch(/^((< 1|[1-9]\d?) % mallin arvio|ei poissuljettu)$/)
   }
+  // The deadly lookalike is never given a small, reassuring number.
+  await expect(page.locator('#result .lookalike', { hasText: 'Lehtomyrkkyseitikki' }).locator('.estimate')).toHaveText(
+    'ei poissuljettu',
+  )
+  // After an answer the model's numbers go, as they do for the species itself.
+  await page.locator('#result .verify .answers button').first().click()
+  await expect(page.locator('#result .meter')).toHaveCount(0)
+  await expect(page.locator('#result .lookalikes .estimate')).toHaveCount(0)
 })

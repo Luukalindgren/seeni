@@ -1363,6 +1363,7 @@ body.live-on .adding {
 .lookalike .estimate strong {
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .lookalike .estimate small {

@@ -67,6 +67,7 @@ export const fi = {
   estimateLabel: 'mallin arvio',
   percent: (percent: number) => `${percent} %`,
   percentBelowOne: '< 1 %',
+  notRuledOut: 'ei poissuljettu',
   lookalikesTitle: 'Näköislajit ja muut vaihtoehdot',
   verifyTitle: 'Näin varmistat lajin',
   cannotCheck: 'En pysty tarkistamaan tätä',

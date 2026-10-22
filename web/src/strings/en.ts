@@ -63,6 +63,7 @@ export const en: Strings = {
   estimateLabel: 'model estimate',
   percent: (percent: number) => `${percent} %`,
   percentBelowOne: '< 1 %',
+  notRuledOut: 'not ruled out',
   lookalikesTitle: 'Lookalikes and other options',
   verifyTitle: 'How to make sure',
   cannotCheck: 'I cannot check this',

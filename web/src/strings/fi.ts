@@ -10,7 +10,7 @@ export const fi = {
   // Consent (#44)
   warningTitle: 'Ennen kuin aloitat',
   warningText:
-    'Seeni ehdottaa sienilajeja kuvasta ja näyttää niiden vaaralliset kaksoisolennot. Se ei kerro, voiko sientä syödä, eikä sen tuloksiin voi luottaa sataprosenttisesti. Lajitiedot ovat tarkistamattomia luonnoksia.',
+    'Seeni ehdottaa sienilajeja kuvasta ja näyttää niiden vaaralliset näköislajit. Se ei kerro, voiko sientä syödä, eikä sen tuloksiin voi luottaa sataprosenttisesti. Lajitiedot ovat tarkistamattomia luonnoksia.',
   warningNever: 'Älä koskaan syö sientä tämän sovelluksen perusteella.',
   warningVerify: 'Varmista tunnistus aina sieneuvojalta tai luotettavasta lähteestä.',
   warningFine:
@@ -64,10 +64,10 @@ export const fi = {
   notSureDanger: 'Kuva muistuttaa jonkin verran näitä vaarallisia lajeja:',
   answersFit: 'Vastauksesi sopivat tähän lajiin.',
   modelEstimate: (percent: number) => `Mallin arvio: ${percent} %`,
-  lookalikesTitle: 'Kaksoisolennot ja muut vaihtoehdot',
+  lookalikesTitle: 'Näköislajit ja muut vaihtoehdot',
   verifyTitle: 'Näin varmistat lajin',
   cannotCheck: 'En pysty tarkistamaan tätä',
-  cannotRuleOut: 'Vaarallisia kaksoisolentoja ei voi sulkea pois tällä sovelluksella. Varmista laji sieneuvojalta.',
+  cannotRuleOut: 'Vaarallisia näköislajeja ei voi sulkea pois tällä sovelluksella. Varmista laji sieneuvojalta.',
   checkedTitle: 'Tarkistamasi asiat',
   yourPhotos: 'Kuvasi',
   yourPhoto: (n: number) => `Kuvasi ${n}`,
@@ -104,7 +104,7 @@ export const fi = {
   sheetFeatures: 'Tuntomerkit',
   sheetCompare: (nimi: string) => `Näin erotat lajista ${nimi}`,
   sheetNoDifference: 'Tarkistuksista ei löydy eroa näiden välillä. Varmista laji sieneuvojalta.',
-  sheetLookalikes: 'Sen kaksoisolennot',
+  sheetLookalikes: 'Sen näköislajit',
   sheetSources: 'Lähteet',
 
   // Danger labels; a class that is not dangerous gets none (never an edibility label).
@@ -141,7 +141,7 @@ export const fi = {
 
   // Species guide
   guideTitle: 'Lajiopas',
-  guideNote: 'Kaikki lajit, jotka Seeni tunnistaa, ja vaaralliset lajit, joista se varoittaa. Avaa laji, niin näet sen tuntomerkit ja kaksoisolennot.',
+  guideNote: 'Kaikki lajit, jotka Seeni tunnistaa, ja vaaralliset lajit, joista se varoittaa. Avaa laji, niin näet sen tuntomerkit ja näköislajit.',
   guideSearch: 'Hae lajia',
   guideNone: 'Lajia ei löytynyt.',
 
@@ -154,7 +154,7 @@ export const fi = {
   findsNote: 'Löydöt tallentuvat vain tälle laitteelle. Ne ovat sovelluksen ehdotuksia, eivät varmistettuja lajeja.',
   findsEmpty: 'Ei tallennettuja löytöjä.',
   findsUnknown: 'Tunnistamaton sieni',
-  findsDanger: (names: string) => `Vaaralliset kaksoisolennot: ${names}`,
+  findsDanger: (names: string) => `Vaaralliset näköislajit: ${names}`,
   findsMap: 'Kartalla',
   findsDelete: 'Poista',
   findsExport: 'Tallenna varmuuskopio',
@@ -166,7 +166,7 @@ export const fi = {
 
   // About
   aboutText:
-    'Seeni ei kerro, voiko sientä syödä. Se ehdottaa lajeja, näyttää niiden vaaralliset kaksoisolennot ja ohjaa tarkistamaan tuntomerkit. Kuvat käsitellään vain tällä laitteella, eikä mitään lähetetä minnekään. Lajitiedot ovat tarkistamattomia luonnoksia.',
+    'Seeni ei kerro, voiko sientä syödä. Se ehdottaa lajeja, näyttää niiden vaaralliset näköislajit ja ohjaa tarkistamaan tuntomerkit. Kuvat käsitellään vain tällä laitteella, eikä mitään lähetetä minnekään. Lajitiedot ovat tarkistamattomia luonnoksia.',
   // Trusted markup with links, written here only.
   aboutSourcesHtml: `Malli on opetettu valokuvilla, jotka on jaettu <a href="https://www.gbif.org/">GBIF</a>in
       kautta CC0- tai CC BY -lisenssillä (GBIF.org, lataukset

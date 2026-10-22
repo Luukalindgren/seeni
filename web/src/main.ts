@@ -143,7 +143,7 @@ app.innerHTML = `
 
   <header class="topbar">
     <h1 class="logo">
-      <img src="${base}icons/icon-192.png" alt="" width="36" height="36" />
+      <img src="${base}icons/logo.svg" alt="" width="36" height="36" />
       <span>Seeni</span>
     </h1>
     <button id="again" class="pill" type="button" hidden>${ICON.plus} <span data-t="newPhoto"></span></button>
@@ -220,7 +220,7 @@ app.innerHTML = `
     </div>
   </dialog>
 
-  <dialog id="sheet" aria-labelledby="sheet-title">
+  <dialog id="sheet" aria-labelledby="sheet-title" tabindex="-1">
     <div class="sheet-top">
       <button id="sheet-back" class="round" type="button" data-t-aria="previousSpecies" hidden>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
@@ -230,7 +230,7 @@ app.innerHTML = `
     <div id="sheet-body"></div>
   </dialog>
 
-  <dialog id="finds" aria-labelledby="finds-title">
+  <dialog id="finds" aria-labelledby="finds-title" tabindex="-1">
     <div class="sheet-top">
       <button id="finds-close" class="round" type="button" data-t-aria="close">${ICON.close}</button>
     </div>
@@ -248,7 +248,7 @@ app.innerHTML = `
     </div>
   </dialog>
 
-  <dialog id="install" aria-labelledby="install-title">
+  <dialog id="install" aria-labelledby="install-title" tabindex="-1">
     <div class="sheet-top">
       <button id="install-close" class="round" type="button" data-t-aria="close">${ICON.close}</button>
     </div>
@@ -262,7 +262,7 @@ app.innerHTML = `
     </ol>
   </dialog>
 
-  <dialog id="guide" aria-labelledby="guide-title">
+  <dialog id="guide" aria-labelledby="guide-title" tabindex="-1">
     <div class="sheet-top">
       <button id="guide-close" class="round" type="button" data-t-aria="close">${ICON.close}</button>
     </div>
@@ -317,6 +317,17 @@ applyStatic();
 
 const $ = <T extends HTMLElement>(sel: string) =>
   document.querySelector<T>(sel)!;
+
+// Opens a list dialog or the species sheet with the focus on the dialog itself, not on its
+// first button, so a tap or click shows no focus ring on the close button (#118). Tab
+// still reaches the buttons from there. On an open sheet whose content was swapped, the
+// focus that went with the old content comes back to the dialog.
+function openModal(dialog: HTMLDialogElement) {
+  const opening = !dialog.open;
+  if (opening) dialog.showModal();
+  if (opening || !dialog.contains(document.activeElement))
+    dialog.focus({ preventScroll: true });
+}
 const views = {
   home: $("#home"),
   loading: $("#loading"),
@@ -1573,7 +1584,7 @@ $<HTMLInputElement>("#finds-import-file").addEventListener("change", (e) => {
 async function openFinds() {
   backupStatus.textContent = "";
   await renderFinds();
-  if (!findsDialog.open) findsDialog.showModal();
+  openModal(findsDialog);
 }
 $("#finds-open").addEventListener("click", () => void openFinds());
 $("#live-finds").addEventListener("click", () => openFromLive(openFinds));
@@ -1630,7 +1641,7 @@ async function openGuide() {
   guideSearch.value = "";
   guideSearch.placeholder = t().guideSearch;
   renderGuide();
-  if (!guideDialog.open) guideDialog.showModal();
+  openModal(guideDialog);
 }
 
 // A list opened from the live camera's card stops the camera while it is open, and the
@@ -1711,7 +1722,7 @@ async function openInstall() {
   }
   // An installed app on an iPhone has storage of its own: the finds move only by a backup.
   $("#install-finds").hidden = (await countFinds().catch(() => 0)) === 0;
-  if (!installDialog.open) installDialog.showModal();
+  openModal(installDialog);
 }
 $("#install-open").addEventListener("click", () => void openInstall());
 $("#live-install").addEventListener("click", () =>
@@ -1846,7 +1857,7 @@ function openSheet(id: string, compareTo: string, guide = false) {
   sheetStack.push({ id, compareTo, guide });
   pushEntry(sheetStack.length);
   renderSheet();
-  if (!sheetDialog.open) sheetDialog.showModal();
+  openModal(sheetDialog);
 }
 
 // Every sheet has a history entry: back (the phone's, the arrow, or Escape) goes one sheet
@@ -1857,7 +1868,10 @@ window.addEventListener("popstate", () => {
   if (sheetStack.length > depth) {
     sheetStack.length = depth;
     if (depth === 0) sheetDialog.close();
-    else renderSheet();
+    else {
+      renderSheet();
+      openModal(sheetDialog);
+    }
   }
   if (leavingEntry) {
     // The back step of a button that went home. A photo picked in between has started

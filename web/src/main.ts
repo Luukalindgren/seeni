@@ -8,6 +8,8 @@ import {
   answer,
   averageProbabilities,
   checkById,
+  UNKNOWN,
+  dangerousResemblances,
   isDone,
   listedLookalikes,
   nextCheck,
@@ -139,6 +141,7 @@ app.innerHTML = `
     <figure class="scan" aria-hidden="true"><img id="preview" alt="" /></figure>
     <span class="loader" aria-hidden="true">${ICON.mushroom}</span>
     <p data-t="identifying"></p>
+    <p id="loading-model" class="loading-model" hidden></p>
   </section>
 
   <section id="result" class="view" hidden aria-live="polite"></section>
@@ -243,9 +246,15 @@ const views = { home: $('#home'), loading: $('#loading'), result: $('#result') }
 const status = $<HTMLParagraphElement>('#status')
 // The status line as a function of the language, so a switch can show it again.
 let statusText: () => string = () => t().loadingModel
-function setStatus(text: () => string) {
+// A photo chosen before the model is ready waits for it: the wait shows the model's status
+// too, e.g. its download on the first visit.
+const loadingModel = $<HTMLParagraphElement>('#loading-model')
+function setStatus(text: () => string, ready = false) {
   statusText = text
   status.textContent = text()
+  status.classList.toggle('ready', ready)
+  loadingModel.textContent = text()
+  loadingModel.hidden = ready
 }
 setStatus(statusText)
 const result = views.result
@@ -266,13 +275,15 @@ function startGrassIfLarge() {
     reach: 120,
   })
   grass.setVisible(true)
-  $('#drop').classList.add('live')
+  $('#drop').classList.add('drawn')
   dropArt = startDropArt($<HTMLCanvasElement>('#drop .art'), reducedMotion)
   dropArt.setVisible(currentView === 'home')
 }
 
 // Set while the language switch re-renders the result in place: no scroll, no fade.
 let inPlace = false
+// Set by an answer for show() to move focus once the result is swapped in (focusAfterAnswer).
+let focusAfterRender: 'scroll' | 'stay' | null = null
 
 // The views other than home have one history entry, so the phone's back button returns to
 // the start screen instead of leaving the app. The species sheets are entries on top of it.
@@ -291,6 +302,7 @@ if (entry()) history.replaceState(null, '')
 
 function show(view: keyof typeof views) {
   if (inPlace && view === currentView) return
+  const from = currentView
   currentView = view
   if (view !== 'home' && !onViewEntry()) pushEntry()
   // Home from a button: drop the entry, so back from home leaves the app as expected.
@@ -306,6 +318,10 @@ function show(view: keyof typeof views) {
     for (const [name, el] of Object.entries(views)) el.hidden = name !== view
     again.hidden = view !== 'result'
     window.scrollTo(0, 0)
+    // Only for a re-render after an answer; any other swap drops a request left over.
+    const focus = focusAfterRender
+    focusAfterRender = null
+    if (view === 'result' && from === 'result' && focus) focusAfterAnswer(focus === 'scroll')
     // Only now, with home shown, does the drop area have a size to draw at.
     dropArt?.setVisible(view === 'home')
   }
@@ -383,13 +399,20 @@ let files: ModelFiles | null = null
 let modelClasses: ReadonlySet<string> | null = null
 let nextId = 1
 const pending = new Map<number, (r: Response) => void>()
+// "Works offline" is said only once the service worker is active, which is when it has
+// precached the app and the model. On the first visit the model loads before that.
+let offlineReady = false
+void navigator.serviceWorker?.ready.then(() => {
+  offlineReady = true
+  // Only over "ready": an error shown since then stays.
+  if (status.classList.contains('ready')) setStatus(() => t().readyOffline, true)
+})
 
 worker.onmessage = (event: MessageEvent<Response>) => {
   const r = event.data
   if (r.id === 0) {
     if (r.kind === 'ready') {
-      setStatus(() => t().ready)
-      status.classList.add('ready')
+      setStatus(() => (offlineReady ? t().readyOffline : t().ready), true)
     } else if (r.kind === 'progress') {
       const percent = r.percent
       setStatus(() => t().loadingModelPercent(percent))
@@ -406,7 +429,6 @@ worker.onmessage = (event: MessageEvent<Response>) => {
 
 // A worker that fails to load or crashes would leave every request waiting forever.
 function failAll(message: string) {
-  status.classList.remove('ready')
   setStatus(() => t().workerFailed(message))
   for (const [id, resolve] of pending) resolve({ id, kind: 'error', message })
   pending.clear()
@@ -496,7 +518,7 @@ function newPhotoButton(): HTMLElement {
   return b
 }
 
-function renderNotSure() {
+function renderNotSure(raw: ReadonlyMap<string, number>) {
   resultOfPhotos = true
   const box = el('div', undefined, 'unsure')
   const icon = el('span', undefined, 'unsure-icon')
@@ -511,8 +533,19 @@ function renderNotSure() {
     el('p', s.notSureText),
     el('p', s.notSureHow),
     tips,
-    el('p', s.reminder, 'reminder'),
   )
+  // Dangerous species the photos still resemble, except those the answers ruled out. Each
+  // sheet compares with the class the model leaned to most.
+  const resembles = files
+    ? dangerousResemblances(files.labels, photos.map((p) => p.probabilities), species, asked)
+    : []
+  const leaning = [...raw].filter(([id]) => id !== UNKNOWN).sort((a, b) => b[1] - a[1])[0]?.[0]
+  if (resembles.length > 0) {
+    const list = el('ul', undefined, 'lookalikes')
+    for (const id of resembles) list.append(speciesRow(id, () => openSheet(id, leaning ?? id)))
+    box.append(el('h3', s.notSureDanger, 'unsure-danger'), list)
+  }
+  box.append(el('p', s.reminder, 'reminder'))
   const strip = photoStrip()
   if (strip) box.append(strip)
   const addButton = addPhotoButton()
@@ -537,7 +570,7 @@ function render(state: State | null, raw: Map<string, number>) {
   shown = { state, raw }
   if (state) asked = state.asked
   if (state === null) {
-    renderNotSure()
+    renderNotSure(raw)
     return
   }
   const done = isDone(state, species)
@@ -609,19 +642,15 @@ function render(state: State | null, raw: Map<string, number>) {
     const answers = el('div', undefined, 'answers')
     for (const a of Object.keys(check.vastaukset)) {
       const button = el('button', answerLabel(check, a), 'answer')
-      button.addEventListener('click', () => {
-        result.classList.remove('enter')
+      button.addEventListener('click', (e) => {
         const next = answer(state, check, a)
         if (!next) asked = [...state.asked, { check: check.id, answer: a }]
-        render(next, raw)
+        rerenderAfterAnswer(e, next, raw)
       })
       answers.append(button)
     }
     const skipButton = el('button', t().cannotCheck, 'answer ghost')
-    skipButton.addEventListener('click', () => {
-      result.classList.remove('enter')
-      render(skip(state, check), raw)
-    })
+    skipButton.addEventListener('click', (e) => rerenderAfterAnswer(e, skip(state, check), raw))
     answers.append(skipButton)
     box.append(answers)
     side.append(box)
@@ -649,6 +678,24 @@ function render(state: State | null, raw: Map<string, number>) {
   side.append(placeSection(record?.nimi ?? null))
   side.append(el('p', t().reminder, 'reminder'), newPhotoButton())
   show('result')
+}
+
+// The pressed answer is gone after the re-render: focus moves to the next question, or to
+// the result when no question is left, so a keyboard or screen reader user goes on from
+// there instead of from the top of the page. Done by show() once the result is swapped in.
+// From the keyboard (a click with no pointer) the page scrolls to it; after a tap or click
+// the view stays at the top as before (focusAfterRender is declared next to show()).
+function rerenderAfterAnswer(e: MouseEvent, next: State | null, raw: Map<string, number>) {
+  result.classList.remove('enter')
+  focusAfterRender = e.detail === 0 ? 'scroll' : 'stay'
+  render(next, raw)
+}
+
+function focusAfterAnswer(scroll: boolean) {
+  const target = result.querySelector<HTMLElement>('.verify .question') ?? result.querySelector<HTMLElement>('h2')
+  if (!target) return
+  target.tabIndex = -1
+  target.focus({ preventScroll: !scroll })
 }
 
 // --- Find spot (#51) ---------------------------------------------------------------------
@@ -1615,7 +1662,8 @@ function liveAllowed(): boolean {
 async function startLive() {
   if (!liveAllowed() || liveCamera.running || !(await hasCamera()) || !liveAllowed()) return
   if (live.hidden) {
-    live.classList.remove('shooting')
+    // Another photo of the same mushroom: straight to the shutter, the card was seen already.
+    live.classList.toggle('shooting', adding)
     shutter.disabled = true
     setLive(true)
   }
@@ -1751,8 +1799,11 @@ window.addEventListener('drop', (e) => {
   gust(false)
   // The warning has to be accepted first, and the webcam dialog covers the page.
   if (!consented || document.querySelector('dialog[open]')) return
-  const images = Array.from(e.dataTransfer.files).filter(isImage)
-  void identify(images)
+  const files = Array.from(e.dataTransfer.files)
+  const images = files.filter(isImage)
+  // Only other files (a PDF, a document): the same explanation as for a file that cannot be
+  // opened, instead of nothing happening.
+  void identify(images.length > 0 ? images : files)
 })
 
 // Pasting an image from the clipboard identifies it too.
@@ -1821,7 +1872,7 @@ function switchLang(l: Lang) {
   species = speciesMap(localizeRecords(records, l, english))
   checks = checkById(species)
   applyStatic()
-  status.textContent = statusText()
+  setStatus(statusText, status.classList.contains('ready'))
   rerenderResult()
   renderSeasonSettings()
   void refreshFindsCount()

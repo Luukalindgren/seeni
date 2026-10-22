@@ -9,6 +9,7 @@ import {
   answer,
   averageProbabilities,
   checkById,
+  dangerousResemblances,
   isDone,
   listedLookalikes,
   nextCheck,
@@ -239,6 +240,53 @@ describe('probabilities', () => {
 
   it('average over images', () => {
     assert.deepEqual(averageProbabilities([[1, 0], [0, 1]]), [0.5, 0.5])
+  })
+})
+
+describe('dangerous resemblances on "not sure"', () => {
+  const resembles = (perImage: number[][], asked: State['asked'] = []) =>
+    dangerousResemblances(labels, perImage, species, asked)
+
+  it('names a deadly class that lost to an edible one below the threshold', () => {
+    const p = probs('suillus-bovinus', 0.62, { 'paxillus-involutus': 0.28 })
+    assert.equal(start(p, labels, species, calibration).kind, 'not-sure')
+    assert.ok(resembles([p]).includes('paxillus-involutus'))
+  })
+
+  it('lists only dangerous species, never muu, the most likely first', () => {
+    const p = probs(UNKNOWN, 0.5, { inocybe: 0.12, 'amanita-virosa': 0.2, 'russula-emetica': 0.05 })
+    const r = resembles([p])
+    assert.equal(r[0], 'amanita-virosa')
+    assert.ok(r.includes('inocybe'))
+    assert.ok(!r.includes('russula-emetica') || species.get('amanita-virosa')!.kaksoisolennot.includes('russula-emetica'))
+    for (const id of r) assert.ok(DANGEROUS.has(species.get(id)!.ryhma), id)
+  })
+
+  it('brings the dangerous lookalikes of a class at the minimum, warning-only ones too', () => {
+    const p = probs(UNKNOWN, 0.6, { 'cantharellus-cibarius': 0.3 })
+    const r = resembles([p])
+    const expected = species.get('cantharellus-cibarius')!.kaksoisolennot.filter((x) => DANGEROUS.has(species.get(x)!.ryhma))
+    assert.ok(expected.length > 0)
+    for (const x of expected) assert.ok(r.includes(x), x)
+    assert.ok(expected.some((x) => !ids.includes(x)), 'a warning-only lookalike')
+  })
+
+  it('counts a class by its highest probability in any photo', () => {
+    const one = probs('suillus-bovinus', 0.7, { 'paxillus-involutus': 0.25 })
+    const other = probs('suillus-bovinus', 0.99)
+    assert.ok(resembles([one, other, other]).includes('paxillus-involutus'))
+  })
+
+  it('leaves out only what an answer has ruled out', () => {
+    const p = probs(UNKNOWN, 0.5, { 'cantharellus-cibarius': 0.2, 'amanita-virosa': 0.2 })
+    const check = species.get('cantharellus-cibarius')!.tarkistukset[0]!
+    const chosen = Object.keys(check.vastaukset).find((a) => ruledOut(check, a).size > 0)!
+    const out = ruledOut(check, chosen)
+    const r = resembles([p], [{ check: check.id, answer: chosen }])
+    for (const x of out) assert.ok(!r.includes(x), x)
+    if (!out.has('amanita-virosa')) assert.ok(r.includes('amanita-virosa'))
+    // A skipped check rules nothing out.
+    assert.deepEqual(resembles([p], [{ check: check.id, answer: '' }]), resembles([p]))
   })
 })
 

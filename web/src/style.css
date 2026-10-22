@@ -104,6 +104,24 @@ svg {
   border-radius: 0.6rem;
 }
 
+/* On a phone the "Uusi kuva" button leaves no room for the name next to the icon: the name
+   stays for screen readers only, and the gaps get smaller on the narrowest screens. */
+@media (max-width: 420px) {
+  .topbar:has(#again:not([hidden])) .logo span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 340px) {
+  .topbar {
+    gap: 0.5rem;
+  }
+}
+
 .pill,
 .round {
   display: inline-flex;
@@ -219,8 +237,8 @@ svg {
   pointer-events: none;
 }
 
-.drop.live,
-.drop.live.dragging {
+.drop.drawn,
+.drop.drawn.dragging {
   justify-content: flex-start;
   padding-top: 4.75rem;
   background: none;
@@ -229,16 +247,16 @@ svg {
   overflow: visible;
 }
 
-.drop.live .art {
+.drop.drawn .art {
   display: block;
   filter: drop-shadow(0 1.1rem 1.4rem var(--shadow));
 }
 
-.drop.live .mushroom {
+.drop.drawn .mushroom {
   display: none;
 }
 
-.drop.live .drop-text {
+.drop.drawn .drop-text {
   position: relative;
   z-index: 1;
 }
@@ -427,6 +445,12 @@ dialog h2 {
 
 #loading[hidden] {
   display: none;
+}
+
+.loading-model {
+  margin: 0;
+  font-weight: 400;
+  font-size: 0.95rem;
 }
 
 .scan {
@@ -653,6 +677,23 @@ dialog h2 {
 .lookalikes .latin {
   margin: 0;
   font-size: 0.85rem;
+}
+
+/* Narrow phones: less padding and a smaller picture and name leave room for the long names. */
+@media (max-width: 360px) {
+  dialog {
+    padding-inline: 1rem;
+  }
+  .lookalikes li {
+    gap: 0.65rem;
+  }
+  .lookalikes .thumb img {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  .lookalikes strong {
+    font-size: 1rem;
+  }
 }
 
 .thumb {
@@ -1304,6 +1345,13 @@ body.live-on .adding {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
+}
+
+/* Long compound names (suippumyrkkyseitikki) break instead of running past a narrow card. */
+.lookalike-text strong {
+  hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
 .lookalikes li:has(.lookalike:hover) {
@@ -1648,6 +1696,17 @@ body.live-on .adding {
   border-radius: 999px;
   background: var(--bg);
   color: var(--fg);
+}
+
+/* "Not sure", with dangerous species the photo still resembles. */
+.unsure-danger {
+  margin: 0.5rem 0 0;
+  color: var(--danger-text);
+}
+
+.unsure .lookalikes {
+  align-self: stretch;
+  text-align: left;
 }
 
 /* Read by screen readers, not shown. */

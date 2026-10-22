@@ -9,7 +9,7 @@ test('asks for consent first, then identifies a mushroom offline without sending
   page,
   context,
 }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await expect(page.locator('#warning')).toBeVisible()
   // The consent cannot be skipped: Escape does nothing and the button waits for the checkbox.
   await page.keyboard.press('Escape')
@@ -46,14 +46,14 @@ test('asks for consent first, then identifies a mushroom offline without sending
   await expect(page.locator('#result .reminder').first()).toContainText('Älä syö sientä')
   await expect(page.locator('#result')).toContainText(/Mallin arvio|En tunnista varmasti/)
   expect(requests.filter((r) => !r.startsWith('GET '))).toEqual([])
-  expect(requests.filter((r) => !r.includes('/seeni/'))).toEqual([])
+  expect(requests.filter((r) => !r.includes(' http://localhost:4173/'))).toEqual([])
 })
 
 test.describe('without a service worker', () => {
   test.use({ serviceWorkers: 'block' })
 
   test('the status does not claim that the app works offline', async ({ page }) => {
-    await page.goto('http://localhost:4173/seeni/')
+    await page.goto('http://localhost:4173/')
     await page.getByRole('checkbox').check()
     await page.getByRole('button', { name: 'Hyväksyn' }).click()
     await expect(page.locator('#status')).toHaveText('Valmis', { timeout: 100_000 })

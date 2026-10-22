@@ -17,7 +17,7 @@ const cameraOn = (page: Page) =>
   })
 
 test('takes a photo with the webcam and identifies it, then the camera is off', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#webcam').click()
@@ -34,7 +34,7 @@ test('takes a photo with the webcam and identifies it, then the camera is off', 
 })
 
 test('cancel closes the dialog and switches the camera off', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#webcam').click()

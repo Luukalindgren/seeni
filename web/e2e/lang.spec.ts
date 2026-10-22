@@ -15,7 +15,7 @@ test.describe('in an English browser', () => {
   test.use({ locale: 'en-GB' })
 
   test('starts in English, and switches to Finnish keeping the result and the answers', async ({ page }) => {
-    await page.goto('http://localhost:4173/seeni/')
+    await page.goto('http://localhost:4173/')
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
     await expect(page.locator('#warning h2')).toHaveText('Before you start')
     await identify(page, 'I accept')
@@ -42,7 +42,7 @@ test.describe('in an English browser', () => {
 })
 
 test('opens in English from ?lang=en, also the lookalike sheet', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/?lang=en')
+  await page.goto('http://localhost:4173/?lang=en')
   await expect(page.locator('#info')).toHaveAttribute('aria-label', 'About and sources')
   await identify(page, 'I accept')
   await expect(page.locator('#result h2').first()).toHaveText('Chanterelle', { timeout: 60_000 })
@@ -55,7 +55,7 @@ test('opens in English from ?lang=en, also the lookalike sheet', async ({ page }
 })
 
 test('the warning has its own language switch, and a switch drops ?lang= from the address', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/?lang=fi')
+  await page.goto('http://localhost:4173/?lang=fi')
   await expect(page.locator('#warning h2')).toHaveText('Ennen kuin aloitat')
   await page.locator('#warning-lang').click()
   await expect(page.locator('#warning h2')).toHaveText('Before you start')
@@ -65,7 +65,7 @@ test('the warning has its own language switch, and a switch drops ?lang= from th
 })
 
 test('a "not sure" reached by the answers stays "not sure" after a switch', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await identify(page, 'Hyväksyn')
   await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   // A dark spore print fits none of the candidates.

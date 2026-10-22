@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 const photo = fileURLToPath(new URL('../tests/fixtures/images/3408602375_c3728d07ba.jpg', import.meta.url))
 
 test('"not sure" names a deadly species the photo resembles, and it opens its sheet', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(photo)

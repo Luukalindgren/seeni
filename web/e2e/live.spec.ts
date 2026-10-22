@@ -11,7 +11,7 @@ test.use({
 })
 
 async function consent(page: Page) {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
 }

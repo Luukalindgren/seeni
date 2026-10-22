@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 const chanterelle = fileURLToPath(new URL('../public/species/cantharellus-cibarius.jpg', import.meta.url))
 
 test('the result opens the sheet with more photos of the species', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
@@ -26,7 +26,7 @@ test('the result opens the sheet with more photos of the species', async ({ page
 })
 
 test('offline, a gallery seen before shows its photos, and one never seen shows none', async ({ page, context }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await expect(page.locator('#status')).toContainText('Valmis', { timeout: 100_000 })
@@ -53,7 +53,7 @@ test('offline, a gallery seen before shows its photos, and one never seen shows 
   // The service worker keeps them (the browser's own cache could also serve a reload).
   await expect
     .poll(() => page.evaluate(async () => (await (await caches.open('species-gallery')).keys()).map((r) => r.url).sort()))
-    .toEqual([1, 2, 3].map((n) => `http://localhost:4173/seeni/species/gallery/boletus-edulis-agg-${n}.jpg`))
+    .toEqual([1, 2, 3].map((n) => `http://localhost:4173/species/gallery/boletus-edulis-agg-${n}.jpg`))
   // setOffline does not reach the service worker's own fetches, so the photos' network
   // requests are refused instead: what shows must come from the cache.
   await context.route('**/species/gallery/**', (route) => route.abort('internetdisconnected'))

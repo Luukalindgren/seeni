@@ -13,7 +13,7 @@ async function openSheet(page: import('@playwright/test').Page, search: string) 
 }
 
 test('the chanterelle sheet shows its 3D model, other sheets their photo', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#guide-open').click()
@@ -71,7 +71,7 @@ test.describe(() => {
       delete models['boletus-edulis-agg']
       await route.fulfill({ json: models })
     })
-    await page.goto('http://localhost:4173/seeni/')
+    await page.goto('http://localhost:4173/')
     await page.getByRole('checkbox').check()
     await page.getByRole('button', { name: 'Hyväksyn' }).click()
     await page.locator('#guide-open').click()
@@ -94,7 +94,7 @@ test('models are freed when their sheet is replaced, and cached for offline', as
       return c
     } as typeof getContext
   })
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await expect(page.locator('#status')).toContainText('Valmis', { timeout: 100_000 })
@@ -118,11 +118,11 @@ test('models are freed when their sheet is replaced, and cached for offline', as
   )
   expect(alive).toBeLessThanOrEqual(1)
   const cached = await page.evaluate(async () => (await (await caches.open('species-3d')).keys()).map((r) => r.url))
-  expect(cached).toEqual(['http://localhost:4173/seeni/species/3d/cantharellus-cibarius-drawn.glb'])
+  expect(cached).toEqual(['http://localhost:4173/species/3d/cantharellus-cibarius-drawn.glb'])
 })
 
 test('in the result, the button and the credit sit on the picture without overlapping', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(fileURLToPath(new URL('../public/species/cantharellus-cibarius.jpg', import.meta.url)))
@@ -145,7 +145,7 @@ test.describe(() => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
 
   test('on a phone, an upward swipe on the model turns it and does not scroll the page', async ({ page }) => {
-    await page.goto('http://localhost:4173/seeni/')
+    await page.goto('http://localhost:4173/')
     await page.getByRole('checkbox').check()
     await page.getByRole('button', { name: 'Hyväksyn' }).click()
     await page.locator('#guide-open').click()

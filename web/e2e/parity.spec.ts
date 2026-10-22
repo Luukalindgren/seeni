@@ -13,7 +13,7 @@ const MAX_TENSOR_DIFF = 3 / 255 / 0.224
 const MAX_PROBABILITY_DIFF = 0.02
 
 test('browser matches the Python golden outputs', async ({ page }) => {
-  await page.goto('http://localhost:5173/seeni/parity.html')
+  await page.goto('http://localhost:5173/parity.html')
   await page.waitForFunction(() => window.parity !== undefined, undefined, { timeout: 100_000 })
   const parity = await page.evaluate(() => window.parity!)
   expect(parity.ok, 'error' in parity ? parity.error : '').toBe(true)

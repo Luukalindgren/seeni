@@ -12,7 +12,7 @@ const chanterelle = {
 const broken = { name: 'rikki.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('not an image') }
 
 test('explains a file that cannot be opened, and leaves it out among several photos', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
 

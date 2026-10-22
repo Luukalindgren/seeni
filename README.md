@@ -6,7 +6,7 @@ Offline-capable mushroom identifier for Finnish species. Image classification ru
 
 Status: a working first version for personal use, not a release. A trained EfficientNet-B0 model runs in the browser and recognises 43 Finnish mushroom classes plus an unknown class `muu`. **The species texts, lookalikes and checks are unreviewed drafts**: every species entry needs an expert review before release (hard rule 8 in `CLAUDE.md`), and the release checklist (#11) is still open.
 
-The current build is at <https://luukalindgren.github.io/seeni/> (later seeni.fi) and is redeployed automatically on every merge to `main`. It can be added to the home screen and then works offline.
+The current build is at <https://seeni.fi/> and is redeployed automatically on every merge to `main`. It can be added to the home screen and then works offline.
 
 ## How it works
 

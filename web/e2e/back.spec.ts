@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 const chanterelle = fileURLToPath(new URL('../public/species/cantharellus-cibarius.jpg', import.meta.url))
 
 test('back goes from a sheet to the result, from adding a photo to the result, and then home', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   const start = await page.evaluate(() => history.length)
@@ -33,7 +33,7 @@ test('back goes from a sheet to the result, from adding a photo to the result, a
   await page.goBack()
   await expect(page.locator('#home')).toBeVisible()
   await expect(page.locator('#result')).toBeHidden()
-  expect(page.url()).toContain('/seeni/')
+  expect(page.url()).toMatch(/^http:\/\/localhost:4173\//)
 
   // A new photo, then home with the button: no entry is left behind, so the history does
   // not grow with every mushroom.
@@ -70,14 +70,14 @@ test('back goes from a sheet to the result, from adding a photo to the result, a
 })
 
 test('a photo picked right after a button went home still gets its result, and back then goes home', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
   await expect(page.locator('#result h2').first()).toHaveText('Kantarelli', { timeout: 60_000 })
   // The button's back step and the new photo in the same task.
   await page.evaluate(async () => {
-    const blob = await (await fetch('/seeni/species/cantharellus-cibarius.jpg')).blob()
+    const blob = await (await fetch('/species/cantharellus-cibarius.jpg')).blob()
     const files = new DataTransfer()
     files.items.add(new File([blob], 'kuva.jpg', { type: 'image/jpeg' }))
     document.querySelector<HTMLButtonElement>('#again')!.click()
@@ -91,7 +91,7 @@ test('a photo picked right after a button went home still gets its result, and b
 })
 
 test('after a reload on the result, back is not lost on leftover entries', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#gallery').setInputFiles(chanterelle)
@@ -106,7 +106,7 @@ test('after a reload on the result, back is not lost on leftover entries', async
 })
 
 test('back steps through nested sheets opened from the species guide', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#guide-open').click()

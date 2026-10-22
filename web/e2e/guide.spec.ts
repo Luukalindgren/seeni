@@ -2,7 +2,7 @@
 import { expect, test } from '@playwright/test'
 
 test('finds a species by name and opens its sheet', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#guide-open').click()
@@ -23,7 +23,7 @@ test('finds a species by name and opens its sheet', async ({ page }) => {
 })
 
 test('the guide opens without a focus ring and keeps its top edge while searching', async ({ page }) => {
-  await page.goto('http://localhost:4173/seeni/')
+  await page.goto('http://localhost:4173/')
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: 'Hyväksyn' }).click()
   await page.locator('#guide-open').click()

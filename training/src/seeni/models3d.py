@@ -440,6 +440,188 @@ SPECS = {
         volva_lobes=0.045,
         rings=170,
     ),
+    # Suippumyrkkyseitikki: a pointed orange-brown cap with a sharp umbo, finely fibrous;
+    # rusty brown gills; a long orange-brown stem with lemon-yellow belts of veil.
+    "cortinarius-rubellus": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.05, 0.004, "base"),
+            (0.062, 0.03, "stem"),
+            (0.056, 0.30, "stem"),
+            (0.05, 0.60, "stem"),
+            (0.048, 0.66, "gills"),
+            (0.13, 0.67, "gills"),
+            (0.22, 0.675, "gills"),
+            (0.265, 0.685, "margin"),
+            (0.275, 0.705, "margin"),
+            (0.25, 0.77, "top"),
+            (0.18, 0.86, "top"),
+            (0.10, 0.93, "top"),
+            (0.04, 0.985, "top"),
+            (0.0, 1.0, "top"),
+        ],
+        colours={
+            "base": ("#b8662e", "#c4723a"),
+            "stem": ("#c47236", "#b8652e"),
+            "gills": ("#8a4520", "#9c5226"),
+            "margin": ("#b9652e", "#b05a28"),
+            "top": ("#b25a26", "#8e4019"),
+        },
+        lines={
+            "count": 56,
+            "width": 0.28,
+            "depth": 0.005,
+            "fork": False,
+            "colour": "#5c2c12",
+            "highlight": "#b46a34",
+        },
+        lobes=0.03,
+        lift=0.02,
+        lobe_count=(3, 5, 8),
+        bend=0.06,
+        seed=29,
+        tilt=0.06,
+        cap_fibres=0.12,
+        bands={"region": "stem", "count": 3, "colour": "#dcc456", "ragged": 0.1, "thin": 0.55},
+    ),
+    # Myrkkynääpikkä: a small honey- to rusty-brown cap, convex and smooth; rusty brown gills;
+    # a thin fibrous stem, pale above and darker below, with a slight ring.
+    "galerina-marginata": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.035, 0.004, "base"),
+            (0.042, 0.03, "stem"),
+            (0.038, 0.30, "stem"),
+            (0.036, 0.52, "ring"),
+            (0.038, 0.56, "ring"),
+            (0.058, 0.545, "ring"),
+            (0.064, 0.53, "ring"),
+            (0.05, 0.545, "stem"),
+            (0.036, 0.57, "stem"),
+            (0.034, 0.70, "gills"),
+            (0.12, 0.715, "gills"),
+            (0.23, 0.73, "gills"),
+            (0.285, 0.745, "margin"),
+            (0.295, 0.77, "margin"),
+            (0.28, 0.82, "top"),
+            (0.21, 0.88, "top"),
+            (0.11, 0.915, "top"),
+            (0.0, 0.925, "top"),
+        ],
+        colours={
+            "base": ("#4a2f1c", "#5a3a22"),
+            "stem": ("#6b4528", "#c49a6a"),
+            "ring": ("#c9a06a", "#8a5a30"),
+            "gills": ("#9a6230", "#a86c36"),
+            "margin": ("#d6a25a", "#c88a40"),
+            "top": ("#c27a32", "#9a5a22"),
+        },
+        lines={
+            "count": 48,
+            "width": 0.3,
+            "depth": 0.004,
+            "fork": False,
+            "colour": "#6a3c1a",
+            "highlight": "#c88a4a",
+        },
+        lobes=0.02,
+        lift=0.012,
+        lobe_count=(4, 7, 11),
+        bend=0.07,
+        seed=31,
+        tilt=0.05,
+        stem_fibres="#e4d2b0",
+        rings=140,
+    ),
+    # Risakkaat: a conical cap with an umbo, straw- to tan-brown, radially fibrous and split
+    # at the margin; greyish-brown gills; a slender pale stem.
+    "inocybe": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.045, 0.004, "base"),
+            (0.055, 0.03, "stem"),
+            (0.048, 0.30, "stem"),
+            (0.046, 0.56, "stem"),
+            (0.045, 0.62, "gills"),
+            (0.13, 0.635, "gills"),
+            (0.23, 0.645, "gills"),
+            (0.29, 0.65, "margin"),
+            (0.30, 0.665, "margin"),
+            (0.27, 0.72, "top"),
+            (0.19, 0.80, "top"),
+            (0.10, 0.86, "top"),
+            (0.04, 0.905, "top"),
+            (0.0, 0.915, "top"),
+        ],
+        colours={
+            "base": ("#d9c9a6", "#e4d6b4"),
+            "stem": ("#e6d9bc", "#efe5cc"),
+            "gills": ("#9c8a6e", "#a8957a"),
+            "margin": ("#d2b582", "#c4a36c"),
+            "top": ("#c09a62", "#8a6a3e"),
+        },
+        lines={
+            "count": 64,
+            "width": 0.3,
+            "depth": 0.004,
+            "fork": False,
+            "colour": "#6e5c44",
+            "highlight": "#c4b394",
+        },
+        lobes=0.07,
+        lift=0.02,
+        lobe_count=(7, 11, 17),
+        bend=0.05,
+        seed=37,
+        tilt=0.06,
+        cap_fibres=0.28,
+    ),
+    # Pulkkosieni: a broad olive- to yellow-brown cap, flat with a sunken centre and an
+    # inrolled, felty margin; crowded yellowish-brown gills running down the stem, staining
+    # brown; a short stem.
+    "paxillus-involutus": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.075, 0.004, "base"),
+            (0.09, 0.03, "stem"),
+            (0.08, 0.18, "stem"),
+            (0.085, 0.30, "stem"),
+            (0.10, 0.37, "gills"),
+            (0.20, 0.44, "gills"),
+            (0.33, 0.49, "gills"),
+            (0.40, 0.505, "margin"),
+            (0.425, 0.53, "margin"),
+            (0.43, 0.56, "margin"),
+            (0.415, 0.585, "top"),
+            (0.33, 0.585, "top"),
+            (0.18, 0.555, "top"),
+            (0.06, 0.53, "top"),
+            (0.0, 0.525, "top"),
+        ],
+        colours={
+            "base": ("#8a6a42", "#9a7a4e"),
+            "stem": ("#a8875a", "#b8975e"),
+            "gills": ("#c2a060", "#c9a868"),
+            "margin": ("#a88a5a", "#9a7a4a"),
+            "top": ("#9c7c4a", "#7a5a32"),
+        },
+        lines={
+            "count": 90,
+            "width": 0.26,
+            "depth": 0.005,
+            "fork": True,
+            "colour": "#7a5428",
+            "highlight": "#e0c27e",
+            "wiggle": 0.05,
+        },
+        lobes=0.05,
+        lift=0.03,
+        lobe_count=(3, 5, 9),
+        bend=0.04,
+        seed=41,
+        tilt=0.08,
+        decurrent=0.3,
+    ),
 }
 
 
@@ -591,9 +773,10 @@ def paint_bands(tex, bands: dict, region_rows, rng) -> None:
         return
     w = tex.shape[1]
     f = (idx - idx[0]) / max(len(idx) - 1, 1)
-    edge = noise((len(idx), w), 40, rng, stretch=(1, 4)) * 0.25
+    edge = noise((len(idx), w), 40, rng, stretch=(1, 4)) * bands.get("ragged", 0.25)
     stripe = np.sin(f[:, None] * np.pi * 2 * bands["count"] + edge * 3)
-    a = np.clip((stripe - 0.35) / 0.4, 0, 1)[..., None] * 0.8
+    lo = bands.get("thin", 0.35)
+    a = np.clip((stripe - lo) / 0.4, 0, 1)[..., None] * 0.8
     tex[idx] = tex[idx] * (1 - a) + rgb(bands["colour"]) * a
 
 

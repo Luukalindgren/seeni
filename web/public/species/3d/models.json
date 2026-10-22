@@ -30,5 +30,21 @@
  "amanita-virosa": {
   "file": "amanita-virosa-drawn.glb",
   "drawn": true
+ },
+ "cortinarius-rubellus": {
+  "file": "cortinarius-rubellus-drawn.glb",
+  "drawn": true
+ },
+ "galerina-marginata": {
+  "file": "galerina-marginata-drawn.glb",
+  "drawn": true
+ },
+ "inocybe": {
+  "file": "inocybe-drawn.glb",
+  "drawn": true
+ },
+ "paxillus-involutus": {
+  "file": "paxillus-involutus-drawn.glb",
+  "drawn": true
  }
 }

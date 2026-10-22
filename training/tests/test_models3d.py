@@ -119,3 +119,15 @@ def test_the_amanita_caps_keep_their_colours():
     assert 50 <= hue(region_colour("amanita-phalloides", "top")) <= 75
     virosa = region_colour("amanita-virosa", "top")
     assert virosa.min() > 0.85 and virosa.max() - virosa.min() < 0.08
+
+
+def test_the_deadly_webcap_has_yellow_belts_on_its_stem():
+    spec = SPECS["cortinarius-rubellus"]
+    _, _, _, _, tex = build(spec)
+    rows = models3d.resample(spec, spec.rings)[2][models3d.ring_of_rows(spec.rings)]
+    stem = tex[rows == "stem"].reshape(-1, 3)
+    hues = np.array([hue(p) for p in stem[::97]])
+    # Mostly orange-brown, with belts of yellow.
+    assert np.median(hues) < 30
+    assert (hues > 42).mean() > 0.03
+    assert hue(region_colour("cortinarius-rubellus", "gills")) < 30

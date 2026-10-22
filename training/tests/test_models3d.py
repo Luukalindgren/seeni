@@ -183,3 +183,63 @@ def test_every_region_keeps_the_colours_it_is_given(class_id):
         inside = ((row_means >= lo) & (row_means <= hi)).all(axis=1)
         # Borders blur into the next region, and lines are painted over the gills.
         assert inside.mean() > 0.9, region
+
+
+BOLETES = [
+    "boletus-edulis-agg",
+    "tylopilus-felleus",
+    "leccinum-versipelle-agg",
+    "leccinum-scabrum",
+    "suillus-variegatus",
+    "suillus-luteus",
+    "suillus-bovinus",
+]
+
+
+@pytest.mark.parametrize("class_id", BOLETES)
+def test_the_boletes_have_pores_not_gills(class_id):
+    spec = SPECS[class_id]
+    assert spec.lines["kind"] == "pores"
+    _, _, _, _, tex = build(spec)
+    rows = models3d.resample(spec, spec.rings)[2][models3d.ring_of_rows(spec.rings)]
+    under = tex[rows == "gills"].mean(axis=2)
+    plain = dataclasses.replace(spec, lines={**spec.lines, "colour": spec.lines["highlight"]})
+    unpainted = build(plain)[4][rows == "gills"].mean(axis=2)
+    assert np.abs(under - unpainted).mean() > 0.008
+    # Dots, not lines: the shade also changes from the stem to the margin, which on gills
+    # it hardly does (about 0.0016 on the milkcaps and brittlegills).
+    assert np.abs(np.diff(under, axis=0)).mean() > 0.003
+
+
+def test_the_cep_has_a_white_net_on_its_upper_stem_and_the_bitter_bolete_a_dark_one():
+    def stem_spread(class_id):
+        spec = SPECS[class_id]
+        _, _, _, _, tex = build(spec)
+        rows = models3d.resample(spec, spec.rings)[2][models3d.ring_of_rows(spec.rings)]
+        stem = tex[rows == "stem"].mean(axis=2)
+        top = stem[-len(stem) // 4 :]
+        return top.max() - np.median(top), np.median(top) - top.min()
+
+    lighter, _ = stem_spread("boletus-edulis-agg")
+    assert lighter > 0.06
+    _, darker = stem_spread("tylopilus-felleus")
+    assert darker > 0.2
+
+
+@pytest.mark.parametrize("class_id", ["leccinum-versipelle-agg", "leccinum-scabrum"])
+def test_the_scaber_stalks_have_dark_scales_on_a_pale_stem(class_id):
+    spec = SPECS[class_id]
+    _, _, _, _, tex = build(spec)
+    rows = models3d.resample(spec, spec.rings)[2][models3d.ring_of_rows(spec.rings)]
+    stem = tex[rows == "stem"].mean(axis=2)
+    assert np.median(stem) > 0.8
+    assert 0.01 < (stem < 0.35).mean() < 0.3
+
+
+def test_the_hedgehogs_spines_stand_out_from_under_the_cap():
+    spec = SPECS["hydnum-repandum-agg"]
+    spines, *_ = build(spec)
+    flat, *_ = build(dataclasses.replace(spec, lines={**spec.lines, "depth": 0.0}))
+    rows = models3d.resample(spec, spec.rings)[2]
+    moved = np.linalg.norm(spines - flat, axis=1).reshape(spec.rings, -1)[rows == "gills"]
+    assert moved.max() > spec.lines["depth"] * 0.8

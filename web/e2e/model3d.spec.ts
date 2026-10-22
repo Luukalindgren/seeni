@@ -54,11 +54,33 @@ test('the chanterelle sheet shows its 3D model, other sheets their photo', async
   await openSheet(page, 'lehtomyrkky')
   await expect(figure.getByRole('img', { name: /Lehtomyrkkyseitikki, 3D-malli/ })).toBeVisible({ timeout: 20_000 })
 
+  // So do the boletes, the last ones drawn.
   await page.locator('#sheet-close').click()
   await openSheet(page, 'herkkutat')
-  await expect(figure.locator('img')).toBeVisible()
-  await expect(figure.locator('canvas')).toHaveCount(0)
-  await expect(figure.locator('figcaption')).toHaveText(/^Kuva: /)
+  await expect(figure.getByRole('img', { name: /Herkkutatit, 3D-malli/ })).toBeVisible({ timeout: 20_000 })
+})
+
+test.describe(() => {
+  // Routes cannot see what a service worker fetches.
+  test.use({ serviceWorkers: 'block' })
+
+  test('a species without a model keeps its photo', async ({ page }) => {
+    // Every species has a model now, so take one away.
+    await page.route('**/species/3d/models.json', async (route) => {
+      const models = await (await route.fetch()).json()
+      delete models['boletus-edulis-agg']
+      await route.fulfill({ json: models })
+    })
+    await page.goto('http://localhost:4173/seeni/')
+    await page.getByRole('checkbox').check()
+    await page.getByRole('button', { name: 'Hyväksyn' }).click()
+    await page.locator('#guide-open').click()
+    await openSheet(page, 'herkkutat')
+    const figure = page.locator('#sheet .sheet-photo')
+    await expect(figure.locator('img')).toBeVisible()
+    await expect(figure.locator('canvas')).toHaveCount(0)
+    await expect(figure.locator('figcaption')).toHaveText(/^Kuva: /)
+  })
 })
 
 test('models are freed when their sheet is replaced, and cached for offline', async ({ page }) => {

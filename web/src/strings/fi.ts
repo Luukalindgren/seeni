@@ -38,7 +38,7 @@ export const fi = {
   hint: 'Parhaiten onnistuu, kun koko sieni näkyy. Voit valita useita kuvia samasta sienestä.',
   liveRetry: 'Käytä live-kameraa',
   liveHelp:
-    'Kamera ei käynnistynyt. Jos sen käyttö on estetty, salli se Safarissa osoiterivin aA-valikosta: Verkkosivuston asetukset → Kamera → Salli. Kotinäytön sovelluksessa sulje sovellus ja avaa se uudelleen. Androidissa salli kamera osoiterivin lukkokuvakkeesta. Jos kamera on toisen sovelluksen käytössä, sulje se.',
+    'Kamera ei käynnistynyt. Jos sen käyttö on estetty, salli se Safarissa osoiterivin sivuvalikosta (vanhemmissa iOS-versioissa aA): Verkkosivuston asetukset → Kamera → Salli. Kotinäytön sovelluksessa sulje sovellus ja avaa se uudelleen. Androidissa salli kamera osoiterivin lukkokuvakkeesta. Jos kamera on toisen sovelluksen käytössä, sulje se.',
   loadingModel: 'Ladataan mallia…',
   loadingModelPercent: (percent: number) => `Ladataan mallia… ${percent} %`,
   ready: 'Valmis',
@@ -186,7 +186,7 @@ export const fi = {
   aboutText:
     'Seeni ei kerro, voiko sientä syödä. Se ehdottaa lajeja, näyttää niiden vaaralliset näköislajit ja ohjaa tarkistamaan tuntomerkit. Kuvat käsitellään vain tällä laitteella, eikä mitään lähetetä minnekään. Lajitiedot ovat tarkistamattomia luonnoksia.',
   aboutCamera:
-    'Kamera: iPhonen Safarissa voit sallia kameran tälle sivustolle pysyvästi osoiterivin aA-valikosta: Verkkosivuston asetukset → Kamera → Salli. Kotinäytölle lisätty sovellus kysyy luvan joka avauskerralla, eikä Seeni voi muuttaa sitä.',
+    'Kamera: iPhonen Safarissa voit sallia kameran tälle sivustolle pysyvästi osoiterivin sivuvalikosta (vanhemmissa iOS-versioissa aA): Verkkosivuston asetukset → Kamera → Salli. Kotinäytölle lisätty sovellus kysyy luvan joka avauskerralla, eikä Seeni voi muuttaa sitä. Jos kielsit luvan, sulje sovellus ja avaa se uudelleen. Androidissa salli kamera osoiterivin lukkokuvakkeesta.',
   // Trusted markup with links, written here only.
   aboutSourcesHtml: `Malli on opetettu valokuvilla, jotka on jaettu <a href="https://www.gbif.org/">GBIF</a>in
       kautta CC0- tai CC BY -lisenssillä (GBIF.org, lataukset

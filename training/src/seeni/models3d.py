@@ -45,6 +45,8 @@ class Spec:
     bands: dict | None = None
     volva_lobes: float = 0.0  # waviness of a sac volva's free rim (radius)
     rings: int = 120  # mesh resolution along the profile
+    # Brain-like folds over the cap: {"depth", "cells"}; grooves follow the noise's zero lines.
+    wrinkles: dict | None = None
 
 
 def rgb(h: str) -> np.ndarray:
@@ -440,6 +442,223 @@ SPECS = {
         volva_lobes=0.045,
         rings=170,
     ),
+    # Suippumyrkkyseitikki: a pointed orange-brown cap with a sharp umbo, finely fibrous;
+    # rusty brown gills; a long orange-brown stem with lemon-yellow belts of veil.
+    "cortinarius-rubellus": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.05, 0.004, "base"),
+            (0.062, 0.03, "stem"),
+            (0.056, 0.30, "stem"),
+            (0.05, 0.60, "stem"),
+            (0.048, 0.66, "gills"),
+            (0.13, 0.67, "gills"),
+            (0.22, 0.675, "gills"),
+            (0.265, 0.685, "margin"),
+            (0.275, 0.705, "margin"),
+            (0.25, 0.77, "top"),
+            (0.18, 0.86, "top"),
+            (0.10, 0.93, "top"),
+            (0.04, 0.985, "top"),
+            (0.0, 1.0, "top"),
+        ],
+        colours={
+            "base": ("#b8662e", "#c4723a"),
+            "stem": ("#c47236", "#b8652e"),
+            "gills": ("#8a4520", "#9c5226"),
+            "margin": ("#b9652e", "#b05a28"),
+            "top": ("#b25a26", "#8e4019"),
+        },
+        lines={
+            "count": 56,
+            "width": 0.28,
+            "depth": 0.005,
+            "fork": False,
+            "colour": "#5c2c12",
+            "highlight": "#b46a34",
+        },
+        lobes=0.03,
+        lift=0.02,
+        lobe_count=(3, 5, 8),
+        bend=0.06,
+        seed=29,
+        tilt=0.06,
+        cap_fibres=0.12,
+        bands={"region": "stem", "count": 3, "colour": "#dcc456", "ragged": 0.1, "thin": 0.55},
+    ),
+    # Myrkkynääpikkä: a small honey- to rusty-brown cap, convex and smooth; rusty brown gills;
+    # a thin fibrous stem, pale above and darker below, with a slight ring.
+    "galerina-marginata": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.035, 0.004, "base"),
+            (0.042, 0.03, "stem"),
+            (0.038, 0.30, "stem"),
+            (0.036, 0.52, "ring"),
+            (0.038, 0.56, "ring"),
+            (0.058, 0.545, "ring"),
+            (0.064, 0.53, "ring"),
+            (0.05, 0.545, "stem"),
+            (0.036, 0.57, "stem"),
+            (0.034, 0.70, "gills"),
+            (0.12, 0.715, "gills"),
+            (0.23, 0.73, "gills"),
+            (0.285, 0.745, "margin"),
+            (0.295, 0.77, "margin"),
+            (0.28, 0.82, "top"),
+            (0.21, 0.88, "top"),
+            (0.11, 0.915, "top"),
+            (0.0, 0.925, "top"),
+        ],
+        colours={
+            "base": ("#4a2f1c", "#5a3a22"),
+            "stem": ("#6b4528", "#c49a6a"),
+            "ring": ("#c9a06a", "#8a5a30"),
+            "gills": ("#9a6230", "#a86c36"),
+            "margin": ("#d6a25a", "#c88a40"),
+            "top": ("#c27a32", "#9a5a22"),
+        },
+        lines={
+            "count": 48,
+            "width": 0.3,
+            "depth": 0.004,
+            "fork": False,
+            "colour": "#6a3c1a",
+            "highlight": "#c88a4a",
+        },
+        lobes=0.02,
+        lift=0.012,
+        lobe_count=(4, 7, 11),
+        bend=0.07,
+        seed=31,
+        tilt=0.05,
+        stem_fibres="#e4d2b0",
+        rings=140,
+    ),
+    # Risakkaat: a conical cap with an umbo, straw- to tan-brown, radially fibrous and split
+    # at the margin; greyish-brown gills; a slender pale stem.
+    "inocybe": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.045, 0.004, "base"),
+            (0.055, 0.03, "stem"),
+            (0.048, 0.30, "stem"),
+            (0.046, 0.56, "stem"),
+            (0.045, 0.62, "gills"),
+            (0.13, 0.635, "gills"),
+            (0.23, 0.645, "gills"),
+            (0.29, 0.65, "margin"),
+            (0.30, 0.665, "margin"),
+            (0.27, 0.72, "top"),
+            (0.19, 0.80, "top"),
+            (0.10, 0.86, "top"),
+            (0.04, 0.905, "top"),
+            (0.0, 0.915, "top"),
+        ],
+        colours={
+            "base": ("#d9c9a6", "#e4d6b4"),
+            "stem": ("#e6d9bc", "#efe5cc"),
+            "gills": ("#9c8a6e", "#a8957a"),
+            "margin": ("#d2b582", "#c4a36c"),
+            "top": ("#c09a62", "#8a6a3e"),
+        },
+        lines={
+            "count": 64,
+            "width": 0.3,
+            "depth": 0.004,
+            "fork": False,
+            "colour": "#6e5c44",
+            "highlight": "#c4b394",
+        },
+        lobes=0.07,
+        lift=0.02,
+        lobe_count=(7, 11, 17),
+        bend=0.05,
+        seed=37,
+        tilt=0.06,
+        cap_fibres=0.28,
+    ),
+    # Pulkkosieni: a broad olive- to yellow-brown cap, flat with a sunken centre and an
+    # inrolled, felty margin; crowded yellowish-brown gills running down the stem, staining
+    # brown; a short stem.
+    "paxillus-involutus": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.075, 0.004, "base"),
+            (0.09, 0.03, "stem"),
+            (0.08, 0.18, "stem"),
+            (0.085, 0.30, "stem"),
+            (0.10, 0.37, "gills"),
+            (0.20, 0.44, "gills"),
+            (0.33, 0.49, "gills"),
+            (0.40, 0.505, "margin"),
+            (0.425, 0.53, "margin"),
+            (0.43, 0.56, "margin"),
+            (0.415, 0.585, "top"),
+            (0.33, 0.585, "top"),
+            (0.18, 0.555, "top"),
+            (0.06, 0.53, "top"),
+            (0.0, 0.525, "top"),
+        ],
+        colours={
+            "base": ("#8a6a42", "#9a7a4e"),
+            "stem": ("#a8875a", "#b8975e"),
+            "gills": ("#c2a060", "#c9a868"),
+            "margin": ("#a88a5a", "#9a7a4a"),
+            "top": ("#9c7c4a", "#7a5a32"),
+        },
+        lines={
+            "count": 90,
+            "width": 0.26,
+            "depth": 0.005,
+            "fork": True,
+            "colour": "#7a5428",
+            "highlight": "#e0c27e",
+            "wiggle": 0.05,
+        },
+        lobes=0.05,
+        lift=0.03,
+        lobe_count=(3, 5, 9),
+        bend=0.04,
+        seed=41,
+        tilt=0.08,
+        decurrent=0.3,
+    ),
+    # Korvasieni: a brain-like cap, chestnut- to reddish-brown, folded into irregular lobes;
+    # a short, thick, whitish stem; a paler underside where the cap folds meet the stem.
+    "gyromitra-esculenta": Spec(
+        profile=[
+            (0.0, 0.0, "base"),
+            (0.11, 0.005, "base"),
+            (0.135, 0.035, "stem"),
+            (0.12, 0.15, "stem"),
+            (0.11, 0.28, "stem"),
+            (0.13, 0.34, "under"),
+            (0.25, 0.32, "under"),
+            (0.34, 0.35, "under"),
+            (0.39, 0.42, "top"),
+            (0.41, 0.55, "top"),
+            (0.38, 0.68, "top"),
+            (0.29, 0.79, "top"),
+            (0.16, 0.85, "top"),
+            (0.0, 0.87, "top"),
+        ],
+        colours={
+            "base": ("#d9c7b4", "#e6d6c4"),
+            "stem": ("#ece0d2", "#e2cfbd"),
+            "under": ("#b88f74", "#8a5236"),
+            "top": ("#7a3a22", "#5e2a18"),
+        },
+        lines={"count": 1, "width": 0.1, "depth": 0.0, "fork": False},
+        lobes=0.14,
+        lift=0.07,
+        lobe_count=(2, 3, 5),
+        bend=0.02,
+        seed=43,
+        tilt=0.0,
+        wrinkles={"depth": 0.045, "cells": 15},
+        rings=150,
+    ),
 }
 
 
@@ -585,15 +804,26 @@ def paint(spec: Spec, region_rows: np.ndarray, gill_t: np.ndarray, r_rows=None, 
     return np.clip(tex, 0, 1)
 
 
+def wrinkle_field(spec: Spec) -> np.ndarray:
+    """0 in the grooves, 1 on the ridges: meandering lines along the zero set of smooth
+    noise, periodic around the cap."""
+    rng = np.random.default_rng(spec.seed + 1000)
+    cells = spec.wrinkles["cells"]
+    f = noise((TEX, TEX), cells, rng) + 0.35 * noise((TEX, TEX), cells * 2, rng)
+    x = np.clip(np.abs(f) / 0.3, 0, 1)
+    return x * x * (3 - 2 * x)  # rounded ridges
+
+
 def paint_bands(tex, bands: dict, region_rows, rng) -> None:
     idx = np.where(region_rows == bands["region"])[0]
     if not len(idx):
         return
     w = tex.shape[1]
     f = (idx - idx[0]) / max(len(idx) - 1, 1)
-    edge = noise((len(idx), w), 40, rng, stretch=(1, 4)) * 0.25
+    edge = noise((len(idx), w), 40, rng, stretch=(1, 4)) * bands.get("ragged", 0.25)
     stripe = np.sin(f[:, None] * np.pi * 2 * bands["count"] + edge * 3)
-    a = np.clip((stripe - 0.35) / 0.4, 0, 1)[..., None] * 0.8
+    lo = bands.get("thin", 0.35)
+    a = np.clip((stripe - lo) / 0.4, 0, 1)[..., None] * 0.8
     tex[idx] = tex[idx] * (1 - a) + rgb(bands["colour"]) * a
 
 
@@ -677,7 +907,7 @@ def build(spec: Spec, rings: int | None = None, segments: int = 150):
         wave_r += np.cos(k * theta + rng.uniform(0, 2 * np.pi)) / len(spec.lobe_count)
         wave_y += np.sin(k * theta + rng.uniform(0, 2 * np.pi)) / len(spec.lobe_count)
     rmax = r.max()
-    cap = np.isin(region, ["gills", "margin", "top"])
+    cap = np.isin(region, ["gills", "margin", "top", "under"])
     wcap = np.where(cap, (r / rmax) ** 2.5, 0.0)
     # A sac volva's free rim is torn into lobes, more towards its top.
     volva = region == "volva"
@@ -701,6 +931,14 @@ def build(spec: Spec, rings: int | None = None, segments: int = 150):
         bump[~((region == "gills") | (t < 0))] = 0
         R = R + bump * n2[:, 0:1]
         Y = Y + bump * n2[:, 1:2]
+    folds = wrinkle_field(spec) if spec.wrinkles else None
+    if folds is not None:
+        rows = np.clip((s * TEX).astype(int), 0, TEX - 1)
+        cols = np.clip((u * TEX).astype(int), 0, TEX) % TEX
+        reach = np.where(region == "top", 1.0, np.where(region == "under", 0.5, 0.0))
+        d = spec.wrinkles["depth"] * (folds[rows][:, cols] - 0.5) * reach[:, None]
+        R = R + d * n2[:, 0:1]
+        Y = Y + d * n2[:, 1:2]
     bend = spec.bend * np.clip((stem_top - y) / stem_top, 0, 1) ** 2
     X = R * np.cos(theta)[None] + bend[:, None] + spec.tilt * np.clip(Y - stem_top, 0, None)
     Z = R * np.sin(theta)[None]
@@ -735,6 +973,10 @@ def build(spec: Spec, rings: int | None = None, segments: int = 150):
     ring = ring_of_rows(rings)
     total = float(np.sum(np.linalg.norm(np.diff(np.stack([r, y], 1), axis=0), axis=1)))
     tex = paint(spec, region[ring], t[ring], r[ring], total)
+    if folds is not None:
+        # Shade the grooves, as a drawing would.
+        cap_rows = np.isin(region[ring], ["top", "under"])
+        tex[cap_rows] *= (0.55 + 0.45 * folds[cap_rows])[..., None]
     return pos.astype(np.float32), nrm.astype(np.float32), uv.astype(np.float32), faces, tex
 
 

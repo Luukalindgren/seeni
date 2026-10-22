@@ -519,11 +519,13 @@ function gallery(id: string): HTMLElement | null {
   return strip
 }
 
-// Species with a 3D model (#45): species/3d/models.json maps a class id to its .glb and
-// the credit of the photo it was made from. The model replaces the photo in the result
-// and the species sheet; without a model, or when it cannot be shown, the photo stays.
-interface Model3d extends Credit {
+// Species with a 3D model (#45): species/3d/models.json maps a class id to its .glb. A
+// drawn model (seeni.models3d) is Seeni's own; a model made from a photo carries that
+// photo's credit. The model replaces the photo in the result and the species sheet; without
+// a model, or when it cannot be shown, the photo stays.
+interface Model3d extends Partial<Credit> {
   file: string
+  drawn?: boolean
 }
 let models: Promise<Record<string, Model3d>> | null = null
 // Models on the page; one whose result or sheet was replaced is freed, as browsers keep only
@@ -545,7 +547,12 @@ async function showModel(figure: HTMLElement, id: string): Promise<void> {
   if (!m) return
   const { mountModel } = await import('./model3d.ts')
   const name = asTitle(species.get(id)?.nimi ?? id)
-  const view = await mountModel(`${base}species/3d/${m.file}`, t().model3dLabel(name), reducedMotion)
+  const view = await mountModel(`${base}species/3d/${m.file}`, t().model3dLabel(name), {
+    reducedMotion,
+    // A model from a photo sways around the photographed side; a drawn one has no guessed
+    // side and turns all the way round.
+    motion: m.drawn ? 'spin' : 'sway',
+  })
   if (!figure.isConnected) {
     view.dispose()
     return
@@ -561,15 +568,17 @@ async function showModel(figure: HTMLElement, id: string): Promise<void> {
   stage.append(view.canvas, img, tag)
   figure.classList.add('has-model')
   const caption = figure.querySelector('figcaption') ?? figure.appendChild(el('figcaption'))
+  const modelCaption = () =>
+    m.drawn || !m.author || !m.license ? t().model3dDrawn : t().model3dCredit(m.author, m.license)
   const photoCaption = caption.textContent
-  caption.textContent = t().model3dCredit(m.author, m.license)
-  // The model is made by a program and its far side is guessed, so the real photo is one tap away.
+  caption.textContent = modelCaption()
+  // The real photo is one tap away: the model is a drawing or made by a program.
   const toggle = el('button', t().showPhoto, 'model3d-toggle')
   toggle.type = 'button'
   toggle.addEventListener('click', () => {
     const showingPhoto = !figure.classList.toggle('has-model')
     toggle.textContent = showingPhoto ? t().show3d : t().showPhoto
-    caption.textContent = showingPhoto ? photoCaption : t().model3dCredit(m.author, m.license)
+    caption.textContent = showingPhoto ? photoCaption : modelCaption()
     caption.hidden = !caption.textContent
   })
   tag.after(toggle)

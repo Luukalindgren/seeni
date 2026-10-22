@@ -1,0 +1,10 @@
+Chanterelle 3D candidates (#45): TripoSR, mc-resolution 128, 1024 px baked texture, colour-matched in Lab to the rembg-masked source photo.
+Renders: front 0, side 90, back 180, below (pitch -57 deg), 512 px, web viewer shading.
+
+gbifID	author	license	source	note
+2405498703	Tove Jacobsen	CC-BY-4.0	https://www.gbif.org/occurrence/2405498703	rejected: flat, photo is top-down or lying
+2401086346	Reidun Braathen	CC-BY-4.0	https://www.gbif.org/occurrence/2401086346	best: solid upright shape, yellow on all sides, GLB included
+2627102754	Reidun Braathen	CC-BY-4.0	https://www.gbif.org/occurrence/2627102754	second: classic shape, back of cap greyer, GLB included
+4909033301	Nadja Berglund	CC-BY-4.0	https://www.gbif.org/occurrence/4909033301	rejected: flat, photo is top-down or lying
+4437124730	Inger-Lise Fonneland	CC-BY-4.0	https://www.gbif.org/occurrence/4437124730	rejected: flat, photo is top-down or lying
+6522590525	Turid Helland	CC-BY-4.0	https://www.gbif.org/occurrence/6522590525	rejected: the hand is part of the model

@@ -420,8 +420,8 @@ dialog {
   color: var(--fg);
 }
 
-/* The list dialogs and the species sheet take focus themselves when they open (autofocus),
-   so no button gets the browser's blue focus ring on a tap or click (#118). */
+/* The list dialogs and the species sheet take focus themselves when they open (openModal
+   in main.ts), so no button gets the browser's blue focus ring on a tap or click (#118). */
 dialog:focus,
 dialog:focus-visible {
   outline: none;
@@ -1746,10 +1746,8 @@ figure:not(.has-model) .model3d-badge {
   max-height: calc(100dvh - 1.5rem);
   overflow-y: auto;
   padding-top: 0.75rem;
-}
-/* The guide keeps its top edge in place while a search shortens the list: only the bottom
-   moves up (#119). A centred dialog would jump up and down with every letter. */
-#guide {
+  /* The top edge stays in place when the list gets shorter (a search in the guide, a
+     deleted find): only the bottom moves up (#119). Centred, it would jump. */
   margin-top: 0.75rem;
 }
 #finds .sheet-top,

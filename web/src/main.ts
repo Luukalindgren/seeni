@@ -320,11 +320,13 @@ const $ = <T extends HTMLElement>(sel: string) =>
 
 // Opens a list dialog or the species sheet with the focus on the dialog itself, not on its
 // first button, so a tap or click shows no focus ring on the close button (#118). Tab
-// still reaches the buttons from there.
+// still reaches the buttons from there. On an open sheet whose content was swapped, the
+// focus that went with the old content comes back to the dialog.
 function openModal(dialog: HTMLDialogElement) {
-  if (dialog.open) return;
-  dialog.showModal();
-  dialog.focus({ preventScroll: true });
+  const opening = !dialog.open;
+  if (opening) dialog.showModal();
+  if (opening || !dialog.contains(document.activeElement))
+    dialog.focus({ preventScroll: true });
 }
 const views = {
   home: $("#home"),
@@ -1847,7 +1849,10 @@ window.addEventListener("popstate", () => {
   if (sheetStack.length > depth) {
     sheetStack.length = depth;
     if (depth === 0) sheetDialog.close();
-    else renderSheet();
+    else {
+      renderSheet();
+      openModal(sheetDialog);
+    }
   }
   if (leavingEntry) {
     // The back step of a button that went home. A photo picked in between has started

@@ -37,8 +37,8 @@ test('the guide opens without a focus ring and keeps its top edge while searchin
   const after = (await guide.boundingBox())!
   expect(after.y).toBe(before.y)
   expect(after.height).toBeLessThan(before.height)
-  // Tab still reaches the close button.
-  await page.keyboard.press('Shift+Tab')
+  // Tab still reaches the close button, the dialog's first button.
+  await guide.focus()
   await page.keyboard.press('Tab')
-  await expect(guide).not.toBeFocused()
+  await expect(page.locator('#guide-close')).toBeFocused()
 })

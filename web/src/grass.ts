@@ -1,5 +1,6 @@
 // Grass that sways in a slow, uneven wind and bends away from the mouse pointer: a strip
-// along the bottom of the page on large screens.
+// along the bottom of the page. On phones it is lower, does not follow the finger, and is
+// drawn at a lower frame rate to save the battery.
 // Purely decorative: drawn on a canvas, paused when the page is hidden or the grass is not
 // shown, and drawn once without motion under prefers-reduced-motion.
 
@@ -27,19 +28,24 @@ export interface GrassOptions {
   height: [number, number]
   // Sparser in the middle, so the centre of the page stays calm under the buttons.
   calmMiddle: boolean
-  // How far the pointer reaches, in px.
+  // How far the pointer reaches, in px; 0 for none.
   reach: number
+  // At most this many frames a second; the display's rate when not set.
+  fps?: number
 }
 
 export interface Grass {
   setVisible(visible: boolean): void
+  // New options, e.g. when the window becomes large; the grass regrows.
+  configure(options: GrassOptions): void
   // A gust: stronger wind, e.g. while a photo is dragged over the drop area.
   setGust(gust: boolean): void
 }
 
-export function startGrass(canvas: HTMLCanvasElement, still: boolean, options: GrassOptions): Grass {
+export function startGrass(canvas: HTMLCanvasElement, still: boolean, initial: GrassOptions): Grass {
+  let options = initial
   const context = canvas.getContext('2d')
-  if (!context) return { setVisible() {}, setGust() {} }
+  if (!context) return { setVisible() {}, configure() {}, setGust() {} }
   const ctx = context
   let gust = 0
   let gustTarget = 0
@@ -119,7 +125,8 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, options: G
   }
 
   function loop(time: number) {
-    draw(time)
+    // Skip a frame that comes too soon; a little slack keeps 30 fps on a 60 Hz display.
+    if (!options.fps || !last || time - last >= 1000 / options.fps - 4) draw(time)
     frame = visible && !document.hidden ? requestAnimationFrame(loop) : 0
     if (frame === 0) last = 0
   }
@@ -133,7 +140,7 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, options: G
   }
 
   window.addEventListener('pointermove', (e) => {
-    if (!visible || still) return
+    if (!visible || still || !options.reach) return
     pointerX = e.clientX - rect.left
     pointerY = e.clientY - rect.top
   })
@@ -171,6 +178,12 @@ export function startGrass(canvas: HTMLCanvasElement, still: boolean, options: G
       if (v && (canvas.clientWidth !== width || canvas.clientHeight !== height)) resize()
       else if (v) rect = canvas.getBoundingClientRect()
       run()
+    },
+    configure(o: GrassOptions) {
+      options = o
+      pointerX = pointerY = -1e4
+      resize()
+      if (still) draw(0)
     },
     setGust(g: boolean) {
       gustTarget = g ? 1 : 0

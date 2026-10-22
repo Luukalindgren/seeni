@@ -44,8 +44,8 @@ import {
 } from "./speciesText.ts";
 import type { Strings } from "./strings/fi.ts";
 import { startDropArt, type DropArt } from "./dropArt.ts";
-import { startGrass, type Grass } from "./grass.ts";
-import { startSky, type Sky } from "./sky.ts";
+import { startGrass, type Grass, type GrassOptions } from "./grass.ts";
+import { startSky, type Sky, type SkyOptions } from "./sky.ts";
 import { loadFiles, type ModelFiles } from "./modelFiles.ts";
 import { createLiveCamera } from "./liveCamera.ts";
 import {
@@ -345,26 +345,45 @@ const reducedMotion = window.matchMedia(
 const largeScreen = window.matchMedia(
   "(min-width: 900px) and (hover: hover) and (pointer: fine)",
 );
-// The grass starts when the window is (or later becomes) large: a strip along the bottom
-// of every view, with a little sky along the top. The drop area is then drawn too: a wavy
-// edge and a mushroom in the wind.
+// Grass along the bottom of every view and a little sky along the top. On a large screen
+// they bend away from the mouse; on a phone they are smaller, sway on their own at a lower
+// frame rate, and never follow the finger. The drop area is drawn on a large screen only: a
+// wavy edge and a mushroom in the wind.
 let grass: Grass | null = null;
 let sky: Sky | null = null;
 let dropArt: DropArt | null = null;
 let currentView: keyof typeof views = "home";
-function startGrassIfLarge() {
-  if (grass || !largeScreen.matches) return;
-  grass = startGrass($<HTMLCanvasElement>("#grass"), reducedMotion, {
-    height: [24, 60],
-    calmMiddle: true,
-    reach: 120,
-  });
-  grass.setVisible(true);
-  sky = startSky($<HTMLCanvasElement>("#sky"), reducedMotion, { reach: 140 });
-  sky.setVisible(true);
-  $("#drop").classList.add("drawn");
-  dropArt = startDropArt($<HTMLCanvasElement>("#drop .art"), reducedMotion);
-  dropArt.setVisible(currentView === "home");
+const grassOptions = (large: boolean): GrassOptions =>
+  large
+    ? { height: [24, 60], calmMiddle: true, reach: 120 }
+    : { height: [12, 26], calmMiddle: true, reach: 0, fps: 30 };
+const skyOptions = (large: boolean): SkyOptions =>
+  large ? { reach: 140, scale: 1 } : { reach: 0, scale: 0.6, fps: 30 };
+function startScenery() {
+  const large = largeScreen.matches;
+  document.documentElement.classList.toggle("small-scenery", !large);
+  if (grass && sky) {
+    grass.configure(grassOptions(large));
+    sky.configure(skyOptions(large));
+  } else {
+    grass = startGrass(
+      $<HTMLCanvasElement>("#grass"),
+      reducedMotion,
+      grassOptions(large),
+    );
+    grass.setVisible(true);
+    sky = startSky(
+      $<HTMLCanvasElement>("#sky"),
+      reducedMotion,
+      skyOptions(large),
+    );
+    sky.setVisible(true);
+  }
+  if (large && !dropArt) {
+    $("#drop").classList.add("drawn");
+    dropArt = startDropArt($<HTMLCanvasElement>("#drop .art"), reducedMotion);
+    dropArt.setVisible(currentView === "home");
+  }
 }
 
 // Set while the language switch re-renders the result in place: no scroll, no fade.
@@ -421,7 +440,7 @@ function show(view: keyof typeof views) {
     document.startViewTransition(swap);
   else swap();
 }
-startGrassIfLarge();
+startScenery();
 
 again.addEventListener("click", () => {
   setAdding(false);
@@ -1767,9 +1786,7 @@ function renderSheet() {
     // The same cards as in the result, so a species looks the same everywhere.
     const ul = el("ul", undefined, "lookalikes sheet-lookalikes");
     for (const l of s.lookalikes)
-      ul.append(
-        speciesRow(l.id, () => openSheet(l.id, current.compareTo)),
-      );
+      ul.append(speciesRow(l.id, () => openSheet(l.id, current.compareTo)));
     sheetBody.append(ul);
   }
   // Recipes on the species guide's own sheet only (#50): the guide identifies nothing, so it
@@ -1779,7 +1796,9 @@ function renderSheet() {
   // classes have recipes (CI checks).
   const recipes = current.guide ? recipesOf(s.id) : undefined;
   if (recipes) {
-    const dangerous = s.lookalikes.filter((l) => l.label).map((l) => asTitle(l.nimi));
+    const dangerous = s.lookalikes
+      .filter((l) => l.label)
+      .map((l) => asTitle(l.nimi));
     const note = dangerous.length
       ? `${t().recipesGuideNote} ${t().recipesGuideDanger(dangerous.join(", "))}`
       : t().recipesGuideNote;
@@ -2238,7 +2257,7 @@ navigator.mediaDevices?.addEventListener?.(
   () => void checkCamera(),
 );
 largeScreen.addEventListener("change", () => {
-  startGrassIfLarge();
+  startScenery();
   void checkCamera();
 });
 

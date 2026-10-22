@@ -322,6 +322,20 @@ svg {
   opacity: 1;
 }
 
+/* On a phone the grass and the sky are lower, so they stay at the edges of the content. */
+.small-scenery #grass {
+  height: 3.5rem;
+}
+
+.small-scenery #sky {
+  height: 4rem;
+}
+
+/* Room at the end of the page, so the last lines can scroll up out of the grass. */
+.small-scenery #app {
+  padding-bottom: calc(3rem + env(safe-area-inset-bottom));
+}
+
 @keyframes rise {
   from {
     opacity: 0;

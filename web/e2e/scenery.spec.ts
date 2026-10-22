@@ -1,6 +1,6 @@
 // The grass and the sky in a browser tab on an iPhone (#125): Safari clips fixed elements to
-// the area between its status bar and toolbar, so there they belong to the page, the grass
-// at its end and the sky at its top. The installed app and other phones keep them fixed.
+// the area between its status bar and toolbar, so there the sky belongs to the page, at its
+// top, and there is no grass. The installed app and other phones keep both, fixed.
 import { expect, test } from '@playwright/test'
 
 const iphone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'
@@ -30,35 +30,22 @@ const box = (page: import('@playwright/test').Page, id: string) =>
 test.describe('in Safari on an iPhone', () => {
   test.use({ ...phone, userAgent: iphone })
 
-  test('the grass stands at the end of the page and the sky at its top', async ({ page }) => {
+  test('the sky stands at the top of the page, and there is no grass', async ({ page }) => {
     await start(page)
     await expect(page.locator('html')).toHaveClass(/ios-browser/)
-    const grass = await box(page, '#grass')
-    expect(grass.position).toBe('absolute')
-    expect(grass.bottom).toBeCloseTo(grass.page, 0)
-    expect(grass.left).toBe(0)
-    expect(grass.width).toBe(grass.window)
-    // It runs on below the end of the screen, as Safari ends the page short of it (#125).
-    expect(grass.page).toBeGreaterThanOrEqual(844 + 64)
-    expect(grass.bottom - grass.top).toBeGreaterThan(64 + 50)
     const sky = await box(page, '#sky')
     expect(sky.position).toBe('absolute')
     expect(sky.top).toBe(0)
+    expect(sky.left).toBe(0)
     expect(sky.width).toBe(sky.window)
-    // Still drawn, and the buttons in front of it still work.
-    await expect(page.locator('#grass')).toBeVisible()
+    await expect(page.locator('#sky')).toBeVisible()
+    // Grass at the end of the page floated above an empty strip under Safari's toolbar.
+    await expect(page.locator('#grass')).toBeHidden()
+    // Home fits the screen: nothing to scroll.
+    expect(sky.page).toBeLessThanOrEqual(844)
+    // The buttons in front of the sky still work.
     await page.locator('#info').click()
     await expect(page.locator('#about')).toHaveAttribute('open', '')
-  })
-
-  test('a long page keeps the grass at its end, under the last lines', async ({ page }) => {
-    await start(page)
-    await page.locator('#guide-open').click()
-    await page.locator('#guide-close').click()
-    await page.locator('#info').click()
-    const grass = await box(page, '#grass')
-    expect(grass.page).toBeGreaterThan(844)
-    expect(grass.bottom).toBeCloseTo(grass.page, 0)
   })
 
   test('the installed app keeps them fixed to the screen', async ({ page }) => {

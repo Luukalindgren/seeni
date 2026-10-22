@@ -343,31 +343,9 @@ svg {
   padding-bottom: calc(3rem + env(safe-area-inset-bottom));
 }
 
-/* In a browser tab on an iPhone or iPad (main.ts, #125) the sky and the grass belong to the
-   page, so Safari draws them behind its status bar and toolbar: the sky at the top of the
-   page and the grass at its end. The page is at least as tall as the screen with the toolbar
-   shrunk, so on a short page the grass reaches the bottom edge of the screen. */
-.ios-browser #app {
-  /* --grass-bleed (main.ts): Safari ends the page short of the bottom of the screen even
-     with the toolbar shrunk, so the page and the grass run on below that. */
-  min-height: calc(100lvh + var(--grass-bleed));
-}
-
-/* Room for the toolbar too, so the last lines still end above it. */
-.ios-browser.small-scenery #app {
-  padding-bottom: calc(3rem + 100lvh - 100svh + var(--grass-bleed) + env(safe-area-inset-bottom));
-}
-
-.ios-browser #grass {
-  height: calc(7.5rem + var(--grass-bleed));
-}
-
-.ios-browser.small-scenery #grass {
-  height: calc(3.5rem + var(--grass-bleed));
-}
-
-.ios-browser #sky,
-.ios-browser #grass {
+/* In a browser tab on an iPhone or iPad (main.ts, #125) the sky belongs to the page, so
+   Safari draws it behind its status bar, and there is no grass. */
+.ios-browser #sky {
   position: absolute;
   /* The full width of the window, not only of the centred column. */
   left: calc(50% - 50vw);

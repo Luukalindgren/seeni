@@ -53,6 +53,7 @@ export const en: Strings = {
 
   photoCredit: (author: string, license: string) => `Photo: ${author}, ${license}`,
   model3dCredit: (author: string, license: string) => `3D model from a photo: ${author}, ${license}`,
+  model3dDrawn: '3D model drawn for Seeni',
   model3dLabel: (name: string) => `${name}, 3D model. Turn it by dragging or with the arrow keys.`,
   show3d: 'Show 3D model',
   showPhoto: 'Show photo',

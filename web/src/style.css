@@ -1508,16 +1508,21 @@ body.live-on .adding {
   color: var(--muted);
 }
 
-/* A species 3D model (#45) in place of the photo, the same size. */
-.has-model > img,
-figure:not(.has-model) > .model3d,
-figure:not(.has-model) > .model3d-badge {
+/* A species 3D model (#45) in place of the photo, the same size. The photo, the model and
+   their buttons share .photo-frame, so the buttons stay on the picture in both. */
+.photo-frame {
+  position: relative;
+}
+
+.has-model .photo-frame > img,
+figure:not(.has-model) .model3d,
+figure:not(.has-model) .model3d-badge {
   display: none;
 }
 
 .model3d-toggle {
   position: absolute;
-  left: 0.6rem;
+  right: 0.6rem;
   bottom: 0.6rem;
   font: inherit;
   font-size: 0.8rem;
@@ -1529,12 +1534,10 @@ figure:not(.has-model) > .model3d-badge {
   cursor: pointer;
 }
 
-/* In the result the photo credit sits bottom right, so the button goes top right. */
-.hero-photo .model3d-toggle {
-  top: 0.6rem;
-  right: 0.6rem;
-  bottom: auto;
-  left: auto;
+/* In the result the credit sits on the picture: it moves left to make room for the button. */
+.hero-photo:has(.model3d-toggle) figcaption {
+  right: auto;
+  left: 0.5rem;
 }
 
 .model3d-toggle:focus-visible {
@@ -1558,10 +1561,6 @@ figure:not(.has-model) > .model3d-badge {
 .model3d:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: -3px;
-}
-
-.has-model {
-  position: relative;
 }
 
 .model3d-badge {

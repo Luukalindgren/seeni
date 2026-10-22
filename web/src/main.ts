@@ -359,8 +359,8 @@ const largeScreen = window.matchMedia(
 );
 // Grass along the bottom of every view and a little sky along the top. On a large screen
 // they bend away from the mouse; on a phone they are smaller, sway on their own at a lower
-// frame rate, and never follow the finger. The drop area is drawn on a large screen only: a
-// wavy edge and a mushroom in the wind.
+// frame rate, and never follow the finger. The drop area on home is drawn too: a wavy edge
+// and a mushroom in the wind.
 let grass: Grass | null = null;
 let sky: Sky | null = null;
 let dropArt: DropArt | null = null;
@@ -407,9 +407,14 @@ function startScenery() {
     );
     sky.setVisible(true);
   }
-  if (large && !dropArt) {
+  // The drop area is drawn on every screen (#129); on a phone at a lower frame rate.
+  if (!dropArt) {
     $("#drop").classList.add("drawn");
-    dropArt = startDropArt($<HTMLCanvasElement>("#drop .art"), reducedMotion);
+    dropArt = startDropArt(
+      $<HTMLCanvasElement>("#drop .art"),
+      reducedMotion,
+      large ? undefined : 30,
+    );
     dropArt.setVisible(currentView === "home");
   }
 }

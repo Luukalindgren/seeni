@@ -1,7 +1,8 @@
-// The drop area on large screens, drawn on a canvas: a round, softly wavy shape whose edge
+// The drop area on the home view, drawn on a canvas: a round, softly wavy shape whose edge
 // moves in the same slow wind as the grass, and a drawn mushroom inside it that sways from
-// its stem base. The mouse pushes both a little, like the grass along the bottom of the page.
-// Paused when the page or the home view is hidden; drawn once, still, under reduced motion.
+// its stem base. A mouse pushes both a little, like the grass along the bottom of the page;
+// a finger does not. Paused when the page or the home view is hidden; drawn once, still,
+// under reduced motion.
 
 import { windAt } from './grass.ts'
 
@@ -19,7 +20,9 @@ export interface DropArt {
   setGust(gust: boolean): void
 }
 
-export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt {
+// `fps`: at most this many frames a second, e.g. on a phone to save the battery; the
+// display's rate when not set.
+export function startDropArt(canvas: HTMLCanvasElement, still: boolean, fps?: number): DropArt {
   const context = canvas.getContext('2d')
   if (!context) return { setVisible() {}, setGust() {} }
   const ctx = context
@@ -188,7 +191,8 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
   function loop(time: number) {
     frame = visible && !document.hidden ? requestAnimationFrame(loop) : 0
     if (frame === 0) last = 0
-    else draw(time)
+    // Skip a frame that comes too soon; a little slack keeps 30 fps on a 60 Hz display.
+    else if (!fps || !last || time - last >= 1000 / fps - 4) draw(time)
   }
 
   function run() {
@@ -200,7 +204,8 @@ export function startDropArt(canvas: HTMLCanvasElement, still: boolean): DropArt
   }
 
   window.addEventListener('pointermove', (e) => {
-    if (visible && !still) pointer = { x: e.clientX, y: e.clientY }
+    // A finger lifts without a mouseleave, so its push would stay: only a mouse pushes.
+    if (visible && !still && e.pointerType === 'mouse') pointer = { x: e.clientX, y: e.clientY }
   })
   // The mouse left the window: nothing pushes the shape any more.
   document.documentElement.addEventListener('mouseleave', () => {

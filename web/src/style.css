@@ -1970,6 +1970,23 @@ figure:not(.has-model) .model3d-badge {
   text-align: left;
 }
 
+/* The model's other guesses on "not sure" (#136): quieter than the dangerous species. */
+.unsure-guesses {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.unsure-guesses h3 {
+  margin: 0;
+}
+
+.unsure .unsure-guesses p {
+  font-size: 0.95rem;
+}
+
 /* Read by screen readers, not shown. */
 .visually-hidden {
   position: absolute;

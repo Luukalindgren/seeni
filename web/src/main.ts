@@ -12,6 +12,7 @@ import {
   UNKNOWN,
   dangerousResemblances,
   isDone,
+  lowerGuesses,
   listedLookalikes,
   nextCheck,
   outcome,
@@ -865,6 +866,15 @@ function renderNotSure(raw: ReadonlyMap<string, number>) {
     icon,
     el("h2", s.notSureTitle),
     el("p", s.notSureText),
+  );
+  // How much the photos lean to species Seeni does not know (#136), next to the text that
+  // says the mushroom may be one.
+  const unknown = raw.get(UNKNOWN) ?? 0;
+  if (unknown >= RESEMBLES_MIN)
+    box.append(
+      el("p", s.notSureUnknown(modelPercent(unknown)), "unsure-unknown"),
+    );
+  box.append(
     el("p", s.notSureHow),
     tips,
   );
@@ -888,6 +898,31 @@ function renderNotSure(raw: ReadonlyMap<string, number>) {
         speciesRow(id, () => openSheet(id, leaning ?? id), bestProbability(id)),
       );
     box.append(el("h3", s.notSureDanger, "unsure-danger"), list);
+  }
+  // The harmless species the model still leans to (#136), after the dangerous ones, with
+  // the note that they are only guesses. Each with its highest estimate in any photo, as the
+  // dangerous ones above.
+  const guesses = files
+    ? lowerGuesses(
+        files.labels,
+        photos.map((p) => p.probabilities),
+        species,
+        asked,
+      )
+    : [];
+  if (guesses.length > 0) {
+    const section = el("section", undefined, "unsure-guesses");
+    const list = el("ul", undefined, "lookalikes");
+    for (const g of guesses)
+      list.append(
+        speciesRow(g.id, () => openSheet(g.id, leaning ?? g.id), g.probability),
+      );
+    section.append(
+      el("h3", resembles.length > 0 ? s.notSureOtherGuesses : s.notSureGuesses),
+      el("p", s.notSureGuessesNote),
+      list,
+    );
+    box.append(section);
   }
   box.append(el("p", s.reminder, "reminder"));
   const strip = photoStrip();

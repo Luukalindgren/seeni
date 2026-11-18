@@ -13,13 +13,13 @@ test('"not sure" names a deadly species the photo resembles, and it opens its sh
   await expect(page.locator('#result h2')).toHaveText('En tunnista varmasti', { timeout: 60_000 })
   await expect(page.locator('.unsure-danger')).toBeVisible()
   // The most likely dangerous species first.
-  const rows = page.locator('.unsure .lookalike')
+  const rows = page.locator('.unsure > .lookalikes .lookalike')
   await expect(rows.first()).toContainText('Suippumyrkkyseitikki')
   await expect(rows.first()).toContainText('Tappavan myrkyllinen')
   // With its highest estimate in any photo, the one that put it on the list.
   await expect(rows.first().locator('.estimate')).toHaveText(/^\d+ %\s*mallin arvio$/)
   // Only dangerous species are listed: every row has its danger label.
-  await expect(page.locator('.unsure .lookalike .badge')).toHaveCount(await rows.count())
+  await expect(page.locator('.unsure > .lookalikes .lookalike .badge')).toHaveCount(await rows.count())
   // The share of species Seeni does not know (#136), as the photo leans to the unknown class.
   await expect(page.locator('.unsure-unknown')).toHaveText(/^Jokin laji, jota Seeni ei tunne: \d+ %$/)
   await rows.first().click()

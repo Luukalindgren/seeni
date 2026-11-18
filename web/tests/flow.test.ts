@@ -397,7 +397,7 @@ describe('recipes (#50)', () => {
 })
 
 describe('lower guesses on "not sure" (#136)', () => {
-  const guesses = (p: number[], asked: State['asked'] = []) => lowerGuesses(p, labels, species, asked)
+  const guesses = (p: number[], asked: State['asked'] = []) => lowerGuesses(labels, [p], species, asked)
 
   it('lists the harmless classes at 10 % or more, the most likely first', () => {
     const p = probs(UNKNOWN, 0.35, { 'cantharellus-cibarius': 0.25, 'craterellus-tubaeformis-agg': 0.2, 'hydnum-repandum-agg': 0.05 })
@@ -422,6 +422,21 @@ describe('lower guesses on "not sure" (#136)', () => {
     for (const g of guesses(p))
       for (const x of species.get(g.id)!.kaksoisolennot)
         if (DANGEROUS.has(species.get(x)!.ryhma)) assert.ok(danger.includes(x), x)
+  })
+
+  it('counts a class by its highest probability in any photo', () => {
+    const one = probs(UNKNOWN, 0.8, { 'cantharellus-cibarius': 0.15 })
+    const other = probs(UNKNOWN, 0.99)
+    const g = lowerGuesses(labels, [one, other], species)
+    assert.deepEqual(g.map((x) => x.id), ['cantharellus-cibarius'])
+    assert.equal(g[0]!.probability, 0.15)
+  })
+
+  it('leaves out a class with no species record', () => {
+    const records = new Map(species)
+    records.delete('cantharellus-cibarius')
+    const p = probs(UNKNOWN, 0.5, { 'cantharellus-cibarius': 0.3 })
+    assert.deepEqual(lowerGuesses(labels, [p], records), [])
   })
 
   it('lists at most GUESSES_MAX', () => {

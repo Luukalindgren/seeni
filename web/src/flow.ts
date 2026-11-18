@@ -156,6 +156,17 @@ export function start(
   return { kind: 'flow', state: { candidates: normalize(candidates), warnings, asked: [] } }
 }
 
+/** Every class the answers so far rule out (hard rule 8: only the classes each check lists,
+ * but not under its answer). A skipped check ('' answer) rules nothing out. */
+export function ruledOutByAnswers(asked: State['asked'], checks: ReadonlyMap<string, Check>): Set<string> {
+  const out = new Set<string>()
+  for (const a of asked) {
+    const check = checks.get(a.check)
+    if (check && a.answer in check.vastaukset) for (const id of ruledOut(check, a.answer)) out.add(id)
+  }
+  return out
+}
+
 // On "not sure", a dangerous class with at least this probability is still named.
 export const RESEMBLES_MIN = 0.1
 
@@ -173,13 +184,7 @@ export function dangerousResemblances(
   asked: State['asked'] = [],
   min = RESEMBLES_MIN,
 ): string[] {
-  const checks = checkById(species)
-  const out = new Set(
-    asked.flatMap((a) => {
-      const check = checks.get(a.check)
-      return check && a.answer in check.vastaukset ? [...ruledOut(check, a.answer)] : []
-    }),
-  )
+  const out = ruledOutByAnswers(asked, checkById(species))
   const best = new Map(labels.map((l, i) => [l.id, Math.max(0, ...perImage.map((p) => p[i] ?? 0))]))
   const found = new Map<string, number>()
   for (const [id, p] of best) {
@@ -198,26 +203,24 @@ export const GUESSES_MAX = 5
  * (the same minimum as dangerousResemblances, so every guess on screen also brings its
  * dangerous lookalikes there), most likely first, at most GUESSES_MAX. Dangerous classes are
  * left out here because dangerousResemblances already lists them, first and with their
- * danger label. Never `muu`, and never a class an answer has ruled out. `probabilities` are
- * the averaged ones the result shows. Display only: no check is asked about them. */
+ * danger label. Never `muu`, and never a class an answer has ruled out. A class counts with
+ * its highest probability in any photo, as in dangerousResemblances, so both lists on the
+ * screen use the same numbers. Display only: no check is asked about them. */
 export function lowerGuesses(
-  probabilities: readonly number[],
   labels: readonly Label[],
+  perImage: readonly (readonly number[])[],
   species: Species,
   asked: State['asked'] = [],
   min = RESEMBLES_MIN,
 ): { id: string; probability: number }[] {
-  if (probabilities.length !== labels.length) throw new Error('probabilities do not match labels.json')
-  const checks = checkById(species)
-  const out = new Set(
-    asked.flatMap((a) => {
-      const check = checks.get(a.check)
-      return check && a.answer in check.vastaukset ? [...ruledOut(check, a.answer)] : []
-    }),
-  )
+  const out = ruledOutByAnswers(asked, checkById(species))
   return labels
-    .map((l, i) => ({ id: l.id, probability: probabilities[i] ?? 0 }))
-    .filter(({ id, probability }) => id !== UNKNOWN && probability >= min && !isDangerous(id, species) && !out.has(id))
+    .map((l, i) => ({ id: l.id, probability: Math.max(0, ...perImage.map((p) => p[i] ?? 0)) }))
+    // A class with no species record is left out (fail closed): it could be dangerous.
+    .filter(
+      ({ id, probability }) =>
+        id !== UNKNOWN && probability >= min && species.has(id) && !isDangerous(id, species) && !out.has(id),
+    )
     .sort((a, b) => b.probability - a.probability)
     .slice(0, GUESSES_MAX)
 }
@@ -327,11 +330,7 @@ export function replay(state: State, asked: State['asked'], species: Species): S
  * new alternative without the dangerous lookalikes of its own, and a dangerous one is either
  * shown already or ruled out. Display only; it never changes the candidates or the checks. */
 export function listedLookalikes(state: State, topId: string, species: Species, checks: Map<string, Check>): string[] {
-  const out = new Set<string>()
-  for (const a of state.asked) {
-    const check = checks.get(a.check)
-    if (check && a.answer in check.vastaukset) for (const id of ruledOut(check, a.answer)) out.add(id)
-  }
+  const out = ruledOutByAnswers(state.asked, checks)
   const shown = new Set([...state.candidates.map((c) => c.id), ...state.warnings])
   return (species.get(topId)?.kaksoisolennot ?? []).filter(
     (id) => species.get(id)?.ryhma === 'ei ruokasieni' && !shown.has(id) && !out.has(id),

@@ -191,6 +191,37 @@ export function dangerousResemblances(
   return [...found].sort((a, b) => b[1] - a[1]).map(([id]) => id)
 }
 
+// On "not sure", at most this many of the model's other guesses are listed.
+export const GUESSES_MAX = 5
+
+/** On "not sure" (#136): the harmless classes the model still leans to, at least `min`
+ * (the same minimum as dangerousResemblances, so every guess on screen also brings its
+ * dangerous lookalikes there), most likely first, at most GUESSES_MAX. Dangerous classes are
+ * left out here because dangerousResemblances already lists them, first and with their
+ * danger label. Never `muu`, and never a class an answer has ruled out. `probabilities` are
+ * the averaged ones the result shows. Display only: no check is asked about them. */
+export function lowerGuesses(
+  probabilities: readonly number[],
+  labels: readonly Label[],
+  species: Species,
+  asked: State['asked'] = [],
+  min = RESEMBLES_MIN,
+): { id: string; probability: number }[] {
+  if (probabilities.length !== labels.length) throw new Error('probabilities do not match labels.json')
+  const checks = checkById(species)
+  const out = new Set(
+    asked.flatMap((a) => {
+      const check = checks.get(a.check)
+      return check && a.answer in check.vastaukset ? [...ruledOut(check, a.answer)] : []
+    }),
+  )
+  return labels
+    .map((l, i) => ({ id: l.id, probability: probabilities[i] ?? 0 }))
+    .filter(({ id, probability }) => id !== UNKNOWN && probability >= min && !isDangerous(id, species) && !out.has(id))
+    .sort((a, b) => b.probability - a.probability)
+    .slice(0, GUESSES_MAX)
+}
+
 function checksFor(state: State, species: Species): Check[] {
   const seen = new Map<string, Check>()
   for (const id of [...state.candidates.map((c) => c.id), ...state.warnings]) {

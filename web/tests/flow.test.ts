@@ -11,6 +11,8 @@ import {
   averageProbabilities,
   checkById,
   dangerousResemblances,
+  GUESSES_MAX,
+  lowerGuesses,
   isDone,
   listedLookalikes,
   nextCheck,
@@ -391,5 +393,53 @@ describe('recipes (#50)', () => {
       assert.equal(species.get(id)?.ryhma, 'syötävä', id)
       assert.ok(ids.includes(id), id)
     }
+  })
+})
+
+describe('lower guesses on "not sure" (#136)', () => {
+  const guesses = (p: number[], asked: State['asked'] = []) => lowerGuesses(p, labels, species, asked)
+
+  it('lists the harmless classes at 10 % or more, the most likely first', () => {
+    const p = probs(UNKNOWN, 0.35, { 'cantharellus-cibarius': 0.25, 'craterellus-tubaeformis-agg': 0.2, 'hydnum-repandum-agg': 0.05 })
+    assert.equal(start(p, labels, species, calibration).kind, 'not-sure')
+    assert.deepEqual(
+      guesses(p).map((g) => g.id),
+      ['cantharellus-cibarius', 'craterellus-tubaeformis-agg'],
+    )
+    assert.equal(guesses(p)[0]!.probability, 0.25)
+  })
+
+  it('never lists muu or a dangerous class, which the danger list shows', () => {
+    const p = probs(UNKNOWN, 0.4, { 'amanita-virosa': 0.3, 'boletus-edulis-agg': 0.2 })
+    const g = guesses(p).map((x) => x.id)
+    assert.deepEqual(g, ['boletus-edulis-agg'])
+    assert.ok(dangerousResemblances(labels, [p], species).includes('amanita-virosa'))
+  })
+
+  it('every guess brings its dangerous lookalikes to the danger list', () => {
+    const p = probs(UNKNOWN, 0.5, { 'cantharellus-cibarius': 0.3 })
+    const danger = dangerousResemblances(labels, [p], species)
+    for (const g of guesses(p))
+      for (const x of species.get(g.id)!.kaksoisolennot)
+        if (DANGEROUS.has(species.get(x)!.ryhma)) assert.ok(danger.includes(x), x)
+  })
+
+  it('lists at most GUESSES_MAX', () => {
+    const harmless = ids.filter((id) => id !== UNKNOWN && !DANGEROUS.has(species.get(id)!.ryhma)).slice(0, GUESSES_MAX + 2)
+    const p = ids.map((id) => (harmless.includes(id) ? 1 / harmless.length : 0))
+    assert.equal(guesses(p).length, GUESSES_MAX)
+  })
+
+  it('leaves out a class an answer has ruled out', () => {
+    const check = [...species.values()].flatMap((r) => r.tarkistukset).find((c) =>
+      Object.entries(c.vastaukset).some(([, fits]) => fits.length > 0),
+    )!
+    const [answer, fits] = Object.entries(check.vastaukset)[0]!
+    const mentioned = new Set(Object.values(check.vastaukset).flat())
+    const gone = [...mentioned].find((id) => !fits.includes(id) && ids.includes(id) && !DANGEROUS.has(species.get(id)!.ryhma))
+    assert.ok(gone, 'a harmless class the answer rules out')
+    const p = probs(UNKNOWN, 0.5, { [gone]: 0.3 })
+    assert.ok(guesses(p).some((g) => g.id === gone))
+    assert.ok(!guesses(p, [{ check: check.id, answer }]).some((g) => g.id === gone))
   })
 })

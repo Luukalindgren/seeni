@@ -3,6 +3,8 @@
 // phone camera. Without a camera, the plain start screen is shown.
 import { devices, expect, test, type Page } from '@playwright/test'
 
+import { MODEL_VERSION } from '../src/modelFiles.ts'
+
 const { defaultBrowserType: _, ...phone } = devices['Pixel 7']
 test.use({
   ...phone,
@@ -42,15 +44,22 @@ test.describe('with a camera', () => {
     await expect(page.locator('.live-frame')).toBeHidden()
     await page.locator('#live-take').click()
     await expect(page.locator('#live-shutter')).toBeVisible()
-    // The square the model looks at (#137): centerCrop / shorterSide of the screen width.
+    // The square the model looks at (#137): centerCrop / shorterSide (preprocess.json) of
+    // the shorter side of the screen, in the middle.
     const frame = page.locator('.live-frame')
     await expect(frame).toBeVisible()
     await expect(frame).toContainText('sieni täyttää neliön')
+    const spec = await page.evaluate(
+      async (v) => (await fetch(`/models/${v}/preprocess.json`)).json(),
+      MODEL_VERSION,
+    )
+    const ratio = spec.centerCrop / spec.resize.shorterSide
     const box = (await frame.boundingBox())!
-    const width = page.viewportSize()!.width
-    expect(Math.abs(box.width - (width * 224) / 256)).toBeLessThan(2)
+    const { width, height } = page.viewportSize()!
+    expect(Math.abs(box.width - Math.min(width, height) * ratio)).toBeLessThan(2)
     expect(Math.abs(box.height - box.width)).toBeLessThan(1)
     expect(Math.abs(box.x + box.width / 2 - width / 2)).toBeLessThan(1)
+    expect(Math.abs(box.y + box.height / 2 - height / 2)).toBeLessThan(1)
     await expect(page.locator('#live .status')).toContainText('Valmis', { timeout: 100_000 })
     await page.locator('#live-shutter').click()
     await expect(page.locator('#result')).toBeVisible({ timeout: 60_000 })

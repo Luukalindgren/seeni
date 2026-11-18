@@ -1215,6 +1215,8 @@ body.live-on {
 .live {
   position: fixed;
   inset: 0;
+  /* The square the model looks at is sized by this box (.live-frame). */
+  container-type: size;
   z-index: 10;
   background: #11140f;
   color: #fff;
@@ -1319,8 +1321,8 @@ body.live-on {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: calc(var(--model-crop) * min(100%, 100vh));
-  width: calc(var(--model-crop) * min(100%, 100dvh));
+  /* The same box as the video, whose visible part capture() keeps. */
+  width: calc(var(--model-crop) * min(100cqw, 100cqh));
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border: 0.2rem solid rgb(255 255 255 / 0.9);
@@ -1333,12 +1335,14 @@ body.live-on {
   display: block;
 }
 
+/* Inside the square at its foot, so that it never runs off a landscape screen or hides
+   under the banner of another photo. */
 .live-frame-hint {
   position: absolute;
-  bottom: 100%;
-  left: 0;
-  right: 0;
-  margin: 0 0 0.75rem;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  margin: 0;
   color: #fff;
   font-weight: 600;
   text-align: center;

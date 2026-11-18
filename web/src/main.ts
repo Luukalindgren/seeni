@@ -161,6 +161,7 @@ app.innerHTML = `
     </div>
     <div id="live" class="live" hidden>
       <video playsinline muted autoplay aria-hidden="true"></video>
+      <div class="live-frame" hidden><p class="live-frame-hint" data-t="liveFrameHint"></p></div>
       <div class="live-card">
         <p class="live-title" data-t="liveTitle"></p>
         <p class="live-text" data-t="intro"></p>
@@ -553,6 +554,20 @@ const worker = new Worker(new URL("./worker.ts", import.meta.url), {
 let files: ModelFiles | null = null;
 // The ids of the model's classes, known once the model files are loaded.
 let modelClasses: ReadonlySet<string> | null = null;
+let filesLoading: Promise<ModelFiles> | null = null;
+/** The model's JSON files, read once: calls that overlap share one download, and a failed
+ * one is tried again on the next call. */
+function ensureFiles(): Promise<ModelFiles> {
+  if (files) return Promise.resolve(files);
+  filesLoading ??= loadFiles(base)
+    .then((f) => {
+      files ??= f;
+      modelClasses ??= new Set(f.labels.map((l) => l.id));
+      return files;
+    })
+    .finally(() => (filesLoading = null));
+  return filesLoading;
+}
 let nextId = 1;
 const pending = new Map<number, (r: Response) => void>();
 // "Works offline" is said only once the service worker is active, which is when it has
@@ -1693,8 +1708,7 @@ async function openGuide() {
   // The model's class list tells the sheet which species are warnings only; the list
   // itself needs none of it, so it opens even if the files cannot be read.
   try {
-    files ??= await loadFiles(base);
-    modelClasses ??= new Set(files.labels.map((l) => l.id));
+    files = await ensureFiles();
   } catch {
     // The sheets open once the files are read.
   }
@@ -2066,8 +2080,7 @@ async function identify(images: File[]) {
   result.classList.add("enter");
   show("loading");
   try {
-    files ??= await loadFiles(base);
-    modelClasses ??= new Set(files.labels.map((l) => l.id));
+    files = await ensureFiles();
     // The photos' dates and regions are read while the model runs.
     const [r, meta] = await Promise.all([
       classify(chosen),
@@ -2257,12 +2270,33 @@ async function startLive() {
     shutter.disabled = true;
     setLive(true);
   }
+  if (adding) void showModelFrame();
   const result = await liveCamera.start();
   if (result === "failed") {
     liveFailed = true;
     setLive(false);
   } else if (!liveAllowed()) stopLive();
   updateRetry();
+}
+
+// The square the model looks at (#137): the capture is the visible part of the video, and
+// the model sees its centre crop, centerCrop / shorterSide of the shorter side
+// (preprocess.json, hard rule 4). A small mushroom is the main reason a field photo ends in
+// "not sure", so the frame shows where the mushroom should be and how big. Shown once the
+// model files are read; without them there is no frame, and the photo works as before.
+// Called whenever shooting starts, so a failed read is tried again the next time.
+async function showModelFrame() {
+  const frame = live.querySelector<HTMLElement>(".live-frame")!;
+  if (!frame.hidden) return;
+  let f: ModelFiles;
+  try {
+    f = await ensureFiles();
+  } catch {
+    return;
+  }
+  const { centerCrop, resize } = f.preprocess;
+  live.style.setProperty("--model-crop", String(centerCrop / resize.shorterSide));
+  frame.hidden = false;
 }
 
 // After a denied permission, the plain start screen offers to ask again (#69). The browser
@@ -2287,7 +2321,10 @@ function stopLive() {
 live
   .querySelector("video")!
   .addEventListener("playing", () => (shutter.disabled = false));
-$("#live-take").addEventListener("click", () => live.classList.add("shooting"));
+$("#live-take").addEventListener("click", () => {
+  live.classList.add("shooting");
+  void showModelFrame();
+});
 $("#live-back").addEventListener("click", () =>
   live.classList.remove("shooting"),
 );

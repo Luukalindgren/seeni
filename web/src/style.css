@@ -1215,6 +1215,8 @@ body.live-on {
 .live {
   position: fixed;
   inset: 0;
+  /* The square the model looks at is sized by this box (.live-frame). */
+  container-type: size;
   z-index: 10;
   background: #11140f;
   color: #fff;
@@ -1310,6 +1312,41 @@ body.live-on {
 
 .live.shooting .live-bar {
   display: flex;
+}
+
+/* The square the model looks at (#137), only while shooting: the centre of the shorter
+   side of the screen, as preprocess.json crops it. Outside it the picture is dimmed. */
+.live-frame {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* The same box as the video, whose visible part capture() keeps. */
+  width: calc(var(--model-crop) * min(100cqw, 100cqh));
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 0.2rem solid rgb(255 255 255 / 0.9);
+  border-radius: 1.25rem;
+  box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.3);
+  pointer-events: none;
+}
+
+.live.shooting .live-frame:not([hidden]) {
+  display: block;
+}
+
+/* Inside the square at its foot, so that it never runs off a landscape screen or hides
+   under the banner of another photo. */
+.live-frame-hint {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  margin: 0;
+  color: #fff;
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.7);
 }
 
 .live-bar .round {

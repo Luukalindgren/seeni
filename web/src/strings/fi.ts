@@ -28,6 +28,7 @@ export const fi = {
   addingTitle: 'Lisää kuva samasta sienestä',
   addingTips: 'Hyviä kulmia: lakki ylhäältä, lakin alapinta, jalka ja tyvi.',
   backToResult: 'Takaisin tulokseen',
+  liveFrameHint: 'Mene lähelle, niin että sieni täyttää neliön.',
   liveTitle: 'Kuvaa sieni',
   intro: 'Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.',
   introHome: 'Kuvaa sieni, niin Seeni ehdottaa lajia ja kertoo, miten sen voi varmistaa.',

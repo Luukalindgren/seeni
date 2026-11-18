@@ -161,6 +161,7 @@ app.innerHTML = `
     </div>
     <div id="live" class="live" hidden>
       <video playsinline muted autoplay aria-hidden="true"></video>
+      <div class="live-frame" hidden><p class="live-frame-hint" data-t="liveFrameHint"></p></div>
       <div class="live-card">
         <p class="live-title" data-t="liveTitle"></p>
         <p class="live-text" data-t="intro"></p>
@@ -2257,12 +2258,31 @@ async function startLive() {
     shutter.disabled = true;
     setLive(true);
   }
+  void showModelFrame();
   const result = await liveCamera.start();
   if (result === "failed") {
     liveFailed = true;
     setLive(false);
   } else if (!liveAllowed()) stopLive();
   updateRetry();
+}
+
+// The square the model looks at (#137): the capture is the visible part of the video, and
+// the model sees its centre crop, centerCrop / shorterSide of the shorter side
+// (preprocess.json, hard rule 4). A small mushroom is the main reason a field photo ends in
+// "not sure", so the frame shows where the mushroom should be and how big. Shown once the
+// model files are read; without them there is no frame, and the photo works as before.
+async function showModelFrame() {
+  const frame = live.querySelector<HTMLElement>(".live-frame")!;
+  if (!frame.hidden) return;
+  try {
+    files ??= await loadFiles(base);
+  } catch {
+    return;
+  }
+  const { centerCrop, resize } = files.preprocess;
+  live.style.setProperty("--model-crop", String(centerCrop / resize.shorterSide));
+  frame.hidden = false;
 }
 
 // After a denied permission, the plain start screen offers to ask again (#69). The browser

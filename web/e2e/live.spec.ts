@@ -39,8 +39,18 @@ test.describe('with a camera', () => {
     await expect(page.locator('#grass')).not.toHaveClass(/visible/)
     // The card first; the shutter only after "Ota kuva".
     await expect(page.locator('#live-shutter')).toBeHidden()
+    await expect(page.locator('.live-frame')).toBeHidden()
     await page.locator('#live-take').click()
     await expect(page.locator('#live-shutter')).toBeVisible()
+    // The square the model looks at (#137): centerCrop / shorterSide of the screen width.
+    const frame = page.locator('.live-frame')
+    await expect(frame).toBeVisible()
+    await expect(frame).toContainText('sieni täyttää neliön')
+    const box = (await frame.boundingBox())!
+    const width = page.viewportSize()!.width
+    expect(Math.abs(box.width - (width * 224) / 256)).toBeLessThan(2)
+    expect(Math.abs(box.height - box.width)).toBeLessThan(1)
+    expect(Math.abs(box.x + box.width / 2 - width / 2)).toBeLessThan(1)
     await expect(page.locator('#live .status')).toContainText('Valmis', { timeout: 100_000 })
     await page.locator('#live-shutter').click()
     await expect(page.locator('#result')).toBeVisible({ timeout: 60_000 })

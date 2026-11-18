@@ -1312,6 +1312,39 @@ body.live-on {
   display: flex;
 }
 
+/* The square the model looks at (#137), only while shooting: the centre of the shorter
+   side of the screen, as preprocess.json crops it. Outside it the picture is dimmed. */
+.live-frame {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--model-crop) * min(100%, 100vh));
+  width: calc(var(--model-crop) * min(100%, 100dvh));
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 0.2rem solid rgb(255 255 255 / 0.9);
+  border-radius: 1.25rem;
+  box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.3);
+  pointer-events: none;
+}
+
+.live.shooting .live-frame:not([hidden]) {
+  display: block;
+}
+
+.live-frame-hint {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  margin: 0 0 0.75rem;
+  color: #fff;
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.7);
+}
+
 .live-bar .round {
   width: 3.25rem;
   min-height: 3.25rem;

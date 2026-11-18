@@ -26,6 +26,7 @@ export const en: Strings = {
   addingTitle: 'Add a photo of the same mushroom',
   addingTips: 'Good angles: the cap from above, the underside of the cap, the stem and its base.',
   backToResult: 'Back to the result',
+  liveFrameHint: 'Get close, so that the mushroom fills the square.',
   liveTitle: 'Photograph a mushroom',
   intro: 'Seeni suggests a species and tells you how to make sure.',
   introHome: 'Photograph a mushroom, and Seeni suggests a species and tells you how to make sure.',

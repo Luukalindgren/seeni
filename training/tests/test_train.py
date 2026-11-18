@@ -81,3 +81,18 @@ def test_spec_matches_eval_transform():
     assert resize.antialias is s["resize"]["antialias"]
     assert crop.size == (CROP, CROP) == (s["centerCrop"],) * 2
     assert list(normalize.mean) == s["mean"] and list(normalize.std) == s["std"]
+
+
+def test_zoom_takes_the_centre_in_whole_pixels():
+    from PIL import Image
+
+    from seeni.preprocess import zoom
+
+    image = Image.new("RGB", (101, 50))
+    for x in range(101):
+        image.putpixel((x, 25), (x, 0, 0))
+    z = zoom(image, 0.6)
+    # width round(60.6) = 61, left (101 - 61) // 2 = 20; height 30, top 10
+    assert z.size == (61, 30)
+    assert z.getpixel((0, 15)) == (20, 0, 0)
+    assert z.getpixel((60, 15)) == (80, 0, 0)

@@ -8,6 +8,7 @@ from seeni.evaluate import (
     decide,
     expected_calibration_error,
     fit_temperature,
+    more_confident,
     outcomes,
     pick_threshold,
     safety,
@@ -129,3 +130,11 @@ def test_pick_threshold_takes_the_lowest_that_meets_the_rule():
     assert pick_threshold(curve, 0.05) == 0.0
     curve[0]["muu_fungi_food"] = 0.2
     assert pick_threshold(curve, 0.05, 0.1) == 0.1
+
+
+def test_more_confident_takes_the_surer_view_per_row():
+    full = torch.tensor([[0.6, 0.4], [0.9, 0.1]])
+    zoomed = torch.tensor([[0.2, 0.8], [0.5, 0.5]])
+    assert torch.equal(more_confident(full, zoomed), torch.tensor([[0.2, 0.8], [0.9, 0.1]]))
+    # A tie keeps the full view.
+    assert torch.equal(more_confident(full[:1], full[:1].flip(1)), full[:1])

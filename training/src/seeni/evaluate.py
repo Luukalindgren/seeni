@@ -5,6 +5,7 @@ Run from training/ on the desktop, after `seeni.train`:
     uv run python -m seeni.evaluate val --run b0-224-muu2      # fit T and the threshold on val
     uv run python -m seeni.evaluate errors --run b0-224-muu2   # contact sheets of val confusions
     uv run python -m seeni.evaluate test --run b0-224-muu2     # once, at the end: the test set
+    uv run python -m seeni.evaluate val --run b0-224-muu2 --zoom   # the two-view decision (#137)
 
 Everything runs in fp32. Output goes under <data dir>/runs/<name>/eval/:
 
@@ -14,6 +15,11 @@ Everything runs in fp32. Output goes under <data dir>/runs/<name>/eval/:
     per_taxon-<set>.csv     per listed taxon: top-1, top-3, dangerous confusions
     per_class-<set>.csv     per class: precision, recall, F1
     errors/                 contact sheets from `errors`
+
+With `--zoom` (#137) each photo is also classified in its zoomed view (seeni.preprocess.zoom),
+and the view whose top class is more probable decides. T is fitted on the full view as
+before; the threshold rule then runs on the combined probabilities. Output goes under
+eval-zoom/ instead, so the one-view results stay as they are.
 
 The app's decision (PLAN.md phase 9), which the metrics follow: probabilities are
 softmax(logits / T). If `muu` is the top class, or the top species class is below the
@@ -58,7 +64,7 @@ from seeni.lajilista import (
 )
 from seeni.muu import read_manifests
 from seeni.paths import data_dir
-from seeni.preprocess import eval_transform
+from seeni.preprocess import ZOOM, eval_transform, zoom_transform
 from seeni.split import read_split
 from seeni.train import Images, confusion_matrix, labels, per_class_f1, predict
 
@@ -381,9 +387,12 @@ def load_model(run: Path, n: int):
     return model.eval()
 
 
-def logits_for(run: Path, set_name: str, items: list[dict], n: int, workers: int) -> torch.Tensor:
-    """Logits in fp32, cached in eval/logits-<set>.pt for the same images and best.pt."""
-    cache = run / "eval" / f"logits-{set_name}.pt"
+def logits_for(
+    run: Path, set_name: str, items: list[dict], n: int, workers: int, zoomed: bool = False
+) -> torch.Tensor:
+    """Logits in fp32, cached in eval/logits-<set>.pt (eval/logits-<set>-zoom.pt for the
+    zoomed view) for the same images and best.pt."""
+    cache = run / "eval" / f"logits-{set_name}{'-zoom' if zoomed else ''}.pt"
     images = [m["image"] for m in items]
     stat = (run / "best.pt").stat()
     weights = [stat.st_size, stat.st_mtime_ns]
@@ -395,7 +404,11 @@ def logits_for(run: Path, set_name: str, items: list[dict], n: int, workers: int
     model = load_model(run, n).to(dev, memory_format=torch.channels_last)
     root = data_dir()
     loader = DataLoader(
-        Images([root / m["path"] for m in items], [0] * len(items), eval_transform()),
+        Images(
+            [root / m["path"] for m in items],
+            [0] * len(items),
+            zoom_transform() if zoomed else eval_transform(),
+        ),
         batch_size=128,
         num_workers=workers,
         pin_memory=dev.type == "cuda",
@@ -558,11 +571,31 @@ def markdown(report: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-def evaluate_set(run, set_name, rows, class_ids, info, workers, temperature, threshold):
+def more_confident(*views: torch.Tensor) -> torch.Tensor:
+    """Per row, the probabilities of the view whose top class is most probable (the first
+    view on a tie)."""
+    stacked = torch.stack(views)
+    best = stacked.max(2).values.argmax(0)
+    return stacked[best, torch.arange(stacked.shape[1])]
+
+
+def probabilities(run, set_name, items, n, workers, temperature, zoomed):
+    """Calibrated probabilities: of the full view, or with `zoomed` of the more confident of
+    the full and the zoomed view."""
+    probs = (logits_for(run, set_name, items, n, workers) / temperature).softmax(1)
+    if zoomed:
+        z = logits_for(run, set_name, items, n, workers, zoomed=True)
+        probs = more_confident(probs, (z / temperature).softmax(1))
+    return probs
+
+
+def evaluate_set(
+    run, set_name, rows, class_ids, info, workers, temperature, threshold, zoomed=False
+):
     taxon_group = {r.taxon_key: r.ryhma for r in rows}
     items = items_for(set_name, rows)
     logits = logits_for(run, set_name, items, len(class_ids), workers)
-    probs = (logits / temperature).softmax(1)
+    probs = probabilities(run, set_name, items, len(class_ids), workers, temperature, zoomed)
     res = outcomes(probs, items, class_ids, info, taxon_group, threshold)
     return items, logits, probs, res
 
@@ -575,7 +608,8 @@ def cmd_evaluate(args, set_name: str) -> int:
     index = {c: i for i, c in enumerate(class_ids)}
     unknown = index[UNKNOWN_CLASS]
     taxon_group = {r.taxon_key: r.ryhma for r in rows}
-    out = run / "eval"
+    zoomed = getattr(args, "zoom", False)
+    out = run / ("eval-zoom" if zoomed else "eval")
     out.mkdir(parents=True, exist_ok=True)
 
     if set_name == "val":
@@ -586,7 +620,11 @@ def cmd_evaluate(args, set_name: str) -> int:
         y = torch.tensor([index[m["class_id"]] for m in items])
         temperature = fit_temperature(logits, y)
         curve = threshold_curve(
-            (logits / temperature).softmax(1), items, class_ids, info, taxon_group
+            probabilities(run, "val", items, len(class_ids), args.workers, temperature, zoomed),
+            items,
+            class_ids,
+            info,
+            taxon_group,
         )
         write_csv(out / "threshold-val.csv", curve)
         threshold = (
@@ -600,6 +638,8 @@ def cmd_evaluate(args, set_name: str) -> int:
             "candidateMass": CANDIDATE_MASS,
             "maxCandidates": MAX_CANDIDATES,
         }
+        if zoomed:
+            calibration["zoom"] = ZOOM
         (out / "calibration.json").write_text(json.dumps(calibration, indent=2) + "\n")
     else:
         path = out / "calibration.json"
@@ -616,16 +656,16 @@ def cmd_evaluate(args, set_name: str) -> int:
         "per_taxon": {},
     }
     items, logits, probs, res = evaluate_set(
-        run, set_name, rows, class_ids, info, args.workers, temperature, threshold
+        run, set_name, rows, class_ids, info, args.workers, temperature, threshold, zoomed
     )
     y = torch.tensor([index[m["class_id"]] for m in items])
     report["standard"] = standard(probs, y, len(class_ids), unknown)
     report["ece_raw"] = expected_calibration_error(logits.softmax(1), y)
     report["ece_calibrated"] = expected_calibration_error(probs, y)
     report["log_loss_raw"] = torch.nn.functional.cross_entropy(logits, y).item()
-    report["log_loss_calibrated"] = torch.nn.functional.cross_entropy(
-        logits / temperature, y
-    ).item()
+    report["log_loss_calibrated"] = (
+        -probs[torch.arange(len(y)), y].clamp_min(1e-12).log().mean().item()
+    )
     report["unknown"] = unknown_metrics(res, items, info)
     report["safety"]["in_model"] = safety(res)
     report["per_taxon"]["in_model"] = per_taxon(res, items, rows)
@@ -633,7 +673,7 @@ def cmd_evaluate(args, set_name: str) -> int:
     write_csv(out / f"per_class-{set_name}.csv", per_class(probs, y, class_ids))
 
     o_items, _, _, o_res = evaluate_set(
-        run, "outside", rows, class_ids, info, args.workers, temperature, threshold
+        run, "outside", rows, class_ids, info, args.workers, temperature, threshold, zoomed
     )
     if o_items:
         report["safety"]["outside"] = safety(o_res)
@@ -706,6 +746,12 @@ def main(argv: list[str] | None = None) -> int:
         p = sub.add_parser(name)
         p.add_argument("--run", required=True, help="run directory under <data dir>/runs")
         p.add_argument("--workers", type=int, default=12)
+        if name != "errors":
+            p.add_argument(
+                "--zoom",
+                action="store_true",
+                help="decide by the more confident of the full and the zoomed view (#137)",
+            )
         if name == "val":
             p.add_argument("--max-residual", type=float, default=MAX_RESIDUAL)
             p.add_argument("--max-unknown-food", type=float, default=MAX_UNKNOWN_FOOD)

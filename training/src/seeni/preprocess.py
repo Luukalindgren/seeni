@@ -22,6 +22,10 @@ MEAN = (0.485, 0.456, 0.406)
 STD = (0.229, 0.224, 0.225)
 INTERPOLATION = "bilinear"
 ANTIALIAS = True
+# The zoomed view (#137): the centre ZOOM of each side of the decoded image, before the eval
+# transform. A mushroom photographed from standing height is small in the centre crop, and
+# the model then leans to `muu` or stays unsure; the zoomed view shows it larger.
+ZOOM = 0.6
 
 
 def load(path: Path) -> Image.Image:
@@ -42,6 +46,30 @@ def spec() -> dict:
         "layout": "NCHW",
         "dtype": "float32",
     }
+
+
+def zoom(image: Image.Image, scale: float = ZOOM) -> Image.Image:
+    """The centre `scale` of each side, in whole pixels: width round(w * scale), left
+    (w - width) // 2, and the same for the height."""
+    w, h = image.size
+    cw, ch = max(1, round(w * scale)), max(1, round(h * scale))
+    left, top = (w - cw) // 2, (h - ch) // 2
+    return image.crop((left, top, left + cw, top + ch))
+
+
+class Zoom:
+    """`zoom` as a transform (a class, so DataLoader workers can pickle it)."""
+
+    def __init__(self, scale: float = ZOOM):
+        self.scale = scale
+
+    def __call__(self, image: Image.Image) -> Image.Image:
+        return zoom(image, self.scale)
+
+
+def zoom_transform(scale: float = ZOOM) -> transforms.Compose:
+    """The zoomed view: `zoom`, then the eval transform."""
+    return transforms.Compose([Zoom(scale), *eval_transform().transforms])
 
 
 def eval_transform() -> transforms.Compose:

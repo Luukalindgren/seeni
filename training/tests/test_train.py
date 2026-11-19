@@ -81,3 +81,41 @@ def test_spec_matches_eval_transform():
     assert resize.antialias is s["resize"]["antialias"]
     assert crop.size == (CROP, CROP) == (s["centerCrop"],) * 2
     assert list(normalize.mean) == s["mean"] and list(normalize.std) == s["std"]
+
+
+def test_zoom_takes_the_centre_in_whole_pixels():
+    from PIL import Image
+
+    from seeni.preprocess import zoom
+
+    image = Image.new("RGB", (101, 50))
+    for x in range(101):
+        image.putpixel((x, 25), (x, 0, 0))
+    z = zoom(image, 0.6)
+    # width round(60.6) = 61, left (101 - 61) // 2 = 20; height 30, top 10
+    assert z.size == (61, 30)
+    assert z.getpixel((0, 15)) == (20, 0, 0)
+    assert z.getpixel((60, 15)) == (80, 0, 0)
+
+
+def test_zoom_out_puts_a_smaller_image_on_a_background(tmp_path):
+    import random
+
+    from PIL import Image
+
+    from seeni.preprocess import ZoomOut
+
+    floor = tmp_path / "floor.jpg"
+    Image.new("RGB", (300, 200), (0, 0, 255)).save(floor)
+    image = Image.new("RGB", (224, 224), (255, 0, 0))
+    assert ZoomOut([floor], p=0.0)(image) is image
+    assert ZoomOut([], p=1.0)(image) is image
+    random.seed(1)
+    out = ZoomOut([floor], p=1.0, scale=(0.5, 0.5))(image)
+    assert out.size == (224, 224)
+    pixels = [out.getpixel((x, y)) for x in range(224) for y in range(224)]
+    red = sum(r > 200 and b < 60 for r, _, b in pixels)
+    # Nearly all of the 112 × 112 paste, never the whole frame.
+    assert 0.18 * 224 * 224 < red < 0.25 * 224 * 224
+    corners = [out.getpixel(c) for c in ((0, 0), (223, 0), (0, 223), (223, 223))]
+    assert sum(c[2] > 200 for c in corners) >= 3

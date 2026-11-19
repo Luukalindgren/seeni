@@ -96,8 +96,9 @@ class ZoomOut:
     of species photos with the mushroom at 40 % size against 83 % as photographed.
 
     `backgrounds` are `muu` non-mushroom photos from train (moss, needles, leaves). The
-    edge is feathered with a soft ellipse, so that no sharp rectangle gives the paste away.
-    Applied after the crop, so the mushroom itself is never cut off. No colour change
+    edge fades out over a narrow border with rounded corners, so that no sharp rectangle
+    gives the paste away while nearly all of the crop stays visible. Applied after the
+    crop, so it shrinks what the crop shows instead of being cut by it. No colour change
     (hard rule 6)."""
 
     def __init__(
@@ -117,10 +118,15 @@ class ZoomOut:
         s = random.uniform(*self.scale)
         sw, sh = max(1, round(w * s)), max(1, round(h * s))
         small = image.resize((sw, sh), mode, reducing_gap=None)
+        # A rounded rectangle with a soft border: the crop stays whole, only its edge fades.
         mask = Image.new("L", (sw, sh), 0)
-        inset = round(min(sw, sh) * 0.04)
-        ImageDraw.Draw(mask).ellipse((inset, inset, sw - 1 - inset, sh - 1 - inset), fill=255)
-        mask = mask.filter(ImageFilter.GaussianBlur(max(1, min(sw, sh) * 0.06)))
+        feather = max(1, round(min(sw, sh) * 0.03))
+        ImageDraw.Draw(mask).rounded_rectangle(
+            (feather, feather, sw - 1 - feather, sh - 1 - feather),
+            radius=round(min(sw, sh) * 0.12),
+            fill=255,
+        )
+        mask = mask.filter(ImageFilter.GaussianBlur(feather))
         out.paste(small, (random.randint(0, w - sw), random.randint(0, h - sh)), mask)
         return out
 

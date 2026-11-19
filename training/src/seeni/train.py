@@ -31,6 +31,7 @@ import argparse
 import csv
 import json
 import math
+import random
 import sys
 import time
 from collections import Counter
@@ -256,6 +257,9 @@ def cmd_train(args) -> int:
     from torch.utils.tensorboard import SummaryWriter
 
     torch.manual_seed(args.seed)
+    random.seed(args.seed)  # ZoomOut draws from Python's random in the main process
+    if not 0 <= args.zoom_out <= 1:
+        raise SystemExit("--zoom-out is a share between 0 and 1")
     rows = read(args.lajilista)
     errors, _ = validate(rows, require_keys=True)
     if errors or any(r.class_id == UNKNOWN_CLASS for r in rows):
@@ -278,7 +282,7 @@ def cmd_train(args) -> int:
     train_targets = [t for _, t, _ in train_items]
     print(f"{n} classes, {len(train_items)} train and {len(val_items)} val images")
     print(f"muu: {train_targets.count(index[UNKNOWN_CLASS])} train images")
-    floor = backgrounds(train_items)
+    floor = backgrounds(train_items) if args.zoom_out > 0 else []
     if args.zoom_out > 0 and not floor:
         raise SystemExit("--zoom-out needs muu non-mushroom images (kind other) in train")
     print(f"zoom-out: {args.zoom_out:.0%} of images, on {len(floor)} forest-floor photos")
@@ -413,8 +417,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--zoom-out",
         type=float,
-        default=0.3,
-        help="share of training images shrunk onto a forest-floor photo (#137); v2 had 0",
+        default=0.0,
+        help="share (0-1) of training images shrunk onto a forest-floor photo (#137); "
+        "v2 had 0, v3 is to use 0.3",
     )
     args = parser.parse_args(argv)
     if not 0 < args.head_epochs < args.epochs:

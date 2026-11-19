@@ -115,7 +115,7 @@ def test_zoom_out_puts_a_smaller_image_on_a_background(tmp_path):
     assert out.size == (224, 224)
     pixels = [out.getpixel((x, y)) for x in range(224) for y in range(224)]
     red = sum(r > 200 and b < 60 for r, _, b in pixels)
-    # About the ellipse inside a 112 × 112 paste, never the whole frame.
-    assert 0.1 * 224 * 224 < red < 0.25 * 224 * 224
+    # Nearly all of the 112 × 112 paste, never the whole frame.
+    assert 0.18 * 224 * 224 < red < 0.25 * 224 * 224
     corners = [out.getpixel(c) for c in ((0, 0), (223, 0), (0, 223), (223, 223))]
     assert sum(c[2] > 200 for c in corners) >= 3

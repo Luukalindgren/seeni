@@ -393,14 +393,20 @@ def logits_for(
     run: Path, set_name: str, items: list[dict], n: int, workers: int, zoomed: bool = False
 ) -> torch.Tensor:
     """Logits in fp32, cached in eval/logits-<set>.pt (eval/logits-<set>-zoom.pt for the
-    zoomed view) for the same images and best.pt."""
+    zoomed view) for the same images, best.pt and zoom scale."""
     cache = run / "eval" / f"logits-{set_name}{'-zoom' if zoomed else ''}.pt"
     images = [m["image"] for m in items]
     stat = (run / "best.pt").stat()
     weights = [stat.st_size, stat.st_mtime_ns]
+    # The view is part of the key: a zoomed cache from another ZOOM is never reused.
+    view = {"zoom": ZOOM} if zoomed else None
     if cache.exists():
         saved = torch.load(cache)
-        if saved["images"] == images and saved.get("weights") == weights:
+        if (
+            saved["images"] == images
+            and saved.get("weights") == weights
+            and saved.get("view") == view
+        ):
             return saved["logits"]
     dev = device()
     model = load_model(run, n).to(dev, memory_format=torch.channels_last)
@@ -417,7 +423,7 @@ def logits_for(
     )
     logits = predict(model, loader, dev)
     cache.parent.mkdir(parents=True, exist_ok=True)
-    torch.save({"images": images, "weights": weights, "logits": logits}, cache)
+    torch.save({"images": images, "weights": weights, "view": view, "logits": logits}, cache)
     return logits
 
 
@@ -667,6 +673,8 @@ def cmd_evaluate(args, set_name: str) -> int:
         if not path.exists():
             raise SystemExit("run `val` first: test uses the T and threshold fixed on val")
         calibration = json.loads(path.read_text())
+        if zoomed and calibration.get("zoom") != {"scale": ZOOM, "rule": zoomed}:
+            raise SystemExit(f"{path} was fitted with another zoom; run `val --zoom` again")
     temperature, threshold = calibration["temperature"], calibration["unknownThreshold"]
 
     report = {
@@ -681,9 +689,11 @@ def cmd_evaluate(args, set_name: str) -> int:
     )
     y = torch.tensor([index[m["class_id"]] for m in items])
     report["standard"] = standard(probs, y, len(class_ids), unknown)
-    report["ece_raw"] = expected_calibration_error(logits.softmax(1), y)
+    # Raw: the same decision at T = 1, so that raw and calibrated describe one predictor.
+    raw = probabilities(run, set_name, items, len(class_ids), args.workers, 1.0, zoomed, unknown)
+    report["ece_raw"] = expected_calibration_error(raw, y)
     report["ece_calibrated"] = expected_calibration_error(probs, y)
-    report["log_loss_raw"] = torch.nn.functional.cross_entropy(logits, y).item()
+    report["log_loss_raw"] = -raw[torch.arange(len(y)), y].clamp_min(1e-12).log().mean().item()
     report["log_loss_calibrated"] = (
         -probs[torch.arange(len(y)), y].clamp_min(1e-12).log().mean().item()
     )

@@ -5,7 +5,7 @@ Run from training/ on the desktop, after `seeni.train`:
     uv run python -m seeni.evaluate val --run b0-224-muu2      # fit T and the threshold on val
     uv run python -m seeni.evaluate errors --run b0-224-muu2   # contact sheets of val confusions
     uv run python -m seeni.evaluate test --run b0-224-muu2     # once, at the end: the test set
-    uv run python -m seeni.evaluate val --run b0-224-muu2 --zoom   # the two-view decision (#137)
+    uv run python -m seeni.evaluate val --run b0-224-muu2 --zoom agree   # two views (#137)
 
 Everything runs in fp32. Output goes under <data dir>/runs/<name>/eval/:
 
@@ -16,10 +16,12 @@ Everything runs in fp32. Output goes under <data dir>/runs/<name>/eval/:
     per_class-<set>.csv     per class: precision, recall, F1
     errors/                 contact sheets from `errors`
 
-With `--zoom` (#137) each photo is also classified in its zoomed view (seeni.preprocess.zoom),
-and the view whose top class is more probable decides. T is fitted on the full view as
-before; the threshold rule then runs on the combined probabilities. Output goes under
-eval-zoom/ instead, so the one-view results stay as they are.
+With `--zoom agree` or `--zoom confident` (#137) each photo is also classified in its zoomed
+view (seeni.preprocess.zoom), and the two are combined: `agree` lets the zoomed view decide
+only when it has the same top class as the full view and is more sure of it; `confident`
+takes the view whose top class is more probable. T is fitted on the full view as before;
+the threshold rule then runs on the combined probabilities. Output goes under
+eval-zoom-<rule>/ instead, so the one-view results stay as they are.
 
 The app's decision (PLAN.md phase 9), which the metrics follow: probabilities are
 softmax(logits / T). If `muu` is the top class, or the top species class is below the
@@ -579,13 +581,27 @@ def more_confident(*views: torch.Tensor) -> torch.Tensor:
     return stacked[best, torch.arange(stacked.shape[1])]
 
 
-def probabilities(run, set_name, items, n, workers, temperature, zoomed):
-    """Calibrated probabilities: of the full view, or with `zoomed` of the more confident of
-    the full and the zoomed view."""
+def agreeing(full: torch.Tensor, zoomed: torch.Tensor, unknown: int) -> torch.Tensor:
+    """Per row, the zoomed view's probabilities only where both views have the same top
+    class, it is not `unknown`, and the zoomed view is more sure of it; else the full view's.
+    The zoomed view can then make the app answer, but never change its top class. On v2 this
+    kept the dangerous confusions after warnings of the full view, where `more_confident`
+    added some (#137)."""
+    top_f, top_z = full.argmax(1), zoomed.argmax(1)
+    use = (top_f == top_z) & (top_f != unknown) & (zoomed.max(1).values > full.max(1).values)
+    return torch.where(use[:, None], zoomed, full)
+
+
+ZOOM_RULES = ("agree", "confident")
+
+
+def probabilities(run, set_name, items, n, workers, temperature, zoomed, unknown=None):
+    """Calibrated probabilities of the full view, or, with `zoomed` ("agree" or
+    "confident"), the two views combined by `agreeing` or `more_confident`."""
     probs = (logits_for(run, set_name, items, n, workers) / temperature).softmax(1)
     if zoomed:
-        z = logits_for(run, set_name, items, n, workers, zoomed=True)
-        probs = more_confident(probs, (z / temperature).softmax(1))
+        z = (logits_for(run, set_name, items, n, workers, zoomed=True) / temperature).softmax(1)
+        probs = agreeing(probs, z, unknown) if zoomed == "agree" else more_confident(probs, z)
     return probs
 
 
@@ -595,7 +611,10 @@ def evaluate_set(
     taxon_group = {r.taxon_key: r.ryhma for r in rows}
     items = items_for(set_name, rows)
     logits = logits_for(run, set_name, items, len(class_ids), workers)
-    probs = probabilities(run, set_name, items, len(class_ids), workers, temperature, zoomed)
+    unknown = class_ids.index(UNKNOWN_CLASS)
+    probs = probabilities(
+        run, set_name, items, len(class_ids), workers, temperature, zoomed, unknown
+    )
     res = outcomes(probs, items, class_ids, info, taxon_group, threshold)
     return items, logits, probs, res
 
@@ -608,8 +627,8 @@ def cmd_evaluate(args, set_name: str) -> int:
     index = {c: i for i, c in enumerate(class_ids)}
     unknown = index[UNKNOWN_CLASS]
     taxon_group = {r.taxon_key: r.ryhma for r in rows}
-    zoomed = getattr(args, "zoom", False)
-    out = run / ("eval-zoom" if zoomed else "eval")
+    zoomed = getattr(args, "zoom", None)
+    out = run / (f"eval-zoom-{zoomed}" if zoomed else "eval")
     out.mkdir(parents=True, exist_ok=True)
 
     if set_name == "val":
@@ -620,7 +639,9 @@ def cmd_evaluate(args, set_name: str) -> int:
         y = torch.tensor([index[m["class_id"]] for m in items])
         temperature = fit_temperature(logits, y)
         curve = threshold_curve(
-            probabilities(run, "val", items, len(class_ids), args.workers, temperature, zoomed),
+            probabilities(
+                run, "val", items, len(class_ids), args.workers, temperature, zoomed, unknown
+            ),
             items,
             class_ids,
             info,
@@ -639,7 +660,7 @@ def cmd_evaluate(args, set_name: str) -> int:
             "maxCandidates": MAX_CANDIDATES,
         }
         if zoomed:
-            calibration["zoom"] = ZOOM
+            calibration["zoom"] = {"scale": ZOOM, "rule": zoomed}
         (out / "calibration.json").write_text(json.dumps(calibration, indent=2) + "\n")
     else:
         path = out / "calibration.json"
@@ -749,8 +770,8 @@ def main(argv: list[str] | None = None) -> int:
         if name != "errors":
             p.add_argument(
                 "--zoom",
-                action="store_true",
-                help="decide by the more confident of the full and the zoomed view (#137)",
+                choices=ZOOM_RULES,
+                help="also classify the zoomed view and combine the two (#137)",
             )
         if name == "val":
             p.add_argument("--max-residual", type=float, default=MAX_RESIDUAL)

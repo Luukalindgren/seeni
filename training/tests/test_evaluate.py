@@ -4,6 +4,7 @@ import torch
 
 from seeni.evaluate import (
     ClassInfo,
+    agreeing,
     candidates,
     decide,
     expected_calibration_error,
@@ -138,3 +139,14 @@ def test_more_confident_takes_the_surer_view_per_row():
     assert torch.equal(more_confident(full, zoomed), torch.tensor([[0.2, 0.8], [0.9, 0.1]]))
     # A tie keeps the full view.
     assert torch.equal(more_confident(full[:1], full[:1].flip(1)), full[:1])
+
+
+def test_agreeing_lets_the_zoomed_view_decide_only_on_the_same_top_class():
+    unknown = 2
+    full = torch.tensor([[0.6, 0.3, 0.1], [0.6, 0.3, 0.1], [0.2, 0.3, 0.5], [0.6, 0.3, 0.1]])
+    zoomed = torch.tensor([[0.9, 0.05, 0.05], [0.1, 0.8, 0.1], [0.1, 0.1, 0.8], [0.55, 0.4, 0.05]])
+    out = agreeing(full, zoomed, unknown)
+    assert torch.equal(out[0], zoomed[0])  # same top class, surer
+    assert torch.equal(out[1], full[1])  # another top class
+    assert torch.equal(out[2], full[2])  # both say unknown
+    assert torch.equal(out[3], full[3])  # same top class, less sure

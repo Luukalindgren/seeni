@@ -153,6 +153,12 @@ def load_items(rows: list[Row], index: dict[str, int]):
     return out["train"], out["val"]
 
 
+def backgrounds(items) -> list[Path]:
+    """Forest-floor photos for ZoomOut (#137): the `muu` non-mushroom images (kind "other"),
+    from the given set only, so no val image is ever seen in training."""
+    return [p for p, _, m in items if m["class_id"] == UNKNOWN_CLASS and m.get("kind") == "other"]
+
+
 @torch.inference_mode()
 def predict(model, loader, dev) -> torch.Tensor:
     """Logits in fp32 (no autocast): evaluation must not depend on bf16 rounding."""
@@ -272,8 +278,16 @@ def cmd_train(args) -> int:
     train_targets = [t for _, t, _ in train_items]
     print(f"{n} classes, {len(train_items)} train and {len(val_items)} val images")
     print(f"muu: {train_targets.count(index[UNKNOWN_CLASS])} train images")
+    floor = backgrounds(train_items)
+    if args.zoom_out > 0 and not floor:
+        raise SystemExit("--zoom-out needs muu non-mushroom images (kind other) in train")
+    print(f"zoom-out: {args.zoom_out:.0%} of images, on {len(floor)} forest-floor photos")
     train_loader = DataLoader(
-        Images([p for p, _, _ in train_items], train_targets, train_transform()),
+        Images(
+            [p for p, _, _ in train_items],
+            train_targets,
+            train_transform(floor, args.zoom_out),
+        ),
         batch_size=args.batch,
         sampler=WeightedRandomSampler(sample_weights(train_targets), len(train_targets)),
         num_workers=args.workers,
@@ -396,6 +410,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--batch", type=int, default=64)
     parser.add_argument("--workers", type=int, default=12)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument(
+        "--zoom-out",
+        type=float,
+        default=0.3,
+        help="share of training images shrunk onto a forest-floor photo (#137); v2 had 0",
+    )
     args = parser.parse_args(argv)
     if not 0 < args.head_epochs < args.epochs:
         parser.error("--head-epochs must be between 0 and --epochs")

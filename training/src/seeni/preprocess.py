@@ -11,9 +11,11 @@ The training augmentation lives here too, so it shares the crop size and normali
 It never changes hue or saturation (hard rule 6): colour is a diagnostic feature.
 """
 
+import random
+from collections.abc import Sequence
 from pathlib import Path
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageDraw, ImageFilter, ImageOps
 from torchvision import transforms
 
 RESIZE = 256
@@ -87,14 +89,52 @@ def eval_transform() -> transforms.Compose:
     )
 
 
-def train_transform() -> transforms.Compose:
+class ZoomOut:
+    """Training augmentation (#137): with probability `p`, the image shrunk to `scale` of
+    each side and placed at a random spot on a forest-floor photo, as a mushroom looks in a
+    photo taken from standing height. Training otherwise only zooms in, and v2 answered 51 %
+    of species photos with the mushroom at 40 % size against 83 % as photographed.
+
+    `backgrounds` are `muu` non-mushroom photos from train (moss, needles, leaves). The
+    edge is feathered with a soft ellipse, so that no sharp rectangle gives the paste away.
+    Applied after the crop, so the mushroom itself is never cut off. No colour change
+    (hard rule 6)."""
+
+    def __init__(
+        self,
+        backgrounds: Sequence[Path],
+        p: float = 0.3,
+        scale: tuple[float, float] = (0.4, 0.85),
+    ):
+        self.backgrounds, self.p, self.scale = list(backgrounds), p, scale
+
+    def __call__(self, image: Image.Image) -> Image.Image:
+        if not self.backgrounds or random.random() >= self.p:
+            return image
+        w, h = image.size
+        mode = Image.Resampling.BILINEAR
+        out = ImageOps.fit(load(random.choice(self.backgrounds)), (w, h), method=mode)
+        s = random.uniform(*self.scale)
+        sw, sh = max(1, round(w * s)), max(1, round(h * s))
+        small = image.resize((sw, sh), mode, reducing_gap=None)
+        mask = Image.new("L", (sw, sh), 0)
+        inset = round(min(sw, sh) * 0.04)
+        ImageDraw.Draw(mask).ellipse((inset, inset, sw - 1 - inset, sh - 1 - inset), fill=255)
+        mask = mask.filter(ImageFilter.GaussianBlur(max(1, min(sw, sh) * 0.06)))
+        out.paste(small, (random.randint(0, w - sw), random.randint(0, h - sh)), mask)
+        return out
+
+
+def train_transform(backgrounds: Sequence[Path] = (), zoom_out: float = 0.0) -> transforms.Compose:
     """Augmentation for fine-tuning (PLAN.md phase 6): a small rotation, a random crop of
-    35–100 % of the image, horizontal flip, brightness and contrast. No hue jitter."""
+    35–100 % of the image, with probability `zoom_out` the crop shrunk onto a forest-floor
+    photo (ZoomOut, #137), horizontal flip, brightness and contrast. No hue jitter."""
     mode = transforms.InterpolationMode(INTERPOLATION)
     return transforms.Compose(
         [
             transforms.RandomRotation(15, interpolation=mode),
             transforms.RandomResizedCrop(CROP, scale=(0.35, 1.0), interpolation=mode),
+            ZoomOut(backgrounds, p=zoom_out),
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(brightness=0.25, contrast=0.25),
             transforms.ToTensor(),
